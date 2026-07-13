@@ -999,6 +999,39 @@ class ModelManager {
             && isDirectory.boolValue
     }
 
+    /// Complete offline Community-1 diarization readiness.
+    ///
+    /// Requires every CoreML asset in `ModelNames.OfflineDiarizer.requiredModels` under
+    /// `speaker-diarization-coreml`, plus `plda-parameters.json` in one of the three
+    /// locations FluidAudio accepts. Directory existence alone is not readiness.
+    func isOfflineDiarizationReady() -> Bool {
+        isOfflineDiarizationModelsReady(at: fluidAudioModelsURL)
+    }
+
+    /// Reusable complete-asset check used by refresh, download completion, and preflight.
+    func isOfflineDiarizationModelsReady(at modelsRoot: URL) -> Bool {
+        let coremlFolder = modelsRoot
+            .appendingPathComponent(FeatureModelType.diarization.repoFolderName, isDirectory: true)
+
+        for modelName in ModelNames.OfflineDiarizer.requiredModels {
+            let modelURL = coremlFolder.appendingPathComponent(modelName)
+            guard fileManager.fileExists(atPath: modelURL.path) else {
+                return false
+            }
+        }
+
+        // FluidAudio accepts PLDA params at the models root, inside the online/offline
+        // shared coreml folder, or under the offline-specific sibling folder.
+        let pldaCandidates = [
+            modelsRoot.appendingPathComponent("plda-parameters.json", isDirectory: false),
+            coremlFolder.appendingPathComponent("plda-parameters.json", isDirectory: false),
+            modelsRoot
+                .appendingPathComponent("speaker-diarization-offline", isDirectory: true)
+                .appendingPathComponent("plda-parameters.json", isDirectory: false),
+        ]
+        return pldaCandidates.contains { fileManager.fileExists(atPath: $0.path) }
+    }
+
     func refreshDownloadedFeatureModels() async {
         var downloaded: Set<FeatureModelType> = []
 
@@ -1011,7 +1044,11 @@ class ModelManager {
                     || isStreamingChunkVariantDownloaded(.lowLatency) {
                     downloaded.insert(type)
                 }
-            default:
+            case .diarization:
+                if isOfflineDiarizationModelsReady(at: fluidAudioModelsURL) {
+                    downloaded.insert(type)
+                }
+            case .vad:
                 let repoFolder = fluidAudioModelsURL.appendingPathComponent(type.repoFolderName)
                 var isDirectory: ObjCBool = false
                 if fileManager.fileExists(atPath: repoFolder.path, isDirectory: &isDirectory),
@@ -1055,9 +1092,33 @@ class ModelManager {
                 let _ = try await VadManager(config: .default)
 
             case .diarization:
-                featureDownloadProgress = 0.1
-                onProgress?(0.1)
-                let _ = try await DiarizerModels.download()
+                // Offline Community-1 assets: download/prewarm via OfflineDiarizerModels,
+                // bridge FluidAudio progress onto MainActor, and only mark complete once
+                // every required artifact is present. Discard the in-memory models after.
+                let progressHandler: DownloadUtils.ProgressHandler = { [weak self] progress in
+                    let fraction = min(max(progress.fractionCompleted, 0), 0.99)
+                    Task { @MainActor in
+                        guard let self,
+                              self.isDownloadingFeature,
+                              self.currentDownloadingFeature == .diarization else {
+                            return
+                        }
+                        // Never claim 1.0 from the handler — readiness sets that.
+                        self.featureDownloadProgress = fraction
+                        onProgress?(fraction)
+                    }
+                }
+                _ = try await OfflineDiarizerModels.load(
+                    from: OfflineDiarizerModels.defaultModelsDirectory(),
+                    progressHandler: progressHandler
+                )
+                guard isOfflineDiarizationModelsReady(at: fluidAudioModelsURL) else {
+                    featureDownloadProgress = 0.0
+                    onProgress?(0.0)
+                    throw ModelError.downloadFailed(
+                        "Speaker diarization model files are incomplete after download"
+                    )
+                }
 
             case .streaming:
                 featureDownloadProgress = 0.1
@@ -1081,9 +1142,22 @@ class ModelManager {
 
             Log.model.info("Feature model download complete: \(type.displayName)")
             await refreshDownloadedFeatureModels()
+
+            // Diarization must still be marked ready after refresh; a race or partial
+            // cache must not leave the feature enabled with incomplete assets.
+            if type == .diarization, !downloadedFeatureModels.contains(.diarization) {
+                featureDownloadProgress = 0.0
+                onProgress?(0.0)
+                throw ModelError.downloadFailed(
+                    "Speaker diarization model files are incomplete after download"
+                )
+            }
         } catch {
             featureDownloadProgress = 0.0
             Log.model.error("Feature model download failed: \(error.localizedDescription)")
+            if let modelError = error as? ModelError {
+                throw modelError
+            }
             throw ModelError.downloadFailed(error.localizedDescription)
         }
     }

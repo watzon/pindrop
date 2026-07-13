@@ -121,6 +121,10 @@ test-unsigned:
     @just _test Unit no
     @echo "✅ Unsigned CI tests complete"
 
+# Fetch checksum-pinned AMI diarization fixtures
+diarization-fixtures:
+    @python3 scripts/fetch_diarization_fixtures.py
+
 # Localization pipeline
 l10n-import-current:
     @python3 scripts/localization.py import-current

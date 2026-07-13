@@ -34,10 +34,12 @@ struct HistoryView: View {
 
     var recordIDToOpen: UUID? = nil
     var mediaTranscriptionState: MediaTranscriptionFeatureState?
+    var recordingState: RecordingFeatureState?
     var settingsStore: SettingsStore?
     var onImportMediaFiles: (([URL], TranscriptionJobOptions) -> Void)?
     var onSubmitMediaLink: ((String, TranscriptionJobOptions) -> Void)?
-    var onStartMeetingCapture: (() -> Void)?
+    var onStartMeetingCapture: ((Int?) -> Void)?
+    var onDownloadDiarizationModel: (() -> Void)?
 
     // MARK: - State
 
@@ -70,6 +72,8 @@ struct HistoryView: View {
     @State private var pasteLinkText = ""
     @State private var transcribeMenuAnchorView: NSView?
     @State private var isSpeakerDiarizationEnabled = true
+    @State private var expectedSpeakerCount: Int?
+    @State private var showMeetingCaptureOptions = false
 
     @Query private var mediaFolders: [MediaFolder]
 
@@ -113,20 +117,23 @@ struct HistoryView: View {
         Self.makeJobOptions(
             modelName: settingsStore?.selectedModel ?? "",
             language: settingsStore?.selectedAppLanguage ?? .automatic,
-            diarizationEnabled: isSpeakerDiarizationEnabled
+            diarizationEnabled: isSpeakerDiarizationEnabled,
+            expectedSpeakerCount: expectedSpeakerCount
         )
     }
 
     static func makeJobOptions(
         modelName: String,
         language: AppLanguage,
-        diarizationEnabled: Bool
+        diarizationEnabled: Bool,
+        expectedSpeakerCount: Int? = nil
     ) -> TranscriptionJobOptions {
         TranscriptionJobOptions(
             modelName: modelName,
             language: language,
             outputFormat: .plainText,
-            diarizationEnabled: diarizationEnabled
+            diarizationEnabled: diarizationEnabled,
+            expectedSpeakerCount: diarizationEnabled ? expectedSpeakerCount : nil
         )
     }
 
@@ -153,6 +160,9 @@ struct HistoryView: View {
                     },
                     onAssignSpeakerProfile: { speakerID, profileID in
                         assignSpeakerProfile(for: record, speakerID: speakerID, profileID: profileID)
+                    },
+                    onUnassignSpeakerProfile: { speakerID in
+                        unassignSpeakerProfile(for: record, speakerID: speakerID)
                     },
                     onCreateSpeakerProfile: { speakerID, name, notes in
                         createAndAssignSpeakerProfile(
@@ -210,6 +220,11 @@ struct HistoryView: View {
         .sheet(isPresented: $showPasteLinkSheet) {
             pasteLinkSheet
         }
+        .sheet(isPresented: $showMeetingCaptureOptions) {
+            MeetingCaptureOptionsSheet { expectedSpeakerCount in
+                onStartMeetingCapture?(expectedSpeakerCount)
+            }
+        }
         .onAppear {
             installKeyMonitorIfNeeded()
             consumePendingSearchFocusIfNeeded()
@@ -245,6 +260,16 @@ struct HistoryView: View {
                 .padding(.bottom, 12)
                 .background(AppColors.contentBackground)
 
+            if let setupIssue = activeSetupIssue {
+                diarizationSetupIssueBanner(
+                    message: setupIssue,
+                    isDownloading: isDiarizationModelDownloading,
+                    progress: diarizationModelDownloadProgress
+                )
+                    .padding(.horizontal, 40)
+                    .padding(.bottom, 8)
+            }
+
             if let mediaState = mediaTranscriptionState {
                 importProgressSection(state: mediaState)
                     .padding(.horizontal, 40)
@@ -269,6 +294,71 @@ struct HistoryView: View {
                     .allowsHitTesting(false)
             }
         }
+    }
+
+    private var activeSetupIssue: String? {
+        mediaTranscriptionState?.setupIssue ?? recordingState?.setupIssue
+    }
+
+    private var isDiarizationModelDownloading: Bool {
+        mediaTranscriptionState?.isDiarizationModelDownloading
+            ?? recordingState?.isDiarizationModelDownloading
+            ?? false
+    }
+
+    private var diarizationModelDownloadProgress: Double {
+        mediaTranscriptionState?.diarizationModelDownloadProgress
+            ?? recordingState?.diarizationModelDownloadProgress
+            ?? 0.0
+    }
+
+    private func diarizationSetupIssueBanner(
+        message: String,
+        isDownloading: Bool,
+        progress: Double
+    ) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: isDownloading ? "arrow.down.circle" : "exclamationmark.triangle")
+                .font(.system(size: 14))
+                .foregroundStyle(isDownloading ? AppColors.accent : AppColors.warning)
+
+            if isDownloading {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(message)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    ProgressView(value: min(max(progress, 0), 1))
+                        .progressViewStyle(.linear)
+                        .tint(AppColors.accent)
+                        .frame(maxWidth: 180)
+                        .accessibilityValue("\(Int(progress * 100))%")
+                }
+            } else {
+                Text(message)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 8)
+
+            if !isDownloading, onDownloadDiarizationModel != nil {
+                Button(localized("Download model", locale: locale)) {
+                    onDownloadDiarizationModel?()
+                }
+                .buttonStyle(.plain)
+                .font(AppTypography.caption.weight(.semibold))
+                .foregroundStyle(AppColors.accent)
+                .accessibilityIdentifier("diarizationSetupIssueDownloadButton")
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(AppColors.warningBackground)
+        )
     }
 
     // MARK: - Header
@@ -737,6 +827,16 @@ struct HistoryView: View {
             errorMessage = error.localizedDescription
         }
     }
+    private func unassignSpeakerProfile(
+        for record: TranscriptionRecord,
+        speakerID: String
+    ) {
+        do {
+            try historyStore.unassignSpeakerProfile(record: record, speakerID: speakerID)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
 
     private func createAndAssignSpeakerProfile(
         for record: TranscriptionRecord,
@@ -838,21 +938,66 @@ struct HistoryView: View {
                 systemImage: "person.2.wave.2"
             ) {
                 isSpeakerDiarizationEnabled.toggle()
+                if !isSpeakerDiarizationEnabled {
+                    expectedSpeakerCount = nil
+                }
             }
             diarizationItem.state = isSpeakerDiarizationEnabled ? .on : .off
             menu.addItem(diarizationItem)
+
+            let expectedSpeakersItem = NSMenuItem(
+                title: localized("Expected speakers", locale: locale),
+                action: nil,
+                keyEquivalent: ""
+            )
+            expectedSpeakersItem.identifier = NSUserInterfaceItemIdentifier("expectedSpeakersMenu")
+            expectedSpeakersItem.isEnabled = isSpeakerDiarizationEnabled
+            expectedSpeakersItem.submenu = makeExpectedSpeakersSubmenu()
+            menu.addItem(expectedSpeakersItem)
         }
         if onStartMeetingCapture != nil {
             menu.addItem(.separator())
             menu.addItem(ClosureMenuItem(
                 title: localized("Record Meeting…", locale: locale),
                 systemImage: "person.2.wave.2"
-            ) { onStartMeetingCapture?() })
+            ) {
+                showMeetingCaptureOptions = true
+            })
         }
 
         // Non-flipped view coords: (0, 0) is the bottom-left corner, and popUp
         // places the menu's top-left at the given point → just below the button.
         menu.popUp(positioning: nil, at: NSPoint(x: 0, y: -6), in: anchor)
+    }
+
+    private func makeExpectedSpeakersSubmenu() -> NSMenu {
+        let submenu = NSMenu()
+
+        let automaticItem = ClosureMenuItem(
+            title: localized("Automatic", locale: locale),
+            systemImage: nil
+        ) {
+            expectedSpeakerCount = nil
+        }
+        automaticItem.state = expectedSpeakerCount == nil ? .on : .off
+        automaticItem.identifier = NSUserInterfaceItemIdentifier("expectedSpeakersAutomatic")
+        automaticItem.isEnabled = isSpeakerDiarizationEnabled
+        submenu.addItem(automaticItem)
+
+        for count in 1...20 {
+            let item = ClosureMenuItem(
+                title: "\(count)",
+                systemImage: nil
+            ) {
+                expectedSpeakerCount = count
+            }
+            item.state = expectedSpeakerCount == count ? .on : .off
+            item.identifier = NSUserInterfaceItemIdentifier("expectedSpeakersCount-\(count)")
+            item.isEnabled = isSpeakerDiarizationEnabled
+            submenu.addItem(item)
+        }
+
+        return submenu
     }
 
     private func importFilesViaOpenPanel() {

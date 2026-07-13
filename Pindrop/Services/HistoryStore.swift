@@ -20,9 +20,14 @@ struct SpeakerIdentityMatch: Equatable {
     let similarity: Float
 }
 
+/// Identifies the embedding geometry used for speaker centroids and training evidence.
+/// Offline Community-1 vectors are not comparable to legacy online wespeaker embeddings.
+enum SpeakerEmbeddingSpace {
+    static let current = "fluid-audio-offline-community1-256-v1"
+}
+
 @MainActor
 protocol SpeakerIdentityManaging: AnyObject {
-    func knownSpeakers() throws -> [Speaker]
     func bestMatch(for embedding: [Float]) throws -> SpeakerIdentityMatch?
     func learnFromDictation(
         recordID: UUID,
@@ -35,6 +40,11 @@ protocol SpeakerIdentityManaging: AnyObject {
     ) throws
     func hasTrainingEvidence(for recordID: UUID) throws -> Bool
     func removeTrainingEvidence(for recordID: UUID) throws
+    func removeTrainingEvidence(
+        recordID: UUID,
+        sourceSpeakerID: String,
+        sourceType: String
+    ) throws
     func createProfile(displayName: String, notes: String?) throws -> ParticipantProfile
     func fetchAllProfiles() throws -> [ParticipantProfile]
     func updateProfile(_ profile: ParticipantProfile, displayName: String, notes: String?) throws
@@ -60,7 +70,7 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
         }
     }
 
-    private enum EvidenceSource: String {
+    enum EvidenceSource: String {
         case dictation
         case renameFeedback
     }
@@ -73,37 +83,23 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
     private static let minimumSimilarityMarginForAutoMatch: Float = 0.08
 
     private let modelContext: ModelContext
+    private var hasEnsuredCurrentEmbeddingSpace = false
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
 
-    func knownSpeakers() throws -> [Speaker] {
-        do {
-            let profiles = try modelContext.fetch(FetchDescriptor<ParticipantProfile>())
-            return profiles.compactMap { profile in
-                guard let embedding = decodeEmbedding(profile.centroidEmbeddingData), !embedding.isEmpty else {
-                    return nil
-                }
-
-                return Speaker(
-                    id: profile.id.uuidString,
-                    label: profile.displayName,
-                    embedding: embedding
-                )
-            }
-        } catch {
-            throw SpeakerIdentityError.fetchFailed(error.localizedDescription)
-        }
-    }
-
     func bestMatch(for embedding: [Float]) throws -> SpeakerIdentityMatch? {
-        guard !embedding.isEmpty else { return nil }
+        try ensureCurrentEmbeddingSpace()
+        guard !embedding.isEmpty, embedding.allSatisfy(\.isFinite) else { return nil }
 
         do {
             let profiles = try modelContext.fetch(FetchDescriptor<ParticipantProfile>())
             let scoredProfiles = profiles.compactMap { profile -> SpeakerIdentityMatch? in
-                guard let centroid = decodeEmbedding(profile.centroidEmbeddingData), !centroid.isEmpty else {
+                guard profile.embeddingSpaceIdentifier == SpeakerEmbeddingSpace.current,
+                      let centroid = decodeEmbedding(profile.centroidEmbeddingData),
+                      !centroid.isEmpty,
+                      centroid.count == embedding.count else {
                     return nil
                 }
 
@@ -139,6 +135,7 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
         segments: [DiarizedTranscriptSegment],
         profileIDsBySpeakerID: [String: UUID]
     ) throws {
+        try ensureCurrentEmbeddingSpace()
         guard !profileIDsBySpeakerID.isEmpty else { return }
 
         do {
@@ -167,6 +164,7 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
         recordID: UUID,
         segments: [DiarizedTranscriptSegment]
     ) throws {
+        try ensureCurrentEmbeddingSpace()
         guard segments.contains(where: isEligibleForLearning) else { return }
 
         do {
@@ -180,6 +178,7 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
     }
 
     func hasTrainingEvidence(for recordID: UUID) throws -> Bool {
+        try ensureCurrentEmbeddingSpace()
         var descriptor = FetchDescriptor<ParticipantTrainingEvidence>(
             predicate: #Predicate { $0.recordID == recordID }
         )
@@ -200,6 +199,7 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
     /// fetch, unique profile collection, evidence deletion, one rebuild per touched
     /// profile from the post-delete evidence set, and a single save.
     func removeTrainingEvidence(for recordIDs: [UUID]) throws {
+        try ensureCurrentEmbeddingSpace()
         let uniqueIDs = Array(Set(recordIDs))
         guard !uniqueIDs.isEmpty else { return }
 
@@ -236,6 +236,106 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
         }
     }
 
+    func removeTrainingEvidence(
+        recordID: UUID,
+        sourceSpeakerID: String,
+        sourceType: String
+    ) throws {
+        try removeTrainingEvidence(
+            recordID: recordID,
+            sourceSpeakerID: sourceSpeakerID,
+            sourceType: sourceType,
+            saveChanges: true
+        )
+    }
+    fileprivate func removeTrainingEvidence(
+        recordID: UUID,
+        sourceSpeakerID: String,
+        sourceType: String,
+        saveChanges: Bool
+    ) throws {
+        try ensureCurrentEmbeddingSpace()
+        guard !sourceSpeakerID.isEmpty, !sourceType.isEmpty else { return }
+
+        let descriptor = FetchDescriptor<ParticipantTrainingEvidence>(
+            predicate: #Predicate<ParticipantTrainingEvidence> { evidence in
+                evidence.recordID == recordID
+                    && evidence.sourceSpeakerID == sourceSpeakerID
+                    && evidence.sourceTypeRawValue == sourceType
+            }
+        )
+
+        do {
+            let evidence = try modelContext.fetch(descriptor)
+            guard !evidence.isEmpty else { return }
+
+            let touchedProfiles = evidence.reduce(into: [PersistentIdentifier: ParticipantProfile]()) {
+                result, item in
+                guard let profile = item.profile else { return }
+                result[profile.persistentModelID] = profile
+            }
+
+            for item in evidence {
+                modelContext.delete(item)
+            }
+
+            for profile in touchedProfiles.values {
+                rebuildProfile(profile)
+            }
+            if saveChanges {
+                try modelContext.save()
+            }
+        } catch {
+            throw SpeakerIdentityError.saveFailed(error.localizedDescription)
+        }
+    }
+
+    /// Deletes mismatched-space evidence and clears incompatible centroids once per service
+    /// instance. Profiles, names, notes, current-user flags, and transcript assignments stay.
+    func ensureCurrentEmbeddingSpace() throws {
+        guard !hasEnsuredCurrentEmbeddingSpace else { return }
+
+        do {
+            let currentSpace = SpeakerEmbeddingSpace.current
+            let evidence = try modelContext.fetch(FetchDescriptor<ParticipantTrainingEvidence>())
+            var touchedProfiles: [PersistentIdentifier: ParticipantProfile] = [:]
+            var didMutate = false
+
+            for item in evidence where item.embeddingSpaceIdentifier != currentSpace {
+                if let profile = item.profile {
+                    touchedProfiles[profile.persistentModelID] = profile
+                }
+                modelContext.delete(item)
+                didMutate = true
+            }
+
+            // Profiles may still hold a legacy centroid with no remaining evidence rows.
+            let profiles = try modelContext.fetch(FetchDescriptor<ParticipantProfile>())
+            for profile in profiles where profile.embeddingSpaceIdentifier != currentSpace {
+                let hasLegacyCentroidState =
+                    profile.centroidEmbeddingData != nil
+                    || profile.evidenceCount != 0
+                    || profile.totalEvidenceDuration != 0
+                    || profile.embeddingSpaceIdentifier != nil
+                guard hasLegacyCentroidState else { continue }
+                touchedProfiles[profile.persistentModelID] = profile
+            }
+
+            for profile in touchedProfiles.values {
+                rebuildProfile(profile)
+            }
+
+            if didMutate || !touchedProfiles.isEmpty {
+                try modelContext.save()
+            }
+
+            hasEnsuredCurrentEmbeddingSpace = true
+        } catch let error as SpeakerIdentityError {
+            throw error
+        } catch {
+            throw SpeakerIdentityError.saveFailed(error.localizedDescription)
+        }
+    }
 
     private func learn(
         recordID: UUID,
@@ -268,7 +368,8 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
                 segmentEndTime: segment.endTime,
                 segmentDuration: segment.endTime - segment.startTime,
                 confidence: segment.confidence,
-                embeddingData: encodeEmbedding(embedding)
+                embeddingData: encodeEmbedding(embedding),
+                embeddingSpaceIdentifier: SpeakerEmbeddingSpace.current
             )
 
             evidence.sourceTypeRawValue = source.rawValue
@@ -279,6 +380,7 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
             evidence.segmentDuration = segment.endTime - segment.startTime
             evidence.confidence = segment.confidence
             evidence.embeddingData = encodeEmbedding(embedding)
+            evidence.embeddingSpaceIdentifier = SpeakerEmbeddingSpace.current
             evidence.updatedAt = Date()
             evidence.profile = profile
 
@@ -393,30 +495,65 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
     }
 
     private func rebuildProfile(_ profile: ParticipantProfile) {
-        let evidence = (try? fetchEvidence(for: profile.id)) ?? []
-        let embeddings = evidence.compactMap { decodeEmbedding($0.embeddingData) }
+        let evidence = ((try? fetchEvidence(for: profile.id)) ?? []).filter {
+            $0.embeddingSpaceIdentifier == SpeakerEmbeddingSpace.current
+        }
 
-        profile.evidenceCount = embeddings.count
-        profile.totalEvidenceDuration = evidence.map(\.segmentDuration).reduce(0, +)
-        profile.centroidEmbeddingData = embeddings.isEmpty ? nil : encodeEmbedding(averageEmbedding(embeddings))
+        var usable: [(embedding: [Float], duration: TimeInterval, confidence: Float)] = []
+        usable.reserveCapacity(evidence.count)
+
+        for item in evidence {
+            guard let embedding = decodeEmbedding(item.embeddingData), !embedding.isEmpty else {
+                continue
+            }
+            usable.append((
+                embedding: embedding,
+                duration: max(item.segmentDuration, 0),
+                confidence: max(item.confidence, 0)
+            ))
+        }
+
+        // Keep only equal-dimension vectors so a corrupt row cannot poison the centroid.
+        if let dimension = usable.first?.embedding.count {
+            usable = usable.filter { $0.embedding.count == dimension }
+        }
+
+        profile.evidenceCount = usable.count
+        profile.totalEvidenceDuration = usable.map(\.duration).reduce(0, +)
+
+        if usable.isEmpty {
+            profile.centroidEmbeddingData = nil
+            profile.needsVoiceRetraining = true
+            profile.embeddingSpaceIdentifier = nil
+        } else {
+            profile.centroidEmbeddingData = encodeEmbedding(weightedAverageEmbedding(usable))
+            profile.needsVoiceRetraining = false
+            profile.embeddingSpaceIdentifier = SpeakerEmbeddingSpace.current
+        }
         profile.updatedAt = Date()
     }
 
-    private func averageEmbedding(_ embeddings: [[Float]]) -> [Float] {
-        guard let first = embeddings.first else { return [] }
+    private func weightedAverageEmbedding(
+        _ samples: [(embedding: [Float], duration: TimeInterval, confidence: Float)]
+    ) -> [Float] {
+        guard let first = samples.first else { return [] }
 
-        var totals = Array(repeating: Float.zero, count: first.count)
-        var sampleCount: Float = 0
-
-        for embedding in embeddings where embedding.count == first.count {
-            for (index, value) in embedding.enumerated() {
-                totals[index] += value
-            }
-            sampleCount += 1
+        var totals = Array(repeating: Float.zero, count: first.embedding.count)
+        var weights = samples.map { Float($0.duration) * $0.confidence }
+        if weights.allSatisfy({ $0 <= 0 }) {
+            weights = Array(repeating: 1, count: samples.count)
         }
 
-        guard sampleCount > 0 else { return [] }
-        return totals.map { $0 / sampleCount }
+        var weightSum: Float = 0
+        for (sample, weight) in zip(samples, weights) where weight > 0 {
+            for (index, value) in sample.embedding.enumerated() {
+                totals[index] += value * weight
+            }
+            weightSum += weight
+        }
+
+        guard weightSum > 0 else { return [] }
+        return totals.map { $0 / weightSum }
     }
 
     private func cosineSimilarity(between lhs: [Float], and rhs: [Float]) -> Float {
@@ -429,6 +566,7 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
         for index in lhs.indices {
             let lhsValue = lhs[index]
             let rhsValue = rhs[index]
+            guard lhsValue.isFinite, rhsValue.isFinite else { return -.infinity }
             dotProduct += lhsValue * rhsValue
             lhsMagnitude += lhsValue * lhsValue
             rhsMagnitude += rhsValue * rhsValue
@@ -474,10 +612,12 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
     /// known speakers so future diarization can match them by name.
     @discardableResult
     func registerParticipant(displayName: String) throws -> ParticipantProfile {
-        try getOrCreateProfile(named: displayName)
+        try ensureCurrentEmbeddingSpace()
+        return try getOrCreateProfile(named: displayName)
     }
 
     func createProfile(displayName: String, notes: String? = nil) throws -> ParticipantProfile {
+        try ensureCurrentEmbeddingSpace()
         let trimmedName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else {
             throw SpeakerIdentityError.saveFailed("Enter a name for the speaker profile.")
@@ -503,6 +643,7 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
     }
 
     func fetchAllProfiles() throws -> [ParticipantProfile] {
+        try ensureCurrentEmbeddingSpace()
         do {
             let descriptor = FetchDescriptor<ParticipantProfile>(
                 sortBy: [SortDescriptor(\.displayName, order: .forward)]
@@ -514,6 +655,7 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
     }
 
     func updateProfile(_ profile: ParticipantProfile, displayName: String, notes: String?) throws {
+        try ensureCurrentEmbeddingSpace()
         let trimmed = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
@@ -544,6 +686,7 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
     }
 
     func deleteProfile(_ profile: ParticipantProfile) throws {
+        try ensureCurrentEmbeddingSpace()
         do {
             let evidence = try fetchEvidence(for: profile.id)
             for item in evidence {
@@ -558,6 +701,7 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
     }
 
     func deleteAllProfiles() throws {
+        try ensureCurrentEmbeddingSpace()
         do {
             let profiles = try modelContext.fetch(FetchDescriptor<ParticipantProfile>())
             let evidence = try modelContext.fetch(FetchDescriptor<ParticipantTrainingEvidence>())
@@ -584,11 +728,12 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
             let segments = record.diarizedSegments
             guard segments.contains(where: { $0.speakerProfileID == profileID }) else { continue }
 
+            let genericLabels = Self.genericSpeakerLabelsByFirstAppearance(from: segments)
             let updatedSegments = segments.map { segment in
                 guard segment.speakerProfileID == profileID else { return segment }
                 return DiarizedTranscriptSegment(
                     speakerId: segment.speakerId,
-                    speakerLabel: updatedDisplayName ?? segment.speakerLabel,
+                    speakerLabel: updatedDisplayName ?? genericLabels[segment.speakerId] ?? "Speaker 1",
                     speakerProfileID: updatedDisplayName == nil ? nil : profileID,
                     speakerEmbedding: segment.speakerEmbedding,
                     startTime: segment.startTime,
@@ -600,6 +745,20 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
             let data = try JSONEncoder().encode(updatedSegments)
             record.diarizationSegmentsJSON = String(data: data, encoding: .utf8)
         }
+    }
+
+    /// Stable "Speaker N" labels ordered by first segment appearance of each speaker ID.
+    static func genericSpeakerLabelsByFirstAppearance(
+        from segments: [DiarizedTranscriptSegment]
+    ) -> [String: String] {
+        var labels: [String: String] = [:]
+        var index = 1
+        for segment in segments {
+            guard labels[segment.speakerId] == nil else { continue }
+            labels[segment.speakerId] = "Speaker \(index)"
+            index += 1
+        }
+        return labels
     }
 }
 
@@ -1226,6 +1385,62 @@ final class HistoryStore {
             )
             try assignSpeakerProfile(record: record, speakerID: speakerID, profileID: profile.id)
             return profile
+        } catch {
+            throw HistoryStoreError.saveFailed(error.localizedDescription)
+        }
+    }
+
+    /// Clears a speaker's profile assignment on one record, restores generic labels by first
+    /// appearance, deletes only rename-feedback evidence for that record/speaker, rebuilds
+    /// affected profiles, and posts a single history notification.
+    func unassignSpeakerProfile(
+        record: TranscriptionRecord,
+        speakerID: String
+    ) throws {
+        let diarizedSegments = record.diarizedSegments
+        guard !diarizedSegments.isEmpty, !speakerID.isEmpty else { return }
+        guard diarizedSegments.contains(where: {
+            $0.speakerId == speakerID && $0.speakerProfileID != nil
+        }) else {
+            return
+        }
+
+        let genericLabels = SpeakerIdentityService.genericSpeakerLabelsByFirstAppearance(
+            from: diarizedSegments
+        )
+        let updatedSegments = diarizedSegments.map { segment in
+            guard segment.speakerId == speakerID else { return segment }
+            return DiarizedTranscriptSegment(
+                speakerId: segment.speakerId,
+                speakerLabel: genericLabels[segment.speakerId] ?? "Speaker 1",
+                speakerProfileID: nil,
+                speakerEmbedding: segment.speakerEmbedding,
+                startTime: segment.startTime,
+                endTime: segment.endTime,
+                confidence: segment.confidence,
+                text: segment.text
+            )
+        }
+
+        do {
+            let data = try JSONEncoder().encode(updatedSegments)
+            record.diarizationSegmentsJSON = String(data: data, encoding: .utf8)
+            if let identityService = speakerIdentityService as? SpeakerIdentityService {
+                try identityService.removeTrainingEvidence(
+                    recordID: record.id,
+                    sourceSpeakerID: speakerID,
+                    sourceType: SpeakerIdentityService.EvidenceSource.renameFeedback.rawValue,
+                    saveChanges: false
+                )
+            } else {
+                try speakerIdentityService?.removeTrainingEvidence(
+                    recordID: record.id,
+                    sourceSpeakerID: speakerID,
+                    sourceType: SpeakerIdentityService.EvidenceSource.renameFeedback.rawValue
+                )
+            }
+            try modelContext.save()
+            NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
         } catch {
             throw HistoryStoreError.saveFailed(error.localizedDescription)
         }

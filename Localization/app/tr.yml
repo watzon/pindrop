@@ -1,61 +1,61 @@
-u9_onboarding:
-  download_amount_format: "%@ / %@"
-  download_background_hint: "İndirme sürerken kuruluma devam edin — arka planda tamamlayacağız."
-  you_say: "Siz söylersiniz"
-  pindrop_writes: "Pindrop yazar"
-  enable_enhancement: "İyileştirmeyi etkinleştir"
-  accessibility_clipboard_fallback: "Erişilebilirlik olmadan Pindrop metni panoya kopyalar."
-  change_hotkey_hint: "Değiştirmek için farklı bir kombinasyona basın"
-  granted_state: "Verildi"
-  ready_heading: "Hazırsınız."
-  ready_instruction_format: "%@'ye basın ve konuşmaya başlayın — Pindrop imlecinizin bulunduğu yere yazar."
-  try_it_now: "Şimdi deneyin"
-
+0:
+  m: "0 m"
 100:
   local_processing: "%100 yerli işleme"
 1:
   folder: "1 klasör"
+  note: "1 not"
   speaker: "1 konuşmacı"
   transcription: "1 transkripsiyon"
-  note: "1 not"
   word: "1 kelime"
+  year: "1 year"
+90:
+  days: "90 days"
 a:
-  native_macos_menu_bar_dictation_app_using_loca: "WhisperKit ile yerel konuşmayı metne dönüştürme özelliğini kullanan yerel bir macOS menü çubuğu dikte uygulaması. İsteğe bağlı yapay zeka geliştirmesiyle varsayılan olarak %100 yerel işleme."
   big_round_of_upgrades_and_two_community_shout: "Büyük bir yükseltme turu — ve topluluktan iki kişiye teşekkür."
+  native_macos_menu_bar_dictation_app_using_loca: "WhisperKit ile yerel konuşmayı metne dönüştürme özelliğini kullanan yerel bir macOS menü çubuğu dikte uygulaması. İsteğe bağlı yapay zeka geliştirmesiyle varsayılan olarak %100 yerel işleme."
 about:
   _self: "Hakkında"
   pindrop: "Pindrop Hakkında"
 accessibility:
   _self: "Erişilebilirlik"
+  permission: "Erişilebilirlik izni"
   permission_is_enabled_full_ui_cont: "Erişilebilirlik izni etkin. Tam kullanıcı arayüzü bağlamı mevcuttur."
   permission_is_not_granted_vibe_mod: "Erişilebilirlik izni verilmedi. Vibe modu, sınırlı bağlamla engellemesiz kalır."
   permission_recommended: "Erişilebilirlik İzni Önerilir"
   permission_required: "Erişilebilirlik İzni Gerekli"
-  permission: "Erişilebilirlik izni"
 accuracy:
   _self: "Kesinlik"
 acknowledgments:
   _self: "Teşekkür"
 active:
   _self: "Aktif"
+  days: "Active days"
+activity:
+  _self: "Activity"
 add:
   _self: "Eklemek"
   a_provider_to_start_using_ai_enhancement: "Yapay zeka geliştirmesini kullanmaya başlamak için bir sağlayıcı ekleyin."
   custom_words_to_improve_transcription_accura: "Özel terimler, adlar veya jargonun transkripsiyon doğruluğunu artırmak için özel kelimeler ekleyin."
   provider: "Sağlayıcı Ekle"
   tag: "Etiket ekle..."
+  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
+  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
+  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
+  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
+  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
   to_existing: "Mevcut'a Ekle"
   trailing_space: "Sondaki boşluk ekle"
   word_replacements_to_automatically_correct_c: "Sık karşılaşılan transkripsiyon hatalarını otomatik olarak düzeltmek için sözcük değiştirmeleri ekleyin."
   words_to_help_pindrop_recognize_them_properl: "Pindrop'un bunları doğru şekilde tanımasına yardımcı olacak kelimeler ekleyin"
   words_you_manually_correct_into_your_vocabul: "Gelecekteki transkripsiyonlar için manuel olarak düzelttiğiniz kelimeleri kelime dağarcığınıza ekleyin."
-  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
-  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
-  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
-  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
-  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
+advanced:
+  _self: "Gelişmiş"
+agent:
+  setup: "Aracı kurulumu"
 ai:
   _self: "YZ"
+  enhanced: "AI-enhanced"
   enhancement: "Yapay Zeka Geliştirme"
   enhancement_529f5583: "Yapay Zeka Geliştirme: %@"
   enhancement_failed: "Yapay Zeka Geliştirme Başarısız Oldu"
@@ -64,6 +64,9 @@ ai:
   model: "Yapay Zeka Modeli"
 all:
   _self: "Tüm"
+  time: "All time"
+also:
+  new_rtl_layout_support_and_20_new_interface: "Ayrıca yeni: RTL düzen desteği ve 20 yeni arayüz dili."
 an:
   error_occurred_while_enhancing_your_transcrip: |-
     Çeviri yazınız geliştirilirken bir hata oluştu:
@@ -72,7 +75,7 @@ an:
     
     Orijinal transkripsiyon, geliştirme yapılmadan kaydedildi.
     Ayarlar'da AI geliştirmeyi tekrar etkinleştirmeyi deneyebilirsiniz.
-  error_occurred_while_enhancing_your_transcrip_8c664cb4: "Çeviri yazınız geliştirilirken bir hata oluştu:nn%@nnOrijinal çeviri yazı, geliştirme yapılmadan kaydedildi.nAyarlar'da AI geliştirmeyi yeniden etkinleştirmeyi deneyebilirsiniz."
+  error_occurred_while_enhancing_your_transcrip_1790ad05: "Çeviri yazınız geliştirilirken bir hata oluştu:nn%@nnOrijinal çeviri yazı, geliştirme yapılmadan kaydedildi.nAyarlar'da AI geliştirmeyi yeniden etkinleştirmeyi deneyebilirsiniz."
 anthropic:
   _self: "Anthropic"
 api:
@@ -82,6 +85,8 @@ api:
   key_saved_endpoint: "API anahtarı kaydedildi • Uç nokta: %@"
 app:
   info_acknowledgments_support_and_logs: "Uygulama bilgileri, teşekkür, destek ve günlükler"
+appearance:
+  _self: "Görünüm"
 append:
   a_space_after_each_transcription_for_seam: "Kusursuz dikte için her transkripsiyondan sonra bir boşluk ekleyin."
 apple:
@@ -99,6 +104,7 @@ assignments:
 attach:
   logs_from_this_folder_when_filing_a_githu: "GitHub sorununu bildirirken bu klasördeki günlükleri ekleyin."
 audio:
+  duration: "Audio duration"
   input: "Ses Girişi"
 automatic:
   follow_system: "Otomatik (Takip Sistemi)"
@@ -109,6 +115,9 @@ automatically:
   start_pindrop_when_you_sign_in: "Oturum açtığınızda Pindrop'u otomatik olarak başlatın."
 available:
   models: "Mevcut Modeller"
+average:
+  session: "Average session"
+  words_session: "Average words / session"
 avg:
   speed: "Ortalama Hız"
 back:
@@ -116,14 +125,20 @@ back:
   to_library: "Kütüphaneye geri dön"
 base:
   _self: "Temel"
+bearer:
+  token: "Bearer belirteci"
 best:
   _self: "En iyi"
 better:
   _self: "Daha iyi"
   bluetooth_external_mic_support: "Daha iyi Bluetooth ve harici mikrofon desteği"
+bring:
+  all_to_front: "Tümünü Öne Getir"
 built:
   in_presets: "Yerleşik Ön Ayarlar"
   in_read_only: "Yerleşik (salt okunur)"
+by:
+  weekday: "By weekday"
 cancel:
   _self: "İptal etmek"
   operation: "İşlemi İptal Et"
@@ -132,6 +147,8 @@ capture:
 change:
   microphone: "Mikrofonu Değiştir"
   microphone_ac9970f4: "Mikrofonu değiştir"
+changes:
+  the_language_used_by_pindrop_s_interface: "Pindrop arayüzünün dilini değiştirir."
 check:
   for_updates: "Güncellemeleri Kontrol Et..."
   for_updates_736b9062: "Güncellemeleri kontrol edin"
@@ -144,24 +161,24 @@ choose:
   a_model: "Bir Model Seçin"
   a_provider_first: "Önce bir sağlayıcı seçin"
   an_audio_or_video_file_to_transcribe: "Metne dönüştürülecek bir ses veya video dosyası seçin"
-  between_nemotron_punctuated_downloaded_mod: "Nemotron (noktalama destekli, indirilen model) ile Apple SpeechTranscriber (macOS 26+, sistemle birlikte gelir) arasında seçim yapın."
+  between_nemotron_punctuated_downloaded_mo: "Nemotron (noktalama destekli, indirilen model) ile Apple SpeechTranscriber (macOS 26+, sistemle birlikte gelir) arasında seçim yapın."
   file: "Dosya seç"
   how_dictated_text_lands_then_tune_the_fin: "Dikte edilen metnin nasıl yerleştirileceğini seçin, ardından son ekleme davranışını ayarlayın."
+  how_pindrop_appears_on_screen_while_you_d: "Dikte ederken Pindrop'un ekranda nasıl görüneceğini seçin."
   how_pindrop_follows_system_appearance_the: "Pindrop'un sistem görünümünü nasıl takip edeceğini seçin, ardından seçilmiş açık ve koyu paletleri karıştırın."
+  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   how_to_import_the_dictionary_data: "Sözlük verilerinin nasıl içe aktarılacağını seçin"
   how_to_import_the_preset_data: "Ön ayar verilerinin nasıl içe aktarılacağını seçin"
   languages_for_the_interface_and_for_dicta: "Arayüz ve dikte için dilleri seçin. Otomatik sistemi takip eder."
   location_to_save_presets: "Ön ayarların kaydedileceği konumu seçin"
+  model: "Model seç…"
   the_daytime_shell_used_in_light_mode: "Işık modunda kullanılan gündüz kabuğunu seçin."
   the_low_glare_shell_used_in_dark_mode: "Karanlık modda kullanılan düşük parlamalı kabuğu seçin."
-  which_microphone_pindrop_should_use_for_d: "Pindrop'un dikte için hangi mikrofonu kullanması gerektiğini ve kayıt sırasında nasıl davranacağını seçin."
-  which_side_the_navigation_sidebar_appears: "Gezinme kenar çubuğunun hangi tarafta görüneceğini seçin."
-  how_pindrop_appears_on_screen_while_you_d: "Dikte ederken Pindrop'un ekranda nasıl görüneceğini seçin."
-  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
+  which_microphone_pindrop_should_use_for_d: "Pindrop'un dikte için hangi mikrofonu kullanması gerektiğini ve kayıt sırasında nasıl davranacağını seçin."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
-  model: "Model seç…"
+  which_side_the_navigation_sidebar_appears: "Gezinme kenar çubuğunun hangi tarafta görüneceğini seçin."
 clean:
   up_filler_words: "Dolgu sözcüklerini temizle"
 clear:
@@ -170,15 +187,19 @@ clear:
   shortcut: "Kısayolu temizle"
 clears:
   preferences_and_restarts_onboarding: "Tercihleri ​​temizler ve katılımı yeniden başlatır"
-  preferences_and_restarts_onboarding_7d85115c: "Clears preferences and restarts onboarding."
+  preferences_and_restarts_onboarding_7d851: "Clears preferences and restarts onboarding."
 click:
   or_hold: "Tıklayın veya basılı tutun"
   or_press: "Tıklayın veya basın"
   or_set_a_hotkey_to_start_talking: "Konuşmaya başlamak için tıklayın veya bir kısayol tuşu ayarlayın"
   this_icon_anytime_to: "Aşağıdakileri yapmak için istediğiniz zaman bu simgeye tıklayın:"
+client:
+  _self: "İstemci"
 clipboard:
   _self: "Pano"
   temporarily_copies_the_transcript_for: "Clipboard temporarily copies the transcript for pasting. Direct Insert types into the active app when possible."
+close:
+  _self: "Kapat"
 cloud:
   _self: "Bulut"
   model: "Bulut Modeli"
@@ -187,9 +208,15 @@ collapse:
 coming:
   soon: "%@ Çok Yakında"
   soon_04d2fd85: "Yakında gelecek"
+configuration:
+  file: "Configuration File"
+  scope: "Configuration Scope"
+  snippet: "Configuration Snippet"
 configure:
   ai_providers_and_credentials_apple_int: "Yapay zeka sağlayıcılarını ve kimlik bilgilerini yapılandırın. Apple Intelligence cihazda çalışır; diğer sağlayıcılar API anahtarlarına ihtiyaç duyar."
   keyboard_shortcuts_for_recording_and_n: "Kayıt ve not yakalama için klavye kısayollarını yapılandırın"
+conflicts:
+  with: "Conflicts with %@"
 continue:
   _self: "Devam etmek"
   with_default: "Varsayılanla Devam Et"
@@ -206,29 +233,29 @@ copy:
   enhanced: "Geliştirilmiş Kopyalama"
   last_transcript: "Son Transkripti Kopyala"
   original: "Orijinali Kopyala"
+  system_info: "Copy System Info"
   system_info_for_bug_report: "Hata Raporu için Sistem Bilgilerini Kopyala"
+  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
   the_most_recent_transcript_to_the_clipboard: "En son transkripti panoya kopyalayın"
+  the_most_recent_transcript_to_the_clipboard_03a8d47b: "Copy the most recent transcript to the clipboard."
   to_clipboard: "Panoya kopyala"
   transcript: "Transkripti Kopyala"
-  system_info: "Copy System Info"
-  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
-  the_most_recent_transcript_to_the_clipboard_b9736933: "Copy the most recent transcript to the clipboard."
 correct:
   grammar_mistakes: "Dilbilgisi hatalarını düzeltin"
 create:
-  new_profile: "Create New Profile…"
-  speaker_profile: "Create Speaker Profile"
   _self: "Yaratmak"
   new_note: "Yeni Not Oluştur"
   new_preset: "Yeni Ön Ayar Oluştur"
+  new_profile: "Create New Profile…"
+  preset: "Create Preset"
+  speaker_profile: "Create Speaker Profile"
   your_first_note_to_get_started: "Başlamak için ilk notunuzu oluşturun"
   your_first_preset_or_duplicate_a_built_in: "İlk ön ayarınızı oluşturun veya özelleştirmek için yerleşik olanı çoğaltın."
   your_own_presets_or_duplicate_built_in_on: "Kendi ön ayarlarınızı oluşturun veya bunları özelleştirmek için yerleşik ayarları çoğaltın."
-  preset: "Create Preset"
 credentials:
   are_stored_securely_in_keychain: "Kimlik bilgileri Anahtarlık'ta güvenli bir şekilde saklanır"
+  are_stored_securely_in_keychain_5acf: "Credentials are stored securely in Keychain."
   saved_successfully: "Kimlik bilgileri başarıyla kaydedildi"
-  are_stored_securely_in_keychain_5acff5d3: "Credentials are stored securely in Keychain."
 current:
   _self: "Güncel: %@"
 custom:
@@ -242,8 +269,8 @@ cut:
   _self: "Kesmek"
 d:
   characters: "%d characters"
-  speakers: "%d konuşmacı"
   samples: "%d samples · %@"
+  speakers: "%d konuşmacı"
   words: "%d kelime"
 dark:
   _self: "Karanlık"
@@ -263,17 +290,39 @@ degraded:
   _self: "Bozulmuş"
 delete:
   _self: "Silmek"
+  all: "Tümünü sil"
+  all_participants: "Delete All Participants?"
+  all_participants_60ed6e73: "Delete All Participants…"
   folder: "Klasörü Sil"
   folder_e556e7c2: "Klasör silinsin mi?"
   model: "Modeli Sil"
+  note: "Not silinsin mi?"
   preset: "Ön Ayarı Sil"
   preset_4f6cfe36: "Ön Ayar Silinsin mi?"
   transcription: "Transkripsiyonu sil"
   transcription_f82187c4: "Çeviri yazı silinsin mi?"
-  all: "Tümünü sil"
-  all_participants: "Delete All Participants?"
-  all_participants_60ed6e73: "Delete All Participants…"
-  note: "Not silinsin mi?"
+destinations:
+  _self: "Destinations"
+diarization:
+  _self: "Speaker diarization"
+  automatic: "Automatic"
+  clear_assignment: "Clear assignment"
+  download_model: "Download model"
+  expected_speakers: "Expected speakers"
+  model_ready: "Speaker diarization is ready."
+  model_setup_issue_media: "Download the speaker diarization model before starting media transcription."
+  model_setup_issue_recording: "Download the speaker diarization model before starting recording."
+  retraining_required: "Voice matching needs retraining after the diarization update."
+  similar_voice_help: "Similar voices may be merged. Set an expected speaker count when you know how many people are present."
+diarized:
+  _self: "diyarıze"
+dictate:
+  in_russian_and_ukrainian: "Rusça ve Ukraynaca dikte edin"
+dictation:
+  _self: "Dikte"
+  language: "Dikte dili"
+  polish: "Dikte cilası"
+  words_min: "Dictation words / min"
 dictionary:
   _self: "Sözlük"
 direct:
@@ -288,6 +337,8 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Pindrop'u yalnızca bir menü çubuğu uygulaması olarak çalıştırmak yerine Dock'ta görüntüleyin."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Kenar çubuğunu pencerenin sol veya sağ kenarına sabitleyin."
+done:
+  _self: "Bitti"
 download:
   _self: "İndirmek"
   complete: "İndirme Tamamlandı!"
@@ -304,6 +355,8 @@ drop:
   audio_or_video_here: "Sesi veya videoyu buraya bırakın"
 duplicate:
   preset: "Çoğaltılmış Ön Ayar"
+duration:
+  _self: "Duration"
 dutch:
   _self: "Flemenkçe"
 edit:
@@ -315,8 +368,8 @@ empty:
 enable:
   ai_enhancement: "Yapay Zeka Geliştirmeyi Etkinleştir"
   live_session_updates_during_recording: "Kayıt sırasında canlı oturum güncellemelerini etkinleştirin"
-  vibe_mode_ui_context: "Vibe modunu etkinleştir (kullanıcı arayüzü bağlamı)"
   mcp_server: "Enable MCP Server"
+  vibe_mode_ui_context: "Vibe modunu etkinleştir (kullanıcı arayüzü bağlamı)"
 enabled:
   _self: "Etkinleştirilmiş"
 endpoint:
@@ -336,6 +389,8 @@ enter:
   word_to_add: "Eklenecek kelimeyi girin"
 error:
   _self: "Hata"
+estimated:
+  time_saved: "Estimated time saved"
 european:
   multilingual: "Avrupa çok dilli"
 excellent:
@@ -378,6 +433,10 @@ feature:
   models: "Özellik Modelleri"
 fetch:
   models_in_models: "Modeller'de modelleri getir"
+file:
+  _self: "Dosya"
+find:
+  _self: "Bul"
 fix:
   punctuation_and_capitalization: "Noktalama işaretlerini ve büyük harf kullanımını düzeltin"
 floating:
@@ -418,9 +477,11 @@ grant:
   _self: "Hibe etmek"
 great:
   _self: "Harika"
+help:
+  _self: "Yardım"
 hide:
-  this_for_1_hour: "Bunu 1 saatliğine gizle"
   api_key: "API anahtarını gizle"
+  this_for_1_hour: "Bunu 1 saatliğine gizle"
 history:
   _self: "Tarih"
 hold:
@@ -429,6 +490,8 @@ hold:
   to_record_release_to_stop_and_transcribe: "Kaydetmek için basılı tutun, durdurmak ve metne dönüştürmek için bırakın"
   to_record_release_to_transcribe: "Kaydetmek için basılı tutun, metne dönüştürmek için bırakın"
   to_record_then_release_to_open_the_note_edi: "Hold to record, then release to open the note editor with the transcription."
+home:
+  _self: "Ana Sayfa"
 hotkey:
   conflict: "Kısayol Tuşu Çakışması"
 hotkeys:
@@ -445,11 +508,16 @@ import:
   presets: "Ön Ayarları İçe Aktar"
   strategy: "İthalat Stratejisi"
 imported:
+  file: "Imported file"
   files_and_web_links_will_appear_here_on: "İşlem tamamlandıktan sonra içe aktarılan dosyalar ve web bağlantıları burada görünecektir."
 improve:
   transcription_quality_using_ai: "Yapay zekayı kullanarak transkripsiyon kalitesini iyileştirin"
 include:
   clipboard_text: "Pano metnini dahil et"
+input:
+  device: "Giriş aygıtı"
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
 interface:
   _self: "Arayüz"
   language: "Arayüz dili"
@@ -462,8 +530,8 @@ items:
 japanese:
   _self: "Japonca"
 keep:
-  pindrop_current_automatically_or_trigger_a: "Pindrop'u otomatik olarak güncel tutun veya istediğiniz zaman manuel kontrolü tetikleyin."
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
+  pindrop_current_automatically_or_trigger_a: "Pindrop'u otomatik olarak güncel tutun veya istediğiniz zaman manuel kontrolü tetikleyin."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -479,18 +547,22 @@ large:
 launch:
   at_login: "Giriş Yapıldığında Başlat: %@"
   at_login_0b36c78f: "Giriş sırasında başlat"
-  at_login_fd1a3b7b: "Oturum açılışında başlat"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
+  at_login_fd1a3b7b: "Oturum açılışında başlat"
 layout:
   _self: "Düzen"
 learn:
   corrected_words_automatically: "Düzeltilen kelimeleri otomatik olarak öğren"
-legacy:
-  _self: "Legacy"
 left:
   _self: "Sol"
+legacy:
+  _self: "Legacy"
 let:
   pindrop_quietly_learn_vocabulary_from_the_co: "Pindrop'un zaman içinde yaptığınız düzeltmelerden sessizce kelime öğrenmesine izin verin."
+library:
+  _self: "Kitaplık"
+license:
+  _self: "Lisans"
 light:
   _self: "Işık"
   dark_and_curated_palette_presets: "Açık, koyu ve seçilmiş palet ön ayarları"
@@ -529,28 +601,49 @@ local:
   speech_to_text_right_from_your_menu_bar_nf: "Doğrudan menü çubuğunuzdan yerel konuşmayı metne dönüştürme.nHızlı, özel ve her zaman kullanılabilir."
   speech_to_text_with_whisperkit: "WhisperKit ile yerel konuşmayı metne dönüştürme"
   voice_to_text: "Yerel sesten metne dönüştürme"
+longest:
+  streak: "Longest streak"
 low:
   latency_mode_less_accurate: "Düşük gecikmeli mod (daha az doğru)"
+main:
+  window: "Ana pencere"
 manage:
   local_speech_models_feature_models_and_th: "Yerel konuşma modellerini, özellik modellerini ve Pindrop'un transkripsiyon için kullandığı varsayılan motoru yönetin."
   models: "Modelleri yönet"
   presets: "Ön Ayarları Yönet"
   presets_ab87986d: "Ön Ayarları Yönet..."
   presets_d5d4c2c2: "Manage Presets…"
+manual:
+  capture: "Manual capture"
 manually:
   check_for_new_versions_now: "Şimdi yeni sürümleri manuel olarak kontrol edin."
+markdown:
+  md: "Markdown (.md)"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+mcp:
+  configuration_error: "MCP Configuration Error"
+  server: "MCP sunucusu"
 media:
   library: "Medya Kitaplığı"
+  saved: "Medya kaydedildi"
   transcription: "Medya Transkripsiyonu"
   unavailable: "Medya kullanılamıyor"
-  saved: "Medya kaydedildi"
 medium:
   _self: "Orta"
+meet:
+  the_new_orb: "Yeni Orb ile tanışın"
+meeting:
+  saved: "Toplantı kaydedildi"
+metric:
+  _self: "Metric"
 microphone:
   _self: "Mikrofon"
   permission_is_required_to_continue: "Devam etmek için mikrofon izni gerekiyor"
   permission_is_required_to_continue_dc: "Devam etmek için mikrofon izni gerekiyor."
   permission_required: "Mikrofon İzni Gerekli"
+minimize:
+  _self: "Simge Durumuna Küçült"
 mit:
   license: "MİT Lisansı"
 mode:
@@ -570,19 +663,29 @@ must:
   be_openai_compatible: "OpenAI uyumlu olmalı"
 mute:
   system_audio_during_recording: "Kayıt sırasında sistem sesini kapat"
+name:
+  _self: "Ad"
+nemotron:
+  default: "Nemotron (default)"
 new:
   folder: "Yeni Klasör"
   note: "Yeni Not"
   preset: "Yeni Ön Ayar"
+newest:
+  _self: "En yeni"
 next:
   _self: "Sonraki"
 no:
+  activity_in_this_period: "No activity in this period"
   api_key: "API anahtarı yok"
   api_key_endpoint: "API anahtarı yok • Uç nokta: %@"
+  conflicts_found: "No conflicts found"
   custom_presets: "Özel Ön Ayar Yok"
+  destination_data: "No destination data"
   downloaded_models: "İndirilen model yok"
   folders_yet: "Henüz klasör yok"
   items_in: "%@ içinde öğe yok"
+  learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Henüz medya transkripsiyonu yok"
   model_loaded: "Hiçbir Model Yüklenmedi"
   model_selected: "Model seçilmedi"
@@ -594,33 +697,31 @@ no:
   models_match: "\"%@\" ile eşleşen model yok"
   notes_yet: "Henüz not yok"
   providers_configured_yet: "Henüz yapılandırılmış sağlayıcı yok."
+  providers_configured_yet_e6bc0075: "No providers configured yet"
   replacements: "Değiştirme Yok"
   results_found: "Sonuç bulunamadı"
   settings_found: "Hiçbir ayar bulunamadı"
   transcriptions_yet: "Henüz transkripsiyon yok"
   vocabulary_words: "Kelime Bilgisi Yok"
-  learned_participants_yet: "No learned participants yet"
-  providers_configured_yet_e6bc0075: "No providers configured yet"
-  conflicts_found: "No conflicts found"
 not:
   assigned: "Atanmadı"
+  enough_voice_data_yet: "Not enough voice data yet"
+  generated_yet_enable_the_server: "Not generated yet — enable the server"
+  granted: "Verilmedi"
   selected: "Seçilmedi"
   set: "Ayarlanmadı"
   set_93039e60: "Ayarlanmadı"
-  granted: "Verilmedi"
-  enough_voice_data_yet: "Not enough voice data yet"
-  generated_yet_enable_the_server: "Not generated yet — enable the server"
 note:
   _self: "Not"
+  capture_hold: "Note Capture — Hold"
   capture_push_to_talk: "Not Yakalama (Bas-Konuş)"
   capture_toggle: "Not Yakalama (Geçiş)"
+  capture_toggle_7139a240: "Note Capture — Toggle"
   enhancement: "Not Geliştirme"
   from: "Not:"
   metadata: "Not Meta Verileri"
-  title: "Not Başlığı"
   saved: "Not kaydedildi"
-  capture_hold: "Note Capture — Hold"
-  capture_toggle_7139a240: "Note Capture — Toggle"
+  title: "Not Başlığı"
 notes:
   _self: "Notlar"
   3add7b96: "notlar"
@@ -628,6 +729,8 @@ off:
   _self: "Kapalı"
 ok:
   _self: "TAMAM"
+oldest:
+  _self: "En eski"
 ollama:
   _self: "Ollama"
   usually_does_not_require_authentication_f: "Ollama genellikle yerel istekler için kimlik doğrulama gerektirmez."
@@ -637,13 +740,13 @@ on:
 open:
   _self: "Açık"
   history: "Geçmişi Aç"
+  library: "Kitaplığı aç"
   logs_in_finder: "Günlükleri Finder'da Açma"
   original_link: "Orijinal bağlantıyı aç"
   progress: "İlerlemeyi aç"
   settings: "Ayarları Aç"
   settings_fd7108f8: "Ayarları aç"
   system_settings: "Sistem Ayarlarını Aç"
-  library: "Kitaplığı aç"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI uyumlu yerel sunucu"
@@ -659,17 +762,21 @@ optionally:
 or:
   _self: "veya"
   just_use_your_hotkey: "Veya sadece kısayol tuşunu kullanın!"
+orb:
+  _self: "Küre"
 original:
   _self: "Orijinal"
   text_use_commas_for_multiple: "Orijinal metin (birden fazla metin için virgül kullanın)"
 originals:
   comma_separated: "Orijinaller (virgülle ayrılmış)"
+other:
+  _self: "Other"
 output:
   _self: "Çıkış"
   audio_interface_and_everyday_behavior: "Çıkış, ses, arayüz ve günlük davranışlar"
   mode: "Çıkış modu"
-nemotron:
-  default: "Nemotron (default)"
+overview:
+  _self: "Overview"
 paste:
   _self: "Yapıştır"
   a_video_or_audio_link: "Bir video veya ses bağlantısını yapıştırın"
@@ -683,13 +790,15 @@ permissions:
   _self: "İzinler"
 pick:
   which_provider_and_model_handles_each_ai_ta: "Her bir AI görevini hangi sağlayıcının ve modelin gerçekleştireceğini seçin. Bir amacı atlamak için \"Atanmadı\" olarak bırakın."
-  which_provider_and_model_handles_each_ai_ta_b719504f: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
+  which_provider_and_model_handles_each_ai_ta_3140fe59: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
 pill:
   _self: "Hap"
 pin:
   to_screen_always_on_top: "Ekrana sabitle (her zaman üstte)"
 pindrop:
   _self: "Pindrop"
+  1_19: "Pindrop 1.19"
+  help: "Pindrop Yardımı"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop kullanıma hazırdır.
     Başlamak için menü çubuğu simgesini tıklayın.
@@ -701,11 +810,13 @@ pindrop:
   needs_accessibility_permission_to_insert: "\"\" Pindrop'un imlecinize metin ekleyebilmesi için Erişilebilirlik iznine ihtiyacı var.                          İzin vermek için: 1. Aşağıdaki \"Sistem Ayarlarını Aç\"ı tıklayın 2. + düğmesini tıklayın 3. Finder'da gösterilen uygulamaya gidin 4. İzin verdikten sonra Pindrop'u yeniden başlatın Bu izin olmadan, metin yalnızca panonuza kopyalanacaktır.             \"\""
   needs_microphone_access_to_record_and_tr: "Pindrop'un sesinizi kaydedip yazıya dökebilmesi için mikrofon erişimine ihtiyacı var.nnLütfen Sistem Ayarları'ndan izin verin."
   on_github: "GitHub'da Pindrop"
+  orb: "Pindrop Küresi"
   pill: "Pindrop Hapı"
   theme: "Pindrop Teması"
-  orb: "Pindrop Küresi"
-  1_19: "Pindrop 1.19"
-  help: "Pindrop Yardımı"
+pinned:
+  _self: "Sabitlenmiş"
+plain:
+  text_txt: "Düz metin (.txt)"
 play:
   _self: "Oynamak"
 please:
@@ -714,8 +825,11 @@ please:
     Lütfen kaydetmeden önce Ayarlar'dan bir Whisper modeli indirin.
     
     Bir model indirmek için Ayarlar → Modeller'e gidin.
-  download_a_whisper_model_in_settings_befo_a71d286e: "Lütfen kaydetmeden önce Ayarlar'dan bir Whisper modeli indirin.nnBir model indirmek için Ayarlar → Modeller bölümüne gidin."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Lütfen kaydetmeden önce Ayarlar'dan bir Whisper modeli indirin.nnBir model indirmek için Ayarlar → Modeller bölümüne gidin."
   wait: "Lütfen bekleyin..."
+port:
+  _self: "Bağlantı noktası"
+  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
 portuguese:
   brazil: "Portekizce (Brezilya)"
 powered:
@@ -723,28 +837,48 @@ powered:
 preparing:
   model: "Model Hazırlanıyor..."
 preset:
+  example_bullets_input: "onboarding gecikmesini sonra fiyatları ve son olarak on iki mayıs lansman tarihini konuştuk"
+  example_bullets_output: "- Onboarding gecikmesi\\n- Fiyatlar\\n- Lansman tarihi: 12 Mayıs"
+  example_clean_input: "ee yani toplantı üç buçukta nokta onaylayabilir misin soru işareti"
+  example_clean_output: "Yani toplantı 15:30'da. Onaylayabilir misin?"
+  example_edits_input: "ee bu correct ly yirmi beş"
+  example_edits_output: "Bu correctly 25"
+  example_email_input: "selam jordan dünkü notlarımı alıp almadığını kontrol ediyordum teşekkürler"
+  example_email_output: "Selam Jordan,\\n\\nDünkü notlarımı alıp almadığını kontrol ediyordum.\\n\\nTeşekkürler,"
+  example_live_input: "ee bence betayı cuma'ya kadar çıkarmalıyız nokta"
+  example_live_output: "Bence betayı Cuma'ya kadar çıkarmalıyız."
+  example_meeting_input: "alice cuma'ya kadar decki gönderecek bob fiyat incelemesini üstleniyor gelecek hafta bir karar lazım"
+  example_meeting_output: "## Aksiyonlar\\n- **Alice** decki **Cuma**'ya kadar gönderecek\\n- **Bob** fiyat incelemesini üstleniyor\\n\\n## Sonraki adımlar\\n- Gelecek hafta karar gerekli"
+  example_social_input: "ee az önce karanlık modu yayınladık ve harika görünüyor denemelisin"
+  example_social_output: "Az önce karanlık modu yayınladık.\\n\\nHarika görünüyor — denemelisin."
+  example_technical_input: "fetch user çağır ok sonra yanıtı eşittir eşittir iki yüz olarak eşle"
+  example_technical_output: "`fetchUser` çağır -> sonra yanıtı `==` 200 olarak eşle."
   name: "Ön Ayar Adı"
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "Herhangi bir uygulamada dikte etmek için basılı tutun. Pindrop konuşmanızı yazıya dökecek ve metni imlecinizin bulunduğu yere ekleyecektir."
   esc_to_cancel: "İptal etmek için Esc tuşuna basın"
   keys: "Tuşlara basın..."
+  keys_98b8167e: "Tuşlara basın…"
   once_to_start_again_to_stop: "Başlamak için bir kez, durdurmak için bir kez daha basın"
   once_to_start_recording_press_again_to_sto: "Kaydı başlatmak için bir kez basın, durdurmak ve metne dönüştürmek için tekrar basın"
+  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
   once_to_start_recording_then_press_again_t: "Kaydı başlatmak için bir kez basın, ardından durdurmak ve yazıya dönüştürmek için tekrar basın."
   to_start_recording_press_again_to_open_not: "Kaydı başlatmak için basın, not düzenleyiciyi açmak için tekrar basın"
-  keys_98b8167e: "Tuşlara basın…"
-  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
 primary:
   text: "Birincil Metin"
 processing:
   _self: "İşleme"
   272bc02e: "İşleme..."
   5aa377e2: "⏳ İşleme"
-  transcript: "Processing transcript"
   ellipsis: "İşleniyor…"
+  transcript: "Processing transcript"
+project:
+  _self: "Proje"
 prompt:
   _self: "Çabuk"
   preset: "İstem Ön Ayarı"
+prompts:
+  are_sent_in_english: "İstemler İngilizce gönderilir"
 provider:
   _self: "sağlayıcı"
   kind: "Sağlayıcı Türü"
@@ -773,7 +907,7 @@ recent:
 recommended:
   _self: "Tavsiye edilen"
   the_deterministic_cleaner_handles_mo: "Önerilir: deterministik temizleyici diktelerin büyük kısmını temiz biçimde halleder. LLM adımını yalnızca ekstra cila istiyorsanız ve ara sıra oluşan model tuhaflıklarını (başlangıç ifadeleri, sohbet tarzı yanıtlar) kabul ediyorsanız etkinleştirin."
-  the_deterministic_cleaner_handles_mo_ca42c3e4: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
+  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "Kayıt"
 recording:
@@ -787,13 +921,15 @@ redo:
 refresh:
   _self: "Yenile"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
+regenerate:
+  _self: "Yeniden oluştur"
 remove:
-  from_speaker_profiles: "Remove from speaker profiles"
-  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Kaldırmak"
   and_clear_any_assignments_that_reference: "\"%@\" kaldırılsın ve ona başvuran tüm atamalar silinsin mi? Saklanan kimlik bilgileri silinecek."
   from_folder: "Klasörden Kaldır"
+  from_speaker_profiles: "Remove from speaker profiles"
   provider: "Sağlayıcıyı Kaldır"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
 rename:
   _self: "Yeniden isimlendirmek"
   folder: "Klasörü Yeniden Adlandır"
@@ -812,32 +948,34 @@ required:
   _self: "Gerekli"
   for_recording_your_voice: "Sesinizi kaydetmek için gerekli"
 requires:
+  a_fast_provider_apple_foundation_models: "Hızlı bir sağlayıcı gerektirir (Apple Foundation Modelleri önerilir). Bulut sağlayıcıları her duraklatma için bir API çağrısı yayınlayacaktır."
   diarization_model: "Requires diarization model"
   speaker_diarization: "Requires speaker diarization"
-  a_fast_provider_apple_foundation_models: "Hızlı bir sağlayıcı gerektirir (Apple Foundation Modelleri önerilir). Bulut sağlayıcıları her duraklatma için bir API çağrısı yayınlayacaktır."
 reset:
   _self: "Sıfırla"
   all_settings: "Tüm Ayarlar Sıfırlansın mı?"
   all_settings_7262c7b7: "Tüm ayarları sıfırla"
-  to_default: "Varsayılana Sıfırla"
   all_settings_e5dbc5fc: "Reset All Settings…"
+  to_default: "Varsayılana Sıfırla"
 retry:
   _self: "Yeniden dene"
 right:
   _self: "Sağ"
 run:
-  llm_polish_after_dictation_stops: "Dikte durduğunda LLM cilalama çalıştır"
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
+  llm_polish_after_dictation_stops: "Dikte durduğunda LLM cilalama çalıştır"
 runtime:
   _self: "Çalışma zamanı: %@"
   status: "Çalışma zamanı durumu"
+russian:
+  _self: "Russian"
 save:
   _self: "Kaydetmek"
   as_note: "Not olarak kaydet"
   continue: "Kaydet ve Devam Et"
   credentials: "Kimlik Bilgilerini Kaydet"
-  prompt: "İstemi Kaydet"
   now_s: "Şimdi kaydet (⌘S)"
+  prompt: "İstemi Kaydet"
 saved:
   _self: "Kaydedildi"
   as_note: "Not olarak kaydedildi"
@@ -862,9 +1000,9 @@ select:
   all: "Tümünü Seç"
   language: "Dil Seçiniz"
   language_daea52c9: "Dil seçin"
+  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
   this_floating_indicator_style: "Bu kayan gösterge stilini seçin."
   voice_model: "Ses Modelini Seçin"
-  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
 selected:
   _self: "Seçildi"
 sent:
@@ -872,6 +1010,7 @@ sent:
 sessions:
   _self: "Oturumlar"
   781791f5: "oturumlar"
+  in: "%@ sessions in %@"
 set:
   as_default: "Varsayılan Olarak Ayarla"
 settings:
@@ -880,15 +1019,17 @@ settings:
   fa67a397: "Ayarlar…"
 setup:
   required: "Kurulum gerekli"
+shortcuts:
+  _self: "Kısayollar"
 show:
+  api_key: "API anahtarını göster"
   app: "Uygulamayı Göster"
   app_in_finder: "Uygulamayı Finder'da Göster"
   in_dock: "Dock'ta göster"
-  api_key: "API anahtarını göster"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
-  as_a_pill_at_the_bottom_of_the_screen: "Ekranın alt kısmında hap olarak gösterilir"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Ekranın köşesinde sıvı cam küre olarak görünür"
+  as_a_pill_at_the_bottom_of_the_screen: "Ekranın alt kısmında hap olarak gösterilir"
 sidebar:
   position: "Kenar çubuğu konumu"
   position_916f66ea: "Kenar çubuğu konumu"
@@ -919,13 +1060,19 @@ sort:
   by: "Göre sırala"
 source:
   _self: "Kaynak"
+sources:
+  _self: "Sources"
 spanish:
   _self: "İspanyol"
+speak:
+  to_append: "Eklemek için konuşun"
 speaker:
-  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Konuşmacı günlüğü ve zaman damgaları oynatmaya eklenir."
   diarization_is_required: "Konuşmacı günlüğü gerekli"
+  profile_training: "Speaker profile training"
+speakers:
+  _self: "Konuşmacılar"
 speed:
   _self: "Hız"
 start:
@@ -934,19 +1081,25 @@ start:
   recording_to_see_your_transcriptions_here: "Çeviri yazılarınızı burada görmek için kaydetmeye başlayın"
   stop_recording: "Kaydı başlat/durdur"
   using_pindrop: "Pindrop'u Kullanmaya Başlayın"
+stats:
+  _self: "Stats"
 status:
   _self: "Durum"
 stop:
-  recording: "Kaydı Durdur"
   listening: "Dinlemeyi durdur"
+  recording: "Kaydı Durdur"
 streaming:
   enhancement: "Akış iyileştirmesi"
   transcription_currently_supports_engli: "Akış transkripsiyonu şu anda seçilen dilden bağımsız olarak yalnızca İngilizceyi destekler."
+  transcription_instantly_ready: "Akışlı transkripsiyon, anında hazır"
   transcription_is_disabled_while_ai_enh: "AI Geliştirme etkinken akış transkripsiyonu devre dışı bırakılır."
   transcription_model_nemotron_speech: "Akış transkripsiyon modeli (Nemotron Speech Streaming) NVIDIA Corporation tarafından NVIDIA Open Model License kapsamında lisanslanmıştır."
-  transcription_instantly_ready: "Akışlı transkripsiyon, anında hazır"
+subtitles:
+  srt: "Altyazılar (.srt)"
 success:
   _self: "Başarı!"
+summary:
+  ready: "özet hazır"
 support:
   _self: "Destek"
   coming_soon: "%@ Destek Çok Yakında"
@@ -965,34 +1118,43 @@ temporarily:
   pause_active_media_playback_while_di: "Dikte kaydı sırasında aktif medya oynatmayı geçici olarak duraklatın."
 tertiary:
   text: "Üçüncül Metin"
+thanks:
+  to_for_investigating_and_kicking_off_the: "Araştırıp düzeltmeyi başlattığı için %@ kişisine teşekkürler (PR #64)."
+  to_for_the_contribution_pr_61: "Katkısı için %@ kişisine teşekkürler (PR #61)."
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" Model 60 saniye içinde yüklenemedi. Bu genellikle model dosyalarının bozuk veya uyumsuz olduğu anlamına gelir.                          Bunu düzeltmek için: 1. Ayarlar → Modeller'i açın 2. Sorunlu modeli silin 3. Modeli yeniden indirin Sorun devam ederse daha küçük bir model deneyin (Tiny veya Base).             \"\""
-  selected_chunk_variant_isn_t_downloaded_yet: "Seçili yığın varyantı henüz indirilmedi. Değiştirmek bir indirme başlatacak."
   new_nemotron_streaming_engine_shows_words_as: "Yeni Nemotron akış motoru kelimeleri söylediğiniz anda gösterir ve açılışta önceden hazırlanır, böylece ilk dikteniz gecikmeden başlar."
+  selected_chunk_variant_isn_t_downloaded_yet: "Seçili yığın varyantı henüz indirilmedi. Değiştirmek bir indirme başlatacak."
 theme:
   _self: "Tema"
   changes_apply_live_across_the_workspace_se: "Tema değişiklikleri, çalışma alanı, ayarlar, not düzenleyici ve kayan göstergeler genelinde canlı olarak uygulanır."
   mode: "Tema modu"
   mode_bb6b0b3d: "Tema modu"
+these:
+  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 this:
-  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Bu ön ayar adı zaten kullanımda."
   provider_will_be_available_in_a_future_upda: |-
     Bu sağlayıcı gelecekteki bir güncellemede mevcut olacaktır.
     Şimdilik OpenAI'yi deneyin veya Özel bir uç nokta kullanın.
-  provider_will_be_available_in_a_future_upda_3e35a952: |-
+  provider_will_be_available_in_a_future_upda_ba16848d: "Bu sağlayıcı gelecekteki bir güncellemeyle kullanıma sunulacaktır.nŞimdilik OpenAI'yi deneyin veya Özel bir uç nokta kullanın."
+  provider_will_be_available_in_a_future_upda_4af6ff9b: |-
     Bu sağlayıcı gelecekteki bir güncellemede mevcut olacaktır.
     OpenAI'yi deneyin veya Özel bir uç nokta kullanın.
-  provider_will_be_available_in_a_future_upda_0677ac1d: "Bu sağlayıcı gelecekteki bir güncellemeyle kullanıma sunulacaktır.nŞimdilik OpenAI'yi deneyin veya Özel bir uç nokta kullanın."
-  transcription_could_not_be_found: "Bu transkripsiyon bulunamadı."
-  will_clear_all_your_settings_including_api: "Bu, API anahtarları, kısayol tuşları ve model tercihleri ​​dahil tüm ayarlarınızı temizleyecektir. Uygulama sonlandırılacak ve bir sonraki başlatmada yeniden katılım gösterilecektir."
-  will_permanently_remove_the_transcript_and: "Bu, transkripti ve yönetilen medya dosyasını kalıcı olarak kaldıracaktır."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
-  will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  transcription_could_not_be_found: "Bu transkripsiyon bulunamadı."
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
+  will_clear_all_your_settings_including_api: "Bu, API anahtarları, kısayol tuşları ve model tercihleri ​​dahil tüm ayarlarınızı temizleyecektir. Uygulama sonlandırılacak ve bir sonraki başlatmada yeniden katılım gösterilecektir."
+  will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_the_transcript_and: "Bu, transkripti ve yönetilen medya dosyasını kalıcı olarak kaldıracaktır."
   will_permanently_remove_this_note: "Bu not kalıcı olarak silinecek."
 time:
-  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+  of_day: "Time of day"
+  range: "Time range"
   saved: "Kazanılan Zaman"
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+timestamps:
+  json: "Zaman damgaları (.json)"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "dikte etmek ve Pindrop'un sizin için yazıya dökmesine izin vermek"
   start_talking: "konuşmaya başlamak"
@@ -1007,6 +1169,7 @@ transcribe:
   media: "Medyayı Metne Dönüştür"
 transcribed:
   _self: "yazıya geçirilmiş"
+  words: "Transcribed words"
 transcription:
   _self: "Transkripsiyon"
   backend: "Yazıya dökme altyapısı"
@@ -1016,8 +1179,8 @@ transcription:
   finished: "Transkripsiyon tamamlandı."
   in_progress: "Transkripsiyon devam ediyor"
   metadata: "Transkripsiyon Meta Verileri"
-  update: "Transkripsiyon güncellemesi"
   saved: "Transkripsiyon kaydedildi"
+  update: "Transkripsiyon güncellemesi"
 transcriptions:
   _self: "Transkripsiyonlar"
   f0972acc: "transkripsiyonlar"
@@ -1031,8 +1194,202 @@ try:
   searching_for_terms_like_hotkeys_microphone: "Kısayol tuşları, mikrofon, güncellemeler veya titreşim modu gibi terimleri aramayı deneyin."
 turkish:
   _self: "Türkçe"
+two:
+  new_dictation_languages_fully_wired_into_mod: "Model önerilerine tamamen bağlanmış iki yeni dikte dili."
 type:
   text_directly_into_the_active_app_when_poss: "Mümkün olduğunda metni doğrudan etkin uygulamaya yazın"
+u10:
+  floating_announcement_summary: "Pindrop genelinde yeniden oynatma, yeni görünüm ve klavye denetimi."
+  floating_inserted_into: "%@ içine eklendi"
+  floating_keyboard_body: "Klavyeden ayrılmadan gezinin, arayın, not oluşturun, dışa aktarın ve silin."
+  floating_keyboard_title: "Her yerde klavye"
+  floating_microphone_unavailable: "Mikrofon kullanılamıyor"
+  floating_new_look_body: "Daha sıcak ve sakin tasarım sözlerinizi öne çıkarır. Tema ön ayarlarınız korunur ve yeni varsayılan Kitaplık eklenir."
+  floating_new_look_title: "Yeni bir görünüm"
+  floating_replay_body: "Pindrop sesi yedi gün saklayabilir; böylece gerektiğinde Kitaplık’tan yeniden dinleyebilirsiniz."
+  floating_replay_title: "Her dikteyi yeniden oynatın"
+  floating_transcribing: "Yazıya dökülüyor…"
+  floating_version_line: "Pindrop 0.10.0 · Temmuz 2026"
+  floating_whats_new: "Yenilikler"
+  floating_word_count: "%d kelime"
+u11:
+  estimating_time: "Kalan süre tahmin ediliyor…"
+  live_transcript: "Canlı transkript"
+  microphone_muted: "Mikrofon sessize alındı"
+  minutes_left: "yaklaşık %d dk kaldı"
+  recording_processing: "Kayıt durduruldu. Transkripsiyon işleniyor."
+  recording_started: "Kayıt başladı"
+  recording_stopped: "Kayıt durduruldu"
+  seconds_left: "yaklaşık %d sn kaldı"
+  transcription_complete: "Transkripsiyon tamamlandı"
+u11b:
+  expand: "Genişlet"
+  expired: "Süresi doldu"
+  playback_position: "Oynatma konumu"
+  step_x_of_y: "Adım %d/%d"
+u3:
+  library_assign_speaker: "Konuşmacı ata"
+  library_audio_kept_30_days: "ses 30 gün saklanır"
+  library_audio_kept_7_days: "ses 7 gün saklanır"
+  library_audio_kept_forever: "ses sonsuza saklanır"
+  library_click_line_to_jump: "oynatmayı atlamak için satıra tıklayın"
+  library_dictations: "Dikte"
+  library_dictations_appear_after_use: "Dikteler sesli dikteden sonra burada görünür."
+  library_h_m_spoken: "%d sa %d dk konuşuldu"
+  library_h_spoken: "%d sa konuşuldu"
+  library_https_placeholder: "https://…"
+  library_import_file_or_paste_link: "Dosya içe aktarın veya bağlantı yapıştırarak medya yazıya dökün."
+  library_import_files: "Dosya içe aktar…"
+  library_imported_audio: "İçe aktarılan ses"
+  library_insert_again: "Yeniden ekle"
+  library_inserted_into: "%@ içine eklendi"
+  library_m_spoken: "%d dk konuşuldu"
+  library_meeting_recording: "Toplantı kaydı"
+  library_meetings: "Toplantılar"
+  library_n_recordings: "%d kayıt"
+  library_no_dictations_yet: "Henüz dikte yok"
+  library_no_meeting_recordings: "Toplantı kaydı yok"
+  library_no_recordings_yet: "Henüz kayıt yok"
+  library_one_recording: "1 kayıt"
+  library_paste_link: "Bağlantı yapıştır…"
+  library_playback_speed: "Oynatma hızı"
+  library_record_meeting_ellipsis: "Toplantı kaydet…"
+  library_record_meeting_from_home: "Ana Sayfa’dan toplantı kaydedin."
+  library_rename_speaker_ellipsis: "Konuşmacıyı yeniden adlandır…"
+  library_start_dictation_or_import: "Ana Sayfa’dan dikte başlatın veya dosya içe aktarın."
+  library_summary_label: "ÖZET"
+  library_try_different_search_or_filter: "Farklı arama veya filtre deneyin."
+  library_untitled: "Adsız"
+  library_voice_transcription: "Ses yazıya dökümü"
+  library_web_transcription: "Web yazıya dökümü"
+u4:
+  home_bar_a11y_n: "%@, %@ sözcük"
+  home_bar_a11y_one: "%@, 1 sözcük"
+  home_duration_h: "%d sa"
+  home_duration_h_m: "%d sa %d dk"
+  home_duration_m: "%d dk"
+  home_n_day: "%d-gün"
+  home_n_words_grouped: "%@ sözcük"
+  home_one_day: "1-gün"
+  home_open_library_arrow: "Kitaplığı aç →"
+  home_option_space_fallback: "⌥Space"
+  home_press_hotkey_hint: "Dikteye başlamak için her yerde %@ tuşuna basın."
+  home_recent_empty_hint: "En son dikteleriniz burada görünür."
+  home_streak: "Seri"
+  home_subline_duration_only: "%@ dikte."
+  home_subline_full: "%@ dikte — yazmaya göre yaklaşık %@ tasarruf."
+  home_this_week: "Bu hafta"
+  home_welcome_tagline: "Konuş. Yazıldı."
+  home_words_per_min: "Sözcük / dk"
+  home_words_so_far: "Şimdiye kadarki sözcükler"
+  home_words_today: "Bugünkü sözcükler"
+  home_you_spoke_this_week: "Bu hafta %@ söylediniz."
+  home_zero_day: "0-gün"
+u5:
+  u7_add_replacement: "Add replacement"
+  u7_add_word: "Add word"
+  u7_add_words_or_replacements: "Add words the recognizer should trust, or replacements applied after transcription."
+  u7_applied_after_transcription: "Applied after transcription, before insert"
+  u7_case_insensitive: "case-insensitive"
+  u7_cmd_s_to_save: "⌘S to save"
+  u7_command: "command"
+  u7_copy_content: "Copy Content"
+  u7_d_ago: "%d d ago"
+  u7_delete_note: "Delete Note"
+  u7_edited: "edited"
+  u7_edited_format: "edited %@"
+  u7_everything_runs_on_this_mac: "Everything runs on this Mac"
+  u7_exact: "exact"
+  u7_h_ago: "%d h ago"
+  u7_installed: "Installed"
+  u7_just_now: "just now"
+  u7_listening_speak_to_append: "Listening — speak to append…"
+  u7_m_ago: "%d m ago"
+  u7_match_mode: "Match mode"
+  u7_models_privacy_footnote: "Models never leave this Mac. Audio is processed locally unless you choose a cloud provider in Settings → AI."
+  u7_new_note: "New note"
+  u7_no_dictionary_entries: "No dictionary entries"
+  u7_on_device_helpers: "On-device helpers"
+  u7_on_disk: "DİSKTE"
+  u7_open_note: "Open Note"
+  u7_pin: "Pin"
+  u7_replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
+  u7_replacements_section: "Replacements"
+  u7_speech_to_text: "Speech to text"
+  u7_teach_pindrop_your_words: "Teach Pindrop your words"
+  u7_unpin: "Unpin"
+  u7_untitled_note: "Untitled Note"
+  u7_words_recognizer_should_trust: "Words the recognizer should trust"
+u8:
+  settings_acknowledgements: "Teşekkürler"
+  settings_advanced_assignments: "Gelişmiş atamalar"
+  settings_audio_on_disk_format: "Diskteki ses: %@ · %@"
+  settings_beta_channel: "Beta"
+  settings_bundled_fonts_ofl: "Pakete dahil yazı tipleri (Newsreader, Inter, JetBrains Mono) SIL Open Font License kapsamında lisanslanmıştır."
+  settings_checks_for_updates_automatically: "Pindrop güncellemeleri otomatik olarak kontrol eder."
+  settings_choose_a_provider: "Bir sağlayıcı seçin"
+  settings_choose_folder_export_logs: "Pindrop günlük dosyalarını kopyalamak için bir klasör seçin."
+  settings_copy_last_transcript: "Son transkripti kopyala"
+  settings_copy_token: "Belirteci kopyala"
+  settings_days_30: "30 gün"
+  settings_days_7: "7 gün"
+  settings_debug: "Hata Ayıklama"
+  settings_delete_all_audio: "Tüm sesleri sil"
+  settings_delete_all_audio_ellipsis: "Tüm sesleri sil…"
+  settings_delete_all_audio_question: "Tüm sesler silinsin mi?"
+  settings_diagnostics: "Tanılama"
+  settings_edit_prompt_ellipsis: "İstemi düzenle…"
+  settings_endpoint: "Uç nokta"
+  settings_enhance_transcripts: "Transkriptleri geliştir"
+  settings_example_label: "ÖRNEK"
+  settings_export_logs_ellipsis: "Günlükleri Dışa Aktar…"
+  settings_forever: "Sonsuza kadar"
+  settings_github: "GitHub"
+  settings_info: "Bilgi"
+  settings_keep_dictation_audio: "Dikte sesini sakla"
+  settings_last_checked_format: "Son kontrol: %@"
+  settings_license_mit: "Lisans — MIT"
+  settings_listening_ellipsis: "Dinleniyor…"
+  settings_log_level: "Günlük düzeyi"
+  settings_logs_never_include_transcript: "Günlükler asla transkript metni içermez"
+  settings_made_with_care: "Yerel konuşma için özenle yapıldı."
+  settings_manage_ellipsis: "Yönet…"
+  settings_n_samples: "%d örnek"
+  settings_n_snippets: "%d kesit"
+  settings_n_trained: "%d eğitilmiş"
+  settings_no_conflicts_with_system_or_app: "Sistem veya uygulama kısayollarıyla çakışma yok."
+  settings_one_snippet: "1 kesit"
+  settings_one_trained: "1 eğitilmiş"
+  settings_presets_recolor_caption: "Ön ayarlar vurgu ve zemin renklerini yeniden boyar. Metin kontrastı otomatik olarak doğrulanır."
+  settings_push_to_talk: "Bas-Konuş"
+  settings_recording_indicator: "Kayıt göstergesi"
+  settings_release_channel: "Release"
+  settings_removes_kept_dictation_audio: "Saklanan dikte ses dosyalarını kaldırır. Transkriptler Kitaplığınızda kalır."
+  settings_reset_all_settings_ellipsis: "Tüm ayarları sıfırla…"
+  settings_separate_from_interface_language: "Arayüz dilinden bağımsız"
+  settings_some_shortcuts_conflict_each_other: "Bazı kısayollar birbiriyle çakışıyor."
+  settings_some_shortcuts_may_conflict_system: "Bazı kısayollar sistem kısayollarıyla çakışabilir."
+  settings_speaker_profiles: "Konuşmacı profilleri"
+  settings_theme_preset: "Tema ön ayarı"
+  settings_toggle_dictation: "Dikteyi aç/kapat"
+  settings_trained_summary_format: "%@ — toplantılarda kimin ne söylediğini etiketlemek için kullanılır"
+  settings_update_checks_unavailable: "Güncelleme kontrolleri geçici olarak kullanılamıyor."
+  settings_warning: "Uyarı"
+  settings_website: "Web Sitesi"
+u9:
+  onboarding_accessibility_clipboard_fallback: "Erişilebilirlik olmadan Pindrop metni panoya kopyalar."
+  onboarding_change_hotkey_hint: "Değiştirmek için farklı bir kombinasyona basın"
+  onboarding_download_amount_format: "%@ / %@"
+  onboarding_download_background_hint: "İndirme sürerken kuruluma devam edin — arka planda tamamlayacağız."
+  onboarding_enable_enhancement: "İyileştirmeyi etkinleştir"
+  onboarding_granted_state: "Verildi"
+  onboarding_pindrop_writes: "Pindrop yazar"
+  onboarding_ready_heading: "Hazırsınız."
+  onboarding_ready_instruction_format: "%@'ye basın ve konuşmaya başlayın — Pindrop imlecinizin bulunduğu yere yazar."
+  onboarding_try_it_now: "Şimdi deneyin"
+  onboarding_you_say: "Siz söylersiniz"
+ukrainian:
+  _self: "Ukrainian"
 unable:
   to_connect_to_the_ai_enhancement_service: "\"\" AI geliştirme hizmetine bağlanılamıyor.                                  Lütfen şunları kontrol edin: 1. İnternet bağlantınız 2. API uç noktası URL'si doğrudur 3. Hizmette bir kesinti yaşanmıyor Çeviri yazı, geliştirme yapılmadan kaydedildi.                 \"\""
   to_finish_transcription: "Transkripsiyon tamamlanamadı"
@@ -1045,6 +1402,8 @@ undo:
   _self: "Geri al"
 unfiled:
   _self: "Dosyalanmamış"
+unknown:
+  _self: "Unknown"
 unpin:
   from_screen: "Ekrandaki sabitlemeyi kaldır"
 update:
@@ -1083,12 +1442,23 @@ view:
   transcription_history: "Transkripsiyon geçmişini görüntüle"
 vocabulary:
   _self: "Kelime bilgisi"
+voice:
+  _self: "Voice"
 vs:
   typing: "yazmaya karşı"
+web:
+  link: "Web link"
 welcome:
   to_pindrop: "Pindrop'a hoş geldiniz"
+what:
+  s_new: "Yenilikler…"
+  s_new_in_pindrop: "Pindrop’ta Yenilikler"
+while:
+  recording: "Kayıt sırasında"
 whisperkit:
   _self: "Fısıltı Kiti"
+window:
+  _self: "Pencere"
 word:
   _self: "Kelime"
   replacements: "Kelime Değiştirmeleri"
@@ -1110,371 +1480,13 @@ you:
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" API hızı sınırınızı veya kotanızı aştınız.                                  Bunu düzeltmek için: 1. Birkaç dakika bekleyin ve tekrar deneyin 2. API sağlayıcınızın kullanım sınırlarını kontrol edin 3. API planınızı yükseltmeyi düşünün Çeviri yazı, geliştirme yapılmadan kaydedildi.                 \"\""
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" API anahtarınız geçersiz veya süresi dolmuş görünüyor.                                  Bunu düzeltmek için: 1. Ayarlar → Yapay Zeka Geliştirme'yi açın 2. API anahtarınızın doğru olduğunu doğrulayın 3. API uç noktanızın doğru olduğunu kontrol edin Transkripsiyon, geliştirme yapılmadan kaydedildi.                 \"\""
+  floating_indicator_is_now_a_living_audio_re: "Kayan göstergeniz artık sese tepki veren canlı bir orb. Boştayken nefes alır, konuştuğunuzda büyür ve dikte ederken kelimelerinizi canlı olarak aktarır."
   hotkeys_are_ready_to_use_nyou_can_customize: "Kısayol tuşlarınız kullanıma hazır.nBunları daha sonra Ayarlar'da özelleştirebilirsiniz."
   hotkeys_are_ready_to_use_you_can_customize: |-
     Kısayol tuşlarınız kullanıma hazır.
     Bunları daha sonra Ayarlar'da özelleştirebilirsiniz.
   model_is_ready_to_use: "Modeliniz kullanıma hazır."
   stats: "İstatistikleriniz"
-  floating_indicator_is_now_a_living_audio_re: "Kayan göstergeniz artık sese tepki veren canlı bir orb. Boştayken nefes alır, konuştuğunuzda büyür ve dikte ederken kelimelerinizi canlı olarak aktarır."
-orb:
-  _self: "Küre"
-meeting:
-  saved: "Toplantı kaydedildi"
-russian:
-  _self: "Russian"
-ukrainian:
-  _self: "Ukrainian"
-what:
-  s_new_in_pindrop: "Pindrop’ta Yenilikler"
-  s_new: "Yenilikler…"
-meet:
-  the_new_orb: "Yeni Orb ile tanışın"
-thanks:
-  to_for_investigating_and_kicking_off_the: "Araştırıp düzeltmeyi başlattığı için %@ kişisine teşekkürler (PR #64)."
-  to_for_the_contribution_pr_61: "Katkısı için %@ kişisine teşekkürler (PR #61)."
-dictate:
-  in_russian_and_ukrainian: "Rusça ve Ukraynaca dikte edin"
-two:
-  new_dictation_languages_fully_wired_into_mod: "Model önerilerine tamamen bağlanmış iki yeni dikte dili."
-also:
-  new_rtl_layout_support_and_20_new_interface: "Ayrıca yeni: RTL düzen desteği ve 20 yeni arayüz dili."
-advanced:
-  _self: "Gelişmiş"
-agent:
-  setup: "Aracı kurulumu"
-appearance:
-  _self: "Görünüm"
-bearer:
-  token: "Bearer belirteci"
-changes:
-  the_language_used_by_pindrop_s_interface: "Pindrop arayüzünün dilini değiştirir."
-client:
-  _self: "İstemci"
-configuration:
-  file: "Configuration File"
-  scope: "Configuration Scope"
-  snippet: "Configuration Snippet"
-dictation:
-  _self: "Dikte"
-  language: "Dikte dili"
-  polish: "Dikte cilası"
-done:
-  _self: "Bitti"
-input:
-  device: "Giriş aygıtı"
-license:
-  _self: "Lisans"
-mcp:
-  configuration_error: "MCP Configuration Error"
-  server: "MCP sunucusu"
-main:
-  window: "Ana pencere"
-name:
-  _self: "Ad"
-port:
-  _self: "Bağlantı noktası"
-  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
-project:
-  _self: "Proje"
-regenerate:
-  _self: "Yeniden oluştur"
-shortcuts:
-  _self: "Kısayollar"
-speakers:
-  _self: "Konuşmacılar"
-these:
-  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
-while:
-  recording: "Kayıt sırasında"
-may:
-  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
-library:
-  _self: "Kitaplık"
-conflicts:
-  with: "Conflicts with %@"
-file:
-  _self: "Dosya"
-window:
-  _self: "Pencere"
-help:
-  _self: "Yardım"
-close:
-  _self: "Kapat"
-find:
-  _self: "Bul"
-minimize:
-  _self: "Simge Durumuna Küçült"
+  stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "Yakınlaştır"
-bring:
-  all_to_front: "Tümünü Öne Getir"
-home:
-  _self: "Ana Sayfa"
-newest:
-  _self: "En yeni"
-oldest:
-  _self: "En eski"
-plain:
-  text_txt: "Düz metin (.txt)"
-markdown:
-  md: "Markdown (.md)"
-subtitles:
-  srt: "Altyazılar (.srt)"
-timestamps:
-  json: "Zaman damgaları (.json)"
-inserted:
-  into_d_words: "%@ uygulamasına eklendi · %d kelime"
-unknown:
-  app: "Bilinmeyen uygulama"
-pinned:
-  _self: "Sabitlenmiş"
-speak:
-  to_append: "Eklemek için konuşun"
-
-diarized:
-  _self: "diyarıze"
-
-summary:
-  ready: "özet hazır"
-
-prompts:
-  are_sent_in_english: "İstemler İngilizce gönderilir"
-
-preset_example:
-  clean_input: "ee yani toplantı üç buçukta nokta onaylayabilir misin soru işareti"
-  clean_output: "Yani toplantı 15:30'da. Onaylayabilir misin?"
-  meeting_input: "alice cuma'ya kadar decki gönderecek bob fiyat incelemesini üstleniyor gelecek hafta bir karar lazım"
-  meeting_output: "## Aksiyonlar\\n- **Alice** decki **Cuma**'ya kadar gönderecek\\n- **Bob** fiyat incelemesini üstleniyor\\n\\n## Sonraki adımlar\\n- Gelecek hafta karar gerekli"
-  email_input: "selam jordan dünkü notlarımı alıp almadığını kontrol ediyordum teşekkürler"
-  email_output: "Selam Jordan,\\n\\nDünkü notlarımı alıp almadığını kontrol ediyordum.\\n\\nTeşekkürler,"
-  social_input: "ee az önce karanlık modu yayınladık ve harika görünüyor denemelisin"
-  social_output: "Az önce karanlık modu yayınladık.\\n\\nHarika görünüyor — denemelisin."
-  bullets_input: "onboarding gecikmesini sonra fiyatları ve son olarak on iki mayıs lansman tarihini konuştuk"
-  bullets_output: "- Onboarding gecikmesi\\n- Fiyatlar\\n- Lansman tarihi: 12 Mayıs"
-  technical_input: "fetch user çağır ok sonra yanıtı eşittir eşittir iki yüz olarak eşle"
-  technical_output: "`fetchUser` çağır -> sonra yanıtı `==` 200 olarak eşle."
-  live_input: "ee bence betayı cuma'ya kadar çıkarmalıyız nokta"
-  live_output: "Bence betayı Cuma'ya kadar çıkarmalıyız."
-  edits_input: "ee bu correct ly yirmi beş"
-  edits_output: "Bu correctly 25"
-
-inserted:
-  into_d_words: "Inserted into %@ · %d words"
-
-unknown:
-  app: "Unknown App"
-
-u3_library:
-  rename_speaker_ellipsis: "Konuşmacıyı yeniden adlandır…"
-  assign_speaker: "Konuşmacı ata"
-  record_meeting_ellipsis: "Toplantı kaydet…"
-  dictations: "Dikte"
-  meetings: "Toplantılar"
-  one_recording: "1 kayıt"
-  n_recordings: "%d kayıt"
-  h_m_spoken: "%d sa %d dk konuşuldu"
-  h_spoken: "%d sa konuşuldu"
-  m_spoken: "%d dk konuşuldu"
-  audio_kept_7_days: "ses 7 gün saklanır"
-  audio_kept_30_days: "ses 30 gün saklanır"
-  audio_kept_forever: "ses sonsuza saklanır"
-  inserted_into: "%@ içine eklendi"
-  import_files: "Dosya içe aktar…"
-  paste_link: "Bağlantı yapıştır…"
-  insert_again: "Yeniden ekle"
-  playback_speed: "Oynatma hızı"
-  no_recordings_yet: "Henüz kayıt yok"
-  start_dictation_or_import: "Ana Sayfa’dan dikte başlatın veya dosya içe aktarın."
-  no_dictations_yet: "Henüz dikte yok"
-  dictations_appear_after_use: "Dikteler sesli dikteden sonra burada görünür."
-  no_meeting_recordings: "Toplantı kaydı yok"
-  record_meeting_from_home: "Ana Sayfa’dan toplantı kaydedin."
-  import_file_or_paste_link: "Dosya içe aktarın veya bağlantı yapıştırarak medya yazıya dökün."
-  try_different_search_or_filter: "Farklı arama veya filtre deneyin."
-  untitled: "Adsız"
-  https_placeholder: "https://…"
-  summary_label: "ÖZET"
-  click_line_to_jump: "oynatmayı atlamak için satıra tıklayın"
-  meeting_recording: "Toplantı kaydı"
-  voice_transcription: "Ses yazıya dökümü"
-  imported_audio: "İçe aktarılan ses"
-  web_transcription: "Web yazıya dökümü"
-
-u5_u7:
-  new_note: "New note"
-  add_word: "Add word"
-  add_replacement: "Add replacement"
-  teach_pindrop_your_words: "Teach Pindrop your words"
-  words_recognizer_should_trust: "Words the recognizer should trust"
-  applied_after_transcription: "Applied after transcription, before insert"
-  case_insensitive: "case-insensitive"
-  exact: "exact"
-  command: "command"
-  replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
-  no_dictionary_entries: "No dictionary entries"
-  add_words_or_replacements: "Add words the recognizer should trust, or replacements applied after transcription."
-  match_mode: "Match mode"
-  everything_runs_on_this_mac: "Everything runs on this Mac"
-  on_disk: "DİSKTE"
-  speech_to_text: "Speech to text"
-  on_device_helpers: "On-device helpers"
-  installed: "Installed"
-  models_privacy_footnote: "Models never leave this Mac. Audio is processed locally unless you choose a cloud provider in Settings → AI."
-  listening_speak_to_append: "Listening — speak to append…"
-  cmd_s_to_save: "⌘S to save"
-  edited_format: "edited %@"
-  just_now: "just now"
-  m_ago: "%d m ago"
-  h_ago: "%d h ago"
-  d_ago: "%d d ago"
-  edited: "edited"
-  open_note: "Open Note"
-  copy_content: "Copy Content"
-  unpin: "Unpin"
-  pin: "Pin"
-  delete_note: "Delete Note"
-  replacements_section: "Replacements"
-  untitled_note: "Untitled Note"
-u4_home:
-  you_spoke_this_week: "Bu hafta %@ söylediniz."
-  n_words_grouped: "%@ sözcük"
-  zero_day: "0-gün"
-  one_day: "1-gün"
-  n_day: "%d-gün"
-  duration_h_m: "%d sa %d dk"
-  duration_h: "%d sa"
-  duration_m: "%d dk"
-  subline_full: "%@ dikte — yazmaya göre yaklaşık %@ tasarruf."
-  subline_duration_only: "%@ dikte."
-  words_today: "Bugünkü sözcükler"
-  words_per_min: "Sözcük / dk"
-  streak: "Seri"
-  open_library_arrow: "Kitaplığı aç →"
-  this_week: "Bu hafta"
-  words_so_far: "Şimdiye kadarki sözcükler"
-  welcome_tagline: "Konuş. Yazıldı."
-  press_hotkey_hint: "Dikteye başlamak için her yerde %@ tuşuna basın."
-  bar_a11y_one: "%@, 1 sözcük"
-  bar_a11y_n: "%@, %@ sözcük"
-  recent_empty_hint: "En son dikteleriniz burada görünür."
-  option_space_fallback: "⌥Space"
-
-u8_settings:
-  reset_all_settings_ellipsis: "Tüm ayarları sıfırla…"
-  separate_from_interface_language: "Arayüz dilinden bağımsız"
-  keep_dictation_audio: "Dikte sesini sakla"
-  days_7: "7 gün"
-  days_30: "30 gün"
-  forever: "Sonsuza kadar"
-  audio_on_disk_format: "Diskteki ses: %@ · %@"
-  one_snippet: "1 kesit"
-  n_snippets: "%d kesit"
-  delete_all_audio_ellipsis: "Tüm sesleri sil…"
-  delete_all_audio_question: "Tüm sesler silinsin mi?"
-  delete_all_audio: "Tüm sesleri sil"
-  removes_kept_dictation_audio: "Saklanan dikte ses dosyalarını kaldırır. Transkriptler Kitaplığınızda kalır."
-  speaker_profiles: "Konuşmacı profilleri"
-  one_trained: "1 eğitilmiş"
-  n_trained: "%d eğitilmiş"
-  trained_summary_format: "%@ — toplantılarda kimin ne söylediğini etiketlemek için kullanılır"
-  manage_ellipsis: "Yönet…"
-  theme_preset: "Tema ön ayarı"
-  presets_recolor_caption: "Ön ayarlar vurgu ve zemin renklerini yeniden boyar. Metin kontrastı otomatik olarak doğrulanır."
-  recording_indicator: "Kayıt göstergesi"
-  toggle_dictation: "Dikteyi aç/kapat"
-  push_to_talk: "Bas-Konuş"
-  copy_last_transcript: "Son transkripti kopyala"
-  no_conflicts_with_system_or_app: "Sistem veya uygulama kısayollarıyla çakışma yok."
-  some_shortcuts_conflict_each_other: "Bazı kısayollar birbiriyle çakışıyor."
-  some_shortcuts_may_conflict_system: "Bazı kısayollar sistem kısayollarıyla çakışabilir."
-  listening_ellipsis: "Dinleniyor…"
-  enhance_transcripts: "Transkriptleri geliştir"
-  choose_a_provider: "Bir sağlayıcı seçin"
-  edit_prompt_ellipsis: "İstemi düzenle…"
-  example_label: "ÖRNEK"
-  advanced_assignments: "Gelişmiş atamalar"
-  endpoint: "Uç nokta"
-  copy_token: "Belirteci kopyala"
-  log_level: "Günlük düzeyi"
-  debug: "Hata Ayıklama"
-  info: "Bilgi"
-  warning: "Uyarı"
-  diagnostics: "Tanılama"
-  logs_never_include_transcript: "Günlükler asla transkript metni içermez"
-  export_logs_ellipsis: "Günlükleri Dışa Aktar…"
-  choose_folder_export_logs: "Pindrop günlük dosyalarını kopyalamak için bir klasör seçin."
-  github: "GitHub"
-  website: "Web Sitesi"
-  license_mit: "Lisans — MIT"
-  acknowledgements: "Teşekkürler"
-  bundled_fonts_ofl: "Pakete dahil yazı tipleri (Newsreader, Inter, JetBrains Mono) SIL Open Font License kapsamında lisanslanmıştır."
-  made_with_care: "Yerel konuşma için özenle yapıldı."
-  release_channel: "Release"
-  beta_channel: "Beta"
-  last_checked_format: "Son kontrol: %@"
-  update_checks_unavailable: "Güncelleme kontrolleri geçici olarak kullanılamıyor."
-  checks_for_updates_automatically: "Pindrop güncellemeleri otomatik olarak kontrol eder."
-  n_samples: "%d örnek"
-u10_floating:
-  transcribing: "Yazıya dökülüyor…"
-  word_count: "%d kelime"
-  inserted_into: "%@ içine eklendi"
-  microphone_unavailable: "Mikrofon kullanılamıyor"
-  whats_new: "Yenilikler"
-  version_line: "Pindrop 0.10.0 · Temmuz 2026"
-  announcement_summary: "Pindrop genelinde yeniden oynatma, yeni görünüm ve klavye denetimi."
-  replay_title: "Her dikteyi yeniden oynatın"
-  replay_body: "Pindrop sesi yedi gün saklayabilir; böylece gerektiğinde Kitaplık’tan yeniden dinleyebilirsiniz."
-  new_look_title: "Yeni bir görünüm"
-  new_look_body: "Daha sıcak ve sakin tasarım sözlerinizi öne çıkarır. Tema ön ayarlarınız korunur ve yeni varsayılan Kitaplık eklenir."
-  keyboard_title: "Her yerde klavye"
-  keyboard_body: "Klavyeden ayrılmadan gezinin, arayın, not oluşturun, dışa aktarın ve silin."
-u11:
-  recording_started: "Kayıt başladı"
-  recording_stopped: "Kayıt durduruldu"
-  recording_processing: "Kayıt durduruldu. Transkripsiyon işleniyor."
-  transcription_complete: "Transkripsiyon tamamlandı"
-  live_transcript: "Canlı transkript"
-  estimating_time: "Kalan süre tahmin ediliyor…"
-  seconds_left: "yaklaşık %d sn kaldı"
-  minutes_left: "yaklaşık %d dk kaldı"
-  microphone_muted: "Mikrofon sessize alındı"
-u11b:
-  playback_position: "Oynatma konumu"
-  expired: "Süresi doldu"
-  expand: "Genişlet"
-  step_x_of_y: "Adım %d/%d"
-sessions_in: "%@ sessions in %@"
-0_m: "0 m"
-1_year: "1 year"
-90_days: "90 days"
-ai_enhanced: "AI-enhanced"
-active_days: "Active days"
-activity: "Activity"
-all_time: "All time"
-audio_duration: "Audio duration"
-average_session: "Average session"
-average_words_session: "Average words / session"
-by_weekday: "By weekday"
-destinations: "Destinations"
-dictation_words_min: "Dictation words / min"
-duration: "Duration"
-estimated_time_saved: "Estimated time saved"
-imported_file: "Imported file"
-longest_streak: "Longest streak"
-manual_capture: "Manual capture"
-metric: "Metric"
-no_activity_in_this_period: "No activity in this period"
-no_destination_data: "No destination data"
-other: "Other"
-overview: "Overview"
-sources: "Sources"
-stats: "Stats"
-time_of_day: "Time of day"
-time_range: "Time range"
-transcribed_words: "Transcribed words"
-unknown: "Unknown"
-voice: "Voice"
-web_link: "Web link"
-your_stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."

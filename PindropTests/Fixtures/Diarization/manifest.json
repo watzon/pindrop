@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "source": {
+    "name": "AMI Meeting Corpus",
+    "url": "https://groups.inf.ed.ac.uk/ami/",
+    "license": "CC BY 4.0",
+    "attribution": "AMI Meeting Corpus, University of Edinburgh"
+  },
+  "selection": {
+    "annotation_merge_gap_seconds": 0.3,
+    "window_alignment_seconds": 1.0,
+    "single_speaker_window_seconds": 30,
+    "two_speaker_window_seconds": 60,
+    "short_turn_window_seconds": 30,
+    "overlap_window_seconds": 30,
+    "required_alternating_turns": 6
+  },
+  "fixtures": [
+    {
+      "id": "ami-en2002a-0-60",
+      "source_url": "https://groups.inf.ed.ac.uk/ami/AMICorpusMirror/amicorpus/HeadsetAudio/EN2002a.Mix-Headset.wav",
+      "sha256": "a15017d0d3c871866971ee178052a0ce3a7e44d6fbf89fc23dcab326511b65f5",
+      "audio": "ami-en2002a-0-60.wav",
+      "reference": "ami-en2002a-0-60.json",
+      "start_seconds": 0,
+      "end_seconds": 60,
+      "expected_speaker_count": 4,
+      "reference_intervals": [
+        {"speaker": "A", "start": 0.944, "end": 7.068},
+        {"speaker": "D", "start": 0.0, "end": 1.901},
+        {"speaker": "B", "start": 3.692, "end": 5.579},
+        {"speaker": "C", "start": 3.492, "end": 5.446},
+        {"speaker": "D", "start": 3.612, "end": 12.288},
+        {"speaker": "B", "start": 7.891, "end": 9.005},
+        {"speaker": "C", "start": 8.544, "end": 11.76},
+        {"speaker": "B", "start": 12.133, "end": 15.434},
+        {"speaker": "C", "start": 15.109, "end": 25.264},
+        {"speaker": "D", "start": 14.959, "end": 15.625},
+        {"speaker": "A", "start": 20.124, "end": 21.168},
+        {"speaker": "B", "start": 20.222, "end": 21.444},
+        {"speaker": "A", "start": 21.4, "end": 23.328},
+        {"speaker": "D", "start": 19.008, "end": 23.804},
+        {"speaker": "B", "start": 23.49, "end": 24.24},
+        {"speaker": "A", "start": 25.344, "end": 30.166},
+        {"speaker": "B", "start": 25.658, "end": 26.208},
+        {"speaker": "D", "start": 27.792, "end": 30.281},
+        {"speaker": "C", "start": 27.879, "end": 34.652},
+        {"speaker": "B", "start": 28.016, "end": 30.737}
+      ]
+    }
+  ]
+}

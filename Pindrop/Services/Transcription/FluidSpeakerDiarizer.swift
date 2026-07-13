@@ -11,20 +11,24 @@ import FluidAudio
 @MainActor
 public final class FluidSpeakerDiarizer: SpeakerDiarizer {
 
+    /// Fixed offline Community-1 clustering threshold selected by the diarization quality benchmark.
+    public static let offlineClusteringThreshold: Double = 0.60
+
+    nonisolated private static let requiredSampleRate = 16_000
+    nonisolated private static let expectedEmbeddingDimension = 256
+    nonisolated private static let validSpeakerCountRange = 1...20
+
     public enum DiarizerServiceError: Error, LocalizedError {
         case invalidSampleRate(Int)
         case invalidAudioSamples
         case modelNotLoaded
         case modelLoadFailed(String)
         case processingFailed(String)
-        case speakerEmbeddingUnavailable
-        case invalidKnownSpeaker(String)
-        case comparisonFailed(String)
 
         public var errorDescription: String? {
             switch self {
             case .invalidSampleRate(let sampleRate):
-                return "Invalid sample rate: \(sampleRate). Expected a positive value."
+                return "Invalid sample rate: \(sampleRate). Expected \(FluidSpeakerDiarizer.requiredSampleRate)."
             case .invalidAudioSamples:
                 return "Invalid audio samples provided for diarization."
             case .modelNotLoaded:
@@ -33,12 +37,6 @@ public final class FluidSpeakerDiarizer: SpeakerDiarizer {
                 return "Failed to load diarization model: \(message)"
             case .processingFailed(let message):
                 return "Speaker diarization failed: \(message)"
-            case .speakerEmbeddingUnavailable:
-                return "Unable to compute speaker embedding for comparison."
-            case .invalidKnownSpeaker(let message):
-                return "Invalid known speaker: \(message)"
-            case .comparisonFailed(let message):
-                return "Failed to compare speakers: \(message)"
             }
         }
     }
@@ -46,12 +44,9 @@ public final class FluidSpeakerDiarizer: SpeakerDiarizer {
     public private(set) var state: SpeakerDiarizerState = .unloaded
     public let mode: DiarizationMode = .offline
 
-    private let worker: FluidSpeakerDiarizerWorker
-    private var knownSpeakersByID: [String: Speaker] = [:]
+    private let modelsCache = FluidSpeakerDiarizerModelsCache()
 
-    public init(config: DiarizerConfig = .default) {
-        self.worker = FluidSpeakerDiarizerWorker(config: config)
-    }
+    public init() {}
 
     public func loadModels() async throws {
         if state == .loading || state == .ready {
@@ -61,9 +56,13 @@ public final class FluidSpeakerDiarizer: SpeakerDiarizer {
         state = .loading
 
         do {
-            try await worker.loadModels()
+            try await modelsCache.loadModels()
             state = .ready
-            Log.transcription.info("Speaker diarization model loaded")
+            Log.transcription.info("Speaker diarization model loaded (offline-community1)")
+        } catch is CancellationError {
+            state = .unloaded
+            Log.transcription.info("Speaker diarization model load canceled")
+            throw CancellationError()
         } catch {
             state = .error
             let mappedError = mapError(error)
@@ -73,18 +72,29 @@ public final class FluidSpeakerDiarizer: SpeakerDiarizer {
     }
 
     public func unloadModels() async {
-        await worker.unloadModels()
+        await modelsCache.unloadModels()
         state = .unloaded
         Log.transcription.debug("Speaker diarization model unloaded")
     }
 
-    public func diarize(samples: [Float], sampleRate: Int) async throws -> DiarizationResult {
-        guard sampleRate > 0 else {
+    public func diarize(
+        samples: [Float],
+        sampleRate: Int,
+        options: DiarizationOptions
+    ) async throws -> DiarizationResult {
+        guard sampleRate == Self.requiredSampleRate else {
             throw DiarizerServiceError.invalidSampleRate(sampleRate)
         }
 
         guard !samples.isEmpty else {
             throw DiarizerServiceError.invalidAudioSamples
+        }
+
+        if let expectedSpeakerCount = options.expectedSpeakerCount,
+           !Self.validSpeakerCountRange.contains(expectedSpeakerCount) {
+            throw DiarizerServiceError.processingFailed(
+                "Expected speaker count must be between 1 and 20."
+            )
         }
 
         if state == .unloaded || state == .error {
@@ -96,20 +106,53 @@ public final class FluidSpeakerDiarizer: SpeakerDiarizer {
         }
 
         state = .processing
+        let processingStarted = Date()
+        let audioDuration = TimeInterval(samples.count) / TimeInterval(sampleRate)
 
         do {
-            let mappedSegments = try await worker.diarize(samples: samples, sampleRate: sampleRate)
-            var speakersByID: [String: Speaker] = [:]
-            for segment in mappedSegments {
-                speakersByID[segment.speaker.id] = segment.speaker
+            let models = try await modelsCache.requireModels()
+            var config = OfflineDiarizerConfig.default
+            config.clustering.threshold = Self.offlineClusteringThreshold
+            if let expectedSpeakerCount = options.expectedSpeakerCount {
+                config = config.withSpeakers(exactly: expectedSpeakerCount)
             }
-            let audioDuration = TimeInterval(samples.count) / TimeInterval(sampleRate)
-            let mapped = DiarizationResult(
-                segments: mappedSegments,
-                speakers: speakersByID.values.sorted { $0.label < $1.label },
+            try config.validate()
+
+            let manager = OfflineDiarizerManager(config: config)
+            manager.initialize(models: models)
+
+            let rawSegments: [TimedSpeakerSegment]
+            let speakerDatabase: [String: [Float]]?
+            do {
+                let rawResult = try await manager.process(audio: samples)
+                rawSegments = rawResult.segments
+                speakerDatabase = rawResult.speakerDatabase
+            } catch OfflineDiarizationError.noSpeechDetected {
+                state = .ready
+                let processingDuration = Date().timeIntervalSince(processingStarted)
+                logPipelineDiagnostics(
+                    requestedSpeakerCount: options.expectedSpeakerCount,
+                    observedSpeakerCount: 0,
+                    audioDuration: audioDuration,
+                    processingDuration: processingDuration
+                )
+                return DiarizationResult(segments: [], speakers: [], audioDuration: audioDuration)
+            }
+
+            let mapped = mapResult(
+                segments: rawSegments,
+                speakerDatabase: speakerDatabase,
                 audioDuration: audioDuration
             )
             state = .ready
+
+            let processingDuration = Date().timeIntervalSince(processingStarted)
+            logPipelineDiagnostics(
+                requestedSpeakerCount: options.expectedSpeakerCount,
+                observedSpeakerCount: mapped.speakerCount,
+                audioDuration: audioDuration,
+                processingDuration: processingDuration
+            )
             return mapped
         } catch is CancellationError {
             state = .ready
@@ -123,53 +166,88 @@ public final class FluidSpeakerDiarizer: SpeakerDiarizer {
         }
     }
 
-    public func compareSpeakers(audio1: [Float], audio2: [Float]) async throws -> Float {
-        do {
-            let first = try await diarize(samples: audio1, sampleRate: 16000)
-            let second = try await diarize(samples: audio2, sampleRate: 16000)
+    private func mapResult(
+        segments: [TimedSpeakerSegment],
+        speakerDatabase: [String: [Float]]?,
+        audioDuration: TimeInterval
+    ) -> DiarizationResult {
+        let sortedSegments = segments.sorted {
+            $0.startTimeSeconds < $1.startTimeSeconds
+        }
 
-            guard let firstEmbedding = representativeEmbedding(from: first),
-                  let secondEmbedding = representativeEmbedding(from: second) else {
-                throw DiarizerServiceError.speakerEmbeddingUnavailable
+        var speakersByID: [String: Speaker] = [:]
+        var speakersInOrder: [Speaker] = []
+        var mappedSegments: [SpeakerSegment] = []
+
+        for (index, segment) in sortedSegments.enumerated() {
+            let startTime = TimeInterval(segment.startTimeSeconds)
+            let endTime = TimeInterval(segment.endTimeSeconds)
+            guard endTime > startTime else { continue }
+
+            let speakerID = segment.speakerId.isEmpty ? "speaker-\(index + 1)" : segment.speakerId
+            let embedding = resolveEmbedding(
+                segmentEmbedding: segment.embedding,
+                speakerID: speakerID,
+                speakerDatabase: speakerDatabase
+            )
+            let confidence = min(max(segment.qualityScore, 0.0), 1.0)
+
+            let speaker: Speaker
+            if let existing = speakersByID[speakerID] {
+                speaker = existing
+            } else {
+                let label = "Speaker \(speakersInOrder.count + 1)"
+                let created = Speaker(id: speakerID, label: label, embedding: embedding)
+                speakersByID[speakerID] = created
+                speakersInOrder.append(created)
+                speaker = created
             }
 
-            let distance = SpeakerUtilities.cosineDistance(firstEmbedding, secondEmbedding)
-            guard distance.isFinite else {
-                throw DiarizerServiceError.comparisonFailed("Invalid similarity distance")
-            }
-
-            let similarity = max(0.0, min(1.0, 1.0 - distance))
-            return similarity
-        } catch {
-            throw mapError(error)
-        }
-    }
-
-    public func registerKnownSpeaker(_ speaker: Speaker) async throws {
-        guard let embedding = speaker.embedding, !embedding.isEmpty else {
-            throw DiarizerServiceError.invalidKnownSpeaker("Missing speaker embedding")
+            mappedSegments.append(
+                SpeakerSegment(
+                    speaker: speaker,
+                    startTime: startTime,
+                    endTime: endTime,
+                    confidence: confidence
+                )
+            )
         }
 
-        let normalizedSpeaker = Speaker(id: speaker.id, label: speaker.label, embedding: embedding)
-        knownSpeakersByID[normalizedSpeaker.id] = normalizedSpeaker
+        return DiarizationResult(
+            segments: mappedSegments,
+            speakers: speakersInOrder,
+            audioDuration: audioDuration
+        )
+    }
 
-        do {
-            try await worker.registerKnownSpeaker(normalizedSpeaker)
-        } catch {
-            throw mapError(error)
+    private func resolveEmbedding(
+        segmentEmbedding: [Float],
+        speakerID: String,
+        speakerDatabase: [String: [Float]]?
+    ) -> [Float]? {
+        if !segmentEmbedding.isEmpty,
+           segmentEmbedding.count == Self.expectedEmbeddingDimension {
+            return segmentEmbedding
         }
+        if let databaseEmbedding = speakerDatabase?[speakerID], !databaseEmbedding.isEmpty {
+            return databaseEmbedding
+        }
+        return nil
     }
 
-    public func clearKnownSpeakers() async {
-        knownSpeakersByID.removeAll()
-        await worker.clearKnownSpeakers()
-    }
-
-    private func representativeEmbedding(from result: DiarizationResult) -> [Float]? {
-        result.segments
-            .sorted { $0.duration > $1.duration }
-            .compactMap(\.speaker.embedding)
-            .first
+    private func logPipelineDiagnostics(
+        requestedSpeakerCount: Int?,
+        observedSpeakerCount: Int,
+        audioDuration: TimeInterval,
+        processingDuration: TimeInterval
+    ) {
+        let requested = requestedSpeakerCount.map(String.init) ?? "automatic"
+        let audioText = String(format: "%.3f", audioDuration)
+        let processingText = String(format: "%.3f", processingDuration)
+        let thresholdText = String(format: "%.2f", Self.offlineClusteringThreshold)
+        Log.transcription.info(
+            "Speaker diarization pipeline=offline-community1 requestedSpeakers=\(requested) observedSpeakers=\(observedSpeakerCount) audioDuration=\(audioText)s processingDuration=\(processingText)s clusteringThreshold=\(thresholdText)"
+        )
     }
 
     private func mapError(_ error: Error) -> DiarizerServiceError {
@@ -177,22 +255,15 @@ public final class FluidSpeakerDiarizer: SpeakerDiarizer {
             return serviceError
         }
 
-        if let diarizerError = error as? DiarizerError {
-            switch diarizerError {
-            case .notInitialized:
-                return .modelNotLoaded
-            case .modelDownloadFailed, .modelCompilationFailed:
-                return .modelLoadFailed(diarizerError.localizedDescription)
-            case .processingFailed(let message):
-                return .processingFailed(message)
-            case .invalidAudioData:
-                return .invalidAudioSamples
-            case .embeddingExtractionFailed:
-                return .processingFailed("Embedding extraction failed")
-            case .memoryAllocationFailed:
-                return .processingFailed("Memory allocation failed")
-            case .invalidArrayBounds:
-                return .processingFailed("Invalid array bounds")
+        if let offlineError = error as? OfflineDiarizationError {
+            switch offlineError {
+            case .modelNotLoaded:
+                return .modelLoadFailed(offlineError.localizedDescription)
+            case .invalidConfiguration, .invalidBatchSize, .processingFailed, .exportFailed:
+                return .processingFailed(offlineError.localizedDescription)
+            case .noSpeechDetected:
+                // noSpeechDetected is handled as an empty success at the call site.
+                return .processingFailed(offlineError.localizedDescription)
             }
         }
 
@@ -200,191 +271,32 @@ public final class FluidSpeakerDiarizer: SpeakerDiarizer {
     }
 }
 
-private final class FluidSpeakerDiarizerWorker {
-    private let queue = DispatchQueue(label: "tech.watzon.pindrop.transcription.diarizer")
-    private let config: DiarizerConfig
-
-    private var diarizerManager: DiarizerManager?
-    private var knownSpeakersByID: [String: Speaker] = [:]
-
-    init(config: DiarizerConfig) {
-        self.config = config
-    }
+/// Caches compiled offline diarization models. Each diarization call still builds a
+/// call-local `OfflineDiarizerManager` so speaker-count constraints never leak across jobs.
+private actor FluidSpeakerDiarizerModelsCache {
+    private var models: OfflineDiarizerModels?
 
     func loadModels() async throws {
-        let models = try await DiarizerModels.load(from: DiarizerModels.defaultModelsDirectory())
-        let knownSpeakers = Array(knownSpeakersByID.values)
+        if models != nil {
+            return
+        }
 
-        try await run {
-            let manager = DiarizerManager(config: self.config)
-            manager.initialize(models: models)
-
-            if !knownSpeakers.isEmpty {
-                try manager.initializeKnownSpeakers(
-                    knownSpeakers.map { speaker in
-                        guard let embedding = speaker.embedding, !embedding.isEmpty else {
-                            throw FluidSpeakerDiarizer.DiarizerServiceError.invalidKnownSpeaker("Missing speaker embedding")
-                        }
-
-                        return .init(
-                            id: speaker.id,
-                            name: speaker.label,
-                            currentEmbedding: embedding,
-                            duration: 0,
-                            isPermanent: true
-                        )
-                    }
-                )
-            }
-
-            self.diarizerManager = manager
+        let loaded = try await OfflineDiarizerModels.load(
+            from: OfflineDiarizerModels.defaultModelsDirectory()
+        )
+        if models == nil {
+            models = loaded
         }
     }
 
-    func unloadModels() async {
-        await runWithoutThrowing {
-            self.diarizerManager?.cleanup()
-            self.diarizerManager = nil
-        }
+    func unloadModels() {
+        models = nil
     }
 
-    func diarize(samples: [Float], sampleRate: Int) async throws -> [SpeakerSegment] {
-        try await run {
-            guard let diarizerManager = self.diarizerManager else {
-                throw FluidSpeakerDiarizer.DiarizerServiceError.modelNotLoaded
-            }
-            let rawResult = try diarizerManager.performCompleteDiarization(samples, sampleRate: sampleRate)
-            let sortedSegments = rawResult.segments.sorted { $0.startTimeSeconds < $1.startTimeSeconds }
-
-            return sortedSegments.enumerated().compactMap { index, segment in
-                let fallbackSpeakerID = "speaker-\(index + 1)"
-                let speakerID = segment.speakerId.isEmpty ? fallbackSpeakerID : segment.speakerId
-                let knownSpeaker = self.knownSpeakersByID[speakerID]
-                let embedding = segment.embedding.isEmpty ? knownSpeaker?.embedding : segment.embedding
-                let label = knownSpeaker?.label ?? speakerID
-
-                let startTime = TimeInterval(segment.startTimeSeconds)
-                let endTime = TimeInterval(segment.endTimeSeconds)
-                guard endTime > startTime else { return nil }
-
-                let confidence = min(max(segment.qualityScore, 0.0), 1.0)
-                return SpeakerSegment(
-                    speaker: Speaker(id: speakerID, label: label, embedding: embedding),
-                    startTime: startTime,
-                    endTime: endTime,
-                    confidence: confidence
-                )
-            }
+    func requireModels() throws -> OfflineDiarizerModels {
+        guard let models else {
+            throw FluidSpeakerDiarizer.DiarizerServiceError.modelNotLoaded
         }
-    }
-
-    func registerKnownSpeaker(_ speaker: Speaker) async throws {
-        try await run {
-            guard let embedding = speaker.embedding, !embedding.isEmpty else {
-                throw FluidSpeakerDiarizer.DiarizerServiceError.invalidKnownSpeaker("Missing speaker embedding")
-            }
-
-            self.knownSpeakersByID[speaker.id] = speaker
-            guard let diarizerManager = self.diarizerManager else { return }
-            diarizerManager.initializeKnownSpeakers([
-                .init(
-                    id: speaker.id,
-                    name: speaker.label,
-                    currentEmbedding: embedding,
-                    duration: 0,
-                    isPermanent: true
-                )
-            ])
-        }
-    }
-
-    func clearKnownSpeakers() async {
-        await runWithoutThrowing {
-            self.knownSpeakersByID.removeAll()
-            self.diarizerManager?.speakerManager.reset(keepIfPermanent: false)
-        }
-    }
-
-    private func run<T>(_ operation: @escaping () throws -> T) async throws -> T {
-        let state = WorkerContinuationState<T>()
-
-        return try await withTaskCancellationHandler {
-            try await withCheckedThrowingContinuation { continuation in
-                guard state.activate(continuation) else { return }
-
-                queue.async {
-                    guard !state.hasResolved else { return }
-
-                    do {
-                        state.resolve(.success(try operation()))
-                    } catch {
-                        state.resolve(.failure(error))
-                    }
-                }
-            }
-        } onCancel: {
-            state.resolve(.failure(CancellationError()))
-        }
-    }
-
-    private func runWithoutThrowing(_ operation: @escaping () -> Void) async {
-        await withCheckedContinuation { continuation in
-            queue.async {
-                operation()
-                continuation.resume()
-            }
-        }
-    }
-
-    private final class WorkerContinuationState<T>: @unchecked Sendable {
-        private let lock = NSLock()
-        private var continuation: CheckedContinuation<T, Error>?
-        private var pendingResult: Result<T, Error>?
-        private var resolved = false
-
-        var hasResolved: Bool {
-            lock.lock()
-            let value = resolved
-            lock.unlock()
-            return value
-        }
-
-        func activate(_ continuation: CheckedContinuation<T, Error>) -> Bool {
-            lock.lock()
-            if let pendingResult {
-                self.pendingResult = nil
-                lock.unlock()
-                continuation.resume(with: pendingResult)
-                return false
-            }
-
-            if resolved {
-                lock.unlock()
-                continuation.resume(throwing: CancellationError())
-                return false
-            }
-
-            self.continuation = continuation
-            lock.unlock()
-            return true
-        }
-
-        func resolve(_ result: Result<T, Error>) {
-            lock.lock()
-            guard !resolved else {
-                lock.unlock()
-                return
-            }
-
-            resolved = true
-            let continuationToResume = continuation
-            continuation = nil
-            if continuationToResume == nil {
-                pendingResult = result
-            }
-            lock.unlock()
-
-            continuationToResume?.resume(with: result)
-        }
+        return models
     }
 }

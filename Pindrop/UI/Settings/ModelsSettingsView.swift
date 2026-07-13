@@ -453,6 +453,15 @@ struct ModelsSettingsView: View {
                     type,
                     streamingChunkProfile: settings.streamingChunkProfile
                 )
+                // Offline diarization only becomes installable once complete assets pass
+                // the readiness helper (required CoreML bundles + plda-parameters.json).
+                if type == .diarization {
+                    await modelManager.refreshDownloadedFeatureModels()
+                    guard modelManager.isOfflineDiarizationReady() else {
+                        errorMessage = "Speaker diarization model is incomplete. Try downloading again."
+                        return
+                    }
+                }
                 settings.setFeatureEnabled(type, enabled: true)
             } catch {
                 errorMessage = "Failed to download \(type.displayName): \(error.localizedDescription)"

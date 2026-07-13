@@ -1,61 +1,61 @@
-u9_onboarding:
-  download_amount_format: "%@ এর মধ্যে %@"
-  download_background_hint: "ডাউনলোড চলার সময় সেটআপ চালিয়ে যান — আমরা পটভূমিতে শেষ করব।"
-  you_say: "আপনি বলেন"
-  pindrop_writes: "Pindrop লেখে"
-  enable_enhancement: "উন্নয়ন চালু করুন"
-  accessibility_clipboard_fallback: "অ্যাক্সেসিবিলিটি ছাড়া Pindrop পাঠ্যটি ক্লিপবোর্ডে কপি করে।"
-  change_hotkey_hint: "এটি বদলাতে অন্য একটি কী সমন্বয় চাপুন"
-  granted_state: "মঞ্জুর"
-  ready_heading: "আপনি প্রস্তুত।"
-  ready_instruction_format: "%@ চাপুন এবং কথা বলা শুরু করুন — কার্সর যেখানে আছে Pindrop সেখানেই টাইপ করে।"
-  try_it_now: "এখনই চেষ্টা করুন"
-
+0:
+  m: "0 m"
 100:
   local_processing: "100% স্থানীয় প্রক্রিয়াকরণ"
 1:
   folder: "1 ফোল্ডার"
+  note: "১টি নোট"
   speaker: "১ জন বক্তা"
   transcription: "1 ট্রান্সক্রিপশন"
-  note: "১টি নোট"
   word: "১টি শব্দ"
+  year: "1 year"
+90:
+  days: "90 days"
 a:
-  native_macos_menu_bar_dictation_app_using_loca: "হুইস্পারকিটের সাথে স্থানীয় স্পিচ-টু-টেক্সট ব্যবহার করে একটি নেটিভ macOS মেনু বার ডিকটেশন অ্যাপ। ঐচ্ছিক AI বর্ধন সহ ডিফল্টরূপে 100% স্থানীয় প্রক্রিয়াকরণ।"
   big_round_of_upgrades_and_two_community_shout: "বড় আপগ্রেডের এক দফা — আর কমিউনিটির দুইজনকে ধন্যবাদ।"
+  native_macos_menu_bar_dictation_app_using_loca: "হুইস্পারকিটের সাথে স্থানীয় স্পিচ-টু-টেক্সট ব্যবহার করে একটি নেটিভ macOS মেনু বার ডিকটেশন অ্যাপ। ঐচ্ছিক AI বর্ধন সহ ডিফল্টরূপে 100% স্থানীয় প্রক্রিয়াকরণ।"
 about:
   _self: "সম্পর্কে"
   pindrop: "পিনড্রপ সম্পর্কে"
 accessibility:
   _self: "অ্যাক্সেসযোগ্যতা"
+  permission: "অ্যাক্সেসিবিলিটি অনুমতি"
   permission_is_enabled_full_ui_cont: "অ্যাক্সেসিবিলিটি অনুমতি সক্ষম করা হয়েছে। সম্পূর্ণ UI প্রসঙ্গ উপলব্ধ।"
   permission_is_not_granted_vibe_mod: "অ্যাক্সেসযোগ্যতার অনুমতি দেওয়া হয় না। Vibe মোড সীমিত প্রসঙ্গের সাথে অ-ব্লকিং রয়ে গেছে।"
   permission_recommended: "অ্যাক্সেসিবিলিটি অনুমতি প্রস্তাবিত"
   permission_required: "অ্যাক্সেসিবিলিটি অনুমতি প্রয়োজন"
-  permission: "অ্যাক্সেসিবিলিটি অনুমতি"
 accuracy:
   _self: "নির্ভুলতা"
 acknowledgments:
   _self: "স্বীকৃতি"
 active:
   _self: "সক্রিয়"
+  days: "Active days"
+activity:
+  _self: "Activity"
 add:
   _self: "যোগ করুন"
   a_provider_to_start_using_ai_enhancement: "AI বর্ধিতকরণ ব্যবহার শুরু করতে একটি প্রদানকারী যোগ করুন।"
   custom_words_to_improve_transcription_accura: "বিশেষ পদ, নাম বা শব্দার্থের জন্য প্রতিলিপি নির্ভুলতা উন্নত করতে কাস্টম শব্দ যোগ করুন।"
   provider: "প্রদানকারী যোগ করুন"
   tag: "ট্যাগ যোগ করুন..."
+  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
+  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
+  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
+  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
+  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
   to_existing: "বিদ্যমান এ যোগ করুন"
   trailing_space: "পিছনের স্থান যোগ করুন"
   word_replacements_to_automatically_correct_c: "স্বয়ংক্রিয়ভাবে সাধারণ ট্রান্সক্রিপশন ত্রুটি সংশোধন করতে শব্দ প্রতিস্থাপন যোগ করুন।"
   words_to_help_pindrop_recognize_them_properl: "Pindrop তাদের সঠিকভাবে চিনতে সাহায্য করার জন্য শব্দ যোগ করুন"
   words_you_manually_correct_into_your_vocabul: "ভবিষ্যত ট্রান্সক্রিপশনের জন্য আপনার শব্দভান্ডারে ম্যানুয়ালি ঠিক করা শব্দ যোগ করুন।"
-  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
-  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
-  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
-  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
-  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
+advanced:
+  _self: "উন্নত"
+agent:
+  setup: "এজেন্ট সেটআপ"
 ai:
   _self: "AI"
+  enhanced: "AI-enhanced"
   enhancement: "এআই এনহান্সমেন্ট"
   enhancement_529f5583: "এআই এনহান্সমেন্ট: %@"
   enhancement_failed: "এআই এনহান্সমেন্ট ব্যর্থ হয়েছে"
@@ -64,6 +64,9 @@ ai:
   model: "এআই মডেল"
 all:
   _self: "সব"
+  time: "All time"
+also:
+  new_rtl_layout_support_and_20_new_interface: "আরও নতুন: RTL লেআউট সমর্থন এবং 20টি নতুন ইন্টারফেস ভাষা।"
 an:
   error_occurred_while_enhancing_your_transcrip: |-
     আপনার ট্রান্সক্রিপশন উন্নত করার সময় একটি ত্রুটি ঘটেছে:
@@ -72,7 +75,7 @@ an:
     
     মূল ট্রান্সক্রিপশনটি বর্ধিতকরণ ছাড়াই সংরক্ষণ করা হয়েছিল।
     আপনি সেটিংসে আবার AI বর্ধিতকরণ সক্ষম করার চেষ্টা করতে পারেন।
-  error_occurred_while_enhancing_your_transcrip_8c664cb4: "আপনার ট্রান্সক্রিপশন উন্নত করার সময় একটি ত্রুটি ঘটেছে: nn%@nn মূল ট্রান্সক্রিপশনটি বর্ধিতকরণ ছাড়াই সংরক্ষিত হয়েছিল৷ nআপনি সেটিংসে আবার AI বর্ধিতকরণ সক্ষম করার চেষ্টা করতে পারেন৷"
+  error_occurred_while_enhancing_your_transcrip_1790ad05: "আপনার ট্রান্সক্রিপশন উন্নত করার সময় একটি ত্রুটি ঘটেছে: nn%@nn মূল ট্রান্সক্রিপশনটি বর্ধিতকরণ ছাড়াই সংরক্ষিত হয়েছিল৷ nআপনি সেটিংসে আবার AI বর্ধিতকরণ সক্ষম করার চেষ্টা করতে পারেন৷"
 anthropic:
   _self: "নৃতাত্ত্বিক"
 api:
@@ -82,6 +85,8 @@ api:
   key_saved_endpoint: "API কী সংরক্ষিত • শেষবিন্দু: %@"
 app:
   info_acknowledgments_support_and_logs: "অ্যাপের তথ্য, স্বীকৃতি, সমর্থন এবং লগ"
+appearance:
+  _self: "চেহারা"
 append:
   a_space_after_each_transcription_for_seam: "বিরামহীন শ্রুতিলিপির জন্য প্রতিটি ট্রান্সক্রিপশনের পরে একটি স্থান যুক্ত করুন।"
 apple:
@@ -99,6 +104,7 @@ assignments:
 attach:
   logs_from_this_folder_when_filing_a_githu: "GitHub সমস্যা ফাইল করার সময় এই ফোল্ডার থেকে লগ সংযুক্ত করুন।"
 audio:
+  duration: "Audio duration"
   input: "অডিও ইনপুট"
 automatic:
   follow_system: "স্বয়ংক্রিয় (ফলো সিস্টেম)"
@@ -109,6 +115,9 @@ automatically:
   start_pindrop_when_you_sign_in: "আপনি সাইন ইন করার সময় স্বয়ংক্রিয়ভাবে Pindrop শুরু করুন।"
 available:
   models: "উপলব্ধ মডেল"
+average:
+  session: "Average session"
+  words_session: "Average words / session"
 avg:
   speed: "গড় গতি"
 back:
@@ -116,14 +125,20 @@ back:
   to_library: "লাইব্রেরিতে ফিরে যান"
 base:
   _self: "বেস"
+bearer:
+  token: "Bearer টোকেন"
 best:
   _self: "সেরা"
 better:
   _self: "ভালো"
   bluetooth_external_mic_support: "Bluetooth ও বাহ্যিক মাইকের আরও ভালো সমর্থন"
+bring:
+  all_to_front: "সব সামনে আনুন"
 built:
   in_presets: "অন্তর্নির্মিত প্রিসেট"
   in_read_only: "অন্তর্নির্মিত (শুধু পড়ার জন্য)"
+by:
+  weekday: "By weekday"
 cancel:
   _self: "বাতিল করুন"
   operation: "অপারেশন বাতিল করুন"
@@ -132,6 +147,8 @@ capture:
 change:
   microphone: "মাইক্রোফোন পরিবর্তন করুন"
   microphone_ac9970f4: "মাইক্রোফোন পরিবর্তন করুন"
+changes:
+  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
   for_updates: "আপডেটের জন্য চেক করুন..."
   for_updates_736b9062: "আপডেটের জন্য চেক করুন"
@@ -144,24 +161,24 @@ choose:
   a_model: "একটি মডেল চয়ন করুন"
   a_provider_first: "প্রথমে একটি প্রদানকারী চয়ন করুন"
   an_audio_or_video_file_to_transcribe: "প্রতিলিপি করার জন্য একটি অডিও বা ভিডিও ফাইল চয়ন করুন৷"
-  between_nemotron_punctuated_downloaded_mod: "Nemotron (যতিচিহ্নসহ, ডাউনলোড করা মডেল) এবং Apple SpeechTranscriber (macOS 26+, OS-এর সাথে আসে) এর মধ্যে বেছে নিন।"
+  between_nemotron_punctuated_downloaded_mo: "Nemotron (যতিচিহ্নসহ, ডাউনলোড করা মডেল) এবং Apple SpeechTranscriber (macOS 26+, OS-এর সাথে আসে) এর মধ্যে বেছে নিন।"
   file: "ফাইল নির্বাচন করুন"
   how_dictated_text_lands_then_tune_the_fin: "টেক্সট ল্যান্ড কিভাবে নির্দেশিত চয়ন করুন, তারপর চূড়ান্ত সন্নিবেশ আচরণ টিউন."
+  how_pindrop_appears_on_screen_while_you_d: "ডিক্টেশনের সময় Pindrop স্ক্রিনে কীভাবে দেখা যাবে তা বেছে নিন।"
   how_pindrop_follows_system_appearance_the: "পিনড্রপ কীভাবে সিস্টেমের চেহারা অনুসরণ করে তা চয়ন করুন, তারপরে কিউরেটেড আলো এবং অন্ধকার প্যালেটগুলি মিশ্রিত করুন।"
+  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   how_to_import_the_dictionary_data: "কীভাবে অভিধান ডেটা আমদানি করতে হয় তা চয়ন করুন৷"
   how_to_import_the_preset_data: "প্রিসেট ডেটা কীভাবে আমদানি করবেন তা চয়ন করুন"
   languages_for_the_interface_and_for_dicta: "ইন্টারফেস এবং শ্রুতিমধুর জন্য ভাষা চয়ন করুন. স্বয়ংক্রিয়ভাবে সিস্টেম অনুসরণ করে."
   location_to_save_presets: "প্রিসেট সংরক্ষণ করতে অবস্থান চয়ন করুন"
+  model: "Choose Model…"
   the_daytime_shell_used_in_light_mode: "হালকা মোডে ব্যবহৃত দিনের সময় শেল চয়ন করুন।"
   the_low_glare_shell_used_in_dark_mode: "অন্ধকার মোডে ব্যবহৃত লো-গ্লেয়ার শেল বেছে নিন।"
-  which_microphone_pindrop_should_use_for_d: "ডিক্টেশনের জন্য কোন মাইক্রোফোন Pindrop ব্যবহার করা উচিত এবং রেকর্ডিংয়ের সময় এটি কীভাবে আচরণ করবে তা চয়ন করুন৷"
-  which_side_the_navigation_sidebar_appears: "নেভিগেশন সাইডবার কোন দিকে প্রদর্শিত হবে তা চয়ন করুন৷"
-  how_pindrop_appears_on_screen_while_you_d: "ডিক্টেশনের সময় Pindrop স্ক্রিনে কীভাবে দেখা যাবে তা বেছে নিন।"
-  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
+  which_microphone_pindrop_should_use_for_d: "ডিক্টেশনের জন্য কোন মাইক্রোফোন Pindrop ব্যবহার করা উচিত এবং রেকর্ডিংয়ের সময় এটি কীভাবে আচরণ করবে তা চয়ন করুন৷"
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
-  model: "Choose Model…"
+  which_side_the_navigation_sidebar_appears: "নেভিগেশন সাইডবার কোন দিকে প্রদর্শিত হবে তা চয়ন করুন৷"
 clean:
   up_filler_words: "ফিলার শব্দ পরিষ্কার করুন"
 clear:
@@ -170,15 +187,19 @@ clear:
   shortcut: "শর্টকাট মুছুন"
 clears:
   preferences_and_restarts_onboarding: "পছন্দগুলি সাফ করে এবং অনবোর্ডিং পুনরায় আরম্ভ করে৷"
-  preferences_and_restarts_onboarding_7d85115c: "Clears preferences and restarts onboarding."
+  preferences_and_restarts_onboarding_7d851: "Clears preferences and restarts onboarding."
 click:
   or_hold: "ক্লিক করুন বা ধরে রাখুন"
   or_press: "ক্লিক করুন বা টিপুন"
   or_set_a_hotkey_to_start_talking: "কথা বলা শুরু করতে একটি হটকি ক্লিক করুন বা সেট করুন"
   this_icon_anytime_to: "যেকোনো সময় এই আইকনে ক্লিক করুন:"
+client:
+  _self: "ক্লায়েন্ট"
 clipboard:
   _self: "ক্লিপবোর্ড"
   temporarily_copies_the_transcript_for: "Clipboard temporarily copies the transcript for pasting. Direct Insert types into the active app when possible."
+close:
+  _self: "বন্ধ"
 cloud:
   _self: "মেঘ"
   model: "ক্লাউড মডেল"
@@ -187,9 +208,15 @@ collapse:
 coming:
   soon: "%@ শীঘ্রই আসছে"
   soon_04d2fd85: "শীঘ্রই আসছে"
+configuration:
+  file: "Configuration File"
+  scope: "Configuration Scope"
+  snippet: "Configuration Snippet"
 configure:
   ai_providers_and_credentials_apple_int: "AI প্রদানকারী এবং শংসাপত্র কনফিগার করুন। অ্যাপল ইন্টেলিজেন্স ডিভাইসে চলে; অন্যান্য প্রদানকারীদের API কী প্রয়োজন।"
   keyboard_shortcuts_for_recording_and_n: "রেকর্ডিং এবং নোট ক্যাপচারের জন্য কীবোর্ড শর্টকাট কনফিগার করুন"
+conflicts:
+  with: "Conflicts with %@"
 continue:
   _self: "চালিয়ে যান"
   with_default: "ডিফল্ট দিয়ে চালিয়ে যান"
@@ -206,29 +233,29 @@ copy:
   enhanced: "কপি উন্নত"
   last_transcript: "লাস্ট ট্রান্সক্রিপ্ট কপি করুন"
   original: "আসল কপি করুন"
+  system_info: "Copy System Info"
   system_info_for_bug_report: "বাগ রিপোর্টের জন্য সিস্টেম তথ্য অনুলিপি করুন"
+  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
   the_most_recent_transcript_to_the_clipboard: "ক্লিপবোর্ডে সবচেয়ে সাম্প্রতিক প্রতিলিপি অনুলিপি করুন"
+  the_most_recent_transcript_to_the_clipboard_03a8d47b: "Copy the most recent transcript to the clipboard."
   to_clipboard: "ক্লিপবোর্ডে কপি করুন"
   transcript: "ট্রান্সক্রিপ্ট কপি করুন"
-  system_info: "Copy System Info"
-  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
-  the_most_recent_transcript_to_the_clipboard_b9736933: "Copy the most recent transcript to the clipboard."
 correct:
   grammar_mistakes: "ব্যাকরণের ভুলগুলো ঠিক করুন"
 create:
-  new_profile: "Create New Profile…"
-  speaker_profile: "Create Speaker Profile"
   _self: "তৈরি করুন"
   new_note: "নতুন নোট তৈরি করুন"
   new_preset: "নতুন প্রিসেট তৈরি করুন"
+  new_profile: "Create New Profile…"
+  preset: "Create Preset"
+  speaker_profile: "Create Speaker Profile"
   your_first_note_to_get_started: "শুরু করতে আপনার প্রথম নোট তৈরি করুন"
   your_first_preset_or_duplicate_a_built_in: "আপনার প্রথম প্রিসেট তৈরি করুন বা এটি কাস্টমাইজ করতে একটি বিল্ট-ইন নকল করুন।"
   your_own_presets_or_duplicate_built_in_on: "আপনার নিজস্ব প্রিসেট তৈরি করুন বা তাদের কাস্টমাইজ করার জন্য অন্তর্নির্মিত নকল করুন।"
-  preset: "Create Preset"
 credentials:
   are_stored_securely_in_keychain: "শংসাপত্রগুলি কীচেইনে সুরক্ষিতভাবে সংরক্ষণ করা হয়"
+  are_stored_securely_in_keychain_5acf: "Credentials are stored securely in Keychain."
   saved_successfully: "শংসাপত্র সফলভাবে সংরক্ষিত"
-  are_stored_securely_in_keychain_5acff5d3: "Credentials are stored securely in Keychain."
 current:
   _self: "বর্তমান: %@"
 custom:
@@ -242,8 +269,8 @@ cut:
   _self: "কাটা"
 d:
   characters: "%d অক্ষর"
-  speakers: "%d জন বক্তা"
   samples: "%d samples · %@"
+  speakers: "%d জন বক্তা"
   words: "%dটি শব্দ"
 dark:
   _self: "অন্ধকার"
@@ -263,17 +290,39 @@ degraded:
   _self: "অধঃপতন"
 delete:
   _self: "মুছুন"
+  all: "সব মুছুন"
+  all_participants: "Delete All Participants?"
+  all_participants_60ed6e73: "Delete All Participants…"
   folder: "ফোল্ডার মুছুন"
   folder_e556e7c2: "ফোল্ডার মুছবেন?"
   model: "মডেল মুছুন"
+  note: "নোট মুছবেন?"
   preset: "প্রিসেট মুছুন"
   preset_4f6cfe36: "প্রিসেট মুছবেন?"
   transcription: "ট্রান্সক্রিপশন মুছুন"
   transcription_f82187c4: "ট্রান্সক্রিপশন মুছবেন?"
-  all: "সব মুছুন"
-  all_participants: "Delete All Participants?"
-  all_participants_60ed6e73: "Delete All Participants…"
-  note: "নোট মুছবেন?"
+destinations:
+  _self: "Destinations"
+diarization:
+  _self: "Speaker diarization"
+  automatic: "Automatic"
+  clear_assignment: "Clear assignment"
+  download_model: "Download model"
+  expected_speakers: "Expected speakers"
+  model_ready: "Speaker diarization is ready."
+  model_setup_issue_media: "Download the speaker diarization model before starting media transcription."
+  model_setup_issue_recording: "Download the speaker diarization model before starting recording."
+  retraining_required: "Voice matching needs retraining after the diarization update."
+  similar_voice_help: "Similar voices may be merged. Set an expected speaker count when you know how many people are present."
+diarized:
+  _self: "ডায়ারাইজড"
+dictate:
+  in_russian_and_ukrainian: "রুশ ও ইউক্রেনীয় ভাষায় ডিক্টেট করুন"
+dictation:
+  _self: "ডিকটেশন"
+  language: "ডিকটেশন ভাষা"
+  polish: "ডিকটেশন পরিমার্জন"
+  words_min: "Dictation words / min"
 dictionary:
   _self: "অভিধান"
 direct:
@@ -288,6 +337,8 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "শুধুমাত্র একটি মেনু বার অ্যাপ হিসাবে চালানোর পরিবর্তে ডকে পিনড্রপ প্রদর্শন করুন।"
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "উইন্ডোর বাম বা ডান প্রান্তে সাইডবার ডক করুন।"
+done:
+  _self: "সম্পন্ন"
 download:
   _self: "ডাউনলোড করুন"
   complete: "ডাউনলোড সম্পূর্ণ!"
@@ -304,6 +355,8 @@ drop:
   audio_or_video_here: "এখানে অডিও বা ভিডিও ড্রপ"
 duplicate:
   preset: "ডুপ্লিকেট প্রিসেট"
+duration:
+  _self: "Duration"
 dutch:
   _self: "ডাচ"
 edit:
@@ -315,8 +368,8 @@ empty:
 enable:
   ai_enhancement: "এআই এনহান্সমেন্ট সক্ষম করুন"
   live_session_updates_during_recording: "রেকর্ডিংয়ের সময় লাইভ সেশন আপডেটগুলি সক্ষম করুন"
-  vibe_mode_ui_context: "ভাইব মোড সক্ষম করুন (UI প্রসঙ্গ)"
   mcp_server: "Enable MCP Server"
+  vibe_mode_ui_context: "ভাইব মোড সক্ষম করুন (UI প্রসঙ্গ)"
 enabled:
   _self: "সক্রিয়"
 endpoint:
@@ -336,6 +389,8 @@ enter:
   word_to_add: "যোগ করার জন্য শব্দ লিখুন"
 error:
   _self: "ত্রুটি"
+estimated:
+  time_saved: "Estimated time saved"
 european:
   multilingual: "ইউরোপীয় বহুভাষিক"
 excellent:
@@ -378,6 +433,10 @@ feature:
   models: "বৈশিষ্ট্য মডেল"
 fetch:
   models_in_models: "মডেলে মডেল আনুন"
+file:
+  _self: "ফাইল"
+find:
+  _self: "খুঁজুন"
 fix:
   punctuation_and_capitalization: "বিরাম চিহ্ন এবং ক্যাপিটালাইজেশন ঠিক করুন"
 floating:
@@ -418,9 +477,11 @@ grant:
   _self: "অনুদান"
 great:
   _self: "দারুণ"
+help:
+  _self: "সহায়তা"
 hide:
-  this_for_1_hour: "এটি 1 ঘন্টার জন্য লুকিয়ে রাখুন"
   api_key: "API কী লুকান"
+  this_for_1_hour: "এটি 1 ঘন্টার জন্য লুকিয়ে রাখুন"
 history:
   _self: "ইতিহাস"
 hold:
@@ -429,6 +490,8 @@ hold:
   to_record_release_to_stop_and_transcribe: "রেকর্ড করতে ধরে রাখুন, থামাতে ছেড়ে দিন এবং প্রতিলিপি করুন"
   to_record_release_to_transcribe: "রেকর্ড করতে ধরে রাখুন, প্রতিলিপি করতে ছেড়ে দিন"
   to_record_then_release_to_open_the_note_edi: "Hold to record, then release to open the note editor with the transcription."
+home:
+  _self: "হোম"
 hotkey:
   conflict: "হটকি দ্বন্দ্ব"
 hotkeys:
@@ -445,11 +508,16 @@ import:
   presets: "প্রিসেট আমদানি করুন"
   strategy: "আমদানি কৌশল"
 imported:
+  file: "Imported file"
   files_and_web_links_will_appear_here_on: "প্রক্রিয়াকরণ সম্পূর্ণ হলে আমদানিকৃত ফাইল এবং ওয়েব লিঙ্ক এখানে উপস্থিত হবে।"
 improve:
   transcription_quality_using_ai: "AI ব্যবহার করে ট্রান্সক্রিপশনের গুণমান উন্নত করুন"
 include:
   clipboard_text: "ক্লিপবোর্ড পাঠ্য অন্তর্ভুক্ত করুন"
+input:
+  device: "ইনপুট ডিভাইস"
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
 interface:
   _self: "ইন্টারফেস"
   language: "ইন্টারফেস ভাষা"
@@ -462,8 +530,8 @@ items:
 japanese:
   _self: "জাপানিজ"
 keep:
-  pindrop_current_automatically_or_trigger_a: "Pindrop কে স্বয়ংক্রিয়ভাবে বর্তমান রাখুন, অথবা আপনি যখনই চান একটি ম্যানুয়াল চেক ট্রিগার করুন।"
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
+  pindrop_current_automatically_or_trigger_a: "Pindrop কে স্বয়ংক্রিয়ভাবে বর্তমান রাখুন, অথবা আপনি যখনই চান একটি ম্যানুয়াল চেক ট্রিগার করুন।"
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -479,18 +547,22 @@ large:
 launch:
   at_login: "লগইন এ লঞ্চ: %@"
   at_login_0b36c78f: "লগইন এ লঞ্চ করুন"
-  at_login_fd1a3b7b: "লগইনে চালু"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
+  at_login_fd1a3b7b: "লগইনে চালু"
 layout:
   _self: "লেআউট"
 learn:
   corrected_words_automatically: "স্বয়ংক্রিয়ভাবে সংশোধন করা শব্দ শিখুন"
-legacy:
-  _self: "Legacy"
 left:
   _self: "বাম"
+legacy:
+  _self: "Legacy"
 let:
   pindrop_quietly_learn_vocabulary_from_the_co: "সময়ের সাথে আপনার করা সংশোধনগুলি থেকে Pindrop কে শান্তভাবে শব্দভান্ডার শিখতে দিন।"
+library:
+  _self: "লাইব্রেরি"
+license:
+  _self: "লাইসেন্স"
 light:
   _self: "আলো"
   dark_and_curated_palette_presets: "হালকা, অন্ধকার, এবং কিউরেটেড প্যালেট প্রিসেট"
@@ -530,28 +602,49 @@ local:
   speech_to_text_right_from_your_menu_bar_nf: "স্থানীয় স্পিচ-টু-টেক্সট, সরাসরি আপনার মেনু বার থেকে।nদ্রুত, ব্যক্তিগত, এবং সর্বদা উপলব্ধ।"
   speech_to_text_with_whisperkit: "হুইস্পারকিটের সাথে স্থানীয় স্পিচ-টু-টেক্সট"
   voice_to_text: "স্থানীয় ভয়েস-টু-টেক্সট"
+longest:
+  streak: "Longest streak"
 low:
   latency_mode_less_accurate: "কম লেটেন্সি মোড (কম সঠিক)"
+main:
+  window: "প্রধান উইন্ডো"
 manage:
   local_speech_models_feature_models_and_th: "স্থানীয় স্পিচ মডেল, ফিচার মডেল এবং ডিফল্ট ইঞ্জিন পিনড্রপ ট্রান্সক্রিপশনের জন্য ব্যবহার করে পরিচালনা করুন।"
   models: "মডেল পরিচালনা করুন"
   presets: "প্রিসেটগুলি পরিচালনা করুন"
   presets_ab87986d: "প্রিসেটগুলি পরিচালনা করুন..."
   presets_d5d4c2c2: "Manage Presets…"
+manual:
+  capture: "Manual capture"
 manually:
   check_for_new_versions_now: "এখন নতুন সংস্করণের জন্য ম্যানুয়ালি পরীক্ষা করুন।"
+markdown:
+  md: "Markdown (.md)"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+mcp:
+  configuration_error: "MCP Configuration Error"
+  server: "MCP সার্ভার"
 media:
   library: "মিডিয়া লাইব্রেরি"
+  saved: "মিডিয়া সংরক্ষিত হয়েছে"
   transcription: "মিডিয়া ট্রান্সক্রিপশন"
   unavailable: "মিডিয়া অনুপলব্ধ"
-  saved: "মিডিয়া সংরক্ষিত হয়েছে"
 medium:
   _self: "মাঝারি"
+meet:
+  the_new_orb: "নতুন Orb-এর সঙ্গে পরিচিত হন"
+meeting:
+  saved: "মিটিং সংরক্ষিত হয়েছে"
+metric:
+  _self: "Metric"
 microphone:
   _self: "মাইক্রোফোন"
   permission_is_required_to_continue: "চালিয়ে যাওয়ার জন্য মাইক্রোফোনের অনুমতি প্রয়োজন৷"
   permission_is_required_to_continue_dc: "চালিয়ে যাওয়ার জন্য মাইক্রোফোনের অনুমতি প্রয়োজন৷"
   permission_required: "মাইক্রোফোন অনুমতি প্রয়োজন"
+minimize:
+  _self: "মিনিমাইজ"
 mit:
   license: "এমআইটি লাইসেন্স"
 mode:
@@ -571,19 +664,29 @@ must:
   be_openai_compatible: "OpenAI- সামঞ্জস্যপূর্ণ হতে হবে"
 mute:
   system_audio_during_recording: "রেকর্ডিংয়ের সময় সিস্টেম অডিও নিঃশব্দ করুন"
+name:
+  _self: "নাম"
+nemotron:
+  default: "Nemotron (default)"
 new:
   folder: "নতুন ফোল্ডার"
   note: "নতুন নোট"
   preset: "নতুন প্রিসেট"
+newest:
+  _self: "নতুনতম"
 next:
   _self: "পরবর্তী"
 no:
+  activity_in_this_period: "No activity in this period"
   api_key: "কোন API কী নেই"
   api_key_endpoint: "কোনো API কী নেই • শেষবিন্দু: %@"
+  conflicts_found: "No conflicts found"
   custom_presets: "কোনো কাস্টম প্রিসেট নেই"
+  destination_data: "No destination data"
   downloaded_models: "কোনো ডাউনলোড করা মডেল নেই"
   folders_yet: "এখনো কোনো ফোল্ডার নেই"
   items_in: "%@ এ কোনো আইটেম নেই"
+  learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "এখনও কোন মিডিয়া ট্রান্সক্রিপশন"
   model_loaded: "কোন মডেল লোড করা হয়নি"
   model_selected: "কোনো মডেল নির্বাচন করা হয়নি"
@@ -595,33 +698,31 @@ no:
   models_match: "\"%@\" এর সাথে কোনো মডেল মেলে না"
   notes_yet: "এখনও কোন নোট নেই"
   providers_configured_yet: "এখনও কোন প্রদানকারী কনফিগার করা হয়নি."
+  providers_configured_yet_e6bc0075: "No providers configured yet"
   replacements: "কোন প্রতিস্থাপন"
   results_found: "কোন ফলাফল পাওয়া যায়নি"
   settings_found: "কোনো সেটিংস পাওয়া যায়নি"
   transcriptions_yet: "এখনও কোন প্রতিলিপি"
   vocabulary_words: "কোন ভোকাবুলারি শব্দ নেই"
-  learned_participants_yet: "No learned participants yet"
-  providers_configured_yet_e6bc0075: "No providers configured yet"
-  conflicts_found: "No conflicts found"
 not:
   assigned: "বরাদ্দ করা হয়নি"
+  enough_voice_data_yet: "Not enough voice data yet"
+  generated_yet_enable_the_server: "Not generated yet — enable the server"
+  granted: "মঞ্জুর নয়"
   selected: "নির্বাচিত হয়নি"
   set: "সেট নয়"
   set_93039e60: "সেট করা হয়নি"
-  granted: "মঞ্জুর নয়"
-  enough_voice_data_yet: "Not enough voice data yet"
-  generated_yet_enable_the_server: "Not generated yet — enable the server"
 note:
   _self: "দ্রষ্টব্য"
+  capture_hold: "Note Capture — Hold"
   capture_push_to_talk: "নোট ক্যাপচার (পুশ-টু-টক)"
   capture_toggle: "নোট ক্যাপচার (টগল)"
+  capture_toggle_7139a240: "Note Capture — Toggle"
   enhancement: "নোট বর্ধন"
   from: "থেকে নোট"
   metadata: "মেটাডেটা নোট করুন"
-  title: "নোট শিরোনাম"
   saved: "নোট সংরক্ষিত হয়েছে"
-  capture_hold: "Note Capture — Hold"
-  capture_toggle_7139a240: "Note Capture — Toggle"
+  title: "নোট শিরোনাম"
 notes:
   _self: "নোট"
   3add7b96: "নোট"
@@ -629,6 +730,8 @@ off:
   _self: "বন্ধ"
 ok:
   _self: "ঠিক আছে"
+oldest:
+  _self: "পুরোনো"
 ollama:
   _self: "ওল্লামা"
   usually_does_not_require_authentication_f: "ওল্লামার সাধারণত স্থানীয় অনুরোধের জন্য প্রমাণীকরণের প্রয়োজন হয় না।"
@@ -638,13 +741,13 @@ on:
 open:
   _self: "খোলা"
   history: "ইতিহাস খুলুন"
+  library: "লাইব্রেরি খুলুন"
   logs_in_finder: "লগ ইন ফাইন্ডার খুলুন"
   original_link: "আসল লিঙ্ক খুলুন"
   progress: "উন্মুক্ত অগ্রগতি"
   settings: "সেটিংস খুলুন"
   settings_fd7108f8: "সেটিংস খুলুন"
   system_settings: "সিস্টেম সেটিংস খুলুন"
-  library: "লাইব্রেরি খুলুন"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI- সামঞ্জস্যপূর্ণ স্থানীয় সার্ভার"
@@ -660,17 +763,21 @@ optionally:
 or:
   _self: "বা"
   just_use_your_hotkey: "অথবা শুধু আপনার হটকি ব্যবহার করুন!"
+orb:
+  _self: "অর্ব"
 original:
   _self: "আসল"
   text_use_commas_for_multiple: "মূল পাঠ্য (একাধিক জন্য কমা ব্যবহার করুন)"
 originals:
   comma_separated: "আসল (কমা দিয়ে আলাদা করা)"
+other:
+  _self: "Other"
 output:
   _self: "আউটপুট"
   audio_interface_and_everyday_behavior: "আউটপুট, অডিও, ইন্টারফেস এবং দৈনন্দিন আচরণ"
   mode: "আউটপুট মোড"
-nemotron:
-  default: "Nemotron (default)"
+overview:
+  _self: "Overview"
 paste:
   _self: "পেস্ট করুন"
   a_video_or_audio_link: "একটি ভিডিও বা অডিও লিঙ্ক আটকান"
@@ -684,13 +791,15 @@ permissions:
   _self: "অনুমতি"
 pick:
   which_provider_and_model_handles_each_ai_ta: "কোন প্রদানকারী এবং মডেল প্রতিটি AI টাস্ক পরিচালনা করে তা বেছে নিন। একটি উদ্দেশ্য এড়ানোর জন্য \"অ্যাসাইন করা হয়নি\" হিসাবে ছেড়ে দিন।"
-  which_provider_and_model_handles_each_ai_ta_b719504f: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
+  which_provider_and_model_handles_each_ai_ta_3140fe59: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
 pill:
   _self: "পিল"
 pin:
   to_screen_always_on_top: "স্ক্রিনে পিন করুন (সর্বদা উপরে)"
 pindrop:
   _self: "পিনড্রপ"
+  1_19: "Pindrop 1.19"
+  help: "Pindrop সহায়তা"
   is_ready_to_use_click_the_menu_bar_icon: |-
     পিনড্রপ ব্যবহারের জন্য প্রস্তুত।
     
@@ -704,11 +813,13 @@ pindrop:
   needs_accessibility_permission_to_insert: "\" আপনার কার্সারে পাঠ্য সন্নিবেশ করার জন্য পিনড্রপের অ্যাক্সেসিবিলিটি অনুমতির প্রয়োজন৷                          অনুমতি দেওয়ার জন্য: 1. নীচে \"ওপেন সিস্টেম সেটিংস\" ক্লিক করুন 2. + বোতামে ক্লিক করুন 3. ফাইন্ডারে দেখানো অ্যাপে নেভিগেট করুন 4. অনুমতি দেওয়ার পরে পিনড্রপ পুনরায় চালু করুন এই অনুমতি ছাড়া, পাঠ্য শুধুমাত্র আপনার ক্লিপবোর্ডে অনুলিপি করা হবে৷             \""
   needs_microphone_access_to_record_and_tr: "আপনার voice.nn অনুগ্রহ করে সিস্টেম সেটিংসে অনুমতি দিন।"
   on_github: "GitHub-এ পিনড্রপ"
+  orb: "Pindrop অর্ব"
   pill: "পিনড্রপ পিল"
   theme: "পিনড্রপ থিম"
-  orb: "Pindrop অর্ব"
-  1_19: "Pindrop 1.19"
-  help: "Pindrop সহায়তা"
+pinned:
+  _self: "পিন করা"
+plain:
+  text_txt: "সাধারণ টেক্সট (.txt)"
 play:
   _self: "খেলা"
 please:
@@ -718,8 +829,11 @@ please:
     
     
     একটি মডেল ডাউনলোড করতে সেটিংস → মডেলগুলিতে যান৷
-  download_a_whisper_model_in_settings_befo_a71d286e: "রেকর্ড করার আগে দয়া করে সেটিংস থেকে একটি হুইস্পার মডেল ডাউনলোড করুন। nn একটি মডেল ডাউনলোড করতে সেটিংস → মডেলগুলিতে যান৷"
+  download_a_whisper_model_in_settings_befo_34e8a33c: "রেকর্ড করার আগে দয়া করে সেটিংস থেকে একটি হুইস্পার মডেল ডাউনলোড করুন। nn একটি মডেল ডাউনলোড করতে সেটিংস → মডেলগুলিতে যান৷"
   wait: "অনুগ্রহ করে অপেক্ষা করুন..."
+port:
+  _self: "পোর্ট"
+  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
 portuguese:
   brazil: "পর্তুগিজ (ব্রাজিল)"
 powered:
@@ -727,28 +841,48 @@ powered:
 preparing:
   model: "মডেল প্রস্তুত করা হচ্ছে..."
 preset:
+  example_bullets_input: "আমরা অনবোর্ডিং লেটেন্সি তারপর মূল্য এবং শেষে বারোই মে লঞ্চ তারিখ আলোচনা করেছি"
+  example_bullets_output: "- অনবোর্ডিং লেটেন্সি\\n- মূল্য\\n- লঞ্চ তারিখ: ১২ মে"
+  example_clean_input: "আম তাহলে মিটিং সাড়ে তিনটায় পিরিয়ড আপনি কি নিশ্চিত করতে পারেন প্রশ্নবোধক"
+  example_clean_output: "তাহলে মিটিং ১৫:৩০-এ। আপনি কি নিশ্চিত করতে পারেন?"
+  example_edits_input: "আম এটা correct ly পঁচিশ"
+  example_edits_output: "এটা correctly 25"
+  example_email_input: "হাই জর্ডান শুধু দেখছিলাম গতকালের নোট পেয়েছেন কিনা ধন্যবাদ"
+  example_email_output: "হাই জর্ডান,\\n\\nশুধু দেখছিলাম গতকালের নোট পেয়েছেন কিনা।\\n\\nধন্যবাদ,"
+  example_live_input: "আম মনে হয় শুক্রবারের মধ্যে বিটা শিপ করা উচিত পিরিয়ড"
+  example_live_output: "মনে হয় শুক্রবারের মধ্যে বিটা শিপ করা উচিত।"
+  example_meeting_input: "অ্যালিস শুক্রবারের মধ্যে ডেক পাঠাবে বব মূল্য পর্যালোচনা দেখবে আগামী সপ্তাহে সিদ্ধান্ত দরকার"
+  example_meeting_output: "## কাজ\\n- **অ্যালিস** **শুক্রবারের** মধ্যে ডেক পাঠাবে\\n- **বব** মূল্য পর্যালোচনা দেখবে\\n\\n## পরবর্তী পদক্ষেপ\\n- আগামী সপ্তাহে সিদ্ধান্ত প্রয়োজন"
+  example_social_input: "আম আমরা এইমাত্র ডার্ক মোড শিপ করেছি আর এটা দারুণ দেখাচ্ছে আপনার চেষ্টা করা উচিত"
+  example_social_output: "আমরা এইমাত্র ডার্ক মোড শিপ করেছি।\\n\\nএটা দারুণ দেখাচ্ছে — আপনার চেষ্টা করা উচিত।"
+  example_technical_input: "fetch user কল করো তীর তারপর রেসপন্স সমান সমান দুইশো ম্যাপ করো"
+  example_technical_output: "`fetchUser` কল করো -> তারপর রেসপন্স `==` 200 ম্যাপ করো।"
   name: "পূর্বনির্ধারিত নাম"
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "যেকোন অ্যাপে নির্দেশ দিতে টিপুন এবং ধরে রাখুন। Pindrop আপনার বক্তৃতা প্রতিলিপি এবং আপনার কার্সার যেখানে পাঠ্য সন্নিবেশ করা হবে."
   esc_to_cancel: "বাতিল করতে Esc টিপুন"
   keys: "কী টিপুন..."
+  keys_98b8167e: "কী চাপুন…"
   once_to_start_again_to_stop: "শুরু করতে একবার টিপুন, আবার থামাতে"
   once_to_start_recording_press_again_to_sto: "রেকর্ডিং শুরু করতে একবার টিপুন, থামাতে আবার টিপুন এবং প্রতিলিপি করুন৷"
+  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
   once_to_start_recording_then_press_again_t: "রেকর্ডিং শুরু করতে একবার টিপুন, তারপর থামাতে এবং প্রতিলিপি করতে আবার টিপুন।"
   to_start_recording_press_again_to_open_not: "রেকর্ডিং শুরু করতে টিপুন, নোট সম্পাদক খুলতে আবার টিপুন"
-  keys_98b8167e: "কী চাপুন…"
-  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
 primary:
   text: "প্রাথমিক পাঠ্য"
 processing:
   _self: "প্রক্রিয়াকরণ"
   272bc02e: "প্রক্রিয়া করা হচ্ছে..."
   5aa377e2: "⏳ প্রক্রিয়াকরণ"
-  transcript: "প্রতিলিপি প্রক্রিয়াকরণ"
   ellipsis: "প্রক্রিয়াকরণ…"
+  transcript: "প্রতিলিপি প্রক্রিয়াকরণ"
+project:
+  _self: "প্রজেক্ট"
 prompt:
   _self: "প্রম্পট"
   preset: "প্রম্পট প্রিসেট"
+prompts:
+  are_sent_in_english: "প্রম্পট ইংরেজিতে পাঠানো হয়"
 provider:
   _self: "প্রদানকারী"
   kind: "প্রদানকারী ধরনের"
@@ -777,7 +911,7 @@ recent:
 recommended:
   _self: "প্রস্তাবিত"
   the_deterministic_cleaner_handles_mo: "প্রস্তাবিত: ডিটারমিনিস্টিক ক্লিনার বেশিরভাগ ডিক্টেশন পরিষ্কারভাবে পরিচালনা করে। আপনি অতিরিক্ত পলিশ চাইলেই এলএলএম পাস চালু করুন এবং মাঝে মাঝে মডেলের ব্যঙ্গ (প্রস্তাবনা, কথোপকথনমূলক উত্তর) গ্রহণ করুন।"
-  the_deterministic_cleaner_handles_mo_ca42c3e4: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
+  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "রেকর্ড"
 recording:
@@ -791,13 +925,15 @@ redo:
 refresh:
   _self: "রিফ্রেশ"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
+regenerate:
+  _self: "পুনরায় তৈরি"
 remove:
-  from_speaker_profiles: "Remove from speaker profiles"
-  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "সরান"
   and_clear_any_assignments_that_reference: "\"%@\" সরান এবং এটির উল্লেখ করে এমন কোনো অ্যাসাইনমেন্ট সাফ করবেন? সঞ্চিত শংসাপত্র মুছে ফেলা হবে."
   from_folder: "ফোল্ডার থেকে সরান"
+  from_speaker_profiles: "Remove from speaker profiles"
   provider: "প্রদানকারী সরান"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
 rename:
   _self: "নাম পরিবর্তন করুন"
   folder: "ফোল্ডারের নাম পরিবর্তন করুন"
@@ -816,32 +952,34 @@ required:
   _self: "প্রয়োজন"
   for_recording_your_voice: "আপনার ভয়েস রেকর্ড করার জন্য প্রয়োজন"
 requires:
+  a_fast_provider_apple_foundation_models: "একটি দ্রুত প্রদানকারী প্রয়োজন (অ্যাপল ফাউন্ডেশন মডেল প্রস্তাবিত)। ক্লাউড প্রদানকারীরা প্রতি বিরতিতে একটি API কল ইস্যু করবে।"
   diarization_model: "Requires diarization model"
   speaker_diarization: "Requires speaker diarization"
-  a_fast_provider_apple_foundation_models: "একটি দ্রুত প্রদানকারী প্রয়োজন (অ্যাপল ফাউন্ডেশন মডেল প্রস্তাবিত)। ক্লাউড প্রদানকারীরা প্রতি বিরতিতে একটি API কল ইস্যু করবে।"
 reset:
   _self: "রিসেট করুন"
   all_settings: "সমস্ত সেটিংস রিসেট করবেন?"
   all_settings_7262c7b7: "সমস্ত সেটিংস রিসেট করুন"
-  to_default: "ডিফল্টে রিসেট করুন"
   all_settings_e5dbc5fc: "Reset All Settings…"
+  to_default: "ডিফল্টে রিসেট করুন"
 retry:
   _self: "আবার চেষ্টা করুন"
 right:
   _self: "ঠিক"
 run:
-  llm_polish_after_dictation_stops: "ডিকটেশন বন্ধ হওয়ার পরে এলএলএম পলিশ চালান"
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
+  llm_polish_after_dictation_stops: "ডিকটেশন বন্ধ হওয়ার পরে এলএলএম পলিশ চালান"
 runtime:
   _self: "রানটাইম: %@"
   status: "রানটাইম স্ট্যাটাস"
+russian:
+  _self: "Russian"
 save:
   _self: "সংরক্ষণ করুন"
   as_note: "নোট হিসাবে সংরক্ষণ করুন"
   continue: "সংরক্ষণ করুন এবং চালিয়ে যান"
   credentials: "শংসাপত্র সংরক্ষণ করুন"
-  prompt: "সেভ প্রম্পট"
   now_s: "এখনই সংরক্ষণ (⌘S)"
+  prompt: "সেভ প্রম্পট"
 saved:
   _self: "সংরক্ষিত"
   as_note: "নোট হিসাবে সংরক্ষিত"
@@ -866,9 +1004,9 @@ select:
   all: "সব নির্বাচন করুন"
   language: "ভাষা নির্বাচন করুন"
   language_daea52c9: "ভাষা নির্বাচন করুন"
+  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
   this_floating_indicator_style: "এই ভাসমান নির্দেশক শৈলী নির্বাচন করুন."
   voice_model: "ভয়েস মডেল নির্বাচন করুন"
-  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
 selected:
   _self: "নির্বাচিত"
 sent:
@@ -876,6 +1014,7 @@ sent:
 sessions:
   _self: "সেশন"
   781791f5: "সেশন"
+  in: "%@ sessions in %@"
 set:
   as_default: "ডিফল্ট হিসেবে সেট করুন"
 settings:
@@ -884,15 +1023,17 @@ settings:
   fa67a397: "সেটিংস..."
 setup:
   required: "সেটআপ প্রয়োজন"
+shortcuts:
+  _self: "শর্টকাট"
 show:
+  api_key: "API কী দেখান"
   app: "অ্যাপ দেখান"
   app_in_finder: "ফাইন্ডারে অ্যাপ দেখান"
   in_dock: "ডকে দেখান"
-  api_key: "API কী দেখান"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
-  as_a_pill_at_the_bottom_of_the_screen: "পর্দার নীচে একটি বড়ি হিসাবে দেখায়"
   as_a_liquid_glass_orb_in_the_corner_of_the: "স্ক্রিনের কোণে একটি তরল কাচের গোলক হিসেবে দেখায়"
+  as_a_pill_at_the_bottom_of_the_screen: "পর্দার নীচে একটি বড়ি হিসাবে দেখায়"
 sidebar:
   position: "সাইডবার অবস্থান"
   position_916f66ea: "সাইডবার অবস্থান"
@@ -924,13 +1065,19 @@ sort:
   by: "অনুসারে সাজান"
 source:
   _self: "উৎস"
+sources:
+  _self: "Sources"
 spanish:
   _self: "স্প্যানিশ"
+speak:
+  to_append: "যোগ করতে বলুন"
 speaker:
-  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "স্পীকার ডায়েরাইজেশন এবং টাইমস্ট্যাম্প প্লেব্যাকের সাথে সংযুক্ত।"
   diarization_is_required: "স্পীকার ডায়েরাইজেশন প্রয়োজন"
+  profile_training: "Speaker profile training"
+speakers:
+  _self: "বক্তা"
 speed:
   _self: "গতি"
 start:
@@ -939,19 +1086,25 @@ start:
   recording_to_see_your_transcriptions_here: "এখানে আপনার ট্রান্সক্রিপশন দেখতে রেকর্ডিং শুরু করুন"
   stop_recording: "রেকর্ডিং শুরু/স্টপ করুন"
   using_pindrop: "Pindrop ব্যবহার করা শুরু করুন"
+stats:
+  _self: "Stats"
 status:
   _self: "স্ট্যাটাস"
 stop:
-  recording: "রেকর্ডিং বন্ধ করুন"
   listening: "শোনা বন্ধ করুন"
+  recording: "রেকর্ডিং বন্ধ করুন"
 streaming:
   enhancement: "স্ট্রিমিং এনহান্সমেন্ট"
   transcription_currently_supports_engli: "স্ট্রিমিং ট্রান্সক্রিপশন বর্তমানে শুধুমাত্র ইংরেজি সমর্থন করে, নির্বাচিত ভাষা নির্বিশেষে।"
+  transcription_instantly_ready: "স্ট্রিমিং ট্রান্সক্রিপশন, সঙ্গে সঙ্গে প্রস্তুত"
   transcription_is_disabled_while_ai_enh: "AI উন্নত করার সময় স্ট্রিমিং ট্রান্সক্রিপশন অক্ষম করা আছে।"
   transcription_model_nemotron_speech: "স্ট্রিমিং ট্রান্সক্রিপশন মডেল (Nemotron Speech Streaming) NVIDIA Corporation কর্তৃক NVIDIA Open Model License-এর অধীনে লাইসেন্সকৃত।"
-  transcription_instantly_ready: "স্ট্রিমিং ট্রান্সক্রিপশন, সঙ্গে সঙ্গে প্রস্তুত"
+subtitles:
+  srt: "সাবটাইটেল (.srt)"
 success:
   _self: "সফলতার !"
+summary:
+  ready: "সারাংশ প্রস্তুত"
 support:
   _self: "সমর্থন"
   coming_soon: "%@ সমর্থন শীঘ্রই আসছে"
@@ -970,36 +1123,45 @@ temporarily:
   pause_active_media_playback_while_di: "ডিক্টেশন রেকর্ডিং করার সময় সক্রিয় মিডিয়া প্লেব্যাক সাময়িকভাবে বিরাম দিন।"
 tertiary:
   text: "তৃতীয় পাঠ্য"
+thanks:
+  to_for_investigating_and_kicking_off_the: "অনুসন্ধান করে সমাধান শুরু করার জন্য %@-কে ধন্যবাদ (PR #64)।"
+  to_for_the_contribution_pr_61: "অবদানের জন্য %@-কে ধন্যবাদ (PR #61)।"
 the:
   model_failed_to_load_within_60_seconds_this: "\" মডেলটি 60 সেকেন্ডের মধ্যে লোড হতে ব্যর্থ হয়েছে৷ এর মানে সাধারণত মডেল ফাইলগুলি দূষিত বা বেমানান।                          এটি ঠিক করতে: 1. সেটিংস খুলুন → মডেলগুলি 2. সমস্যাযুক্ত মডেলটি মুছুন 3. মডেলটি পুনরায় ডাউনলোড করুন যদি সমস্যাটি থেকে যায়, একটি ছোট মডেল চেষ্টা করুন (ক্ষুদ্র বা বেস)।             \""
-  selected_chunk_variant_isn_t_downloaded_yet: "নির্বাচিত খণ্ড ভেরিয়েন্টটি এখনও ডাউনলোড করা হয়নি। টগল করলে একটি ডাউনলোড শুরু হবে।"
   new_nemotron_streaming_engine_shows_words_as: "নতুন Nemotron স্ট্রিমিং ইঞ্জিন আপনি বলার সঙ্গে সঙ্গে শব্দ দেখায়, আর প্রথম ডিক্টেশন যেন দেরি ছাড়াই শুরু হয় সে জন্য ইঞ্জিনটি চালুর সময় প্রিওয়ার্ম হয়।"
+  selected_chunk_variant_isn_t_downloaded_yet: "নির্বাচিত খণ্ড ভেরিয়েন্টটি এখনও ডাউনলোড করা হয়নি। টগল করলে একটি ডাউনলোড শুরু হবে।"
 theme:
   _self: "থিম"
   changes_apply_live_across_the_workspace_se: "থিম পরিবর্তনগুলি কর্মক্ষেত্র, সেটিংস, নোট এডিটর এবং ভাসমান সূচক জুড়ে লাইভ প্রযোজ্য।"
   mode: "থিম মোড"
   mode_bb6b0b3d: "থিম মোড"
+these:
+  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 this:
-  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "এই প্রিসেট নামটি ইতিমধ্যেই ব্যবহার করা হচ্ছে৷"
   provider_will_be_available_in_a_future_upda: |-
     এই প্রদানকারী একটি ভবিষ্যতে আপডেট উপলব্ধ করা হবে.
     
     আপাতত, OpenAI চেষ্টা করুন বা একটি কাস্টম এন্ডপয়েন্ট ব্যবহার করুন।
-  provider_will_be_available_in_a_future_upda_3e35a952: |-
+  provider_will_be_available_in_a_future_upda_ba16848d: "এই প্রদানকারী একটি ভবিষ্যতের আপডেটে উপলব্ধ হবে। আপাতত, OpenAI ব্যবহার করে দেখুন বা একটি কাস্টম এন্ডপয়েন্ট ব্যবহার করুন।"
+  provider_will_be_available_in_a_future_upda_4af6ff9b: |-
     এই প্রদানকারী একটি ভবিষ্যতে আপডেট উপলব্ধ করা হবে.
     
     OpenAI চেষ্টা করুন বা একটি কাস্টম এন্ডপয়েন্ট ব্যবহার করুন।
-  provider_will_be_available_in_a_future_upda_0677ac1d: "এই প্রদানকারী একটি ভবিষ্যতের আপডেটে উপলব্ধ হবে। আপাতত, OpenAI ব্যবহার করে দেখুন বা একটি কাস্টম এন্ডপয়েন্ট ব্যবহার করুন।"
-  transcription_could_not_be_found: "এই প্রতিলিপি খুঁজে পাওয়া যায়নি."
-  will_clear_all_your_settings_including_api: "এটি API কী, হটকি এবং মডেল পছন্দগুলি সহ আপনার সমস্ত সেটিংস সাফ করবে৷ অ্যাপটি প্রস্থান করবে এবং পরবর্তী লঞ্চে আবার অনবোর্ডিং দেখাবে।"
-  will_permanently_remove_the_transcript_and: "এটি স্থায়ীভাবে ট্রান্সক্রিপ্ট এবং এর পরিচালিত মিডিয়া ফাইল সরিয়ে দেবে।"
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
-  will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  transcription_could_not_be_found: "এই প্রতিলিপি খুঁজে পাওয়া যায়নি."
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
+  will_clear_all_your_settings_including_api: "এটি API কী, হটকি এবং মডেল পছন্দগুলি সহ আপনার সমস্ত সেটিংস সাফ করবে৷ অ্যাপটি প্রস্থান করবে এবং পরবর্তী লঞ্চে আবার অনবোর্ডিং দেখাবে।"
+  will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_the_transcript_and: "এটি স্থায়ীভাবে ট্রান্সক্রিপ্ট এবং এর পরিচালিত মিডিয়া ফাইল সরিয়ে দেবে।"
   will_permanently_remove_this_note: "এতে এই নোট স্থায়ীভাবে মুছে যাবে।"
 time:
-  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+  of_day: "Time of day"
+  range: "Time range"
   saved: "সময় সংরক্ষিত"
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+timestamps:
+  json: "টাইমস্ট্যাম্প (.json)"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "নির্দেশ দিতে এবং আপনার জন্য Pindrop প্রতিলিপি করতে দেয়"
   start_talking: "কথা শুরু করতে"
@@ -1014,6 +1176,7 @@ transcribe:
   media: "মিডিয়া প্রতিলিপি"
 transcribed:
   _self: "প্রতিলিপি করা"
+  words: "Transcribed words"
 transcription:
   _self: "প্রতিলিপি"
   backend: "ট্রান্সক্রিপশন ব্যাকএন্ড"
@@ -1023,8 +1186,8 @@ transcription:
   finished: "ট্রান্সক্রিপশন শেষ।"
   in_progress: "ট্রান্সক্রিপশন চলছে"
   metadata: "ট্রান্সক্রিপশন মেটাডেটা"
-  update: "ট্রান্সক্রিপশন আপডেট"
   saved: "প্রতিলিপি সংরক্ষিত হয়েছে"
+  update: "ট্রান্সক্রিপশন আপডেট"
 transcriptions:
   _self: "ট্রান্সক্রিপশন"
   f0972acc: "প্রতিলিপি"
@@ -1038,8 +1201,202 @@ try:
   searching_for_terms_like_hotkeys_microphone: "হটকি, মাইক্রোফোন, আপডেট বা ভাইব মোডের মতো শব্দগুলি অনুসন্ধান করার চেষ্টা করুন৷"
 turkish:
   _self: "তুর্কি"
+two:
+  new_dictation_languages_fully_wired_into_mod: "দুটি নতুন ডিক্টেশন ভাষা, মডেল সুপারিশে সম্পূর্ণভাবে যুক্ত।"
 type:
   text_directly_into_the_active_app_when_poss: "সম্ভব হলে সক্রিয় অ্যাপে সরাসরি টেক্সট টাইপ করুন"
+u10:
+  floating_announcement_summary: "Pindrop জুড়ে রিপ্লে, নতুন রূপ এবং কীবোর্ড নিয়ন্ত্রণ।"
+  floating_inserted_into: "%@-এ সন্নিবেশ করা হয়েছে"
+  floating_keyboard_body: "কীবোর্ড না ছেড়েই পৃষ্ঠা বদলান, খুঁজুন, নোট তৈরি করুন, এক্সপোর্ট ও মুছুন।"
+  floating_keyboard_title: "সবখানে কীবোর্ড"
+  floating_microphone_unavailable: "মাইক্রোফোন উপলভ্য নয়"
+  floating_new_look_body: "আরও উষ্ণ, শান্ত নকশা আপনার কথাকে অগ্রাধিকার দেয়। আপনার থিম প্রিসেট থাকবে—সঙ্গে নতুন ডিফল্ট Library।"
+  floating_new_look_title: "একটি নতুন রূপ"
+  floating_replay_body: "Pindrop সাত দিন অডিও রাখতে পারে, তাই প্রয়োজন হলে লাইব্রেরি থেকে আবার শুনতে পারবেন।"
+  floating_replay_title: "প্রতিটি ডিক্টেশন আবার শুনুন"
+  floating_transcribing: "ট্রান্সক্রাইব করা হচ্ছে…"
+  floating_version_line: "Pindrop 0.10.0 · জুলাই 2026"
+  floating_whats_new: "নতুন কী"
+  floating_word_count: "%dটি শব্দ"
+u11:
+  estimating_time: "অবশিষ্ট সময় অনুমান করা হচ্ছে…"
+  live_transcript: "লাইভ ট্রান্সক্রিপ্ট"
+  microphone_muted: "মাইক্রোফোন নিঃশব্দ"
+  minutes_left: "প্রায় %d মি বাকি"
+  recording_processing: "রেকর্ডিং বন্ধ হয়েছে। ট্রান্সক্রিপশন প্রক্রিয়া করা হচ্ছে।"
+  recording_started: "রেকর্ডিং শুরু হয়েছে"
+  recording_stopped: "রেকর্ডিং বন্ধ হয়েছে"
+  seconds_left: "প্রায় %d সে বাকি"
+  transcription_complete: "ট্রান্সক্রিপশন সম্পূর্ণ"
+u11b:
+  expand: "প্রসারিত করুন"
+  expired: "মেয়াদ শেষ"
+  playback_position: "প্লেব্যাকের অবস্থান"
+  step_x_of_y: "ধাপ %d / %d"
+u3:
+  library_assign_speaker: "বক্তা নির্ধারণ করুন"
+  library_audio_kept_30_days: "অডিও ৩০ দিন রাখা"
+  library_audio_kept_7_days: "অডিও ৭ দিন রাখা"
+  library_audio_kept_forever: "অডিও চিরকাল রাখা"
+  library_click_line_to_jump: "প্লেব্যাকে যেতে লাইনে ক্লিক করুন"
+  library_dictations: "ডিকটেশন"
+  library_dictations_appear_after_use: "ভয়েস ডিকটেশনের পর এখানে দেখা যায়।"
+  library_h_m_spoken: "%d ঘ %d মি কথা"
+  library_h_spoken: "%d ঘ কথা"
+  library_https_placeholder: "https://…"
+  library_import_file_or_paste_link: "মিডিয়া ট্রান্সক্রাইব করতে ফাইল আমদানি বা লিংক পেস্ট করুন।"
+  library_import_files: "ফাইল আমদানি…"
+  library_imported_audio: "আমদানিকৃত অডিও"
+  library_insert_again: "আবার ঢোকান"
+  library_inserted_into: "%@-এ ঢোকানো"
+  library_m_spoken: "%d মি কথা"
+  library_meeting_recording: "মিটিং রেকর্ডিং"
+  library_meetings: "মিটিং"
+  library_n_recordings: "%dটি রেকর্ডিং"
+  library_no_dictations_yet: "এখনও কোনো ডিকটেশন নেই"
+  library_no_meeting_recordings: "কোনো মিটিং রেকর্ডিং নেই"
+  library_no_recordings_yet: "এখনও কোনো রেকর্ডিং নেই"
+  library_one_recording: "১টি রেকর্ডিং"
+  library_paste_link: "লিংক পেস্ট…"
+  library_playback_speed: "প্লেব্যাক গতি"
+  library_record_meeting_ellipsis: "মিটিং রেকর্ড করুন…"
+  library_record_meeting_from_home: "হোম থেকে মিটিং রেকর্ড করুন।"
+  library_rename_speaker_ellipsis: "বক্তার নাম পরিবর্তন করুন…"
+  library_start_dictation_or_import: "হোম থেকে ডিকটেশন শুরু করুন বা ফাইল আমদানি করুন।"
+  library_summary_label: "সারাংশ"
+  library_try_different_search_or_filter: "অন্য অনুসন্ধান বা ফিল্টার চেষ্টা করুন।"
+  library_untitled: "শিরোনামহীন"
+  library_voice_transcription: "ভয়েস ট্রান্সক্রিপশন"
+  library_web_transcription: "ওয়েব ট্রান্সক্রিপশন"
+u4:
+  home_bar_a11y_n: "%@, %@ শব্দ"
+  home_bar_a11y_one: "%@, ১ শব্দ"
+  home_duration_h: "%d ঘ"
+  home_duration_h_m: "%d ঘ %d মি"
+  home_duration_m: "%d মি"
+  home_n_day: "%d-দিন"
+  home_n_words_grouped: "%@ শব্দ"
+  home_one_day: "1-দিন"
+  home_open_library_arrow: "লাইব্রেরি খুলুন →"
+  home_option_space_fallback: "⌥Space"
+  home_press_hotkey_hint: "ডিকটেশন শুরু করতে যেকোনো জায়গায় %@ চাপুন।"
+  home_recent_empty_hint: "আপনার সাম্প্রতিক ডিকটেশন এখানে দেখা যাবে।"
+  home_streak: "ধারা"
+  home_subline_duration_only: "%@ ডিকটেশন।"
+  home_subline_full: "%@ ডিকটেশন — টাইপ করার তুলনায় প্রায় %@ সাশ্রয়।"
+  home_this_week: "এই সপ্তাহ"
+  home_welcome_tagline: "বলুন। লেখা হয়ে যায়।"
+  home_words_per_min: "শব্দ / মি"
+  home_words_so_far: "এখন পর্যন্ত শব্দ"
+  home_words_today: "আজকের শব্দ"
+  home_you_spoke_this_week: "আপনি এই সপ্তাহে %@ বলেছেন।"
+  home_zero_day: "0-দিন"
+u5:
+  u7_add_replacement: "Add replacement"
+  u7_add_word: "Add word"
+  u7_add_words_or_replacements: "Add words the recognizer should trust, or replacements applied after transcription."
+  u7_applied_after_transcription: "Applied after transcription, before insert"
+  u7_case_insensitive: "case-insensitive"
+  u7_cmd_s_to_save: "⌘S to save"
+  u7_command: "command"
+  u7_copy_content: "Copy Content"
+  u7_d_ago: "%d d ago"
+  u7_delete_note: "Delete Note"
+  u7_edited: "edited"
+  u7_edited_format: "edited %@"
+  u7_everything_runs_on_this_mac: "Everything runs on this Mac"
+  u7_exact: "exact"
+  u7_h_ago: "%d h ago"
+  u7_installed: "Installed"
+  u7_just_now: "just now"
+  u7_listening_speak_to_append: "Listening — speak to append…"
+  u7_m_ago: "%d m ago"
+  u7_match_mode: "Match mode"
+  u7_models_privacy_footnote: "Models never leave this Mac. Audio is processed locally unless you choose a cloud provider in Settings → AI."
+  u7_new_note: "New note"
+  u7_no_dictionary_entries: "No dictionary entries"
+  u7_on_device_helpers: "On-device helpers"
+  u7_on_disk: "ডিস্কে"
+  u7_open_note: "Open Note"
+  u7_pin: "Pin"
+  u7_replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
+  u7_replacements_section: "Replacements"
+  u7_speech_to_text: "Speech to text"
+  u7_teach_pindrop_your_words: "Teach Pindrop your words"
+  u7_unpin: "Unpin"
+  u7_untitled_note: "Untitled Note"
+  u7_words_recognizer_should_trust: "Words the recognizer should trust"
+u8:
+  settings_acknowledgements: "স্বীকৃতি"
+  settings_advanced_assignments: "উন্নত অ্যাসাইনমেন্ট"
+  settings_audio_on_disk_format: "ডিস্কে অডিও: %@ · %@"
+  settings_beta_channel: "বেটা"
+  settings_bundled_fonts_ofl: "বান্ডিল করা ফন্টগুলি (Newsreader, Inter, JetBrains Mono) SIL Open Font License-এর অধীনে লাইসেন্সপ্রাপ্ত।"
+  settings_checks_for_updates_automatically: "Pindrop স্বয়ংক্রিয়ভাবে আপডেটের জন্য পরীক্ষা করে।"
+  settings_choose_a_provider: "একটি প্রদানকারী নির্বাচন করুন"
+  settings_choose_folder_export_logs: "Pindrop লগ ফাইলগুলি অনুলিপি করার জন্য একটি ফোল্ডার নির্বাচন করুন।"
+  settings_copy_last_transcript: "শেষ প্রতিলিপি অনুলিপি করুন"
+  settings_copy_token: "টোকেন অনুলিপি করুন"
+  settings_days_30: "৩০ দিন"
+  settings_days_7: "৭ দিন"
+  settings_debug: "ডিবাগ"
+  settings_delete_all_audio: "সমস্ত অডিও মুছুন"
+  settings_delete_all_audio_ellipsis: "সমস্ত অডিও মুছুন…"
+  settings_delete_all_audio_question: "সমস্ত অডিও মুছবেন?"
+  settings_diagnostics: "ডায়াগনস্টিকস"
+  settings_edit_prompt_ellipsis: "প্রম্পট সম্পাদনা করুন…"
+  settings_endpoint: "এন্ডপয়েন্ট"
+  settings_enhance_transcripts: "প্রতিলিপি উন্নত করুন"
+  settings_example_label: "উদাহরণ"
+  settings_export_logs_ellipsis: "লগ রপ্তানি করুন…"
+  settings_forever: "চিরকাল"
+  settings_github: "GitHub"
+  settings_info: "তথ্য"
+  settings_keep_dictation_audio: "ডিক্টেশন অডিও সংরক্ষণ করুন"
+  settings_last_checked_format: "সর্বশেষ পরীক্ষা করা হয়েছে %@"
+  settings_license_mit: "লাইসেন্স — MIT"
+  settings_listening_ellipsis: "শুনছে…"
+  settings_log_level: "লগ স্তর"
+  settings_logs_never_include_transcript: "লগে কখনো প্রতিলিপির টেক্সট অন্তর্ভুক্ত থাকে না"
+  settings_made_with_care: "স্থানীয় বক্তৃতার জন্য যত্ন সহকারে তৈরি।"
+  settings_manage_ellipsis: "পরিচালনা করুন…"
+  settings_n_samples: "%d নমুনা"
+  settings_n_snippets: "%d টি ক্লিপ"
+  settings_n_trained: "%d টি প্রশিক্ষিত"
+  settings_no_conflicts_with_system_or_app: "সিস্টেম বা অ্যাপ শর্টকাটের সাথে কোনো দ্বন্দ্ব নেই।"
+  settings_one_snippet: "১ টি ক্লিপ"
+  settings_one_trained: "১ টি প্রশিক্ষিত"
+  settings_presets_recolor_caption: "প্রিসেটগুলি অ্যাক্সেন্ট রঙ এবং পটভূমি পুনরায় রং করে। টেক্সট কনট্রাস্ট স্বয়ংক্রিয়ভাবে যাচাই করা হয়।"
+  settings_push_to_talk: "পুশ-টু-টক"
+  settings_recording_indicator: "রেকর্ডিং সূচক"
+  settings_release_channel: "স্থিতিশীল রিলিজ"
+  settings_removes_kept_dictation_audio: "সংরক্ষিত ডিক্টেশন অডিও ফাইল মুছে দেয়। প্রতিলিপি আপনার লাইব্রেরিতে থেকে যায়।"
+  settings_reset_all_settings_ellipsis: "সমস্ত সেটিংস রিসেট করুন…"
+  settings_separate_from_interface_language: "ইন্টারফেস ভাষা থেকে পৃথক"
+  settings_some_shortcuts_conflict_each_other: "কিছু শর্টকাট একে অপরের সাথে দ্বন্দ্বে রয়েছে।"
+  settings_some_shortcuts_may_conflict_system: "কিছু শর্টকাট সিস্টেম শর্টকাটের সাথে দ্বন্দ্বে থাকতে পারে।"
+  settings_speaker_profiles: "বক্তার প্রোফাইল"
+  settings_theme_preset: "থিম প্রিসেট"
+  settings_toggle_dictation: "ডিক্টেশন টগল করুন"
+  settings_trained_summary_format: "%@ — মিটিংয়ে কে কী বলেছে তা লেবেল করতে ব্যবহৃত হয়"
+  settings_update_checks_unavailable: "আপডেট পরীক্ষা সাময়িকভাবে অনুপলব্ধ।"
+  settings_warning: "সতর্কতা"
+  settings_website: "ওয়েবসাইট"
+u9:
+  onboarding_accessibility_clipboard_fallback: "অ্যাক্সেসিবিলিটি ছাড়া Pindrop পাঠ্যটি ক্লিপবোর্ডে কপি করে।"
+  onboarding_change_hotkey_hint: "এটি বদলাতে অন্য একটি কী সমন্বয় চাপুন"
+  onboarding_download_amount_format: "%@ এর মধ্যে %@"
+  onboarding_download_background_hint: "ডাউনলোড চলার সময় সেটআপ চালিয়ে যান — আমরা পটভূমিতে শেষ করব।"
+  onboarding_enable_enhancement: "উন্নয়ন চালু করুন"
+  onboarding_granted_state: "মঞ্জুর"
+  onboarding_pindrop_writes: "Pindrop লেখে"
+  onboarding_ready_heading: "আপনি প্রস্তুত।"
+  onboarding_ready_instruction_format: "%@ চাপুন এবং কথা বলা শুরু করুন — কার্সর যেখানে আছে Pindrop সেখানেই টাইপ করে।"
+  onboarding_try_it_now: "এখনই চেষ্টা করুন"
+  onboarding_you_say: "আপনি বলেন"
+ukrainian:
+  _self: "Ukrainian"
 unable:
   to_connect_to_the_ai_enhancement_service: "\" AI বর্ধিতকরণ পরিষেবার সাথে সংযোগ করতে অক্ষম৷                                  অনুগ্রহ করে চেক করুন: 1. আপনার ইন্টারনেট সংযোগ 2. API এন্ডপয়েন্ট URLটি সঠিক 3. পরিষেবাটি কোনও বিভ্রাটের সম্মুখীন হচ্ছে না৷ ট্রান্সক্রিপশন বর্ধিতকরণ ছাড়াই সংরক্ষণ করা হয়েছিল৷                 \""
   to_finish_transcription: "ট্রান্সক্রিপশন শেষ করতে অক্ষম"
@@ -1052,6 +1409,8 @@ undo:
   _self: "পূর্বাবস্থায় ফেরান"
 unfiled:
   _self: "আনফাইলড"
+unknown:
+  _self: "Unknown"
 unpin:
   from_screen: "স্ক্রীন থেকে আনপিন করুন"
 update:
@@ -1090,12 +1449,23 @@ view:
   transcription_history: "প্রতিলিপি ইতিহাস দেখুন"
 vocabulary:
   _self: "শব্দভান্ডার"
+voice:
+  _self: "Voice"
 vs:
   typing: "বনাম টাইপিং"
+web:
+  link: "Web link"
 welcome:
   to_pindrop: "Pindrop স্বাগতম"
+what:
+  s_new: "নতুন কী…"
+  s_new_in_pindrop: "Pindrop-এ নতুন কী"
+while:
+  recording: "রেকর্ডিংয়ের সময়"
 whisperkit:
   _self: "হুইস্পারকিট"
+window:
+  _self: "উইন্ডো"
 word:
   _self: "শব্দ"
   replacements: "শব্দ প্রতিস্থাপন"
@@ -1117,6 +1487,7 @@ you:
   ve_exceeded_your_api_rate_limit_or_quota_to: "\" আপনি আপনার API রেট সীমা বা কোটা অতিক্রম করেছেন৷                                  এটি ঠিক করতে: 1. কয়েক মিনিট অপেক্ষা করুন এবং আবার চেষ্টা করুন 2. আপনার API প্রদানকারীর ব্যবহারের সীমা পরীক্ষা করুন 3. আপনার API প্ল্যান আপগ্রেড করার কথা বিবেচনা করুন ট্রান্সক্রিপশনটি বর্ধিতকরণ ছাড়াই সংরক্ষণ করা হয়েছিল৷                 \""
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\" আপনার API কী অবৈধ বা মেয়াদোত্তীর্ণ বলে মনে হচ্ছে৷                                  এটি ঠিক করতে: 1. সেটিংস খুলুন → AI এনহ্যান্সমেন্ট 2. আপনার API কী সঠিক কিনা যাচাই করুন 3. পরীক্ষা করুন যে আপনার API এন্ডপয়েন্ট সঠিক কিনা ট্রান্সক্রিপশনটি বর্ধিতকরণ ছাড়াই সংরক্ষিত হয়েছে৷                 \""
+  floating_indicator_is_now_a_living_audio_re: "আপনার ভাসমান সূচকটি এখন একটি জীবন্ত, অডিও-প্রতিক্রিয়াশীল orb। নিষ্ক্রিয় থাকলে এটি শ্বাস নেয়, আপনি কথা বললে ফুলে ওঠে, এবং ডিক্টেট করার সময় আপনার শব্দ সরাসরি দেখায়।"
   hotkeys_are_ready_to_use_nyou_can_customize: "আপনার হটকিগুলি ব্যবহারের জন্য প্রস্তুত৷ আপনি পরে সেটিংসে গিয়ে কাস্টমাইজ করতে পারেন৷"
   hotkeys_are_ready_to_use_you_can_customize: |-
     আপনার হটকিগুলি ব্যবহারের জন্য প্রস্তুত।
@@ -1124,365 +1495,6 @@ your:
     আপনি সেগুলিকে পরে সেটিংসে কাস্টমাইজ করতে পারেন৷
   model_is_ready_to_use: "আপনার মডেল ব্যবহারের জন্য প্রস্তুত."
   stats: "আপনার পরিসংখ্যান"
-  floating_indicator_is_now_a_living_audio_re: "আপনার ভাসমান সূচকটি এখন একটি জীবন্ত, অডিও-প্রতিক্রিয়াশীল orb। নিষ্ক্রিয় থাকলে এটি শ্বাস নেয়, আপনি কথা বললে ফুলে ওঠে, এবং ডিক্টেট করার সময় আপনার শব্দ সরাসরি দেখায়।"
-orb:
-  _self: "অর্ব"
-meeting:
-  saved: "মিটিং সংরক্ষিত হয়েছে"
-russian:
-  _self: "Russian"
-ukrainian:
-  _self: "Ukrainian"
-what:
-  s_new_in_pindrop: "Pindrop-এ নতুন কী"
-  s_new: "নতুন কী…"
-meet:
-  the_new_orb: "নতুন Orb-এর সঙ্গে পরিচিত হন"
-thanks:
-  to_for_investigating_and_kicking_off_the: "অনুসন্ধান করে সমাধান শুরু করার জন্য %@-কে ধন্যবাদ (PR #64)।"
-  to_for_the_contribution_pr_61: "অবদানের জন্য %@-কে ধন্যবাদ (PR #61)।"
-dictate:
-  in_russian_and_ukrainian: "রুশ ও ইউক্রেনীয় ভাষায় ডিক্টেট করুন"
-two:
-  new_dictation_languages_fully_wired_into_mod: "দুটি নতুন ডিক্টেশন ভাষা, মডেল সুপারিশে সম্পূর্ণভাবে যুক্ত।"
-also:
-  new_rtl_layout_support_and_20_new_interface: "আরও নতুন: RTL লেআউট সমর্থন এবং 20টি নতুন ইন্টারফেস ভাষা।"
-advanced:
-  _self: "উন্নত"
-agent:
-  setup: "এজেন্ট সেটআপ"
-appearance:
-  _self: "চেহারা"
-bearer:
-  token: "Bearer টোকেন"
-changes:
-  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
-client:
-  _self: "ক্লায়েন্ট"
-configuration:
-  file: "Configuration File"
-  scope: "Configuration Scope"
-  snippet: "Configuration Snippet"
-dictation:
-  _self: "ডিকটেশন"
-  language: "ডিকটেশন ভাষা"
-  polish: "ডিকটেশন পরিমার্জন"
-done:
-  _self: "সম্পন্ন"
-input:
-  device: "ইনপুট ডিভাইস"
-license:
-  _self: "লাইসেন্স"
-mcp:
-  configuration_error: "MCP Configuration Error"
-  server: "MCP সার্ভার"
-main:
-  window: "প্রধান উইন্ডো"
-name:
-  _self: "নাম"
-port:
-  _self: "পোর্ট"
-  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
-project:
-  _self: "প্রজেক্ট"
-regenerate:
-  _self: "পুনরায় তৈরি"
-shortcuts:
-  _self: "শর্টকাট"
-speakers:
-  _self: "বক্তা"
-these:
-  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
-while:
-  recording: "রেকর্ডিংয়ের সময়"
-may:
-  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
-library:
-  _self: "লাইব্রেরি"
-conflicts:
-  with: "Conflicts with %@"
-file:
-  _self: "ফাইল"
-window:
-  _self: "উইন্ডো"
-help:
-  _self: "সহায়তা"
-close:
-  _self: "বন্ধ"
-find:
-  _self: "খুঁজুন"
-minimize:
-  _self: "মিনিমাইজ"
+  stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "জুম"
-bring:
-  all_to_front: "সব সামনে আনুন"
-home:
-  _self: "হোম"
-newest:
-  _self: "নতুনতম"
-oldest:
-  _self: "পুরোনো"
-plain:
-  text_txt: "সাধারণ টেক্সট (.txt)"
-markdown:
-  md: "Markdown (.md)"
-subtitles:
-  srt: "সাবটাইটেল (.srt)"
-timestamps:
-  json: "টাইমস্ট্যাম্প (.json)"
-inserted:
-  into_d_words: "%@-এ ঢোকানো হয়েছে · %d শব্দ"
-unknown:
-  app: "অজানা অ্যাপ"
-pinned:
-  _self: "পিন করা"
-speak:
-  to_append: "যোগ করতে বলুন"
-
-diarized:
-  _self: "ডায়ারাইজড"
-
-summary:
-  ready: "সারাংশ প্রস্তুত"
-
-prompts:
-  are_sent_in_english: "প্রম্পট ইংরেজিতে পাঠানো হয়"
-
-preset_example:
-  clean_input: "আম তাহলে মিটিং সাড়ে তিনটায় পিরিয়ড আপনি কি নিশ্চিত করতে পারেন প্রশ্নবোধক"
-  clean_output: "তাহলে মিটিং ১৫:৩০-এ। আপনি কি নিশ্চিত করতে পারেন?"
-  meeting_input: "অ্যালিস শুক্রবারের মধ্যে ডেক পাঠাবে বব মূল্য পর্যালোচনা দেখবে আগামী সপ্তাহে সিদ্ধান্ত দরকার"
-  meeting_output: "## কাজ\\n- **অ্যালিস** **শুক্রবারের** মধ্যে ডেক পাঠাবে\\n- **বব** মূল্য পর্যালোচনা দেখবে\\n\\n## পরবর্তী পদক্ষেপ\\n- আগামী সপ্তাহে সিদ্ধান্ত প্রয়োজন"
-  email_input: "হাই জর্ডান শুধু দেখছিলাম গতকালের নোট পেয়েছেন কিনা ধন্যবাদ"
-  email_output: "হাই জর্ডান,\\n\\nশুধু দেখছিলাম গতকালের নোট পেয়েছেন কিনা।\\n\\nধন্যবাদ,"
-  social_input: "আম আমরা এইমাত্র ডার্ক মোড শিপ করেছি আর এটা দারুণ দেখাচ্ছে আপনার চেষ্টা করা উচিত"
-  social_output: "আমরা এইমাত্র ডার্ক মোড শিপ করেছি।\\n\\nএটা দারুণ দেখাচ্ছে — আপনার চেষ্টা করা উচিত।"
-  bullets_input: "আমরা অনবোর্ডিং লেটেন্সি তারপর মূল্য এবং শেষে বারোই মে লঞ্চ তারিখ আলোচনা করেছি"
-  bullets_output: "- অনবোর্ডিং লেটেন্সি\\n- মূল্য\\n- লঞ্চ তারিখ: ১২ মে"
-  technical_input: "fetch user কল করো তীর তারপর রেসপন্স সমান সমান দুইশো ম্যাপ করো"
-  technical_output: "`fetchUser` কল করো -> তারপর রেসপন্স `==` 200 ম্যাপ করো।"
-  live_input: "আম মনে হয় শুক্রবারের মধ্যে বিটা শিপ করা উচিত পিরিয়ড"
-  live_output: "মনে হয় শুক্রবারের মধ্যে বিটা শিপ করা উচিত।"
-  edits_input: "আম এটা correct ly পঁচিশ"
-  edits_output: "এটা correctly 25"
-
-inserted:
-  into_d_words: "Inserted into %@ · %d words"
-
-unknown:
-  app: "Unknown App"
-
-u3_library:
-  rename_speaker_ellipsis: "বক্তার নাম পরিবর্তন করুন…"
-  assign_speaker: "বক্তা নির্ধারণ করুন"
-  record_meeting_ellipsis: "মিটিং রেকর্ড করুন…"
-  dictations: "ডিকটেশন"
-  meetings: "মিটিং"
-  one_recording: "১টি রেকর্ডিং"
-  n_recordings: "%dটি রেকর্ডিং"
-  h_m_spoken: "%d ঘ %d মি কথা"
-  h_spoken: "%d ঘ কথা"
-  m_spoken: "%d মি কথা"
-  audio_kept_7_days: "অডিও ৭ দিন রাখা"
-  audio_kept_30_days: "অডিও ৩০ দিন রাখা"
-  audio_kept_forever: "অডিও চিরকাল রাখা"
-  inserted_into: "%@-এ ঢোকানো"
-  import_files: "ফাইল আমদানি…"
-  paste_link: "লিংক পেস্ট…"
-  insert_again: "আবার ঢোকান"
-  playback_speed: "প্লেব্যাক গতি"
-  no_recordings_yet: "এখনও কোনো রেকর্ডিং নেই"
-  start_dictation_or_import: "হোম থেকে ডিকটেশন শুরু করুন বা ফাইল আমদানি করুন।"
-  no_dictations_yet: "এখনও কোনো ডিকটেশন নেই"
-  dictations_appear_after_use: "ভয়েস ডিকটেশনের পর এখানে দেখা যায়।"
-  no_meeting_recordings: "কোনো মিটিং রেকর্ডিং নেই"
-  record_meeting_from_home: "হোম থেকে মিটিং রেকর্ড করুন।"
-  import_file_or_paste_link: "মিডিয়া ট্রান্সক্রাইব করতে ফাইল আমদানি বা লিংক পেস্ট করুন।"
-  try_different_search_or_filter: "অন্য অনুসন্ধান বা ফিল্টার চেষ্টা করুন।"
-  untitled: "শিরোনামহীন"
-  https_placeholder: "https://…"
-  summary_label: "সারাংশ"
-  click_line_to_jump: "প্লেব্যাকে যেতে লাইনে ক্লিক করুন"
-  meeting_recording: "মিটিং রেকর্ডিং"
-  voice_transcription: "ভয়েস ট্রান্সক্রিপশন"
-  imported_audio: "আমদানিকৃত অডিও"
-  web_transcription: "ওয়েব ট্রান্সক্রিপশন"
-
-u5_u7:
-  new_note: "New note"
-  add_word: "Add word"
-  add_replacement: "Add replacement"
-  teach_pindrop_your_words: "Teach Pindrop your words"
-  words_recognizer_should_trust: "Words the recognizer should trust"
-  applied_after_transcription: "Applied after transcription, before insert"
-  case_insensitive: "case-insensitive"
-  exact: "exact"
-  command: "command"
-  replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
-  no_dictionary_entries: "No dictionary entries"
-  add_words_or_replacements: "Add words the recognizer should trust, or replacements applied after transcription."
-  match_mode: "Match mode"
-  everything_runs_on_this_mac: "Everything runs on this Mac"
-  on_disk: "ডিস্কে"
-  speech_to_text: "Speech to text"
-  on_device_helpers: "On-device helpers"
-  installed: "Installed"
-  models_privacy_footnote: "Models never leave this Mac. Audio is processed locally unless you choose a cloud provider in Settings → AI."
-  listening_speak_to_append: "Listening — speak to append…"
-  cmd_s_to_save: "⌘S to save"
-  edited_format: "edited %@"
-  just_now: "just now"
-  m_ago: "%d m ago"
-  h_ago: "%d h ago"
-  d_ago: "%d d ago"
-  edited: "edited"
-  open_note: "Open Note"
-  copy_content: "Copy Content"
-  unpin: "Unpin"
-  pin: "Pin"
-  delete_note: "Delete Note"
-  replacements_section: "Replacements"
-  untitled_note: "Untitled Note"
-u4_home:
-  you_spoke_this_week: "আপনি এই সপ্তাহে %@ বলেছেন।"
-  n_words_grouped: "%@ শব্দ"
-  zero_day: "0-দিন"
-  one_day: "1-দিন"
-  n_day: "%d-দিন"
-  duration_h_m: "%d ঘ %d মি"
-  duration_h: "%d ঘ"
-  duration_m: "%d মি"
-  subline_full: "%@ ডিকটেশন — টাইপ করার তুলনায় প্রায় %@ সাশ্রয়।"
-  subline_duration_only: "%@ ডিকটেশন।"
-  words_today: "আজকের শব্দ"
-  words_per_min: "শব্দ / মি"
-  streak: "ধারা"
-  open_library_arrow: "লাইব্রেরি খুলুন →"
-  this_week: "এই সপ্তাহ"
-  words_so_far: "এখন পর্যন্ত শব্দ"
-  welcome_tagline: "বলুন। লেখা হয়ে যায়।"
-  press_hotkey_hint: "ডিকটেশন শুরু করতে যেকোনো জায়গায় %@ চাপুন।"
-  bar_a11y_one: "%@, ১ শব্দ"
-  bar_a11y_n: "%@, %@ শব্দ"
-  recent_empty_hint: "আপনার সাম্প্রতিক ডিকটেশন এখানে দেখা যাবে।"
-  option_space_fallback: "⌥Space"
-
-u8_settings:
-  reset_all_settings_ellipsis: "সমস্ত সেটিংস রিসেট করুন…"
-  separate_from_interface_language: "ইন্টারফেস ভাষা থেকে পৃথক"
-  keep_dictation_audio: "ডিক্টেশন অডিও সংরক্ষণ করুন"
-  days_7: "৭ দিন"
-  days_30: "৩০ দিন"
-  forever: "চিরকাল"
-  audio_on_disk_format: "ডিস্কে অডিও: %@ · %@"
-  one_snippet: "১ টি ক্লিপ"
-  n_snippets: "%d টি ক্লিপ"
-  delete_all_audio_ellipsis: "সমস্ত অডিও মুছুন…"
-  delete_all_audio_question: "সমস্ত অডিও মুছবেন?"
-  delete_all_audio: "সমস্ত অডিও মুছুন"
-  removes_kept_dictation_audio: "সংরক্ষিত ডিক্টেশন অডিও ফাইল মুছে দেয়। প্রতিলিপি আপনার লাইব্রেরিতে থেকে যায়।"
-  speaker_profiles: "বক্তার প্রোফাইল"
-  one_trained: "১ টি প্রশিক্ষিত"
-  n_trained: "%d টি প্রশিক্ষিত"
-  trained_summary_format: "%@ — মিটিংয়ে কে কী বলেছে তা লেবেল করতে ব্যবহৃত হয়"
-  manage_ellipsis: "পরিচালনা করুন…"
-  theme_preset: "থিম প্রিসেট"
-  presets_recolor_caption: "প্রিসেটগুলি অ্যাক্সেন্ট রঙ এবং পটভূমি পুনরায় রং করে। টেক্সট কনট্রাস্ট স্বয়ংক্রিয়ভাবে যাচাই করা হয়।"
-  recording_indicator: "রেকর্ডিং সূচক"
-  toggle_dictation: "ডিক্টেশন টগল করুন"
-  push_to_talk: "পুশ-টু-টক"
-  copy_last_transcript: "শেষ প্রতিলিপি অনুলিপি করুন"
-  no_conflicts_with_system_or_app: "সিস্টেম বা অ্যাপ শর্টকাটের সাথে কোনো দ্বন্দ্ব নেই।"
-  some_shortcuts_conflict_each_other: "কিছু শর্টকাট একে অপরের সাথে দ্বন্দ্বে রয়েছে।"
-  some_shortcuts_may_conflict_system: "কিছু শর্টকাট সিস্টেম শর্টকাটের সাথে দ্বন্দ্বে থাকতে পারে।"
-  listening_ellipsis: "শুনছে…"
-  enhance_transcripts: "প্রতিলিপি উন্নত করুন"
-  choose_a_provider: "একটি প্রদানকারী নির্বাচন করুন"
-  edit_prompt_ellipsis: "প্রম্পট সম্পাদনা করুন…"
-  example_label: "উদাহরণ"
-  advanced_assignments: "উন্নত অ্যাসাইনমেন্ট"
-  endpoint: "এন্ডপয়েন্ট"
-  copy_token: "টোকেন অনুলিপি করুন"
-  log_level: "লগ স্তর"
-  debug: "ডিবাগ"
-  info: "তথ্য"
-  warning: "সতর্কতা"
-  diagnostics: "ডায়াগনস্টিকস"
-  logs_never_include_transcript: "লগে কখনো প্রতিলিপির টেক্সট অন্তর্ভুক্ত থাকে না"
-  export_logs_ellipsis: "লগ রপ্তানি করুন…"
-  choose_folder_export_logs: "Pindrop লগ ফাইলগুলি অনুলিপি করার জন্য একটি ফোল্ডার নির্বাচন করুন।"
-  github: "GitHub"
-  website: "ওয়েবসাইট"
-  license_mit: "লাইসেন্স — MIT"
-  acknowledgements: "স্বীকৃতি"
-  bundled_fonts_ofl: "বান্ডিল করা ফন্টগুলি (Newsreader, Inter, JetBrains Mono) SIL Open Font License-এর অধীনে লাইসেন্সপ্রাপ্ত।"
-  made_with_care: "স্থানীয় বক্তৃতার জন্য যত্ন সহকারে তৈরি।"
-  release_channel: "স্থিতিশীল রিলিজ"
-  beta_channel: "বেটা"
-  last_checked_format: "সর্বশেষ পরীক্ষা করা হয়েছে %@"
-  update_checks_unavailable: "আপডেট পরীক্ষা সাময়িকভাবে অনুপলব্ধ।"
-  checks_for_updates_automatically: "Pindrop স্বয়ংক্রিয়ভাবে আপডেটের জন্য পরীক্ষা করে।"
-  n_samples: "%d নমুনা"
-u10_floating:
-  transcribing: "ট্রান্সক্রাইব করা হচ্ছে…"
-  word_count: "%dটি শব্দ"
-  inserted_into: "%@-এ সন্নিবেশ করা হয়েছে"
-  microphone_unavailable: "মাইক্রোফোন উপলভ্য নয়"
-  whats_new: "নতুন কী"
-  version_line: "Pindrop 0.10.0 · জুলাই 2026"
-  announcement_summary: "Pindrop জুড়ে রিপ্লে, নতুন রূপ এবং কীবোর্ড নিয়ন্ত্রণ।"
-  replay_title: "প্রতিটি ডিক্টেশন আবার শুনুন"
-  replay_body: "Pindrop সাত দিন অডিও রাখতে পারে, তাই প্রয়োজন হলে লাইব্রেরি থেকে আবার শুনতে পারবেন।"
-  new_look_title: "একটি নতুন রূপ"
-  new_look_body: "আরও উষ্ণ, শান্ত নকশা আপনার কথাকে অগ্রাধিকার দেয়। আপনার থিম প্রিসেট থাকবে—সঙ্গে নতুন ডিফল্ট Library।"
-  keyboard_title: "সবখানে কীবোর্ড"
-  keyboard_body: "কীবোর্ড না ছেড়েই পৃষ্ঠা বদলান, খুঁজুন, নোট তৈরি করুন, এক্সপোর্ট ও মুছুন।"
-u11:
-  recording_started: "রেকর্ডিং শুরু হয়েছে"
-  recording_stopped: "রেকর্ডিং বন্ধ হয়েছে"
-  recording_processing: "রেকর্ডিং বন্ধ হয়েছে। ট্রান্সক্রিপশন প্রক্রিয়া করা হচ্ছে।"
-  transcription_complete: "ট্রান্সক্রিপশন সম্পূর্ণ"
-  live_transcript: "লাইভ ট্রান্সক্রিপ্ট"
-  estimating_time: "অবশিষ্ট সময় অনুমান করা হচ্ছে…"
-  seconds_left: "প্রায় %d সে বাকি"
-  minutes_left: "প্রায় %d মি বাকি"
-  microphone_muted: "মাইক্রোফোন নিঃশব্দ"
-u11b:
-  playback_position: "প্লেব্যাকের অবস্থান"
-  expired: "মেয়াদ শেষ"
-  expand: "প্রসারিত করুন"
-  step_x_of_y: "ধাপ %d / %d"
-sessions_in: "%@ sessions in %@"
-0_m: "0 m"
-1_year: "1 year"
-90_days: "90 days"
-ai_enhanced: "AI-enhanced"
-active_days: "Active days"
-activity: "Activity"
-all_time: "All time"
-audio_duration: "Audio duration"
-average_session: "Average session"
-average_words_session: "Average words / session"
-by_weekday: "By weekday"
-destinations: "Destinations"
-dictation_words_min: "Dictation words / min"
-duration: "Duration"
-estimated_time_saved: "Estimated time saved"
-imported_file: "Imported file"
-longest_streak: "Longest streak"
-manual_capture: "Manual capture"
-metric: "Metric"
-no_activity_in_this_period: "No activity in this period"
-no_destination_data: "No destination data"
-other: "Other"
-overview: "Overview"
-sources: "Sources"
-stats: "Stats"
-time_of_day: "Time of day"
-time_range: "Time range"
-transcribed_words: "Transcribed words"
-unknown: "Unknown"
-voice: "Voice"
-web_link: "Web link"
-your_stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."

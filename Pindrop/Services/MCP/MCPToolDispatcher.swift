@@ -7,6 +7,17 @@
 
 import Foundation
 
+private enum MCPToolValidationError: Error, LocalizedError {
+    case invalid(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .invalid(let message):
+            return message
+        }
+    }
+}
+
 /// Routes MCP tool calls to their handlers.
 /// Five top-level tools each with subcommands accessed via the `action` parameter.
 @MainActor
@@ -29,7 +40,8 @@ enum MCPToolDispatcher {
                 "job_id": MCPPropertySchema(type: "string", description: "(status | result | cancel) Job ID returned by submit_file or submit_url"),
                 "model": MCPPropertySchema(type: "string", description: "(submit_*) Whisper model name, e.g. openai_whisper-base. Defaults to current setting."),
                 "language": MCPPropertySchema(type: "string", description: "(submit_*) Language code, e.g. en, auto, fr, de, zh-Hans. Defaults to current setting."),
-                "diarization": MCPPropertySchema(type: "boolean", description: "(submit_*) Enable speaker diarization (requires diarization model to be downloaded)"),
+                "diarization": MCPPropertySchema(type: "boolean", description: "(submit_*) Enable speaker diarization (requires diarization model to be downloaded). Defaults to true."),
+                "expected_speakers": MCPPropertySchema(type: "integer", description: "(submit_*) Optional exact speaker count hint for diarization (1–20). Requires diarization to be enabled."),
                 "output_format": MCPPropertySchema(type: "string", description: "(submit_*) Output format: plainText | subtitles (.srt) | timestamps (.json)", enumValues: ["plainText", "subtitles", "timestamps"]),
                 "folder_id": MCPPropertySchema(type: "string", description: "(submit_*) UUID of destination folder in the media library"),
                 "filter": MCPPropertySchema(type: "string", description: "(list) Filter jobs: pending | active | completed | all", enumValues: ["pending", "active", "completed", "all"])
@@ -145,7 +157,13 @@ enum MCPToolDispatcher {
         guard FileManager.default.fileExists(atPath: fileURL.path) else {
             return .error("File not found: \(path)")
         }
-        let options = buildJobOptions(arguments: arguments, coordinator: coordinator)
+        let options: TranscriptionJobOptions
+        switch buildJobOptions(arguments: arguments, coordinator: coordinator) {
+        case .success(let built):
+            options = built
+        case .failure(let error):
+            return .error(error.localizedDescription)
+        }
         let folderID = arguments["folder_id"]?.stringValue.flatMap(UUID.init)
         let job = MediaTranscriptionJobState(request: .file(fileURL), options: options, destinationFolderID: folderID)
         let mcpJobID = UUID().uuidString
@@ -158,7 +176,13 @@ enum MCPToolDispatcher {
         guard let url = arguments["url"]?.stringValue, !url.isEmpty else {
             return .error("Missing required parameter: url")
         }
-        let options = buildJobOptions(arguments: arguments, coordinator: coordinator)
+        let options: TranscriptionJobOptions
+        switch buildJobOptions(arguments: arguments, coordinator: coordinator) {
+        case .success(let built):
+            options = built
+        case .failure(let error):
+            return .error(error.localizedDescription)
+        }
         let folderID = arguments["folder_id"]?.stringValue.flatMap(UUID.init)
         let job = MediaTranscriptionJobState(request: .link(url), options: options, destinationFolderID: folderID)
         let mcpJobID = UUID().uuidString
@@ -641,13 +665,42 @@ enum MCPToolDispatcher {
 
     // MARK: - Helpers
 
-    private static func buildJobOptions(arguments: [String: JSONValue], coordinator: AppCoordinator) -> TranscriptionJobOptions {
+    private static func buildJobOptions(
+        arguments: [String: JSONValue],
+        coordinator: AppCoordinator
+    ) -> Result<TranscriptionJobOptions, MCPToolValidationError> {
         let modelName = arguments["model"]?.stringValue ?? coordinator.settingsStore.selectedModel
         let langStr = arguments["language"]?.stringValue ?? coordinator.settingsStore.selectedLanguage
         let language = AppLanguage(rawValue: langStr) ?? .automatic
         let formatStr = arguments["output_format"]?.stringValue ?? "plainText"
         let format = TranscribeOutputFormat(rawValue: formatStr) ?? .plainText
-        return TranscriptionJobOptions(modelName: modelName, language: language, outputFormat: format)
+        let diarizationEnabled = arguments["diarization"]?.boolValue ?? true
+
+        let expectedSpeakerCount: Int?
+        if arguments["expected_speakers"] != nil {
+            guard let count = arguments["expected_speakers"]?.intValue else {
+                return .failure(.invalid("expected_speakers must be an integer between 1 and 20"))
+            }
+            guard (1...20).contains(count) else {
+                return .failure(.invalid("expected_speakers must be between 1 and 20"))
+            }
+            guard diarizationEnabled else {
+                return .failure(.invalid("expected_speakers requires diarization to be enabled; set diarization to true or omit expected_speakers"))
+            }
+            expectedSpeakerCount = count
+        } else {
+            expectedSpeakerCount = nil
+        }
+
+        return .success(
+            TranscriptionJobOptions(
+                modelName: modelName,
+                language: language,
+                outputFormat: format,
+                diarizationEnabled: diarizationEnabled,
+                expectedSpeakerCount: expectedSpeakerCount
+            )
+        )
     }
 
     private static func findJob(stateID: UUID, in state: MediaTranscriptionFeatureState) -> MediaTranscriptionJobState? {

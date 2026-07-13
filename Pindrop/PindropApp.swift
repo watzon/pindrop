@@ -525,15 +525,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     private func makeModelContainer() throws -> ModelContainer {
         let configuration = ModelConfiguration(url: storeRepairService.storeURL())
+        let schema = Schema(versionedSchema: TranscriptionRecordSchemaV10.self)
         return try ModelContainer(
-            for: TranscriptionRecord.self,
-            MediaFolder.self,
-            ParticipantProfile.self,
-            ParticipantTrainingEvidence.self,
-            WordReplacement.self,
-            VocabularyWord.self,
-            Note.self,
-            PromptPreset.self,
+            for: schema,
+            migrationPlan: TranscriptionRecordMigrationPlan.self,
             configurations: configuration
         )
     }

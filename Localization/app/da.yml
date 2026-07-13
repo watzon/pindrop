@@ -1,61 +1,61 @@
-u9_onboarding:
-  download_amount_format: "%@ af %@"
-  download_background_hint: "Fortsæt opsætningen, mens den downloader — vi gør den færdig i baggrunden."
-  you_say: "Du siger"
-  pindrop_writes: "Pindrop skriver"
-  enable_enhancement: "Slå forbedring til"
-  accessibility_clipboard_fallback: "Uden Tilgængelighed kopierer Pindrop i stedet teksten til udklipsholderen."
-  change_hotkey_hint: "Tryk på en anden kombination for at ændre den"
-  granted_state: "Givet"
-  ready_heading: "Du er klar."
-  ready_instruction_format: "Tryk på %@ og begynd at tale — Pindrop skriver, hvor markøren er."
-  try_it_now: "Prøv det nu"
-
+0:
+  m: "0 m"
 100:
   local_processing: "100 % lokal behandling"
 1:
   folder: "1 mappe"
+  note: "1 note"
   speaker: "1 taler"
   transcription: "1 transskription"
-  note: "1 note"
   word: "1 ord"
+  year: "1 year"
+90:
+  days: "90 days"
 a:
-  native_macos_menu_bar_dictation_app_using_loca: "En indbygget macOS-menulinjedikteringsapp, der bruger lokal tale-til-tekst med WhisperKit. 100 % lokal behandling som standard med valgfri AI-forbedring."
   big_round_of_upgrades_and_two_community_shout: "En stor runde opgraderinger — og to taksigelser til fællesskabet."
+  native_macos_menu_bar_dictation_app_using_loca: "En indbygget macOS-menulinjedikteringsapp, der bruger lokal tale-til-tekst med WhisperKit. 100 % lokal behandling som standard med valgfri AI-forbedring."
 about:
   _self: "Om"
   pindrop: "Om Pindrop"
 accessibility:
   _self: "Tilgængelighed"
+  permission: "Tilladelse til tilgængelighed"
   permission_is_enabled_full_ui_cont: "Tilgængelighedstilladelse er aktiveret. Fuld UI-kontekst er tilgængelig."
   permission_is_not_granted_vibe_mod: "Tilgængelighedstilladelse gives ikke. Vibe-tilstand forbliver ikke-blokerende med begrænset kontekst."
   permission_recommended: "Tilgængelighedstilladelse anbefales"
   permission_required: "Tilgængelighedstilladelse påkrævet"
-  permission: "Tilladelse til tilgængelighed"
 accuracy:
   _self: "Nøjagtighed"
 acknowledgments:
   _self: "Anerkendelser"
 active:
   _self: "Aktiv"
+  days: "Active days"
+activity:
+  _self: "Activity"
 add:
   _self: "Tilføje"
   a_provider_to_start_using_ai_enhancement: "Tilføj en udbyder for at begynde at bruge AI-forbedring."
   custom_words_to_improve_transcription_accura: "Tilføj tilpassede ord for at forbedre transskriptionsnøjagtigheden for specialiserede termer, navne eller jargon."
   provider: "Tilføj udbyder"
   tag: "Tilføj tag..."
+  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
+  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
+  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
+  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
+  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
   to_existing: "Tilføj til eksisterende"
   trailing_space: "Tilføj efterfølgende plads"
   word_replacements_to_automatically_correct_c: "Tilføj orderstatninger for automatisk at rette almindelige transskriptionsfejl."
   words_to_help_pindrop_recognize_them_properl: "Tilføj ord for at hjælpe Pindrop med at genkende dem korrekt"
   words_you_manually_correct_into_your_vocabul: "Tilføj ord, du manuelt retter, til dit ordforråd til fremtidige transskriptioner."
-  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
-  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
-  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
-  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
-  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
+advanced:
+  _self: "Avanceret"
+agent:
+  setup: "Agentopsætning"
 ai:
   _self: "AI"
+  enhanced: "AI-enhanced"
   enhancement: "AI-forbedring"
   enhancement_529f5583: "AI-forbedring: %@"
   enhancement_failed: "AI-forbedring mislykkedes"
@@ -64,6 +64,9 @@ ai:
   model: "AI model"
 all:
   _self: "Alle"
+  time: "All time"
+also:
+  new_rtl_layout_support_and_20_new_interface: "Også nyt: RTL-layoutunderstøttelse og 20 nye grænsefladesprog."
 an:
   error_occurred_while_enhancing_your_transcrip: |-
     Der opstod en fejl under forbedring af din transskription:
@@ -72,7 +75,7 @@ an:
     
     Den originale transskription blev gemt uden forbedring.
     Du kan prøve at aktivere AI-forbedring igen i Indstillinger.
-  error_occurred_while_enhancing_your_transcrip_8c664cb4: "Der opstod en fejl under forbedring af din transskription:nn%@nnDen originale transskription blev gemt uden forbedring.nDu kan prøve at aktivere AI-forbedring igen i Indstillinger."
+  error_occurred_while_enhancing_your_transcrip_1790ad05: "Der opstod en fejl under forbedring af din transskription:nn%@nnDen originale transskription blev gemt uden forbedring.nDu kan prøve at aktivere AI-forbedring igen i Indstillinger."
 anthropic:
   _self: "Antropisk"
 api:
@@ -82,6 +85,8 @@ api:
   key_saved_endpoint: "API-nøgle gemt • Slutpunkt: %@"
 app:
   info_acknowledgments_support_and_logs: "Appinfo, anerkendelser, support og logfiler"
+appearance:
+  _self: "Udseende"
 append:
   a_space_after_each_transcription_for_seam: "Tilføj et mellemrum efter hver transskription for problemfri diktering."
 apple:
@@ -99,6 +104,7 @@ assignments:
 attach:
   logs_from_this_folder_when_filing_a_githu: "Vedhæft logfiler fra denne mappe, når du indgiver et GitHub-problem."
 audio:
+  duration: "Audio duration"
   input: "Lydindgang"
 automatic:
   follow_system: "Automatisk (følg systemet)"
@@ -109,6 +115,9 @@ automatically:
   start_pindrop_when_you_sign_in: "Start Pindrop automatisk, når du logger ind."
 available:
   models: "Tilgængelige modeller"
+average:
+  session: "Average session"
+  words_session: "Average words / session"
 avg:
   speed: "Gns. hastighed"
 back:
@@ -116,14 +125,20 @@ back:
   to_library: "Tilbage til biblioteket"
 base:
   _self: "Grundlag"
+bearer:
+  token: "Bearer-token"
 best:
   _self: "Bedst"
 better:
   _self: "Bedre"
   bluetooth_external_mic_support: "Bedre Bluetooth- og ekstern mikrofonunderstøttelse"
+bring:
+  all_to_front: "Anbring alle forrest"
 built:
   in_presets: "Indbyggede forudindstillinger"
   in_read_only: "Indbygget (skrivebeskyttet)"
+by:
+  weekday: "By weekday"
 cancel:
   _self: "Ophæve"
   operation: "Annuller handling"
@@ -132,6 +147,8 @@ capture:
 change:
   microphone: "Skift mikrofon"
   microphone_ac9970f4: "Skift mikrofon"
+changes:
+  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
   for_updates: "Se efter opdateringer..."
   for_updates_736b9062: "Se efter opdateringer"
@@ -144,24 +161,24 @@ choose:
   a_model: "Vælg en model"
   a_provider_first: "Vælg først en udbyder"
   an_audio_or_video_file_to_transcribe: "Vælg en lyd- eller videofil, der skal transskriberes"
-  between_nemotron_punctuated_downloaded_mod: "Vælg mellem Nemotron (med tegnsætning, downloadet model) og Apple SpeechTranscriber (macOS 26+, følger med systemet)."
+  between_nemotron_punctuated_downloaded_mo: "Vælg mellem Nemotron (med tegnsætning, downloadet model) og Apple SpeechTranscriber (macOS 26+, følger med systemet)."
   file: "Vælg fil"
   how_dictated_text_lands_then_tune_the_fin: "Vælg, hvordan dikteret tekst lander, og juster derefter den endelige indsættelsesadfærd."
+  how_pindrop_appears_on_screen_while_you_d: "Vælg, hvordan Pindrop vises på skærmen, mens du dikterer."
   how_pindrop_follows_system_appearance_the: "Vælg, hvordan Pindrop følger systemets udseende, og bland derefter udvalgte lyse og mørke paletter."
+  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   how_to_import_the_dictionary_data: "Vælg, hvordan ordbogsdataene skal importeres"
   how_to_import_the_preset_data: "Vælg, hvordan de forudindstillede data skal importeres"
   languages_for_the_interface_and_for_dicta: "Vælg sprog til grænsefladen og til diktering. Automatisk følger systemet."
   location_to_save_presets: "Vælg placering for at gemme forudindstillinger"
+  model: "Choose Model…"
   the_daytime_shell_used_in_light_mode: "Vælg den dagsskal, der bruges i lystilstand."
   the_low_glare_shell_used_in_dark_mode: "Vælg skal med lav blænding, der bruges i mørk tilstand."
-  which_microphone_pindrop_should_use_for_d: "Vælg hvilken mikrofon Pindrop skal bruge til diktering, og hvordan den opfører sig under optagelse."
-  which_side_the_navigation_sidebar_appears: "Vælg, hvilken side navigationssidebjælken skal vises på."
-  how_pindrop_appears_on_screen_while_you_d: "Vælg, hvordan Pindrop vises på skærmen, mens du dikterer."
-  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
+  which_microphone_pindrop_should_use_for_d: "Vælg hvilken mikrofon Pindrop skal bruge til diktering, og hvordan den opfører sig under optagelse."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
-  model: "Choose Model…"
+  which_side_the_navigation_sidebar_appears: "Vælg, hvilken side navigationssidebjælken skal vises på."
 clean:
   up_filler_words: "Ryd op i fyldord"
 clear:
@@ -170,15 +187,19 @@ clear:
   shortcut: "Ryd genvej"
 clears:
   preferences_and_restarts_onboarding: "Rydder præferencer og genstarter onboarding"
-  preferences_and_restarts_onboarding_7d85115c: "Clears preferences and restarts onboarding."
+  preferences_and_restarts_onboarding_7d851: "Clears preferences and restarts onboarding."
 click:
   or_hold: "Klik eller hold"
   or_press: "Klik eller tryk"
   or_set_a_hotkey_to_start_talking: "Klik eller indstil en genvejstast for at begynde at tale"
   this_icon_anytime_to: "Klik på dette ikon når som helst for at:"
+client:
+  _self: "Klient"
 clipboard:
   _self: "Udklipsholder"
   temporarily_copies_the_transcript_for: "Clipboard temporarily copies the transcript for pasting. Direct Insert types into the active app when possible."
+close:
+  _self: "Luk"
 cloud:
   _self: "Sky"
   model: "Sky model"
@@ -187,9 +208,15 @@ collapse:
 coming:
   soon: "%@ Kommer snart"
   soon_04d2fd85: "Kommer snart"
+configuration:
+  file: "Configuration File"
+  scope: "Configuration Scope"
+  snippet: "Configuration Snippet"
 configure:
   ai_providers_and_credentials_apple_int: "Konfigurer AI-udbydere og legitimationsoplysninger. Apple Intelligence kører på enheden; andre udbydere kræver API-nøgler."
   keyboard_shortcuts_for_recording_and_n: "Konfigurer tastaturgenveje til optagelse og noteoptagelse"
+conflicts:
+  with: "Conflicts with %@"
 continue:
   _self: "Fortsætte"
   with_default: "Fortsæt med standard"
@@ -206,29 +233,29 @@ copy:
   enhanced: "Kopier forbedret"
   last_transcript: "Kopi sidste udskrift"
   original: "Kopi original"
+  system_info: "Copy System Info"
   system_info_for_bug_report: "Kopiér systemoplysninger til fejlrapport"
+  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
   the_most_recent_transcript_to_the_clipboard: "Kopier den seneste udskrift til udklipsholderen"
+  the_most_recent_transcript_to_the_clipboard_03a8d47b: "Copy the most recent transcript to the clipboard."
   to_clipboard: "Kopiér til udklipsholder"
   transcript: "Kopi afskrift"
-  system_info: "Copy System Info"
-  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
-  the_most_recent_transcript_to_the_clipboard_b9736933: "Copy the most recent transcript to the clipboard."
 correct:
   grammar_mistakes: "Ret grammatiske fejl"
 create:
-  new_profile: "Create New Profile…"
-  speaker_profile: "Create Speaker Profile"
   _self: "Skabe"
   new_note: "Opret ny note"
   new_preset: "Opret ny forudindstilling"
+  new_profile: "Create New Profile…"
+  preset: "Create Preset"
+  speaker_profile: "Create Speaker Profile"
   your_first_note_to_get_started: "Opret din første note for at komme i gang"
   your_first_preset_or_duplicate_a_built_in: "Opret din første forudindstilling eller dupliker en indbygget for at tilpasse den."
   your_own_presets_or_duplicate_built_in_on: "Opret dine egne forudindstillinger eller dupliker indbyggede for at tilpasse dem."
-  preset: "Create Preset"
 credentials:
   are_stored_securely_in_keychain: "Legitimationsoplysninger opbevares sikkert i nøglering"
+  are_stored_securely_in_keychain_5acf: "Credentials are stored securely in Keychain."
   saved_successfully: "Legitimationsoplysningerne blev gemt"
-  are_stored_securely_in_keychain_5acff5d3: "Credentials are stored securely in Keychain."
 current:
   _self: "Aktuel: %@"
 custom:
@@ -242,8 +269,8 @@ cut:
   _self: "Skære"
 d:
   characters: "%d tegn"
-  speakers: "%d talere"
   samples: "%d samples · %@"
+  speakers: "%d talere"
   words: "%d ord"
 dark:
   _self: "Mørk"
@@ -263,17 +290,39 @@ degraded:
   _self: "Nedbrudt"
 delete:
   _self: "Slet"
+  all: "Slet alle"
+  all_participants: "Delete All Participants?"
+  all_participants_60ed6e73: "Delete All Participants…"
   folder: "Slet mappe"
   folder_e556e7c2: "Vil du slette mappen?"
   model: "Slet model"
+  note: "Slet note?"
   preset: "Slet forudindstilling"
   preset_4f6cfe36: "Slet forudindstilling?"
   transcription: "Slet transskription"
   transcription_f82187c4: "Vil du slette transskription?"
-  all: "Slet alle"
-  all_participants: "Delete All Participants?"
-  all_participants_60ed6e73: "Delete All Participants…"
-  note: "Slet note?"
+destinations:
+  _self: "Destinations"
+diarization:
+  _self: "Speaker diarization"
+  automatic: "Automatic"
+  clear_assignment: "Clear assignment"
+  download_model: "Download model"
+  expected_speakers: "Expected speakers"
+  model_ready: "Speaker diarization is ready."
+  model_setup_issue_media: "Download the speaker diarization model before starting media transcription."
+  model_setup_issue_recording: "Download the speaker diarization model before starting recording."
+  retraining_required: "Voice matching needs retraining after the diarization update."
+  similar_voice_help: "Similar voices may be merged. Set an expected speaker count when you know how many people are present."
+diarized:
+  _self: "diariseret"
+dictate:
+  in_russian_and_ukrainian: "Diktér på russisk og ukrainsk"
+dictation:
+  _self: "Diktering"
+  language: "Dikteringssprog"
+  polish: "Dikteringsfinpudsning"
+  words_min: "Dictation words / min"
 dictionary:
   _self: "Ordbog"
 direct:
@@ -288,6 +337,8 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Vis Pindrop i Dock i stedet for kun at køre som en menulinjeapp."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Dok sidebjælken til venstre eller højre kant af vinduet."
+done:
+  _self: "Færdig"
 download:
   _self: "Hent"
   complete: "Download fuldført!"
@@ -304,6 +355,8 @@ drop:
   audio_or_video_here: "Drop lyd eller video her"
 duplicate:
   preset: "Dupliker forudindstilling"
+duration:
+  _self: "Duration"
 dutch:
   _self: "hollandsk"
 edit:
@@ -315,8 +368,8 @@ empty:
 enable:
   ai_enhancement: "Aktiver AI Enhancement"
   live_session_updates_during_recording: "Aktiver live-sessionsopdateringer under optagelse"
-  vibe_mode_ui_context: "Aktiver vibetilstand (UI-kontekst)"
   mcp_server: "Enable MCP Server"
+  vibe_mode_ui_context: "Aktiver vibetilstand (UI-kontekst)"
 enabled:
   _self: "Aktiveret"
 endpoint:
@@ -336,6 +389,8 @@ enter:
   word_to_add: "Indtast ord for at tilføje"
 error:
   _self: "Fejl"
+estimated:
+  time_saved: "Estimated time saved"
 european:
   multilingual: "europæisk flersproget"
 excellent:
@@ -378,6 +433,10 @@ feature:
   models: "Feature-modeller"
 fetch:
   models_in_models: "Hent modeller i modeller"
+file:
+  _self: "Arkiv"
+find:
+  _self: "Find"
 fix:
   punctuation_and_capitalization: "Ret tegnsætning og store bogstaver"
 floating:
@@ -418,9 +477,11 @@ grant:
   _self: "Give"
 great:
   _self: "Stor"
+help:
+  _self: "Hjælp"
 hide:
-  this_for_1_hour: "Skjul dette i 1 time"
   api_key: "Skjul API-nøgle"
+  this_for_1_hour: "Skjul dette i 1 time"
 history:
   _self: "Historie"
 hold:
@@ -429,6 +490,8 @@ hold:
   to_record_release_to_stop_and_transcribe: "Hold nede for at optage, slip for at stoppe og transskribere"
   to_record_release_to_transcribe: "Hold nede for at optage, slip for at transskribere"
   to_record_then_release_to_open_the_note_edi: "Hold to record, then release to open the note editor with the transcription."
+home:
+  _self: "Hjem"
 hotkey:
   conflict: "Genvejstast konflikt"
 hotkeys:
@@ -445,11 +508,16 @@ import:
   presets: "Importer forudindstillinger"
   strategy: "Importstrategi"
 imported:
+  file: "Imported file"
   files_and_web_links_will_appear_here_on: "Importerede filer og weblinks vises her, når behandlingen er fuldført."
 improve:
   transcription_quality_using_ai: "Forbedre transkriptionskvaliteten ved hjælp af AI"
 include:
   clipboard_text: "Inkluder udklipsholdertekst"
+input:
+  device: "Inputenhed"
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
 interface:
   _self: "Grænseflade"
   language: "Grænsefladesprog"
@@ -462,8 +530,8 @@ items:
 japanese:
   _self: "japansk"
 keep:
-  pindrop_current_automatically_or_trigger_a: "Hold Pindrop aktuel automatisk, eller udløs en manuel kontrol, når du vil."
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
+  pindrop_current_automatically_or_trigger_a: "Hold Pindrop aktuel automatisk, eller udløs en manuel kontrol, når du vil."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -479,18 +547,22 @@ large:
 launch:
   at_login: "Start ved login: %@"
   at_login_0b36c78f: "Start ved login"
-  at_login_fd1a3b7b: "Start ved login"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
+  at_login_fd1a3b7b: "Start ved login"
 layout:
   _self: "Layout"
 learn:
   corrected_words_automatically: "Lær rettede ord automatisk"
-legacy:
-  _self: "Legacy"
 left:
   _self: "Venstre"
+legacy:
+  _self: "Legacy"
 let:
   pindrop_quietly_learn_vocabulary_from_the_co: "Lad Pindrop stille og roligt lære ordforråd fra de rettelser, du foretager over tid."
+library:
+  _self: "Bibliotek"
+license:
+  _self: "Licens"
 light:
   _self: "Lys"
   dark_and_curated_palette_presets: "Lys, mørk og udvalgte paletteforudindstillinger"
@@ -529,28 +601,49 @@ local:
   speech_to_text_right_from_your_menu_bar_nf: "Lokal tale-til-tekst, direkte fra din menulinje.nHurtig, privat og altid tilgængelig."
   speech_to_text_with_whisperkit: "Lokal tale-til-tekst med WhisperKit"
   voice_to_text: "Lokal stemme-til-tekst"
+longest:
+  streak: "Longest streak"
 low:
   latency_mode_less_accurate: "Lav latenstilstand (mindre nøjagtig)"
+main:
+  window: "Hovedvindue"
 manage:
   local_speech_models_feature_models_and_th: "Administrer lokale talemodeller, funktionsmodeller og den standardmaskine, Pindrop bruger til transskription."
   models: "Administrer modeller"
   presets: "Administrer forudindstillinger"
   presets_ab87986d: "Administrer forudindstillinger..."
   presets_d5d4c2c2: "Manage Presets…"
+manual:
+  capture: "Manual capture"
 manually:
   check_for_new_versions_now: "Tjek manuelt for nye versioner nu."
+markdown:
+  md: "Markdown (.md)"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+mcp:
+  configuration_error: "MCP Configuration Error"
+  server: "MCP-server"
 media:
   library: "Mediebibliotek"
+  saved: "Medie gemt"
   transcription: "Medietransskription"
   unavailable: "Medier er ikke tilgængelige"
-  saved: "Medie gemt"
 medium:
   _self: "Mellem"
+meet:
+  the_new_orb: "Mød den nye Orb"
+meeting:
+  saved: "Møde gemt"
+metric:
+  _self: "Metric"
 microphone:
   _self: "Mikrofon"
   permission_is_required_to_continue: "Mikrofontilladelse er påkrævet for at fortsætte"
   permission_is_required_to_continue_dc: "Mikrofontilladelse er påkrævet for at fortsætte."
   permission_required: "Mikrofontilladelse påkrævet"
+minimize:
+  _self: "Formindsk"
 mit:
   license: "MIT-licens"
 mode:
@@ -570,19 +663,29 @@ must:
   be_openai_compatible: "Skal være OpenAI-kompatibel"
 mute:
   system_audio_during_recording: "Slå systemlyden fra under optagelse"
+name:
+  _self: "Navn"
+nemotron:
+  default: "Nemotron (default)"
 new:
   folder: "Ny mappe"
   note: "Ny note"
   preset: "Ny forudindstilling"
+newest:
+  _self: "Nyeste"
 next:
   _self: "Næste"
 no:
+  activity_in_this_period: "No activity in this period"
   api_key: "Ingen API-nøgle"
   api_key_endpoint: "Ingen API-nøgle • Slutpunkt: %@"
+  conflicts_found: "No conflicts found"
   custom_presets: "Ingen brugerdefinerede forudindstillinger"
+  destination_data: "No destination data"
   downloaded_models: "Ingen downloadede modeller"
   folders_yet: "Ingen mapper endnu"
   items_in: "Ingen elementer i %@"
+  learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Ingen medietransskriptioner endnu"
   model_loaded: "Ingen model indlæst"
   model_selected: "Ingen model valgt"
@@ -594,33 +697,31 @@ no:
   models_match: "Ingen modeller matcher \\\"%@\\\""
   notes_yet: "Ingen noter endnu"
   providers_configured_yet: "Ingen udbydere er konfigureret endnu."
+  providers_configured_yet_e6bc0075: "No providers configured yet"
   replacements: "Ingen erstatninger"
   results_found: "Ingen resultater fundet"
   settings_found: "Ingen indstillinger fundet"
   transcriptions_yet: "Ingen transskriptioner endnu"
   vocabulary_words: "Ingen ordforråd"
-  learned_participants_yet: "No learned participants yet"
-  providers_configured_yet_e6bc0075: "No providers configured yet"
-  conflicts_found: "No conflicts found"
 not:
   assigned: "Ikke tildelt"
+  enough_voice_data_yet: "Not enough voice data yet"
+  generated_yet_enable_the_server: "Not generated yet — enable the server"
+  granted: "Ikke givet"
   selected: "Ikke valgt"
   set: "Ikke indstillet"
   set_93039e60: "Ikke indstillet"
-  granted: "Ikke givet"
-  enough_voice_data_yet: "Not enough voice data yet"
-  generated_yet_enable_the_server: "Not generated yet — enable the server"
 note:
   _self: "Note"
+  capture_hold: "Note Capture — Hold"
   capture_push_to_talk: "Notefangst (Tryk-for-at-tale)"
   capture_toggle: "Notefangst (Skift)"
+  capture_toggle_7139a240: "Note Capture — Toggle"
   enhancement: "Bemærk Forbedring"
   from: "Notat fra"
   metadata: "Bemærk Metadata"
-  title: "Bemærk titel"
   saved: "Note gemt"
-  capture_hold: "Note Capture — Hold"
-  capture_toggle_7139a240: "Note Capture — Toggle"
+  title: "Bemærk titel"
 notes:
   _self: "Noter"
   3add7b96: "noter"
@@ -628,6 +729,8 @@ off:
   _self: "Slukket"
 ok:
   _self: "OK"
+oldest:
+  _self: "Ældste"
 ollama:
   _self: "Ollama"
   usually_does_not_require_authentication_f: "Ollama kræver normalt ikke godkendelse for lokale anmodninger."
@@ -637,13 +740,13 @@ on:
 open:
   _self: "Åben"
   history: "Åbn Historie"
+  library: "Åbn bibliotek"
   logs_in_finder: "Åbn Logs i Finder"
   original_link: "Åbn det originale link"
   progress: "Åbn fremskridt"
   settings: "Åbn Indstillinger"
   settings_fd7108f8: "Åbn indstillinger"
   system_settings: "Åbn Systemindstillinger"
-  library: "Åbn bibliotek"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI-kompatibel lokal server"
@@ -659,17 +762,21 @@ optionally:
 or:
   _self: "eller"
   just_use_your_hotkey: "Eller bare brug din genvejstast!"
+orb:
+  _self: "Kugle"
 original:
   _self: "Original"
   text_use_commas_for_multiple: "Originaltekst (brug kommaer til flere)"
 originals:
   comma_separated: "Originaler (kommasepareret)"
+other:
+  _self: "Other"
 output:
   _self: "Produktion"
   audio_interface_and_everyday_behavior: "Output, lyd, interface og hverdagsadfærd"
   mode: "Outputtilstand"
-nemotron:
-  default: "Nemotron (default)"
+overview:
+  _self: "Overview"
 paste:
   _self: "Indsæt"
   a_video_or_audio_link: "Indsæt et video- eller lydlink"
@@ -683,13 +790,15 @@ permissions:
   _self: "Tilladelser"
 pick:
   which_provider_and_model_handles_each_ai_ta: "Vælg, hvilken udbyder og model, der håndterer hver AI-opgave. Lad være som \\\"Ikke tildelt\\\" for at springe et formål over."
-  which_provider_and_model_handles_each_ai_ta_b719504f: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
+  which_provider_and_model_handles_each_ai_ta_3140fe59: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
 pill:
   _self: "Pille"
 pin:
   to_screen_always_on_top: "Fastgør til skærmen (altid øverst)"
 pindrop:
   _self: "Pindrop"
+  1_19: "Pindrop 1.19"
+  help: "Pindrop-hjælp"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop er klar til brug.
     Klik på menulinjeikonet for at komme i gang.
@@ -701,11 +810,13 @@ pindrop:
   needs_accessibility_permission_to_insert: "\\\"\\\" Pindrop har brug for tilgængelighedstilladelse for at indsætte tekst ved din markør.                          Sådan giver du tilladelse: 1. Klik på \\\"Åbn systemindstillinger\\\" nedenfor 2. Klik på knappen + 3. Naviger til appen vist i Finder 4. Genstart Pindrop efter at have givet tilladelse Uden denne tilladelse vil tekst kun blive kopieret til din udklipsholder.             \\\"\\\""
   needs_microphone_access_to_record_and_tr: "Pindrop har brug for mikrofonadgang for at optage og transskribere din stemme.nnGiv venligst tilladelse i Systemindstillinger."
   on_github: "Pindrop på GitHub"
+  orb: "Pindrop-kugle"
   pill: "Pindrop pille"
   theme: "Pindrop-tema"
-  orb: "Pindrop-kugle"
-  1_19: "Pindrop 1.19"
-  help: "Pindrop-hjælp"
+pinned:
+  _self: "Fastgjort"
+plain:
+  text_txt: "Almindelig tekst (.txt)"
 play:
   _self: "Spil"
 please:
@@ -714,8 +825,11 @@ please:
     Download venligst en Whisper-model i Indstillinger før optagelse.
     
     Gå til Indstillinger → Modeller for at downloade en model.
-  download_a_whisper_model_in_settings_befo_a71d286e: "Download venligst en Whisper-model i Indstillinger før optagelse.nnGå til Indstillinger → Modeller for at downloade en model."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Download venligst en Whisper-model i Indstillinger før optagelse.nnGå til Indstillinger → Modeller for at downloade en model."
   wait: "Vent venligst..."
+port:
+  _self: "Port"
+  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
 portuguese:
   brazil: "Portugisisk (Brasilien)"
 powered:
@@ -723,28 +837,48 @@ powered:
 preparing:
   model: "Forbereder model..."
 preset:
+  example_bullets_input: "vi dækkede onboarding-latens så priser og til sidst lanceringsdatoen den tolvte maj"
+  example_bullets_output: "- Onboarding-latens\\n- Priser\\n- Lanceringsdato: 12. maj"
+  example_clean_input: "øh så mødet er klokken halv fire punktum kan du bekræfte spørgsmålstegn"
+  example_clean_output: "Så mødet er kl. 15:30. Kan du bekræfte?"
+  example_edits_input: "øh det er correct ly femogtyve"
+  example_edits_output: "Det er correctly 25"
+  example_email_input: "hej jordan tjekker bare om du fik mine noter fra i går tak"
+  example_email_output: "Hej Jordan,\\n\\nTjekker bare, om du fik mine noter fra i går.\\n\\nTak,"
+  example_live_input: "øh jeg synes vi skal sende betaen inden fredag punktum"
+  example_live_output: "Jeg synes, vi skal sende betaen inden fredag."
+  example_meeting_input: "alice sender decket inden fredag bob tager prisgennemgangen vi har brug for en beslutning i næste uge"
+  example_meeting_output: "## Handlinger\\n- **Alice** sender decket inden **fredag**\\n- **Bob** tager prisgennemgangen\\n\\n## Næste skridt\\n- Beslutning nødvendig i næste uge"
+  example_social_input: "øh vi har lige udgivet dark mode og den ser fantastisk ud du burde prøve den"
+  example_social_output: "Vi har lige udgivet dark mode.\\n\\nDen ser fantastisk ud — du burde prøve den."
+  example_technical_input: "kald fetch user pil map så svaret lig med lig med to hundrede"
+  example_technical_output: "Kald `fetchUser` -> map så svaret `==` 200."
   name: "Forudindstillet navn"
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "Tryk og hold for at diktere i enhver app. Pindrop transskriberer din tale og indsætter teksten, hvor markøren er."
   esc_to_cancel: "Tryk på Esc for at annullere"
   keys: "Tryk på tasterne..."
+  keys_98b8167e: "Tryk på taster…"
   once_to_start_again_to_stop: "Tryk én gang for at starte, igen for at stoppe"
   once_to_start_recording_press_again_to_sto: "Tryk én gang for at starte optagelsen, tryk igen for at stoppe og transskribere"
+  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
   once_to_start_recording_then_press_again_t: "Tryk én gang for at starte optagelsen, og tryk derefter igen for at stoppe og transskribere."
   to_start_recording_press_again_to_open_not: "Tryk for at starte optagelsen, tryk igen for at åbne noteeditor"
-  keys_98b8167e: "Tryk på taster…"
-  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
 primary:
   text: "Primær tekst"
 processing:
   _self: "Forarbejdning"
   272bc02e: "Forarbejdning..."
   5aa377e2: "⏳ Behandling"
-  transcript: "Behandler udskrift"
   ellipsis: "Behandler…"
+  transcript: "Behandler udskrift"
+project:
+  _self: "Projekt"
 prompt:
   _self: "Hurtig"
   preset: "Spørg forudindstilling"
+prompts:
+  are_sent_in_english: "Prompts sendes på engelsk"
 provider:
   _self: "Udbyder"
   kind: "Udbyder Kind"
@@ -773,7 +907,7 @@ recent:
 recommended:
   _self: "Anbefales"
   the_deterministic_cleaner_handles_mo: "Anbefalet: den deterministiske renser håndterer det meste diktering rent. Aktiver kun LLM-passet, hvis du ønsker ekstra polering og accepterer lejlighedsvise modelegenskaber (præamble, samtalesvar)."
-  the_deterministic_cleaner_handles_mo_ca42c3e4: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
+  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "Optage"
 recording:
@@ -787,13 +921,15 @@ redo:
 refresh:
   _self: "Opfriske"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
+regenerate:
+  _self: "Generér igen"
 remove:
-  from_speaker_profiles: "Remove from speaker profiles"
-  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Fjerne"
   and_clear_any_assignments_that_reference: "Fjern \"%@\" og ryd alle tildelinger, der henviser til den? Gemte legitimationsoplysninger bliver slettet."
   from_folder: "Fjern fra mappe"
+  from_speaker_profiles: "Remove from speaker profiles"
   provider: "Fjern udbyder"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
 rename:
   _self: "Omdøb"
   folder: "Omdøb mappe"
@@ -812,32 +948,34 @@ required:
   _self: "Påkrævet"
   for_recording_your_voice: "Nødvendig for at optage din stemme"
 requires:
+  a_fast_provider_apple_foundation_models: "Kræver en hurtig udbyder (Apple Foundation-modeller anbefales). Cloud-udbydere vil udstede et API-kald pr. pause."
   diarization_model: "Requires diarization model"
   speaker_diarization: "Requires speaker diarization"
-  a_fast_provider_apple_foundation_models: "Kræver en hurtig udbyder (Apple Foundation-modeller anbefales). Cloud-udbydere vil udstede et API-kald pr. pause."
 reset:
   _self: "Nulstil"
   all_settings: "Vil du nulstille alle indstillinger?"
   all_settings_7262c7b7: "Nulstil alle indstillinger"
-  to_default: "Nulstil til standard"
   all_settings_e5dbc5fc: "Reset All Settings…"
+  to_default: "Nulstil til standard"
 retry:
   _self: "Prøv igen"
 right:
   _self: "Højre"
 run:
-  llm_polish_after_dictation_stops: "Kør LLM polish efter dikteringen stopper"
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
+  llm_polish_after_dictation_stops: "Kør LLM polish efter dikteringen stopper"
 runtime:
   _self: "Kørselstid: %@"
   status: "Kørselsstatus"
+russian:
+  _self: "Russian"
 save:
   _self: "Spare"
   as_note: "Gem som note"
   continue: "Gem og fortsæt"
   credentials: "Gem legitimationsoplysninger"
-  prompt: "Gem prompt"
   now_s: "Gem nu (⌘S)"
+  prompt: "Gem prompt"
 saved:
   _self: "Gemt"
   as_note: "Gemt som note"
@@ -862,9 +1000,9 @@ select:
   all: "Vælg alle"
   language: "Vælg sprog"
   language_daea52c9: "Vælg sprog"
+  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
   this_floating_indicator_style: "Vælg denne flydende indikatorstil."
   voice_model: "Vælg Stemmemodel"
-  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
 selected:
   _self: "Valgt"
 sent:
@@ -872,6 +1010,7 @@ sent:
 sessions:
   _self: "Sessioner"
   781791f5: "sessioner"
+  in: "%@ sessions in %@"
 set:
   as_default: "Indstil som standard"
 settings:
@@ -880,15 +1019,17 @@ settings:
   fa67a397: "Indstillinger..."
 setup:
   required: "Opsætning påkrævet"
+shortcuts:
+  _self: "Genveje"
 show:
+  api_key: "Vis API-nøgle"
   app: "Vis app"
   app_in_finder: "Vis app i Finder"
   in_dock: "Vis i Dock"
-  api_key: "Vis API-nøgle"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
-  as_a_pill_at_the_bottom_of_the_screen: "Vises som en pille nederst på skærmen"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Vises som en kugle af flydende glas i hjørnet af skærmen"
+  as_a_pill_at_the_bottom_of_the_screen: "Vises som en pille nederst på skærmen"
 sidebar:
   position: "Sidepanelposition"
   position_916f66ea: "Sidepanels placering"
@@ -919,13 +1060,19 @@ sort:
   by: "Sorter efter"
 source:
   _self: "Kilde"
+sources:
+  _self: "Sources"
 spanish:
   _self: "spansk"
+speak:
+  to_append: "Tal for at tilføje"
 speaker:
-  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Højttalerdiarisering og tidsstempler er knyttet til afspilning."
   diarization_is_required: "Højttalerdiaarisering er påkrævet"
+  profile_training: "Speaker profile training"
+speakers:
+  _self: "Talere"
 speed:
   _self: "Hastighed"
 start:
@@ -934,19 +1081,25 @@ start:
   recording_to_see_your_transcriptions_here: "Begynd at optage for at se dine transskriptioner her"
   stop_recording: "Start/stop optagelse"
   using_pindrop: "Begynd at bruge Pindrop"
+stats:
+  _self: "Stats"
 status:
   _self: "Status"
 stop:
-  recording: "Stop optagelse"
   listening: "Stop med at lytte"
+  recording: "Stop optagelse"
 streaming:
   enhancement: "Streamingforbedring"
   transcription_currently_supports_engli: "Streamingtransskription understøtter i øjeblikket kun engelsk, uanset det valgte sprog."
+  transcription_instantly_ready: "Streamingtransskription, klar med det samme"
   transcription_is_disabled_while_ai_enh: "Streamingtransskription er deaktiveret, mens AI Enhancement er aktiveret."
   transcription_model_nemotron_speech: "Streaming-transskriptionsmodel (Nemotron Speech Streaming) licenseret af NVIDIA Corporation under NVIDIA Open Model License."
-  transcription_instantly_ready: "Streamingtransskription, klar med det samme"
+subtitles:
+  srt: "Undertekster (.srt)"
 success:
   _self: "Succes!"
+summary:
+  ready: "resumé klar"
 support:
   _self: "Støtte"
   coming_soon: "%@ Support kommer snart"
@@ -965,34 +1118,43 @@ temporarily:
   pause_active_media_playback_while_di: "Sæt aktiv medieafspilning midlertidigt på pause, mens diktering optages."
 tertiary:
   text: "Tertiær tekst"
+thanks:
+  to_for_investigating_and_kicking_off_the: "Tak til %@ for at undersøge og sætte rettelsen i gang (PR #64)."
+  to_for_the_contribution_pr_61: "Tak til %@ for bidraget (PR #61)."
 the:
   model_failed_to_load_within_60_seconds_this: "\\\"\\\" Modellen kunne ikke indlæses inden for 60 sekunder. Dette betyder normalt, at modelfilerne er beskadigede eller inkompatible.                          For at løse dette: 1. Åbn Indstillinger → Modeller 2. Slet den problematiske model 3. Download modellen igen Hvis problemet fortsætter, prøv en mindre model (Tiny eller Base).             \\\"\\\""
-  selected_chunk_variant_isn_t_downloaded_yet: "Den valgte chunk-variant er ikke downloadet endnu. Skift vil starte en download."
   new_nemotron_streaming_engine_shows_words_as: "Den nye Nemotron-streamingmotor viser ordene, mens du siger dem, og motoren forvarmes ved start, så din første diktering begynder uden forsinkelse."
+  selected_chunk_variant_isn_t_downloaded_yet: "Den valgte chunk-variant er ikke downloadet endnu. Skift vil starte en download."
 theme:
   _self: "Tema"
   changes_apply_live_across_the_workspace_se: "Temaændringer gælder live på tværs af arbejdsområdet, indstillinger, noteeditor og flydende indikatorer."
   mode: "Tematilstand"
   mode_bb6b0b3d: "Tematilstand"
+these:
+  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 this:
-  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Dette forudindstillede navn er allerede i brug."
   provider_will_be_available_in_a_future_upda: |-
     Denne udbyder vil være tilgængelig i en fremtidig opdatering.
     For nu, prøv OpenAI eller brug et brugerdefineret slutpunkt.
-  provider_will_be_available_in_a_future_upda_3e35a952: |-
+  provider_will_be_available_in_a_future_upda_ba16848d: "Denne udbyder vil være tilgængelig i en fremtidig opdatering.nFor nu, prøv OpenAI eller brug et brugerdefineret slutpunkt."
+  provider_will_be_available_in_a_future_upda_4af6ff9b: |-
     Denne udbyder vil være tilgængelig i en fremtidig opdatering.
     Prøv OpenAI eller brug et brugerdefineret slutpunkt.
-  provider_will_be_available_in_a_future_upda_0677ac1d: "Denne udbyder vil være tilgængelig i en fremtidig opdatering.nFor nu, prøv OpenAI eller brug et brugerdefineret slutpunkt."
-  transcription_could_not_be_found: "Denne transskription kunne ikke findes."
-  will_clear_all_your_settings_including_api: "Dette vil rydde alle dine indstillinger, inklusive API-nøgler, genvejstaster og modelpræferencer. Appen afsluttes og viser onboarding igen ved næste lancering."
-  will_permanently_remove_the_transcript_and: "Dette vil permanent fjerne transskriptionen og dens administrerede mediefil."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
-  will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  transcription_could_not_be_found: "Denne transskription kunne ikke findes."
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
+  will_clear_all_your_settings_including_api: "Dette vil rydde alle dine indstillinger, inklusive API-nøgler, genvejstaster og modelpræferencer. Appen afsluttes og viser onboarding igen ved næste lancering."
+  will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_the_transcript_and: "Dette vil permanent fjerne transskriptionen og dens administrerede mediefil."
   will_permanently_remove_this_note: "Dette fjerner permanent denne note."
 time:
-  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+  of_day: "Time of day"
+  range: "Time range"
   saved: "Tid sparet"
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+timestamps:
+  json: "Tidsstempler (.json)"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "at diktere og lade Pindrop transskribere for dig"
   start_talking: "at begynde at tale"
@@ -1007,6 +1169,7 @@ transcribe:
   media: "Transskribere medier"
 transcribed:
   _self: "transskriberet"
+  words: "Transcribed words"
 transcription:
   _self: "Transskription"
   backend: "Transskription backend"
@@ -1016,8 +1179,8 @@ transcription:
   finished: "Transskription afsluttet."
   in_progress: "Transskription i gang"
   metadata: "Transskriptionsmetadata"
-  update: "Transskriptionsopdatering"
   saved: "Transskription gemt"
+  update: "Transskriptionsopdatering"
 transcriptions:
   _self: "Transskriptioner"
   f0972acc: "transskriptioner"
@@ -1031,8 +1194,202 @@ try:
   searching_for_terms_like_hotkeys_microphone: "Prøv at søge efter termer som genvejstaster, mikrofon, opdateringer eller vibetilstand."
 turkish:
   _self: "tyrkisk"
+two:
+  new_dictation_languages_fully_wired_into_mod: "To nye dikteringssprog, fuldt forbundet med modelanbefalinger."
 type:
   text_directly_into_the_active_app_when_poss: "Indtast tekst direkte i den aktive app, når det er muligt"
+u10:
+  floating_announcement_summary: "Genafspilning, et nyt udseende og tastaturstyring i hele Pindrop."
+  floating_inserted_into: "Indsat i %@"
+  floating_keyboard_body: "Naviger, søg, opret noter, eksporter og slet uden at forlade tastaturet."
+  floating_keyboard_title: "Tastatur overalt"
+  floating_microphone_unavailable: "Mikrofonen er ikke tilgængelig"
+  floating_new_look_body: "Et varmere og roligere design sætter dine ord først. Dine temaforvalg følger med — plus en ny standard, Bibliotek."
+  floating_new_look_title: "Et nyt udseende"
+  floating_replay_body: "Pindrop kan gemme lyd i syv dage, så du kan lytte igen fra Biblioteket, når du har brug for det."
+  floating_replay_title: "Afspil enhver diktering igen"
+  floating_transcribing: "Transskriberer…"
+  floating_version_line: "Pindrop 0.10.0 · juli 2026"
+  floating_whats_new: "Nyheder"
+  floating_word_count: "%d ord"
+u11:
+  estimating_time: "Beregner resterende tid…"
+  live_transcript: "Direkte transskription"
+  microphone_muted: "Mikrofon slået fra"
+  minutes_left: "ca. %d min. tilbage"
+  recording_processing: "Optagelse stoppet. Behandler transskription."
+  recording_started: "Optagelse startet"
+  recording_stopped: "Optagelse stoppet"
+  seconds_left: "ca. %d sek. tilbage"
+  transcription_complete: "Transskription fuldført"
+u11b:
+  expand: "Udvid"
+  expired: "Udløbet"
+  playback_position: "Afspilningsposition"
+  step_x_of_y: "Trin %d af %d"
+u3:
+  library_assign_speaker: "Tildel taler"
+  library_audio_kept_30_days: "lyd gemmes 30 dage"
+  library_audio_kept_7_days: "lyd gemmes 7 dage"
+  library_audio_kept_forever: "lyd gemmes for altid"
+  library_click_line_to_jump: "klik på en linje for at springe i afspilningen"
+  library_dictations: "Dikteringer"
+  library_dictations_appear_after_use: "Dikteringer vises her efter stemmediktering."
+  library_h_m_spoken: "%d t %d m talt"
+  library_h_spoken: "%d t talt"
+  library_https_placeholder: "https://…"
+  library_import_file_or_paste_link: "Importer en fil eller indsæt et link for at transskribere medier."
+  library_import_files: "Importer filer…"
+  library_imported_audio: "Importeret lyd"
+  library_insert_again: "Indsæt igen"
+  library_inserted_into: "indsat i %@"
+  library_m_spoken: "%d m talt"
+  library_meeting_recording: "Mødeoptagelse"
+  library_meetings: "Møder"
+  library_n_recordings: "%d optagelser"
+  library_no_dictations_yet: "Ingen dikteringer endnu"
+  library_no_meeting_recordings: "Ingen mødeoptagelser"
+  library_no_recordings_yet: "Ingen optagelser endnu"
+  library_one_recording: "1 optagelse"
+  library_paste_link: "Indsæt link…"
+  library_playback_speed: "Afspilningshastighed"
+  library_record_meeting_ellipsis: "Optag møde…"
+  library_record_meeting_from_home: "Optag et møde fra Hjem for at se det her."
+  library_rename_speaker_ellipsis: "Omdøb taler…"
+  library_start_dictation_or_import: "Start en diktering fra Hjem eller importer en fil."
+  library_summary_label: "RESUMÉ"
+  library_try_different_search_or_filter: "Prøv et andet søgeord eller filter."
+  library_untitled: "Unavngivet"
+  library_voice_transcription: "Stemmetransskription"
+  library_web_transcription: "Webtransskription"
+u4:
+  home_bar_a11y_n: "%@, %@ ord"
+  home_bar_a11y_one: "%@, 1 ord"
+  home_duration_h: "%d t"
+  home_duration_h_m: "%d t %d m"
+  home_duration_m: "%d m"
+  home_n_day: "%d-dages"
+  home_n_words_grouped: "%@ ord"
+  home_one_day: "1-dags"
+  home_open_library_arrow: "Åbn bibliotek →"
+  home_option_space_fallback: "⌥Space"
+  home_press_hotkey_hint: "Tryk på %@ hvor som helst for at starte diktering."
+  home_recent_empty_hint: "Dine seneste dikteringer vises her."
+  home_streak: "Stime"
+  home_subline_duration_only: "%@ diktering."
+  home_subline_full: "%@ diktering — ca. %@ sparet i forhold til at skrive det."
+  home_this_week: "Denne uge"
+  home_welcome_tagline: "Tal. Det er skrevet."
+  home_words_per_min: "Ord / min"
+  home_words_so_far: "Ord indtil nu"
+  home_words_today: "Ord i dag"
+  home_you_spoke_this_week: "Du sagde %@ i denne uge."
+  home_zero_day: "0-dages"
+u5:
+  u7_add_replacement: "Add replacement"
+  u7_add_word: "Add word"
+  u7_add_words_or_replacements: "Add words the recognizer should trust, or replacements applied after transcription."
+  u7_applied_after_transcription: "Applied after transcription, before insert"
+  u7_case_insensitive: "case-insensitive"
+  u7_cmd_s_to_save: "⌘S to save"
+  u7_command: "command"
+  u7_copy_content: "Copy Content"
+  u7_d_ago: "%d d ago"
+  u7_delete_note: "Delete Note"
+  u7_edited: "edited"
+  u7_edited_format: "edited %@"
+  u7_everything_runs_on_this_mac: "Everything runs on this Mac"
+  u7_exact: "exact"
+  u7_h_ago: "%d h ago"
+  u7_installed: "Installed"
+  u7_just_now: "just now"
+  u7_listening_speak_to_append: "Listening — speak to append…"
+  u7_m_ago: "%d m ago"
+  u7_match_mode: "Match mode"
+  u7_models_privacy_footnote: "Models never leave this Mac. Audio is processed locally unless you choose a cloud provider in Settings → AI."
+  u7_new_note: "New note"
+  u7_no_dictionary_entries: "No dictionary entries"
+  u7_on_device_helpers: "On-device helpers"
+  u7_on_disk: "PÅ DISK"
+  u7_open_note: "Open Note"
+  u7_pin: "Pin"
+  u7_replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
+  u7_replacements_section: "Replacements"
+  u7_speech_to_text: "Speech to text"
+  u7_teach_pindrop_your_words: "Teach Pindrop your words"
+  u7_unpin: "Unpin"
+  u7_untitled_note: "Untitled Note"
+  u7_words_recognizer_should_trust: "Words the recognizer should trust"
+u8:
+  settings_acknowledgements: "Anerkendelser"
+  settings_advanced_assignments: "Avancerede tildelinger"
+  settings_audio_on_disk_format: "Lyd på disk: %@ · %@"
+  settings_beta_channel: "Beta"
+  settings_bundled_fonts_ofl: "Medfølgende skrifttyper (Newsreader, Inter, JetBrains Mono) er licenseret under SIL Open Font License."
+  settings_checks_for_updates_automatically: "Pindrop tjekker automatisk for opdateringer."
+  settings_choose_a_provider: "Vælg en udbyder"
+  settings_choose_folder_export_logs: "Vælg en mappe til at kopiere Pindrops logfiler til."
+  settings_copy_last_transcript: "Kopiér seneste udskrift"
+  settings_copy_token: "Kopiér token"
+  settings_days_30: "30 dage"
+  settings_days_7: "7 dage"
+  settings_debug: "Fejlretning"
+  settings_delete_all_audio: "Slet al lyd"
+  settings_delete_all_audio_ellipsis: "Slet al lyd…"
+  settings_delete_all_audio_question: "Slet al lyd?"
+  settings_diagnostics: "Diagnostik"
+  settings_edit_prompt_ellipsis: "Rediger prompt…"
+  settings_endpoint: "Endepunkt"
+  settings_enhance_transcripts: "Forbedr udskrifter"
+  settings_example_label: "EKSEMPEL"
+  settings_export_logs_ellipsis: "Eksportér logfiler…"
+  settings_forever: "For evigt"
+  settings_github: "GitHub"
+  settings_info: "Info"
+  settings_keep_dictation_audio: "Behold dikteringslyd"
+  settings_last_checked_format: "Sidst tjekket %@"
+  settings_license_mit: "Licens — MIT"
+  settings_listening_ellipsis: "Lytter…"
+  settings_log_level: "Logniveau"
+  settings_logs_never_include_transcript: "Logfiler indeholder aldrig transskriptionstekst."
+  settings_made_with_care: "Lavet med omhu til lokal tale."
+  settings_manage_ellipsis: "Administrer…"
+  settings_n_samples: "%d prøver"
+  settings_n_snippets: "%d uddrag"
+  settings_n_trained: "%d trænet"
+  settings_no_conflicts_with_system_or_app: "Ingen konflikter med system- eller appgenveje."
+  settings_one_snippet: "1 uddrag"
+  settings_one_trained: "1 trænet"
+  settings_presets_recolor_caption: "Forudindstillinger genfarver accent og baggrunde. Tekstkontrast valideres automatisk."
+  settings_push_to_talk: "Tryk for at tale"
+  settings_recording_indicator: "Optagelsesindikator"
+  settings_release_channel: "Udgivelse"
+  settings_removes_kept_dictation_audio: "Fjerner gemte lydfiler fra diktering. Udskrifter forbliver i dit bibliotek."
+  settings_reset_all_settings_ellipsis: "Nulstil alle indstillinger…"
+  settings_separate_from_interface_language: "Adskilt fra grænsefladesproget"
+  settings_some_shortcuts_conflict_each_other: "Nogle genveje er i konflikt med hinanden."
+  settings_some_shortcuts_may_conflict_system: "Nogle genveje kan være i konflikt med systemgenveje."
+  settings_speaker_profiles: "Talerprofiler"
+  settings_theme_preset: "Temaforudindstilling"
+  settings_toggle_dictation: "Skift diktering"
+  settings_trained_summary_format: "%@ — bruges til at angive, hvem der sagde hvad i møder"
+  settings_update_checks_unavailable: "Opdateringstjek er midlertidigt utilgængelige."
+  settings_warning: "Advarsel"
+  settings_website: "Websted"
+u9:
+  onboarding_accessibility_clipboard_fallback: "Uden Tilgængelighed kopierer Pindrop i stedet teksten til udklipsholderen."
+  onboarding_change_hotkey_hint: "Tryk på en anden kombination for at ændre den"
+  onboarding_download_amount_format: "%@ af %@"
+  onboarding_download_background_hint: "Fortsæt opsætningen, mens den downloader — vi gør den færdig i baggrunden."
+  onboarding_enable_enhancement: "Slå forbedring til"
+  onboarding_granted_state: "Givet"
+  onboarding_pindrop_writes: "Pindrop skriver"
+  onboarding_ready_heading: "Du er klar."
+  onboarding_ready_instruction_format: "Tryk på %@ og begynd at tale — Pindrop skriver, hvor markøren er."
+  onboarding_try_it_now: "Prøv det nu"
+  onboarding_you_say: "Du siger"
+ukrainian:
+  _self: "Ukrainian"
 unable:
   to_connect_to_the_ai_enhancement_service: "\\\"\\\" Kan ikke oprette forbindelse til AI-forbedringstjenesten.                                  Kontroller venligst: 1. Din internetforbindelse 2. API-endepunktets URL er korrekt 3. Tjenesten oplever ikke afbrydelse. Transskriptionen blev gemt uden forbedring.                 \\\"\\\""
   to_finish_transcription: "Kan ikke afslutte transskriptionen"
@@ -1045,6 +1402,8 @@ undo:
   _self: "Fortryd"
 unfiled:
   _self: "Uarkiveret"
+unknown:
+  _self: "Unknown"
 unpin:
   from_screen: "Frigør fra skærmen"
 update:
@@ -1083,12 +1442,23 @@ view:
   transcription_history: "Se transskriptionshistorik"
 vocabulary:
   _self: "Ordforråd"
+voice:
+  _self: "Voice"
 vs:
   typing: "vs at skrive"
+web:
+  link: "Web link"
 welcome:
   to_pindrop: "Velkommen til Pindrop"
+what:
+  s_new: "Nyheder…"
+  s_new_in_pindrop: "Nyheder i Pindrop"
+while:
+  recording: "Under optagelse"
 whisperkit:
   _self: "WhisperKit"
+window:
+  _self: "Vindue"
 word:
   _self: "Ord"
   replacements: "Ordudskiftninger"
@@ -1110,371 +1480,13 @@ you:
   ve_exceeded_your_api_rate_limit_or_quota_to: "\\\"\\\" Du har overskredet din API-hastighedsgrænse eller -kvote.                                  Sådan rettes dette: 1. Vent et par minutter, og prøv igen 2. Tjek din API-udbyders brugsgrænser 3. Overvej at opgradere din API-plan. Transskriptionen blev gemt uden forbedring.                 \\\"\\\""
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\\\"\\\" Din API-nøgle ser ud til at være ugyldig eller udløbet.                                  For at rette dette: 1. Åbn Indstillinger → AI-forbedring 2. Bekræft, at din API-nøgle er korrekt 3. Kontroller, at dit API-slutpunkt er korrekt. Transskriptionen blev gemt uden forbedring.                 \\\"\\\""
+  floating_indicator_is_now_a_living_audio_re: "Din flydende indikator er nu en levende, lydreaktiv orb. Den ånder i tomgang, vokser når du taler, og streamer dine ord live mens du dikterer."
   hotkeys_are_ready_to_use_nyou_can_customize: "Dine genvejstaster er klar til brug.nDu kan tilpasse dem senere i Indstillinger."
   hotkeys_are_ready_to_use_you_can_customize: |-
     Dine genvejstaster er klar til brug.
     Du kan tilpasse dem senere i Indstillinger.
   model_is_ready_to_use: "Din model er klar til brug."
   stats: "Dine statistikker"
-  floating_indicator_is_now_a_living_audio_re: "Din flydende indikator er nu en levende, lydreaktiv orb. Den ånder i tomgang, vokser når du taler, og streamer dine ord live mens du dikterer."
-orb:
-  _self: "Kugle"
-meeting:
-  saved: "Møde gemt"
-russian:
-  _self: "Russian"
-ukrainian:
-  _self: "Ukrainian"
-what:
-  s_new_in_pindrop: "Nyheder i Pindrop"
-  s_new: "Nyheder…"
-meet:
-  the_new_orb: "Mød den nye Orb"
-thanks:
-  to_for_investigating_and_kicking_off_the: "Tak til %@ for at undersøge og sætte rettelsen i gang (PR #64)."
-  to_for_the_contribution_pr_61: "Tak til %@ for bidraget (PR #61)."
-dictate:
-  in_russian_and_ukrainian: "Diktér på russisk og ukrainsk"
-two:
-  new_dictation_languages_fully_wired_into_mod: "To nye dikteringssprog, fuldt forbundet med modelanbefalinger."
-also:
-  new_rtl_layout_support_and_20_new_interface: "Også nyt: RTL-layoutunderstøttelse og 20 nye grænsefladesprog."
-advanced:
-  _self: "Avanceret"
-agent:
-  setup: "Agentopsætning"
-appearance:
-  _self: "Udseende"
-bearer:
-  token: "Bearer-token"
-changes:
-  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
-client:
-  _self: "Klient"
-configuration:
-  file: "Configuration File"
-  scope: "Configuration Scope"
-  snippet: "Configuration Snippet"
-dictation:
-  _self: "Diktering"
-  language: "Dikteringssprog"
-  polish: "Dikteringsfinpudsning"
-done:
-  _self: "Færdig"
-input:
-  device: "Inputenhed"
-license:
-  _self: "Licens"
-mcp:
-  configuration_error: "MCP Configuration Error"
-  server: "MCP-server"
-main:
-  window: "Hovedvindue"
-name:
-  _self: "Navn"
-port:
-  _self: "Port"
-  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
-project:
-  _self: "Projekt"
-regenerate:
-  _self: "Generér igen"
-shortcuts:
-  _self: "Genveje"
-speakers:
-  _self: "Talere"
-these:
-  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
-while:
-  recording: "Under optagelse"
-may:
-  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
-library:
-  _self: "Bibliotek"
-conflicts:
-  with: "Conflicts with %@"
-file:
-  _self: "Arkiv"
-window:
-  _self: "Vindue"
-help:
-  _self: "Hjælp"
-close:
-  _self: "Luk"
-find:
-  _self: "Find"
-minimize:
-  _self: "Formindsk"
+  stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "Zoom"
-bring:
-  all_to_front: "Anbring alle forrest"
-home:
-  _self: "Hjem"
-newest:
-  _self: "Nyeste"
-oldest:
-  _self: "Ældste"
-plain:
-  text_txt: "Almindelig tekst (.txt)"
-markdown:
-  md: "Markdown (.md)"
-subtitles:
-  srt: "Undertekster (.srt)"
-timestamps:
-  json: "Tidsstempler (.json)"
-inserted:
-  into_d_words: "Indsat i %@ · %d ord"
-unknown:
-  app: "Ukendt app"
-pinned:
-  _self: "Fastgjort"
-speak:
-  to_append: "Tal for at tilføje"
-
-diarized:
-  _self: "diariseret"
-
-summary:
-  ready: "resumé klar"
-
-prompts:
-  are_sent_in_english: "Prompts sendes på engelsk"
-
-preset_example:
-  clean_input: "øh så mødet er klokken halv fire punktum kan du bekræfte spørgsmålstegn"
-  clean_output: "Så mødet er kl. 15:30. Kan du bekræfte?"
-  meeting_input: "alice sender decket inden fredag bob tager prisgennemgangen vi har brug for en beslutning i næste uge"
-  meeting_output: "## Handlinger\\n- **Alice** sender decket inden **fredag**\\n- **Bob** tager prisgennemgangen\\n\\n## Næste skridt\\n- Beslutning nødvendig i næste uge"
-  email_input: "hej jordan tjekker bare om du fik mine noter fra i går tak"
-  email_output: "Hej Jordan,\\n\\nTjekker bare, om du fik mine noter fra i går.\\n\\nTak,"
-  social_input: "øh vi har lige udgivet dark mode og den ser fantastisk ud du burde prøve den"
-  social_output: "Vi har lige udgivet dark mode.\\n\\nDen ser fantastisk ud — du burde prøve den."
-  bullets_input: "vi dækkede onboarding-latens så priser og til sidst lanceringsdatoen den tolvte maj"
-  bullets_output: "- Onboarding-latens\\n- Priser\\n- Lanceringsdato: 12. maj"
-  technical_input: "kald fetch user pil map så svaret lig med lig med to hundrede"
-  technical_output: "Kald `fetchUser` -> map så svaret `==` 200."
-  live_input: "øh jeg synes vi skal sende betaen inden fredag punktum"
-  live_output: "Jeg synes, vi skal sende betaen inden fredag."
-  edits_input: "øh det er correct ly femogtyve"
-  edits_output: "Det er correctly 25"
-
-inserted:
-  into_d_words: "Inserted into %@ · %d words"
-
-unknown:
-  app: "Unknown App"
-
-u3_library:
-  rename_speaker_ellipsis: "Omdøb taler…"
-  assign_speaker: "Tildel taler"
-  record_meeting_ellipsis: "Optag møde…"
-  dictations: "Dikteringer"
-  meetings: "Møder"
-  one_recording: "1 optagelse"
-  n_recordings: "%d optagelser"
-  h_m_spoken: "%d t %d m talt"
-  h_spoken: "%d t talt"
-  m_spoken: "%d m talt"
-  audio_kept_7_days: "lyd gemmes 7 dage"
-  audio_kept_30_days: "lyd gemmes 30 dage"
-  audio_kept_forever: "lyd gemmes for altid"
-  inserted_into: "indsat i %@"
-  import_files: "Importer filer…"
-  paste_link: "Indsæt link…"
-  insert_again: "Indsæt igen"
-  playback_speed: "Afspilningshastighed"
-  no_recordings_yet: "Ingen optagelser endnu"
-  start_dictation_or_import: "Start en diktering fra Hjem eller importer en fil."
-  no_dictations_yet: "Ingen dikteringer endnu"
-  dictations_appear_after_use: "Dikteringer vises her efter stemmediktering."
-  no_meeting_recordings: "Ingen mødeoptagelser"
-  record_meeting_from_home: "Optag et møde fra Hjem for at se det her."
-  import_file_or_paste_link: "Importer en fil eller indsæt et link for at transskribere medier."
-  try_different_search_or_filter: "Prøv et andet søgeord eller filter."
-  untitled: "Unavngivet"
-  https_placeholder: "https://…"
-  summary_label: "RESUMÉ"
-  click_line_to_jump: "klik på en linje for at springe i afspilningen"
-  meeting_recording: "Mødeoptagelse"
-  voice_transcription: "Stemmetransskription"
-  imported_audio: "Importeret lyd"
-  web_transcription: "Webtransskription"
-
-u5_u7:
-  new_note: "New note"
-  add_word: "Add word"
-  add_replacement: "Add replacement"
-  teach_pindrop_your_words: "Teach Pindrop your words"
-  words_recognizer_should_trust: "Words the recognizer should trust"
-  applied_after_transcription: "Applied after transcription, before insert"
-  case_insensitive: "case-insensitive"
-  exact: "exact"
-  command: "command"
-  replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
-  no_dictionary_entries: "No dictionary entries"
-  add_words_or_replacements: "Add words the recognizer should trust, or replacements applied after transcription."
-  match_mode: "Match mode"
-  everything_runs_on_this_mac: "Everything runs on this Mac"
-  on_disk: "PÅ DISK"
-  speech_to_text: "Speech to text"
-  on_device_helpers: "On-device helpers"
-  installed: "Installed"
-  models_privacy_footnote: "Models never leave this Mac. Audio is processed locally unless you choose a cloud provider in Settings → AI."
-  listening_speak_to_append: "Listening — speak to append…"
-  cmd_s_to_save: "⌘S to save"
-  edited_format: "edited %@"
-  just_now: "just now"
-  m_ago: "%d m ago"
-  h_ago: "%d h ago"
-  d_ago: "%d d ago"
-  edited: "edited"
-  open_note: "Open Note"
-  copy_content: "Copy Content"
-  unpin: "Unpin"
-  pin: "Pin"
-  delete_note: "Delete Note"
-  replacements_section: "Replacements"
-  untitled_note: "Untitled Note"
-u4_home:
-  you_spoke_this_week: "Du sagde %@ i denne uge."
-  n_words_grouped: "%@ ord"
-  zero_day: "0-dages"
-  one_day: "1-dags"
-  n_day: "%d-dages"
-  duration_h_m: "%d t %d m"
-  duration_h: "%d t"
-  duration_m: "%d m"
-  subline_full: "%@ diktering — ca. %@ sparet i forhold til at skrive det."
-  subline_duration_only: "%@ diktering."
-  words_today: "Ord i dag"
-  words_per_min: "Ord / min"
-  streak: "Stime"
-  open_library_arrow: "Åbn bibliotek →"
-  this_week: "Denne uge"
-  words_so_far: "Ord indtil nu"
-  welcome_tagline: "Tal. Det er skrevet."
-  press_hotkey_hint: "Tryk på %@ hvor som helst for at starte diktering."
-  bar_a11y_one: "%@, 1 ord"
-  bar_a11y_n: "%@, %@ ord"
-  recent_empty_hint: "Dine seneste dikteringer vises her."
-  option_space_fallback: "⌥Space"
-
-u8_settings:
-  reset_all_settings_ellipsis: "Nulstil alle indstillinger…"
-  separate_from_interface_language: "Adskilt fra grænsefladesproget"
-  keep_dictation_audio: "Behold dikteringslyd"
-  days_7: "7 dage"
-  days_30: "30 dage"
-  forever: "For evigt"
-  audio_on_disk_format: "Lyd på disk: %@ · %@"
-  one_snippet: "1 uddrag"
-  n_snippets: "%d uddrag"
-  delete_all_audio_ellipsis: "Slet al lyd…"
-  delete_all_audio_question: "Slet al lyd?"
-  delete_all_audio: "Slet al lyd"
-  removes_kept_dictation_audio: "Fjerner gemte lydfiler fra diktering. Udskrifter forbliver i dit bibliotek."
-  speaker_profiles: "Talerprofiler"
-  one_trained: "1 trænet"
-  n_trained: "%d trænet"
-  trained_summary_format: "%@ — bruges til at angive, hvem der sagde hvad i møder"
-  manage_ellipsis: "Administrer…"
-  theme_preset: "Temaforudindstilling"
-  presets_recolor_caption: "Forudindstillinger genfarver accent og baggrunde. Tekstkontrast valideres automatisk."
-  recording_indicator: "Optagelsesindikator"
-  toggle_dictation: "Skift diktering"
-  push_to_talk: "Tryk for at tale"
-  copy_last_transcript: "Kopiér seneste udskrift"
-  no_conflicts_with_system_or_app: "Ingen konflikter med system- eller appgenveje."
-  some_shortcuts_conflict_each_other: "Nogle genveje er i konflikt med hinanden."
-  some_shortcuts_may_conflict_system: "Nogle genveje kan være i konflikt med systemgenveje."
-  listening_ellipsis: "Lytter…"
-  enhance_transcripts: "Forbedr udskrifter"
-  choose_a_provider: "Vælg en udbyder"
-  edit_prompt_ellipsis: "Rediger prompt…"
-  example_label: "EKSEMPEL"
-  advanced_assignments: "Avancerede tildelinger"
-  endpoint: "Endepunkt"
-  copy_token: "Kopiér token"
-  log_level: "Logniveau"
-  debug: "Fejlretning"
-  info: "Info"
-  warning: "Advarsel"
-  diagnostics: "Diagnostik"
-  logs_never_include_transcript: "Logfiler indeholder aldrig transskriptionstekst."
-  export_logs_ellipsis: "Eksportér logfiler…"
-  choose_folder_export_logs: "Vælg en mappe til at kopiere Pindrops logfiler til."
-  github: "GitHub"
-  website: "Websted"
-  license_mit: "Licens — MIT"
-  acknowledgements: "Anerkendelser"
-  bundled_fonts_ofl: "Medfølgende skrifttyper (Newsreader, Inter, JetBrains Mono) er licenseret under SIL Open Font License."
-  made_with_care: "Lavet med omhu til lokal tale."
-  release_channel: "Udgivelse"
-  beta_channel: "Beta"
-  last_checked_format: "Sidst tjekket %@"
-  update_checks_unavailable: "Opdateringstjek er midlertidigt utilgængelige."
-  checks_for_updates_automatically: "Pindrop tjekker automatisk for opdateringer."
-  n_samples: "%d prøver"
-u10_floating:
-  transcribing: "Transskriberer…"
-  word_count: "%d ord"
-  inserted_into: "Indsat i %@"
-  microphone_unavailable: "Mikrofonen er ikke tilgængelig"
-  whats_new: "Nyheder"
-  version_line: "Pindrop 0.10.0 · juli 2026"
-  announcement_summary: "Genafspilning, et nyt udseende og tastaturstyring i hele Pindrop."
-  replay_title: "Afspil enhver diktering igen"
-  replay_body: "Pindrop kan gemme lyd i syv dage, så du kan lytte igen fra Biblioteket, når du har brug for det."
-  new_look_title: "Et nyt udseende"
-  new_look_body: "Et varmere og roligere design sætter dine ord først. Dine temaforvalg følger med — plus en ny standard, Bibliotek."
-  keyboard_title: "Tastatur overalt"
-  keyboard_body: "Naviger, søg, opret noter, eksporter og slet uden at forlade tastaturet."
-u11:
-  recording_started: "Optagelse startet"
-  recording_stopped: "Optagelse stoppet"
-  recording_processing: "Optagelse stoppet. Behandler transskription."
-  transcription_complete: "Transskription fuldført"
-  live_transcript: "Direkte transskription"
-  estimating_time: "Beregner resterende tid…"
-  seconds_left: "ca. %d sek. tilbage"
-  minutes_left: "ca. %d min. tilbage"
-  microphone_muted: "Mikrofon slået fra"
-u11b:
-  playback_position: "Afspilningsposition"
-  expired: "Udløbet"
-  expand: "Udvid"
-  step_x_of_y: "Trin %d af %d"
-sessions_in: "%@ sessions in %@"
-0_m: "0 m"
-1_year: "1 year"
-90_days: "90 days"
-ai_enhanced: "AI-enhanced"
-active_days: "Active days"
-activity: "Activity"
-all_time: "All time"
-audio_duration: "Audio duration"
-average_session: "Average session"
-average_words_session: "Average words / session"
-by_weekday: "By weekday"
-destinations: "Destinations"
-dictation_words_min: "Dictation words / min"
-duration: "Duration"
-estimated_time_saved: "Estimated time saved"
-imported_file: "Imported file"
-longest_streak: "Longest streak"
-manual_capture: "Manual capture"
-metric: "Metric"
-no_activity_in_this_period: "No activity in this period"
-no_destination_data: "No destination data"
-other: "Other"
-overview: "Overview"
-sources: "Sources"
-stats: "Stats"
-time_of_day: "Time of day"
-time_range: "Time range"
-transcribed_words: "Transcribed words"
-unknown: "Unknown"
-voice: "Voice"
-web_link: "Web link"
-your_stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."

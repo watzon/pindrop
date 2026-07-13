@@ -18,6 +18,7 @@ struct DashboardView: View {
     /// Aggregation cache keyed by record projection + calendar day. Hover/selection
     /// live in chart children so pointer movement cannot invalidate this work.
     @State private var statsCache = DashboardStatsCache()
+    @State private var showMeetingCaptureOptions = false
 
     var onOpenHotkeys: (() -> Void)?
     var onViewAllHistory: (() -> Void)?
@@ -25,8 +26,10 @@ struct DashboardView: View {
     var onOpenHistoryRecord: ((UUID) -> Void)?
     var onNewTranscription: (() -> Void)?
     var onTranscribeFile: (() -> Void)?
-    var onRecordMeeting: (() -> Void)?
+    var onRecordMeeting: ((Int?) -> Void)?
     var onNewNote: (() -> Void)?
+    var onDownloadDiarizationModel: (() -> Void)?
+    var recordingState: RecordingFeatureState?
 
     private static var isPreview: Bool {
         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
@@ -35,18 +38,21 @@ struct DashboardView: View {
     init(
         floatingIndicatorState: FloatingIndicatorState? = nil,
         settingsStore: SettingsStore? = nil,
+        recordingState: RecordingFeatureState? = nil,
         onOpenHotkeys: (() -> Void)? = nil,
         onViewAllHistory: (() -> Void)? = nil,
         onShowMoreStats: (() -> Void)? = nil,
         onOpenHistoryRecord: ((UUID) -> Void)? = nil,
         onNewTranscription: (() -> Void)? = nil,
         onTranscribeFile: (() -> Void)? = nil,
-        onRecordMeeting: (() -> Void)? = nil,
-        onNewNote: (() -> Void)? = nil
+        onRecordMeeting: ((Int?) -> Void)? = nil,
+        onNewNote: (() -> Void)? = nil,
+        onDownloadDiarizationModel: (() -> Void)? = nil
     ) {
         // Indicator state is owned by the shell chrome; Home must not observe it.
         _ = floatingIndicatorState
         self._settingsStore = ObservedObject(wrappedValue: settingsStore ?? SettingsStore())
+        self.recordingState = recordingState
         self.onOpenHotkeys = onOpenHotkeys
         self.onViewAllHistory = onViewAllHistory
         self.onShowMoreStats = onShowMoreStats
@@ -55,6 +61,7 @@ struct DashboardView: View {
         self.onTranscribeFile = onTranscribeFile
         self.onRecordMeeting = onRecordMeeting
         self.onNewNote = onNewNote
+        self.onDownloadDiarizationModel = onDownloadDiarizationModel
     }
 
     // MARK: - Stats
@@ -103,6 +110,15 @@ struct DashboardView: View {
         let dashboardStats = stats(now: now)
         return ScrollView(showsIndicators: true) {
             VStack(alignment: .leading, spacing: 0) {
+                if let setupIssue = recordingState?.setupIssue {
+                    diarizationSetupIssueBanner(
+                        message: setupIssue,
+                        isDownloading: recordingState?.isDiarizationModelDownloading ?? false,
+                        progress: recordingState?.diarizationModelDownloadProgress ?? 0.0
+                    )
+                        .padding(.bottom, 16)
+                }
+
                 heroBlock(now: now, stats: dashboardStats)
                 statsStrip(stats: dashboardStats)
                 recentSection
@@ -114,6 +130,65 @@ struct DashboardView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .background(AppColors.contentBackground)
+        .sheet(isPresented: $showMeetingCaptureOptions) {
+            MeetingCaptureOptionsSheet { expectedSpeakerCount in
+                onRecordMeeting?(expectedSpeakerCount)
+            }
+        }
+    }
+
+    private func requestMeetingCapture() {
+        guard onRecordMeeting != nil else { return }
+        showMeetingCaptureOptions = true
+    }
+
+    private func diarizationSetupIssueBanner(
+        message: String,
+        isDownloading: Bool,
+        progress: Double
+    ) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: isDownloading ? "arrow.down.circle" : "exclamationmark.triangle")
+                .font(.system(size: 14))
+                .foregroundStyle(isDownloading ? AppColors.accent : AppColors.warning)
+
+            if isDownloading {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(message)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    ProgressView(value: min(max(progress, 0), 1))
+                        .progressViewStyle(.linear)
+                        .tint(AppColors.accent)
+                        .frame(maxWidth: 180)
+                        .accessibilityValue("\(Int(progress * 100))%")
+                }
+            } else {
+                Text(message)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 8)
+
+            if !isDownloading, onDownloadDiarizationModel != nil {
+                Button(localized("Download model", locale: locale)) {
+                    onDownloadDiarizationModel?()
+                }
+                .buttonStyle(.plain)
+                .font(AppTypography.caption.weight(.semibold))
+                .foregroundStyle(AppColors.accent)
+                .accessibilityIdentifier("diarizationSetupIssueDownloadButton")
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(AppColors.warningBackground)
+        )
     }
 
     // MARK: - Hero
@@ -303,11 +378,25 @@ struct DashboardView: View {
     }
 
     private var emptyRecentHint: some View {
-        Text(localized("Your latest dictations will show up here.", locale: locale))
-            .font(AppTypography.body)
-            .foregroundStyle(AppColors.textTertiary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, 12)
+        VStack(alignment: .leading, spacing: 8) {
+            Text(localized("Your latest dictations will show up here.", locale: locale))
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.textTertiary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            if onRecordMeeting != nil {
+                Button {
+                    requestMeetingCapture()
+                } label: {
+                    Text(localized("Record Meeting…", locale: locale))
+                        .font(AppTypography.labelSemibold)
+                        .foregroundStyle(AppColors.accent)
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("home.button.recordMeeting")
+            }
+        }
+        .padding(.vertical, 12)
     }
 
     private static let rowTimeFormatter: DateFormatter = {

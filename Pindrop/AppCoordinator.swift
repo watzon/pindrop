@@ -354,6 +354,7 @@ final class AppCoordinator {
     private var isNoteAppendMode = false
     private let recordingStopAdmission = RecordingStopAdmission()
     private var isRecordingFeatureCaptureActive = false
+    private var manualExpectedSpeakerCount: Int?
     private var quickCaptureTranscription: String?
     private var noteAppendEditorID: UUID?
     private var mediaTranscriptionTask: Task<Void, Never>?
@@ -545,13 +546,14 @@ final class AppCoordinator {
         self.noteEditorWindowController.setModelContainer(modelContainer)
         self.mainWindowController.configureMeetingCapture(
             floatingIndicatorState: floatingIndicatorState,
+            recordingState: recordingState,
             onNewTranscription: { [weak self] in
                 Task { @MainActor in
                     await self?.handleToggleRecording(source: .statusBarMenu)
                 }
             },
-            onStartMeetingCapture: { [weak self] in
-                self?.handleStartMeetingCapture()
+            onStartMeetingCapture: { [weak self] expectedSpeakerCount in
+                self?.handleStartMeetingCapture(expectedSpeakerCount: expectedSpeakerCount)
             },
             onStartNoteCapture: { [weak self] in
                 Task { @MainActor in
@@ -2507,7 +2509,9 @@ final class AppCoordinator {
             transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: audioData,
                 diarizationEnabled: diarizationEnabled,
-                options: makeTranscriptionOptions()
+                options: makeTranscriptionOptions(),
+                diarizationOptions: .init(),
+                diarizationFailurePolicy: .bestEffort
             )
         } catch let error as TranscriptionService.TranscriptionError {
             Log.app.error("Note-append transcription failed: \(error)")
@@ -2596,7 +2600,9 @@ final class AppCoordinator {
             transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: audioData,
                 diarizationEnabled: diarizationEnabled,
-                options: makeTranscriptionOptions()
+                options: makeTranscriptionOptions(),
+                diarizationOptions: .init(),
+                diarizationFailurePolicy: .bestEffort
             )
         } catch let error as TranscriptionService.TranscriptionError {
             Log.app.error("Transcription failed: \(error)")
@@ -3257,7 +3263,9 @@ final class AppCoordinator {
             transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: audioData,
                 diarizationEnabled: diarizationEnabled,
-                options: makeTranscriptionOptions()
+                options: makeTranscriptionOptions(),
+                diarizationOptions: .init(),
+                diarizationFailurePolicy: .bestEffort
             )
         } catch let error as TranscriptionService.TranscriptionError {
             Log.app.error("Transcription failed: \(error)")
@@ -4057,6 +4065,7 @@ final class AppCoordinator {
         isQuickCaptureMode = false
         clearNoteAppendMode()
         recordingStartTime = nil
+        manualExpectedSpeakerCount = nil
         capturedContext = nil
         capturedSnapshot = nil
         capturedAdapterCapabilities = nil
@@ -4094,6 +4103,7 @@ final class AppCoordinator {
         isQuickCaptureMode = false
         clearNoteAppendMode()
         recordingStartTime = nil
+        manualExpectedSpeakerCount = nil
         capturedContext = nil
         capturedSnapshot = nil
         capturedAdapterCapabilities = nil
@@ -4139,6 +4149,7 @@ final class AppCoordinator {
         }
         recordingState.endRecording()
         recordingStartTime = nil
+        manualExpectedSpeakerCount = nil
         capturedContext = nil
         capturedSnapshot = nil
         capturedAdapterCapabilities = nil
@@ -4401,26 +4412,52 @@ final class AppCoordinator {
     }
 
     private func handleDownloadDiarizationModel() {
+        guard !mediaTranscriptionState.isDiarizationModelDownloading,
+              !recordingState.isDiarizationModelDownloading else {
+            return
+        }
+
+        mediaTranscriptionState.isDiarizationModelDownloading = true
+        mediaTranscriptionState.diarizationModelDownloadProgress = 0.0
+        recordingState.isDiarizationModelDownloading = true
+        recordingState.diarizationModelDownloadProgress = 0.0
+
         Task { @MainActor [weak self] in
             guard let self else { return }
+            defer {
+                self.mediaTranscriptionState.isDiarizationModelDownloading = false
+                self.recordingState.isDiarizationModelDownloading = false
+            }
+
             do {
-                try await self.modelManager.downloadFeatureModel(.diarization)
+                try await self.modelManager.downloadFeatureModel(.diarization) { [weak self] progress in
+                    guard let self else { return }
+                    self.mediaTranscriptionState.diarizationModelDownloadProgress = progress
+                    self.recordingState.diarizationModelDownloadProgress = progress
+                }
+                await self.modelManager.refreshDownloadedFeatureModels()
+                self.settingsStore.diarizationFeatureEnabled = true
                 self.mediaTranscriptionState.setupIssue = nil
-                self.toastService.show(ToastPayload(message: "Speaker diarization is ready."))
+                self.toastService.show(ToastPayload(message: localized("Speaker diarization is ready.", locale: self.settingsStore.selectedAppLocale.locale)))
                 self.recordingState.setupIssue = nil
-                self.recordingState.message = "Speaker diarization is ready."
+                self.recordingState.message = localized("Speaker diarization is ready.", locale: self.settingsStore.selectedAppLocale.locale)
             } catch {
+                self.mediaTranscriptionState.diarizationModelDownloadProgress = 0.0
+                self.recordingState.diarizationModelDownloadProgress = 0.0
                 self.mediaTranscriptionState.setSetupIssue(error.localizedDescription)
                 self.recordingState.setSetupIssue(error.localizedDescription)
             }
         }
     }
 
-    private func handleStartMeetingCapture() {
+    private func handleStartMeetingCapture(expectedSpeakerCount: Int?) {
         Task { @MainActor [weak self] in
             guard let self else { return }
             do {
-                try await self.startManualTranscriptionRecording(mode: .microphoneAndSystemAudio)
+                try await self.startManualTranscriptionRecording(
+                    mode: .microphoneAndSystemAudio,
+                    expectedSpeakerCount: expectedSpeakerCount
+                )
             } catch {
                 self.error = error
                 self.audioRecorder.resetAudioEngine()
@@ -4431,7 +4468,10 @@ final class AppCoordinator {
         }
     }
 
-    private func startManualTranscriptionRecording(mode: AudioRecordingMode) async throws {
+    private func startManualTranscriptionRecording(
+        mode: AudioRecordingMode,
+        expectedSpeakerCount: Int? = nil
+    ) async throws {
         guard !isRecording && !isProcessing else {
             recordingState.message = "Finish the active transcription before starting another one."
             return
@@ -4439,7 +4479,12 @@ final class AppCoordinator {
 
         await modelManager.refreshDownloadedFeatureModels()
         guard modelManager.isFeatureModelDownloaded(.diarization) else {
-            recordingState.setSetupIssue("Download the speaker diarization model before starting recording.")
+            recordingState.setSetupIssue(
+                localized(
+                    "Download the speaker diarization model before starting recording.",
+                    locale: settingsStore.selectedAppLocale.locale
+                )
+            )
             return
         }
 
@@ -4447,6 +4492,7 @@ final class AppCoordinator {
             configuration: AudioRecordingConfiguration(mode: mode)
         )
         guard didStartRecording else { return }
+        manualExpectedSpeakerCount = expectedSpeakerCount
 
         isRecording = true
         isRecordingFeatureCaptureActive = true
@@ -4456,6 +4502,7 @@ final class AppCoordinator {
         statusBarController.updateMenuState()
         startRecordingIndicatorSession()
     }
+
 
     private func stopManualTranscriptionRecording() async throws {
         guard isRecordingFeatureCaptureActive else {
@@ -4473,9 +4520,18 @@ final class AppCoordinator {
         statusBarController.updateMenuState()
         transitionRecordingIndicatorToProcessing()
         isProcessing = true
+        let expectedSpeakerCount = manualExpectedSpeakerCount
+        manualExpectedSpeakerCount = nil
 
         let job = MediaTranscriptionJobState(
             request: .manualCapture(mode),
+            options: TranscriptionJobOptions(
+                modelName: settingsStore.selectedModel,
+                language: settingsStore.selectedAppLanguage,
+                outputFormat: .plainText,
+                diarizationEnabled: true,
+                expectedSpeakerCount: expectedSpeakerCount
+            ),
             destinationFolderID: nil,
             stage: .preparingAudio,
             progress: nil,
@@ -4509,7 +4565,9 @@ final class AppCoordinator {
             let transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: audioData,
                 diarizationEnabled: job.options.diarizationEnabled,
-                options: makeTranscriptionOptions()
+                options: makeTranscriptionOptions(),
+                diarizationOptions: .init(expectedSpeakerCount: job.options.expectedSpeakerCount),
+                diarizationFailurePolicy: .required
             )
             let diarizationSegmentsJSON = encodeDiarizationSegmentsJSON(transcriptionOutput.diarizedSegments)
 
@@ -4612,7 +4670,7 @@ final class AppCoordinator {
 
         await modelManager.refreshDownloadedFeatureModels()
         guard !options.diarizationEnabled || modelManager.isFeatureModelDownloaded(.diarization) else {
-            mediaTranscriptionState.setSetupIssue("Download the speaker diarization model before starting media transcription.")
+            mediaTranscriptionState.setSetupIssue(localized("Download the speaker diarization model before starting media transcription.", locale: settingsStore.selectedAppLocale.locale))
             return
         }
 
@@ -4703,7 +4761,9 @@ final class AppCoordinator {
             let transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: preparedAudio.audioData,
                 diarizationEnabled: options.diarizationEnabled,
-                options: makeTranscriptionOptions(language: options.language)
+                options: makeTranscriptionOptions(language: options.language),
+                diarizationOptions: .init(expectedSpeakerCount: options.expectedSpeakerCount),
+                diarizationFailurePolicy: options.diarizationEnabled ? .required : .bestEffort
             )
             let diarizationSegmentsJSON = encodeDiarizationSegmentsJSON(transcriptionOutput.diarizedSegments)
 

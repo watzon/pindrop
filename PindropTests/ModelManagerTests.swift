@@ -6,6 +6,7 @@
 //
 
 import FluidAudio
+import Foundation
 import Testing
 @testable import Pindrop
 
@@ -207,5 +208,22 @@ struct ModelManagerTests {
         #expect(FeatureModelType.streaming.repoFolderName == "nemotron-streaming/1120ms")
         #expect(FeatureModelType.streamingRepoFolderName(for: .standard) == "nemotron-streaming/1120ms")
         #expect(FeatureModelType.streamingRepoFolderName(for: .lowLatency) == "nemotron-streaming/560ms")
+    }
+    @Test func offlineDiarizationReadinessRequiresAllArtifacts() {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pindrop-diarization-readiness-\(UUID().uuidString)", isDirectory: true)
+        let coreml = root.appendingPathComponent(FeatureModelType.diarization.repoFolderName, isDirectory: true)
+        try? FileManager.default.createDirectory(at: coreml, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        for path in ModelNames.OfflineDiarizer.requiredModels {
+            FileManager.default.createFile(atPath: coreml.appendingPathComponent(path).path, contents: Data())
+        }
+        #expect(modelManager.isOfflineDiarizationModelsReady(at: root) == false)
+        FileManager.default.createFile(
+            atPath: root.appendingPathComponent("plda-parameters.json").path,
+            contents: Data("{}".utf8)
+        )
+        #expect(modelManager.isOfflineDiarizationModelsReady(at: root))
     }
 }

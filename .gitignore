@@ -65,3 +65,6 @@ package.json
 # Local test recordings / captures
 video/
 __pycache__/
+
+# Generated diarization audio fixtures (manifest and references remain tracked)
+PindropTests/Fixtures/Diarization/Generated/

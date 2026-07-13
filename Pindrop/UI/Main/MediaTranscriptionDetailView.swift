@@ -20,6 +20,7 @@ struct MediaTranscriptionDetailView: View {
     let onAssignFolder: (MediaFolder) -> Void
     let onRemoveFromFolder: () -> Void
     let onAssignSpeakerProfile: (String, UUID) -> Void
+    let onUnassignSpeakerProfile: (String) -> Void
     let onCreateSpeakerProfile: (String, String, String?) -> Bool
     let onDelete: () -> Void
 
@@ -419,6 +420,12 @@ struct MediaTranscriptionDetailView: View {
                         if !sortedProfiles.isEmpty {
                             Divider()
                         }
+                        if segments.contains(where: { $0.speakerId == speakerID && $0.speakerProfileID != nil }) {
+                            Divider()
+                            Button(localized("Clear assignment", locale: locale)) {
+                                clearSpeakerAssignment(speakerID: speakerID)
+                            }
+                        }
                         Button(localized("Create New Profile…", locale: locale)) {
                             creatingProfileForSpeakerID = speakerID
                         }
@@ -446,6 +453,12 @@ struct MediaTranscriptionDetailView: View {
             if !sortedProfiles.isEmpty {
                 Divider()
             }
+            if segments.contains(where: { $0.speakerId == speakerID && $0.speakerProfileID != nil }) {
+                Divider()
+                Button(localized("Clear assignment", locale: locale)) {
+                    clearSpeakerAssignment(speakerID: speakerID)
+                }
+            }
             Button(localized("Create New Profile…", locale: locale)) {
                 creatingProfileForSpeakerID = speakerID
             }
@@ -453,6 +466,11 @@ struct MediaTranscriptionDetailView: View {
     }
 
     // MARK: - Actions
+    private func clearSpeakerAssignment(speakerID: String) {
+        guard !speakerID.isEmpty else { return }
+        speakerLabelsByID[speakerID] = nil
+        onUnassignSpeakerProfile(speakerID)
+    }
 
     private func exportTranscript(format: TranscriptExportFormat) {
         do {

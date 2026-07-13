@@ -1,61 +1,61 @@
-u9_onboarding:
-  download_amount_format: "%@ trên %@"
-  download_background_hint: "Tiếp tục thiết lập trong khi tải xuống — chúng tôi sẽ hoàn tất trong nền."
-  you_say: "Bạn nói"
-  pindrop_writes: "Pindrop viết"
-  enable_enhancement: "Bật tính năng cải thiện"
-  accessibility_clipboard_fallback: "Nếu không có Trợ năng, Pindrop sẽ sao chép văn bản vào bảng nhớ tạm."
-  change_hotkey_hint: "Nhấn một tổ hợp khác để thay đổi"
-  granted_state: "Đã cấp"
-  ready_heading: "Bạn đã sẵn sàng."
-  ready_instruction_format: "Nhấn %@ và bắt đầu nói — Pindrop nhập tại vị trí con trỏ."
-  try_it_now: "Thử ngay"
-
+0:
+  m: "0 m"
 100:
   local_processing: "Xử lý cục bộ 100%"
 1:
   folder: "1 thư mục"
+  note: "1 ghi chú"
   speaker: "1 người nói"
   transcription: "1 bản phiên âm"
-  note: "1 ghi chú"
   word: "1 từ"
+  year: "1 year"
+90:
+  days: "90 days"
 a:
-  native_macos_menu_bar_dictation_app_using_loca: "Một ứng dụng đọc chính tả trên thanh menu macOS gốc sử dụng tính năng chuyển giọng nói thành văn bản cục bộ với WhisperKit. Xử lý cục bộ 100% theo mặc định với cải tiến AI tùy chọn."
   big_round_of_upgrades_and_two_community_shout: "Một loạt nâng cấp lớn — và hai lời cảm ơn tới cộng đồng."
+  native_macos_menu_bar_dictation_app_using_loca: "Một ứng dụng đọc chính tả trên thanh menu macOS gốc sử dụng tính năng chuyển giọng nói thành văn bản cục bộ với WhisperKit. Xử lý cục bộ 100% theo mặc định với cải tiến AI tùy chọn."
 about:
   _self: "Về"
   pindrop: "Giới thiệu về Pindrop"
 accessibility:
   _self: "Khả năng tiếp cận"
+  permission: "Quyền trợ năng"
   permission_is_enabled_full_ui_cont: "Quyền truy cập được bật. Bối cảnh giao diện người dùng đầy đủ có sẵn."
   permission_is_not_granted_vibe_mod: "Quyền truy cập không được cấp. Chế độ Vibe vẫn không bị chặn với bối cảnh hạn chế."
   permission_recommended: "Đề xuất quyền truy cập"
   permission_required: "Cần có quyền truy cập"
-  permission: "Quyền trợ năng"
 accuracy:
   _self: "Sự chính xác"
 acknowledgments:
   _self: "Lời cảm ơn"
 active:
   _self: "Tích cực"
+  days: "Active days"
+activity:
+  _self: "Activity"
 add:
   _self: "Thêm vào"
   a_provider_to_start_using_ai_enhancement: "Thêm nhà cung cấp để bắt đầu sử dụng tính năng nâng cao AI."
   custom_words_to_improve_transcription_accura: "Thêm các từ tùy chỉnh để cải thiện độ chính xác của bản ghi cho các thuật ngữ, tên hoặc biệt ngữ chuyên ngành."
   provider: "Thêm nhà cung cấp"
   tag: "Thêm thẻ..."
+  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
+  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
+  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
+  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
+  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
   to_existing: "Thêm vào hiện có"
   trailing_space: "Thêm dấu cách"
   word_replacements_to_automatically_correct_c: "Thêm từ thay thế để tự động sửa các lỗi phiên âm phổ biến."
   words_to_help_pindrop_recognize_them_properl: "Thêm từ để giúp Pindrop nhận biết chúng đúng cách"
   words_you_manually_correct_into_your_vocabul: "Thêm các từ bạn sửa theo cách thủ công vào từ vựng của mình để phiên âm trong tương lai."
-  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
-  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
-  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
-  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
-  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
+advanced:
+  _self: "Nâng cao"
+agent:
+  setup: "Thiết lập tác nhân"
 ai:
   _self: "AI"
+  enhanced: "AI-enhanced"
   enhancement: "Cải tiến AI"
   enhancement_529f5583: "Cải tiến AI: %@"
   enhancement_failed: "Cải tiến AI không thành công"
@@ -64,6 +64,9 @@ ai:
   model: "Mô hình AI"
 all:
   _self: "Tất cả"
+  time: "All time"
+also:
+  new_rtl_layout_support_and_20_new_interface: "Cũng mới: hỗ trợ bố cục RTL và 20 ngôn ngữ giao diện mới."
 an:
   error_occurred_while_enhancing_your_transcrip: |-
     Đã xảy ra lỗi khi nâng cao bản chép lời của bạn:
@@ -72,7 +75,7 @@ an:
     
     Bản phiên âm gốc đã được lưu mà không cần cải tiến.
     Bạn có thể thử bật lại tính năng nâng cao AI trong Cài đặt.
-  error_occurred_while_enhancing_your_transcrip_8c664cb4: "Đã xảy ra lỗi khi nâng cao bản chép lại của bạn:nn%@nnBản chép lại ban đầu đã được lưu mà không nâng cao.nBạn có thể thử bật lại tính năng nâng cao AI trong Cài đặt."
+  error_occurred_while_enhancing_your_transcrip_1790ad05: "Đã xảy ra lỗi khi nâng cao bản chép lại của bạn:nn%@nnBản chép lại ban đầu đã được lưu mà không nâng cao.nBạn có thể thử bật lại tính năng nâng cao AI trong Cài đặt."
 anthropic:
   _self: "nhân loại"
 api:
@@ -82,6 +85,8 @@ api:
   key_saved_endpoint: "Đã lưu khóa API • Điểm cuối: %@"
 app:
   info_acknowledgments_support_and_logs: "Thông tin ứng dụng, xác nhận, hỗ trợ và nhật ký"
+appearance:
+  _self: "Giao diện"
 append:
   a_space_after_each_transcription_for_seam: "Thêm một khoảng trắng sau mỗi lần phiên âm để đọc chính tả liền mạch."
 apple:
@@ -99,6 +104,7 @@ assignments:
 attach:
   logs_from_this_folder_when_filing_a_githu: "Đính kèm nhật ký từ thư mục này khi gửi vấn đề về GitHub."
 audio:
+  duration: "Audio duration"
   input: "Đầu vào âm thanh"
 automatic:
   follow_system: "Tự động (Theo hệ thống)"
@@ -109,6 +115,9 @@ automatically:
   start_pindrop_when_you_sign_in: "Tự động khởi động Pindrop khi bạn đăng nhập."
 available:
   models: "Các mẫu có sẵn"
+average:
+  session: "Average session"
+  words_session: "Average words / session"
 avg:
   speed: "Tốc độ trung bình"
 back:
@@ -116,14 +125,20 @@ back:
   to_library: "Quay lại thư viện"
 base:
   _self: "Căn cứ"
+bearer:
+  token: "Bearer Token"
 best:
   _self: "Tốt nhất"
 better:
   _self: "Tốt hơn"
   bluetooth_external_mic_support: "Hỗ trợ Bluetooth và mic ngoài tốt hơn"
+bring:
+  all_to_front: "Đưa tất cả ra phía trước"
 built:
   in_presets: "Cài đặt sẵn tích hợp"
   in_read_only: "Tích hợp (chỉ đọc)"
+by:
+  weekday: "By weekday"
 cancel:
   _self: "Hủy bỏ"
   operation: "Hủy thao tác"
@@ -132,6 +147,8 @@ capture:
 change:
   microphone: "Thay đổi micrô"
   microphone_ac9970f4: "Thay đổi micrô"
+changes:
+  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
   for_updates: "Kiểm tra cập nhật..."
   for_updates_736b9062: "Kiểm tra các bản cập nhật"
@@ -144,24 +161,24 @@ choose:
   a_model: "Chọn một mẫu"
   a_provider_first: "Chọn nhà cung cấp trước"
   an_audio_or_video_file_to_transcribe: "Chọn tệp âm thanh hoặc video để chép lời"
-  between_nemotron_punctuated_downloaded_mod: "Chọn giữa Nemotron (có dấu câu, mô hình tải về) và Apple SpeechTranscriber (macOS 26+, đi kèm hệ điều hành)."
+  between_nemotron_punctuated_downloaded_mo: "Chọn giữa Nemotron (có dấu câu, mô hình tải về) và Apple SpeechTranscriber (macOS 26+, đi kèm hệ điều hành)."
   file: "Chọn tập tin"
   how_dictated_text_lands_then_tune_the_fin: "Chọn cách hiển thị văn bản chính tả, sau đó điều chỉnh hành vi chèn cuối cùng."
+  how_pindrop_appears_on_screen_while_you_d: "Chọn cách Pindrop hiển thị trên màn hình khi bạn đọc chính tả."
   how_pindrop_follows_system_appearance_the: "Chọn cách Pindrop theo dõi giao diện của hệ thống, sau đó trộn các bảng màu sáng và tối được tuyển chọn."
+  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   how_to_import_the_dictionary_data: "Chọn cách nhập dữ liệu từ điển"
   how_to_import_the_preset_data: "Chọn cách nhập dữ liệu đặt trước"
   languages_for_the_interface_and_for_dicta: "Chọn ngôn ngữ cho giao diện và cho chính tả. Tự động theo hệ thống."
   location_to_save_presets: "Chọn vị trí để lưu cài đặt trước"
+  model: "Choose Model…"
   the_daytime_shell_used_in_light_mode: "Chọn vỏ ban ngày được sử dụng ở chế độ ánh sáng."
   the_low_glare_shell_used_in_dark_mode: "Chọn lớp vỏ có độ chói thấp được sử dụng ở chế độ tối."
-  which_microphone_pindrop_should_use_for_d: "Chọn micrô mà Pindrop sẽ sử dụng để đọc chính tả và cách micrô hoạt động trong khi ghi âm."
-  which_side_the_navigation_sidebar_appears: "Chọn bên nào thanh bên điều hướng sẽ xuất hiện."
-  how_pindrop_appears_on_screen_while_you_d: "Chọn cách Pindrop hiển thị trên màn hình khi bạn đọc chính tả."
-  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
+  which_microphone_pindrop_should_use_for_d: "Chọn micrô mà Pindrop sẽ sử dụng để đọc chính tả và cách micrô hoạt động trong khi ghi âm."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
-  model: "Choose Model…"
+  which_side_the_navigation_sidebar_appears: "Chọn bên nào thanh bên điều hướng sẽ xuất hiện."
 clean:
   up_filler_words: "Làm sạch các từ đệm"
 clear:
@@ -170,15 +187,19 @@ clear:
   shortcut: "Xóa phím tắt"
 clears:
   preferences_and_restarts_onboarding: "Xóa tùy chọn và khởi động lại quá trình triển khai"
-  preferences_and_restarts_onboarding_7d85115c: "Clears preferences and restarts onboarding."
+  preferences_and_restarts_onboarding_7d851: "Clears preferences and restarts onboarding."
 click:
   or_hold: "Bấm hoặc giữ"
   or_press: "Bấm hoặc nhấn"
   or_set_a_hotkey_to_start_talking: "Bấm hoặc đặt phím nóng để bắt đầu nói chuyện"
   this_icon_anytime_to: "Nhấp vào biểu tượng này bất cứ lúc nào để:"
+client:
+  _self: "Máy khách"
 clipboard:
   _self: "Bảng nhớ tạm"
   temporarily_copies_the_transcript_for: "Clipboard temporarily copies the transcript for pasting. Direct Insert types into the active app when possible."
+close:
+  _self: "Đóng"
 cloud:
   _self: "Đám mây"
   model: "Mô hình đám mây"
@@ -187,9 +208,15 @@ collapse:
 coming:
   soon: "%@ Sắp ra mắt"
   soon_04d2fd85: "Sắp ra mắt"
+configuration:
+  file: "Configuration File"
+  scope: "Configuration Scope"
+  snippet: "Configuration Snippet"
 configure:
   ai_providers_and_credentials_apple_int: "Định cấu hình nhà cung cấp và thông tin xác thực AI. Apple Intelligence chạy trên thiết bị; các nhà cung cấp khác yêu cầu khóa API."
   keyboard_shortcuts_for_recording_and_n: "Định cấu hình phím tắt để ghi và ghi chú"
+conflicts:
+  with: "Conflicts with %@"
 continue:
   _self: "Tiếp tục"
   with_default: "Tiếp tục với mặc định"
@@ -206,29 +233,29 @@ copy:
   enhanced: "Sao chép nâng cao"
   last_transcript: "Sao chép bản ghi cuối cùng"
   original: "Sao chép bản gốc"
+  system_info: "Copy System Info"
   system_info_for_bug_report: "Sao chép thông tin hệ thống để báo cáo lỗi"
+  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
   the_most_recent_transcript_to_the_clipboard: "Sao chép bản ghi gần đây nhất vào bảng nhớ tạm"
+  the_most_recent_transcript_to_the_clipboard_03a8d47b: "Copy the most recent transcript to the clipboard."
   to_clipboard: "Sao chép vào bảng nhớ tạm"
   transcript: "Sao chép bảng điểm"
-  system_info: "Copy System Info"
-  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
-  the_most_recent_transcript_to_the_clipboard_b9736933: "Copy the most recent transcript to the clipboard."
 correct:
   grammar_mistakes: "Sửa lỗi ngữ pháp"
 create:
-  new_profile: "Create New Profile…"
-  speaker_profile: "Create Speaker Profile"
   _self: "Tạo nên"
   new_note: "Tạo ghi chú mới"
   new_preset: "Tạo cài đặt trước mới"
+  new_profile: "Create New Profile…"
+  preset: "Create Preset"
+  speaker_profile: "Create Speaker Profile"
   your_first_note_to_get_started: "Tạo ghi chú đầu tiên của bạn để bắt đầu"
   your_first_preset_or_duplicate_a_built_in: "Tạo cài đặt trước đầu tiên của bạn hoặc sao chép cài đặt sẵn để tùy chỉnh nó."
   your_own_presets_or_duplicate_built_in_on: "Tạo các cài đặt trước của riêng bạn hoặc sao chép các cài đặt sẵn để tùy chỉnh chúng."
-  preset: "Create Preset"
 credentials:
   are_stored_securely_in_keychain: "Thông tin xác thực được lưu trữ an toàn trong Chuỗi khóa"
+  are_stored_securely_in_keychain_5acf: "Credentials are stored securely in Keychain."
   saved_successfully: "Thông tin xác thực đã được lưu thành công"
-  are_stored_securely_in_keychain_5acff5d3: "Credentials are stored securely in Keychain."
 current:
   _self: "Hiện tại: %@"
 custom:
@@ -242,8 +269,8 @@ cut:
   _self: "Cắt"
 d:
   characters: "%d ký tự"
-  speakers: "%d người nói"
   samples: "%d samples · %@"
+  speakers: "%d người nói"
   words: "%d từ"
 dark:
   _self: "Tối tăm"
@@ -263,17 +290,39 @@ degraded:
   _self: "xuống cấp"
 delete:
   _self: "Xóa bỏ"
+  all: "Xóa tất cả"
+  all_participants: "Delete All Participants?"
+  all_participants_60ed6e73: "Delete All Participants…"
   folder: "Xóa thư mục"
   folder_e556e7c2: "Xóa thư mục?"
   model: "Xóa mô hình"
+  note: "Xóa ghi chú?"
   preset: "Xóa cài sẵn"
   preset_4f6cfe36: "Xóa cài đặt trước?"
   transcription: "Xóa bản chép lời"
   transcription_f82187c4: "Xóa bản chép lời?"
-  all: "Xóa tất cả"
-  all_participants: "Delete All Participants?"
-  all_participants_60ed6e73: "Delete All Participants…"
-  note: "Xóa ghi chú?"
+destinations:
+  _self: "Destinations"
+diarization:
+  _self: "Speaker diarization"
+  automatic: "Automatic"
+  clear_assignment: "Clear assignment"
+  download_model: "Download model"
+  expected_speakers: "Expected speakers"
+  model_ready: "Speaker diarization is ready."
+  model_setup_issue_media: "Download the speaker diarization model before starting media transcription."
+  model_setup_issue_recording: "Download the speaker diarization model before starting recording."
+  retraining_required: "Voice matching needs retraining after the diarization update."
+  similar_voice_help: "Similar voices may be merged. Set an expected speaker count when you know how many people are present."
+diarized:
+  _self: "đã phân vai nói"
+dictate:
+  in_russian_and_ukrainian: "Đọc chính tả bằng tiếng Nga và tiếng Ukraina"
+dictation:
+  _self: "Chính tả"
+  language: "Ngôn ngữ chính tả"
+  polish: "Làm mượt chính tả"
+  words_min: "Dictation words / min"
 dictionary:
   _self: "Từ điển"
 direct:
@@ -288,6 +337,8 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Hiển thị Pindrop trong Dock thay vì chỉ chạy dưới dạng ứng dụng trên thanh menu."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Gắn thanh bên vào cạnh trái hoặc phải của cửa sổ."
+done:
+  _self: "Xong"
 download:
   _self: "Tải xuống"
   complete: "Tải xuống hoàn tất!"
@@ -304,6 +355,8 @@ drop:
   audio_or_video_here: "Thả âm thanh hoặc video vào đây"
 duplicate:
   preset: "Đặt trước trùng lặp"
+duration:
+  _self: "Duration"
 dutch:
   _self: "tiếng Hà Lan"
 edit:
@@ -315,8 +368,8 @@ empty:
 enable:
   ai_enhancement: "Kích hoạt tính năng nâng cao AI"
   live_session_updates_during_recording: "Bật cập nhật phiên trực tiếp trong khi ghi"
-  vibe_mode_ui_context: "Bật chế độ rung cảm (ngữ cảnh giao diện người dùng)"
   mcp_server: "Enable MCP Server"
+  vibe_mode_ui_context: "Bật chế độ rung cảm (ngữ cảnh giao diện người dùng)"
 enabled:
   _self: "Đã bật"
 endpoint:
@@ -336,6 +389,8 @@ enter:
   word_to_add: "Nhập từ cần thêm"
 error:
   _self: "Lỗi"
+estimated:
+  time_saved: "Estimated time saved"
 european:
   multilingual: "đa ngôn ngữ châu Âu"
 excellent:
@@ -378,6 +433,10 @@ feature:
   models: "Mô hình tính năng"
 fetch:
   models_in_models: "Tìm nạp mô hình trong Models"
+file:
+  _self: "Tệp"
+find:
+  _self: "Tìm"
 fix:
   punctuation_and_capitalization: "Sửa dấu câu và viết hoa"
 floating:
@@ -418,9 +477,11 @@ grant:
   _self: "Khoản trợ cấp"
 great:
   _self: "Tuyệt"
+help:
+  _self: "Trợ giúp"
 hide:
-  this_for_1_hour: "Ẩn cái này trong 1 giờ"
   api_key: "Ẩn khóa API"
+  this_for_1_hour: "Ẩn cái này trong 1 giờ"
 history:
   _self: "Lịch sử"
 hold:
@@ -429,6 +490,8 @@ hold:
   to_record_release_to_stop_and_transcribe: "Giữ để ghi, thả ra để dừng và chép lại"
   to_record_release_to_transcribe: "Giữ để ghi, thả ra để chép lời"
   to_record_then_release_to_open_the_note_edi: "Hold to record, then release to open the note editor with the transcription."
+home:
+  _self: "Trang chủ"
 hotkey:
   conflict: "Xung đột phím nóng"
 hotkeys:
@@ -445,11 +508,16 @@ import:
   presets: "Nhập cài đặt trước"
   strategy: "Chiến lược nhập khẩu"
 imported:
+  file: "Imported file"
   files_and_web_links_will_appear_here_on: "Các tệp và liên kết web đã nhập sẽ xuất hiện ở đây sau khi quá trình xử lý hoàn tất."
 improve:
   transcription_quality_using_ai: "Cải thiện chất lượng phiên âm bằng AI"
 include:
   clipboard_text: "Bao gồm văn bản clipboard"
+input:
+  device: "Thiết bị đầu vào"
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
 interface:
   _self: "Giao diện"
   language: "Ngôn ngữ giao diện"
@@ -462,8 +530,8 @@ items:
 japanese:
   _self: "tiếng Nhật"
 keep:
-  pindrop_current_automatically_or_trigger_a: "Tự động cập nhật Pindrop hoặc kích hoạt kiểm tra thủ công bất cứ khi nào bạn muốn."
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
+  pindrop_current_automatically_or_trigger_a: "Tự động cập nhật Pindrop hoặc kích hoạt kiểm tra thủ công bất cứ khi nào bạn muốn."
 key:
   _self: "#%@"
   a979ef10: "null"
@@ -479,18 +547,22 @@ large:
 launch:
   at_login: "Khởi chạy khi đăng nhập: %@"
   at_login_0b36c78f: "Khởi chạy khi đăng nhập"
-  at_login_fd1a3b7b: "Mở khi đăng nhập"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
+  at_login_fd1a3b7b: "Mở khi đăng nhập"
 layout:
   _self: "Cách trình bày"
 learn:
   corrected_words_automatically: "Tự động học các từ đã sửa"
-legacy:
-  _self: "Legacy"
 left:
   _self: "Bên trái"
+legacy:
+  _self: "Legacy"
 let:
   pindrop_quietly_learn_vocabulary_from_the_co: "Hãy để Pindrop lặng lẽ học từ vựng từ những chỉnh sửa mà bạn thực hiện theo thời gian."
+library:
+  _self: "Thư viện"
+license:
+  _self: "Giấy phép"
 light:
   _self: "Ánh sáng"
   dark_and_curated_palette_presets: "Cài đặt trước bảng màu sáng, tối và giám tuyển"
@@ -529,28 +601,49 @@ local:
   speech_to_text_right_from_your_menu_bar_nf: "Chuyển giọng nói thành văn bản cục bộ, ngay từ thanh menu của bạn.nNhanh chóng, riêng tư và luôn khả dụng."
   speech_to_text_with_whisperkit: "Chuyển giọng nói thành văn bản cục bộ với WhisperKit"
   voice_to_text: "Chuyển giọng nói thành văn bản cục bộ"
+longest:
+  streak: "Longest streak"
 low:
   latency_mode_less_accurate: "Chế độ độ trễ thấp (kém chính xác)"
+main:
+  window: "Cửa sổ chính"
 manage:
   local_speech_models_feature_models_and_th: "Quản lý các mẫu giọng nói cục bộ, các mẫu tính năng và công cụ mặc định mà Pindrop sử dụng để phiên âm."
   models: "Quản lý mô hình"
   presets: "Quản lý cài đặt trước"
   presets_ab87986d: "Quản lý cài đặt trước..."
   presets_d5d4c2c2: "Manage Presets…"
+manual:
+  capture: "Manual capture"
 manually:
   check_for_new_versions_now: "Kiểm tra thủ công các phiên bản mới ngay bây giờ."
+markdown:
+  md: "Markdown (.md)"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+mcp:
+  configuration_error: "MCP Configuration Error"
+  server: "Máy chủ MCP"
 media:
   library: "Thư viện phương tiện"
+  saved: "Đã lưu phương tiện"
   transcription: "Phiên âm phương tiện"
   unavailable: "Phương tiện không có sẵn"
-  saved: "Đã lưu phương tiện"
 medium:
   _self: "Trung bình"
+meet:
+  the_new_orb: "Gặp Orb mới"
+meeting:
+  saved: "Đã lưu cuộc họp"
+metric:
+  _self: "Metric"
 microphone:
   _self: "Micrô"
   permission_is_required_to_continue: "Cần có quyền sử dụng micrô để tiếp tục"
   permission_is_required_to_continue_dc: "Cần có sự cho phép của micrô để tiếp tục."
   permission_required: "Cần có quyền của micrô"
+minimize:
+  _self: "Thu nhỏ"
 mit:
   license: "Giấy phép MIT"
 mode:
@@ -570,19 +663,29 @@ must:
   be_openai_compatible: "Phải tương thích với OpenAI"
 mute:
   system_audio_during_recording: "Tắt âm thanh hệ thống trong khi ghi"
+name:
+  _self: "Tên"
+nemotron:
+  default: "Nemotron (default)"
 new:
   folder: "Thư mục mới"
   note: "Ghi chú mới"
   preset: "Cài đặt trước mới"
+newest:
+  _self: "Mới nhất"
 next:
   _self: "Kế tiếp"
 no:
+  activity_in_this_period: "No activity in this period"
   api_key: "Không có khóa API"
   api_key_endpoint: "Không có khóa API • Điểm cuối: %@"
+  conflicts_found: "No conflicts found"
   custom_presets: "Không có cài đặt trước tùy chỉnh"
+  destination_data: "No destination data"
   downloaded_models: "Không có mô hình nào được tải xuống"
   folders_yet: "Chưa có thư mục nào"
   items_in: "Không có mục nào trong %@"
+  learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Chưa có bản ghi phương tiện nào"
   model_loaded: "Không có mô hình nào được tải"
   model_selected: "Không có mô hình nào được chọn"
@@ -594,33 +697,31 @@ no:
   models_match: "Không có mô hình nào khớp với \"%@\""
   notes_yet: "Chưa có ghi chú nào"
   providers_configured_yet: "Chưa có nhà cung cấp nào được định cấu hình."
+  providers_configured_yet_e6bc0075: "No providers configured yet"
   replacements: "Không thay thế"
   results_found: "Không tìm thấy kết quả nào"
   settings_found: "Không tìm thấy cài đặt nào"
   transcriptions_yet: "Chưa có phiên âm"
   vocabulary_words: "Không có từ vựng"
-  learned_participants_yet: "No learned participants yet"
-  providers_configured_yet_e6bc0075: "No providers configured yet"
-  conflicts_found: "No conflicts found"
 not:
   assigned: "Chưa được chỉ định"
+  enough_voice_data_yet: "Not enough voice data yet"
+  generated_yet_enable_the_server: "Not generated yet — enable the server"
+  granted: "Chưa cấp"
   selected: "Không được chọn"
   set: "Chưa đặt"
   set_93039e60: "Chưa đặt"
-  granted: "Chưa cấp"
-  enough_voice_data_yet: "Not enough voice data yet"
-  generated_yet_enable_the_server: "Not generated yet — enable the server"
 note:
   _self: "Ghi chú"
+  capture_hold: "Note Capture — Hold"
   capture_push_to_talk: "Ghi chú (Nhấn để nói)"
   capture_toggle: "Ghi chú (Chuyển đổi)"
+  capture_toggle_7139a240: "Note Capture — Toggle"
   enhancement: "Cải tiến ghi chú"
   from: "Lưu ý từ"
   metadata: "Siêu dữ liệu ghi chú"
-  title: "Tiêu đề ghi chú"
   saved: "Đã lưu ghi chú"
-  capture_hold: "Note Capture — Hold"
-  capture_toggle_7139a240: "Note Capture — Toggle"
+  title: "Tiêu đề ghi chú"
 notes:
   _self: "Ghi chú"
   3add7b96: "ghi chú"
@@ -628,6 +729,8 @@ off:
   _self: "Tắt"
 ok:
   _self: "ĐƯỢC RỒI"
+oldest:
+  _self: "Cũ nhất"
 ollama:
   _self: "Ollama"
   usually_does_not_require_authentication_f: "Ollama thường không yêu cầu xác thực đối với các yêu cầu cục bộ."
@@ -637,13 +740,13 @@ on:
 open:
   _self: "Mở"
   history: "Lịch sử mở"
+  library: "Mở thư viện"
   logs_in_finder: "Mở nhật ký trong Finder"
   original_link: "Mở liên kết gốc"
   progress: "Tiến trình mở"
   settings: "Mở Cài đặt"
   settings_fd7108f8: "Mở cài đặt"
   system_settings: "Mở cài đặt hệ thống"
-  library: "Mở thư viện"
 openai:
   _self: "OpenAI"
   compatible_local_server: "Máy chủ cục bộ tương thích với OpenAI"
@@ -659,17 +762,21 @@ optionally:
 or:
   _self: "hoặc"
   just_use_your_hotkey: "Hoặc chỉ cần sử dụng phím nóng của bạn!"
+orb:
+  _self: "Quả cầu"
 original:
   _self: "Nguyên bản"
   text_use_commas_for_multiple: "Văn bản gốc (sử dụng dấu phẩy cho nhiều văn bản)"
 originals:
   comma_separated: "Bản gốc (được phân tách bằng dấu phẩy)"
+other:
+  _self: "Other"
 output:
   _self: "đầu ra"
   audio_interface_and_everyday_behavior: "Đầu ra, âm thanh, giao diện và hành vi hàng ngày"
   mode: "Chế độ xuất"
-nemotron:
-  default: "Nemotron (default)"
+overview:
+  _self: "Overview"
 paste:
   _self: "Dán"
   a_video_or_audio_link: "Dán liên kết video hoặc âm thanh"
@@ -683,13 +790,15 @@ permissions:
   _self: "Quyền"
 pick:
   which_provider_and_model_handles_each_ai_ta: "Chọn nhà cung cấp và mô hình nào xử lý từng nhiệm vụ AI. Để lại là \"Chưa được chỉ định\" để bỏ qua mục đích."
-  which_provider_and_model_handles_each_ai_ta_b719504f: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
+  which_provider_and_model_handles_each_ai_ta_3140fe59: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
 pill:
   _self: "Thuốc viên"
 pin:
   to_screen_always_on_top: "Ghim vào màn hình (luôn ở trên cùng)"
 pindrop:
   _self: "ghim"
+  1_19: "Pindrop 1.19"
+  help: "Trợ giúp Pindrop"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop đã sẵn sàng để sử dụng.
     Nhấp vào biểu tượng thanh menu để bắt đầu.
@@ -701,11 +810,13 @@ pindrop:
   needs_accessibility_permission_to_insert: "\"\" Pindrop cần có quyền Trợ năng để chèn văn bản vào con trỏ của bạn.                          Để cấp quyền: 1. Nhấp vào \"Mở cài đặt hệ thống\" bên dưới 2. Nhấp vào nút + 3. Điều hướng đến ứng dụng được hiển thị trong Finder 4. Khởi động lại Pindrop sau khi cấp quyền Nếu không có quyền này, văn bản sẽ chỉ được sao chép vào khay nhớ tạm của bạn.             \"\""
   needs_microphone_access_to_record_and_tr: "Pindrop cần quyền truy cập micrô để ghi âm và chép lại giọng nói của bạn.nnVui lòng cấp quyền trong Cài đặt hệ thống."
   on_github: "Ghim trên GitHub"
+  orb: "Quả cầu Pindrop"
   pill: "Thuốc nhỏ giọt"
   theme: "Chủ đề ghim"
-  orb: "Quả cầu Pindrop"
-  1_19: "Pindrop 1.19"
-  help: "Trợ giúp Pindrop"
+pinned:
+  _self: "Đã ghim"
+plain:
+  text_txt: "Văn bản thuần (.txt)"
 play:
   _self: "Chơi"
 please:
@@ -714,8 +825,11 @@ please:
     Vui lòng tải xuống mẫu Whisper trong Cài đặt trước khi ghi.
     
     Vào Cài đặt → Kiểu máy để tải xuống kiểu máy.
-  download_a_whisper_model_in_settings_befo_a71d286e: "Vui lòng tải xuống mô hình Whisper trong Cài đặt trước khi ghi.nnVào Cài đặt → Mô hình để tải xuống mô hình."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Vui lòng tải xuống mô hình Whisper trong Cài đặt trước khi ghi.nnVào Cài đặt → Mô hình để tải xuống mô hình."
   wait: "Vui lòng chờ..."
+port:
+  _self: "Cổng"
+  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
 portuguese:
   brazil: "Tiếng Bồ Đào Nha (Brazil)"
 powered:
@@ -723,28 +837,48 @@ powered:
 preparing:
   model: "Đang chuẩn bị mô hình..."
 preset:
+  example_bullets_input: "chúng ta đã bàn về độ trễ onboarding rồi giá và cuối cùng ngày ra mắt mùng mười hai tháng năm"
+  example_bullets_output: "- Độ trễ onboarding\\n- Giá\\n- Ngày ra mắt: 12 tháng 5"
+  example_clean_input: "ờ vậy cuộc họp lúc ba rưỡi chấm bạn có thể xác nhận chấm hỏi không"
+  example_clean_output: "Vậy cuộc họp lúc 15:30. Bạn có thể xác nhận không?"
+  example_edits_input: "ờ đây là correct ly hai mươi lăm"
+  example_edits_output: "Đây là correctly 25"
+  example_email_input: "chào jordan chỉ kiểm tra xem bạn đã nhận ghi chú hôm qua của tôi chưa cảm ơn"
+  example_email_output: "Chào Jordan,\\n\\nChỉ kiểm tra xem bạn đã nhận ghi chú hôm qua của tôi chưa.\\n\\nCảm ơn,"
+  example_live_input: "ờ tôi nghĩ chúng ta nên phát hành beta trước thứ sáu chấm"
+  example_live_output: "Tôi nghĩ chúng ta nên phát hành beta trước thứ Sáu."
+  example_meeting_input: "alice sẽ gửi deck trước thứ sáu bob phụ trách xem xét giá chúng ta cần quyết định tuần sau"
+  example_meeting_output: "## Việc cần làm\\n- **Alice** sẽ gửi deck trước **thứ Sáu**\\n- **Bob** phụ trách xem xét giá\\n\\n## Bước tiếp theo\\n- Cần quyết định tuần sau"
+  example_social_input: "ờ chúng tôi vừa ra mắt chế độ tối và trông tuyệt vời bạn nên thử"
+  example_social_output: "Chúng tôi vừa ra mắt chế độ tối.\\n\\nTrông tuyệt vời — bạn nên thử."
+  example_technical_input: "gọi fetch user mũi tên rồi ánh xạ phản hồi bằng bằng hai trăm"
+  example_technical_output: "Gọi `fetchUser` -> rồi ánh xạ phản hồi `==` 200."
   name: "Tên đặt trước"
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "Nhấn và giữ để đọc chính tả trong bất kỳ ứng dụng nào. Pindrop sẽ phiên âm lời nói của bạn và chèn văn bản vào vị trí con trỏ của bạn."
   esc_to_cancel: "Nhấn Esc để hủy"
   keys: "Nhấn phím..."
+  keys_98b8167e: "Nhấn phím…"
   once_to_start_again_to_stop: "Nhấn một lần để bắt đầu, nhấn lần nữa để dừng"
   once_to_start_recording_press_again_to_sto: "Nhấn một lần để bắt đầu ghi, nhấn lần nữa để dừng và chép lại"
+  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
   once_to_start_recording_then_press_again_t: "Nhấn một lần để bắt đầu ghi, sau đó nhấn lại để dừng và chép lại."
   to_start_recording_press_again_to_open_not: "Nhấn để bắt đầu ghi, nhấn lại để mở trình chỉnh sửa ghi chú"
-  keys_98b8167e: "Nhấn phím…"
-  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
 primary:
   text: "Văn bản chính"
 processing:
   _self: "Xử lý"
   272bc02e: "Xử lý..."
   5aa377e2: "⏳ Đang xử lý"
-  transcript: "Đang xử lý bảng điểm"
   ellipsis: "Đang xử lý…"
+  transcript: "Đang xử lý bảng điểm"
+project:
+  _self: "Dự án"
 prompt:
   _self: "Lời nhắc"
   preset: "Đặt trước nhắc nhở"
+prompts:
+  are_sent_in_english: "Prompt được gửi bằng tiếng Anh"
 provider:
   _self: "nhà cung cấp"
   kind: "Loại nhà cung cấp"
@@ -773,7 +907,7 @@ recent:
 recommended:
   _self: "Khuyến khích"
   the_deterministic_cleaner_handles_mo: "Khuyến nghị: trình dọn dẹp xác định xử lý hầu hết các lệnh chính tả một cách rõ ràng. Chỉ bật thẻ LLM nếu bạn muốn trau chuốt thêm và chấp nhận các yêu cầu không thường xuyên của mô hình (lời mở đầu, câu trả lời hội thoại)."
-  the_deterministic_cleaner_handles_mo_ca42c3e4: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
+  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "Ghi"
 recording:
@@ -787,13 +921,15 @@ redo:
 refresh:
   _self: "Làm cho khỏe lại"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
+regenerate:
+  _self: "Tạo lại"
 remove:
-  from_speaker_profiles: "Remove from speaker profiles"
-  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Di dời"
   and_clear_any_assignments_that_reference: "Xóa \"%@\" và xóa mọi bài tập tham chiếu đến nó? Thông tin đăng nhập được lưu trữ sẽ bị xóa."
   from_folder: "Xóa khỏi thư mục"
+  from_speaker_profiles: "Remove from speaker profiles"
   provider: "Xóa nhà cung cấp"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
 rename:
   _self: "Đổi tên"
   folder: "Đổi tên thư mục"
@@ -812,32 +948,34 @@ required:
   _self: "Yêu cầu"
   for_recording_your_voice: "Cần thiết để ghi âm giọng nói của bạn"
 requires:
+  a_fast_provider_apple_foundation_models: "Yêu cầu nhà cung cấp nhanh (khuyến nghị sử dụng Apple Foundation Models). Các nhà cung cấp đám mây sẽ thực hiện một lệnh gọi API cho mỗi lần tạm dừng."
   diarization_model: "Requires diarization model"
   speaker_diarization: "Requires speaker diarization"
-  a_fast_provider_apple_foundation_models: "Yêu cầu nhà cung cấp nhanh (khuyến nghị sử dụng Apple Foundation Models). Các nhà cung cấp đám mây sẽ thực hiện một lệnh gọi API cho mỗi lần tạm dừng."
 reset:
   _self: "Cài lại"
   all_settings: "Đặt lại tất cả cài đặt?"
   all_settings_7262c7b7: "Đặt lại tất cả cài đặt"
-  to_default: "Đặt lại về mặc định"
   all_settings_e5dbc5fc: "Reset All Settings…"
+  to_default: "Đặt lại về mặc định"
 retry:
   _self: "Thử lại"
 right:
   _self: "Phải"
 run:
-  llm_polish_after_dictation_stops: "Chạy đánh bóng LLM sau khi dừng đọc chính tả"
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
+  llm_polish_after_dictation_stops: "Chạy đánh bóng LLM sau khi dừng đọc chính tả"
 runtime:
   _self: "Thời gian chạy: %@"
   status: "Trạng thái runtime"
+russian:
+  _self: "Russian"
 save:
   _self: "Cứu"
   as_note: "Lưu dưới dạng ghi chú"
   continue: "Lưu & Tiếp tục"
   credentials: "Lưu thông tin xác thực"
-  prompt: "Lưu lời nhắc"
   now_s: "Lưu ngay (⌘S)"
+  prompt: "Lưu lời nhắc"
 saved:
   _self: "Đã lưu"
   as_note: "Đã lưu dưới dạng Ghi chú"
@@ -862,9 +1000,9 @@ select:
   all: "Chọn tất cả"
   language: "Chọn ngôn ngữ"
   language_daea52c9: "Chọn ngôn ngữ"
+  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
   this_floating_indicator_style: "Chọn kiểu chỉ báo nổi này."
   voice_model: "Chọn mẫu giọng nói"
-  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
 selected:
   _self: "Đã chọn"
 sent:
@@ -872,6 +1010,7 @@ sent:
 sessions:
   _self: "Phiên"
   781791f5: "phiên"
+  in: "%@ sessions in %@"
 set:
   as_default: "Đặt làm mặc định"
 settings:
@@ -880,15 +1019,17 @@ settings:
   fa67a397: "Cài đặt…"
 setup:
   required: "Yêu cầu thiết lập"
+shortcuts:
+  _self: "Phím tắt"
 show:
+  api_key: "Hiện khóa API"
   app: "Hiển thị ứng dụng"
   app_in_finder: "Hiển thị ứng dụng trong Finder"
   in_dock: "Hiển thị trong Dock"
-  api_key: "Hiện khóa API"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
-  as_a_pill_at_the_bottom_of_the_screen: "Hiển thị dưới dạng viên thuốc ở cuối màn hình"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Hiển thị dưới dạng quả cầu thủy tinh lỏng ở góc màn hình"
+  as_a_pill_at_the_bottom_of_the_screen: "Hiển thị dưới dạng viên thuốc ở cuối màn hình"
 sidebar:
   position: "Vị trí thanh bên"
   position_916f66ea: "Vị trí thanh bên"
@@ -919,13 +1060,19 @@ sort:
   by: "Sắp xếp theo"
 source:
   _self: "Nguồn"
+sources:
+  _self: "Sources"
 spanish:
   _self: "tiếng Tây Ban Nha"
+speak:
+  to_append: "Nói để thêm"
 speaker:
-  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Nhật ký loa và dấu thời gian được đính kèm để phát lại."
   diarization_is_required: "Cần phải ghi nhật ký loa"
+  profile_training: "Speaker profile training"
+speakers:
+  _self: "Người nói"
 speed:
   _self: "Tốc độ"
 start:
@@ -934,19 +1081,25 @@ start:
   recording_to_see_your_transcriptions_here: "Bắt đầu ghi để xem bản chép lời của bạn tại đây"
   stop_recording: "Bắt đầu/dừng ghi âm"
   using_pindrop: "Bắt đầu sử dụng Pindrop"
+stats:
+  _self: "Stats"
 status:
   _self: "Trạng thái"
 stop:
-  recording: "Dừng ghi"
   listening: "Dừng nghe"
+  recording: "Dừng ghi"
 streaming:
   enhancement: "Cải tiến phát trực tuyến"
   transcription_currently_supports_engli: "Phiên âm trực tuyến hiện chỉ hỗ trợ tiếng Anh, bất kể ngôn ngữ đã chọn."
+  transcription_instantly_ready: "Phiên âm phát trực tiếp, sẵn sàng tức thì"
   transcription_is_disabled_while_ai_enh: "Tính năng chép lời trực tuyến bị vô hiệu hóa khi tính năng Cải tiến AI được bật."
   transcription_model_nemotron_speech: "Mô hình phiên âm trực tuyến (Nemotron Speech Streaming) được NVIDIA Corporation cấp phép theo NVIDIA Open Model License."
-  transcription_instantly_ready: "Phiên âm phát trực tiếp, sẵn sàng tức thì"
+subtitles:
+  srt: "Phụ đề (.srt)"
 success:
   _self: "Thành công!"
+summary:
+  ready: "tóm tắt sẵn sàng"
 support:
   _self: "Ủng hộ"
   coming_soon: "%@ Hỗ trợ sắp ra mắt"
@@ -965,34 +1118,43 @@ temporarily:
   pause_active_media_playback_while_di: "Tạm dừng phát lại phương tiện đang hoạt động trong khi đang ghi chính tả."
 tertiary:
   text: "Văn bản cấp ba"
+thanks:
+  to_for_investigating_and_kicking_off_the: "Cảm ơn %@ đã điều tra và khởi đầu bản sửa lỗi (PR #64)."
+  to_for_the_contribution_pr_61: "Cảm ơn %@ vì đóng góp (PR #61)."
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" Mô hình không tải được trong vòng 60 giây. Điều này thường có nghĩa là các tệp mô hình bị hỏng hoặc không tương thích.                          Để khắc phục điều này: 1. Mở Cài đặt → Kiểu máy 2. Xóa mô hình có vấn đề 3. Tải lại mô hình xuống Nếu sự cố vẫn tiếp diễn, hãy thử một mô hình nhỏ hơn (Tiny hoặc Base).             \"\""
-  selected_chunk_variant_isn_t_downloaded_yet: "Biến thể đoạn đã chọn chưa được tải xuống. Chuyển đổi sẽ bắt đầu tải xuống."
   new_nemotron_streaming_engine_shows_words_as: "Công cụ streaming Nemotron mới hiển thị từ khi bạn nói và được làm nóng sẵn khi khởi chạy để lần đọc chính tả đầu tiên bắt đầu không chậm trễ."
+  selected_chunk_variant_isn_t_downloaded_yet: "Biến thể đoạn đã chọn chưa được tải xuống. Chuyển đổi sẽ bắt đầu tải xuống."
 theme:
   _self: "chủ đề"
   changes_apply_live_across_the_workspace_se: "Các thay đổi về chủ đề áp dụng trực tiếp trên không gian làm việc, cài đặt, trình chỉnh sửa ghi chú và chỉ báo nổi."
   mode: "Chế độ chủ đề"
   mode_bb6b0b3d: "Chế độ giao diện"
+these:
+  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 this:
-  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Tên đặt trước này đã được sử dụng."
   provider_will_be_available_in_a_future_upda: |-
     Nhà cung cấp này sẽ có sẵn trong bản cập nhật trong tương lai.
     Hiện tại, hãy thử OpenAI hoặc sử dụng điểm cuối tùy chỉnh.
-  provider_will_be_available_in_a_future_upda_3e35a952: |-
+  provider_will_be_available_in_a_future_upda_ba16848d: "Nhà cung cấp này sẽ có sẵn trong bản cập nhật trong tương lai.nBây giờ, hãy thử OpenAI hoặc sử dụng điểm cuối Tùy chỉnh."
+  provider_will_be_available_in_a_future_upda_4af6ff9b: |-
     Nhà cung cấp này sẽ có sẵn trong bản cập nhật trong tương lai.
     Hãy thử OpenAI hoặc sử dụng điểm cuối tùy chỉnh.
-  provider_will_be_available_in_a_future_upda_0677ac1d: "Nhà cung cấp này sẽ có sẵn trong bản cập nhật trong tương lai.nBây giờ, hãy thử OpenAI hoặc sử dụng điểm cuối Tùy chỉnh."
-  transcription_could_not_be_found: "Không thể tìm thấy phiên âm này."
-  will_clear_all_your_settings_including_api: "Thao tác này sẽ xóa tất cả cài đặt của bạn, bao gồm khóa API, phím nóng và tùy chọn kiểu máy. Ứng dụng sẽ thoát và hiển thị lại phần giới thiệu trong lần khởi chạy tiếp theo."
-  will_permanently_remove_the_transcript_and: "Thao tác này sẽ xóa vĩnh viễn bản ghi và tệp phương tiện được quản lý của nó."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
-  will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  transcription_could_not_be_found: "Không thể tìm thấy phiên âm này."
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
+  will_clear_all_your_settings_including_api: "Thao tác này sẽ xóa tất cả cài đặt của bạn, bao gồm khóa API, phím nóng và tùy chọn kiểu máy. Ứng dụng sẽ thoát và hiển thị lại phần giới thiệu trong lần khởi chạy tiếp theo."
+  will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_the_transcript_and: "Thao tác này sẽ xóa vĩnh viễn bản ghi và tệp phương tiện được quản lý của nó."
   will_permanently_remove_this_note: "Thao tác này sẽ xóa vĩnh viễn ghi chú này."
 time:
-  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+  of_day: "Time of day"
+  range: "Time range"
   saved: "Thời gian đã lưu"
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+timestamps:
+  json: "Dấu thời gian (.json)"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "ra lệnh và để Pindrop chép lời cho bạn"
   start_talking: "bắt đầu nói chuyện"
@@ -1007,6 +1169,7 @@ transcribe:
   media: "Phiên âm phương tiện"
 transcribed:
   _self: "phiên âm"
+  words: "Transcribed words"
 transcription:
   _self: "Phiên âm"
   backend: "Phần phụ trợ phiên âm"
@@ -1016,8 +1179,8 @@ transcription:
   finished: "Phiên âm xong."
   in_progress: "Đang phiên âm"
   metadata: "Siêu dữ liệu phiên mã"
-  update: "Cập nhật phiên âm"
   saved: "Đã lưu bản chép lời"
+  update: "Cập nhật phiên âm"
 transcriptions:
   _self: "Phiên âm"
   f0972acc: "phiên âm"
@@ -1031,8 +1194,202 @@ try:
   searching_for_terms_like_hotkeys_microphone: "Hãy thử tìm kiếm các thuật ngữ như phím nóng, micrô, cập nhật hoặc chế độ rung."
 turkish:
   _self: "tiếng Thổ Nhĩ Kỳ"
+two:
+  new_dictation_languages_fully_wired_into_mod: "Hai ngôn ngữ đọc chính tả mới, được kết nối đầy đủ với đề xuất mô hình."
 type:
   text_directly_into_the_active_app_when_poss: "Nhập văn bản trực tiếp vào ứng dụng đang hoạt động khi có thể"
+u10:
+  floating_announcement_summary: "Phát lại, giao diện mới và điều khiển bằng bàn phím trên toàn Pindrop."
+  floating_inserted_into: "Đã chèn vào %@"
+  floating_keyboard_body: "Điều hướng, tìm kiếm, tạo ghi chú, xuất và xóa mà không rời bàn phím."
+  floating_keyboard_title: "Bàn phím ở mọi nơi"
+  floating_microphone_unavailable: "Micrô không khả dụng"
+  floating_new_look_body: "Thiết kế ấm áp và yên tĩnh hơn đặt lời của bạn lên trước. Các cài đặt chủ đề được giữ lại, cùng mặc định mới là Thư viện."
+  floating_new_look_title: "Giao diện mới"
+  floating_replay_body: "Pindrop có thể giữ âm thanh trong bảy ngày để bạn nghe lại từ Thư viện khi cần."
+  floating_replay_title: "Phát lại mọi lần đọc chính tả"
+  floating_transcribing: "Đang chép lời…"
+  floating_version_line: "Pindrop 0.10.0 · tháng 7 năm 2026"
+  floating_whats_new: "Có gì mới"
+  floating_word_count: "%d từ"
+u11:
+  estimating_time: "Đang ước tính thời gian còn lại…"
+  live_transcript: "Bản chép lời trực tiếp"
+  microphone_muted: "Micrô đã tắt tiếng"
+  minutes_left: "còn khoảng %d phút"
+  recording_processing: "Đã dừng ghi âm. Đang xử lý bản chép lời."
+  recording_started: "Đã bắt đầu ghi âm"
+  recording_stopped: "Đã dừng ghi âm"
+  seconds_left: "còn khoảng %d giây"
+  transcription_complete: "Đã chép lời xong"
+u11b:
+  expand: "Mở rộng"
+  expired: "Đã hết hạn"
+  playback_position: "Vị trí phát"
+  step_x_of_y: "Bước %d trên %d"
+u3:
+  library_assign_speaker: "Gán người nói"
+  library_audio_kept_30_days: "giữ âm thanh 30 ngày"
+  library_audio_kept_7_days: "giữ âm thanh 7 ngày"
+  library_audio_kept_forever: "giữ âm thanh mãi mãi"
+  library_click_line_to_jump: "nhấp dòng để nhảy phát"
+  library_dictations: "Chính tả nói"
+  library_dictations_appear_after_use: "Chính tả xuất hiện ở đây sau khi dùng giọng nói."
+  library_h_m_spoken: "%d giờ %d phút nói"
+  library_h_spoken: "%d giờ nói"
+  library_https_placeholder: "https://…"
+  library_import_file_or_paste_link: "Nhập tệp hoặc dán liên kết để phiên âm media."
+  library_import_files: "Nhập tệp…"
+  library_imported_audio: "Âm thanh đã nhập"
+  library_insert_again: "Chèn lại"
+  library_inserted_into: "đã chèn vào %@"
+  library_m_spoken: "%d phút nói"
+  library_meeting_recording: "Bản ghi cuộc họp"
+  library_meetings: "Cuộc họp"
+  library_n_recordings: "%d bản ghi"
+  library_no_dictations_yet: "Chưa có chính tả"
+  library_no_meeting_recordings: "Không có bản ghi cuộc họp"
+  library_no_recordings_yet: "Chưa có bản ghi"
+  library_one_recording: "1 bản ghi"
+  library_paste_link: "Dán liên kết…"
+  library_playback_speed: "Tốc độ phát"
+  library_record_meeting_ellipsis: "Ghi âm cuộc họp…"
+  library_record_meeting_from_home: "Ghi cuộc họp từ Trang chủ để xem tại đây."
+  library_rename_speaker_ellipsis: "Đổi tên người nói…"
+  library_start_dictation_or_import: "Bắt đầu chính tả từ Trang chủ hoặc nhập tệp."
+  library_summary_label: "TÓM TẮT"
+  library_try_different_search_or_filter: "Thử từ khóa hoặc bộ lọc khác."
+  library_untitled: "Không tiêu đề"
+  library_voice_transcription: "Phiên âm giọng nói"
+  library_web_transcription: "Phiên âm web"
+u4:
+  home_bar_a11y_n: "%@, %@ từ"
+  home_bar_a11y_one: "%@, 1 từ"
+  home_duration_h: "%d giờ"
+  home_duration_h_m: "%d giờ %d phút"
+  home_duration_m: "%d phút"
+  home_n_day: "%d-ngày"
+  home_n_words_grouped: "%@ từ"
+  home_one_day: "1-ngày"
+  home_open_library_arrow: "Mở thư viện →"
+  home_option_space_fallback: "⌥Space"
+  home_press_hotkey_hint: "Nhấn %@ ở bất kỳ đâu để bắt đầu đọc chính tả."
+  home_recent_empty_hint: "Các bản đọc chính tả mới nhất sẽ hiện ở đây."
+  home_streak: "Chuỗi"
+  home_subline_duration_only: "%@ đọc chính tả."
+  home_subline_full: "%@ đọc chính tả — tiết kiệm khoảng %@ so với gõ."
+  home_this_week: "Tuần này"
+  home_welcome_tagline: "Nói. Đã được viết."
+  home_words_per_min: "Từ / phút"
+  home_words_so_far: "Từ cho đến nay"
+  home_words_today: "Từ hôm nay"
+  home_you_spoke_this_week: "Bạn đã nói %@ tuần này."
+  home_zero_day: "0-ngày"
+u5:
+  u7_add_replacement: "Add replacement"
+  u7_add_word: "Add word"
+  u7_add_words_or_replacements: "Add words the recognizer should trust, or replacements applied after transcription."
+  u7_applied_after_transcription: "Applied after transcription, before insert"
+  u7_case_insensitive: "case-insensitive"
+  u7_cmd_s_to_save: "⌘S to save"
+  u7_command: "command"
+  u7_copy_content: "Copy Content"
+  u7_d_ago: "%d d ago"
+  u7_delete_note: "Delete Note"
+  u7_edited: "edited"
+  u7_edited_format: "edited %@"
+  u7_everything_runs_on_this_mac: "Everything runs on this Mac"
+  u7_exact: "exact"
+  u7_h_ago: "%d h ago"
+  u7_installed: "Installed"
+  u7_just_now: "just now"
+  u7_listening_speak_to_append: "Listening — speak to append…"
+  u7_m_ago: "%d m ago"
+  u7_match_mode: "Match mode"
+  u7_models_privacy_footnote: "Models never leave this Mac. Audio is processed locally unless you choose a cloud provider in Settings → AI."
+  u7_new_note: "New note"
+  u7_no_dictionary_entries: "No dictionary entries"
+  u7_on_device_helpers: "On-device helpers"
+  u7_on_disk: "TRÊN Ổ ĐĨA"
+  u7_open_note: "Open Note"
+  u7_pin: "Pin"
+  u7_replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
+  u7_replacements_section: "Replacements"
+  u7_speech_to_text: "Speech to text"
+  u7_teach_pindrop_your_words: "Teach Pindrop your words"
+  u7_unpin: "Unpin"
+  u7_untitled_note: "Untitled Note"
+  u7_words_recognizer_should_trust: "Words the recognizer should trust"
+u8:
+  settings_acknowledgements: "Lời cảm ơn"
+  settings_advanced_assignments: "Phân công nâng cao"
+  settings_audio_on_disk_format: "Âm thanh trên ổ đĩa: %@ · %@"
+  settings_beta_channel: "Beta"
+  settings_bundled_fonts_ofl: "Phông chữ đi kèm (Newsreader, Inter, JetBrains Mono) được cấp phép theo SIL Open Font License."
+  settings_checks_for_updates_automatically: "Pindrop tự động kiểm tra cập nhật."
+  settings_choose_a_provider: "Chọn nhà cung cấp"
+  settings_choose_folder_export_logs: "Chọn thư mục để sao chép các tệp nhật ký Pindrop vào đó."
+  settings_copy_last_transcript: "Sao chép bản ghi cuối cùng"
+  settings_copy_token: "Sao chép mã thông báo"
+  settings_days_30: "30 ngày"
+  settings_days_7: "7 ngày"
+  settings_debug: "Gỡ lỗi"
+  settings_delete_all_audio: "Xóa tất cả âm thanh"
+  settings_delete_all_audio_ellipsis: "Xóa tất cả âm thanh…"
+  settings_delete_all_audio_question: "Xóa tất cả âm thanh?"
+  settings_diagnostics: "Chẩn đoán"
+  settings_edit_prompt_ellipsis: "Chỉnh sửa prompt…"
+  settings_endpoint: "Điểm cuối"
+  settings_enhance_transcripts: "Cải thiện bản ghi"
+  settings_example_label: "VÍ DỤ"
+  settings_export_logs_ellipsis: "Xuất nhật ký…"
+  settings_forever: "Mãi mãi"
+  settings_github: "GitHub"
+  settings_info: "Thông tin"
+  settings_keep_dictation_audio: "Giữ âm thanh chính tả"
+  settings_last_checked_format: "Kiểm tra lần cuối %@"
+  settings_license_mit: "Giấy phép — MIT"
+  settings_listening_ellipsis: "Đang nghe…"
+  settings_log_level: "Mức nhật ký"
+  settings_logs_never_include_transcript: "Nhật ký không bao giờ chứa nội dung bản ghi"
+  settings_made_with_care: "Được chăm chút tạo ra cho lời nói cục bộ."
+  settings_manage_ellipsis: "Quản lý…"
+  settings_n_samples: "%d mẫu"
+  settings_n_snippets: "%d đoạn"
+  settings_n_trained: "%d đã huấn luyện"
+  settings_no_conflicts_with_system_or_app: "Không có xung đột với phím tắt hệ thống hoặc ứng dụng."
+  settings_one_snippet: "1 đoạn"
+  settings_one_trained: "1 đã huấn luyện"
+  settings_presets_recolor_caption: "Cài đặt trước sẽ đổi màu nhấn và nền. Độ tương phản văn bản được xác thực tự động."
+  settings_push_to_talk: "Nhấn để nói"
+  settings_recording_indicator: "Chỉ báo ghi âm"
+  settings_release_channel: "Release"
+  settings_removes_kept_dictation_audio: "Xóa các tệp âm thanh chính tả đã lưu giữ. Bản ghi vẫn còn trong Thư viện của bạn."
+  settings_reset_all_settings_ellipsis: "Đặt lại tất cả cài đặt…"
+  settings_separate_from_interface_language: "Tách biệt với ngôn ngữ giao diện"
+  settings_some_shortcuts_conflict_each_other: "Một số phím tắt xung đột lẫn nhau."
+  settings_some_shortcuts_may_conflict_system: "Một số phím tắt có thể xung đột với phím tắt hệ thống."
+  settings_speaker_profiles: "Hồ sơ người nói"
+  settings_theme_preset: "Cài đặt trước chủ đề"
+  settings_toggle_dictation: "Chuyển đổi chính tả"
+  settings_trained_summary_format: "%@ — dùng để gắn nhãn ai đã nói gì trong cuộc họp"
+  settings_update_checks_unavailable: "Việc kiểm tra cập nhật tạm thời không khả dụng."
+  settings_warning: "Cảnh báo"
+  settings_website: "Trang web"
+u9:
+  onboarding_accessibility_clipboard_fallback: "Nếu không có Trợ năng, Pindrop sẽ sao chép văn bản vào bảng nhớ tạm."
+  onboarding_change_hotkey_hint: "Nhấn một tổ hợp khác để thay đổi"
+  onboarding_download_amount_format: "%@ trên %@"
+  onboarding_download_background_hint: "Tiếp tục thiết lập trong khi tải xuống — chúng tôi sẽ hoàn tất trong nền."
+  onboarding_enable_enhancement: "Bật tính năng cải thiện"
+  onboarding_granted_state: "Đã cấp"
+  onboarding_pindrop_writes: "Pindrop viết"
+  onboarding_ready_heading: "Bạn đã sẵn sàng."
+  onboarding_ready_instruction_format: "Nhấn %@ và bắt đầu nói — Pindrop nhập tại vị trí con trỏ."
+  onboarding_try_it_now: "Thử ngay"
+  onboarding_you_say: "Bạn nói"
+ukrainian:
+  _self: "Ukrainian"
 unable:
   to_connect_to_the_ai_enhancement_service: "\"\" Không thể kết nối với dịch vụ nâng cao AI.                                  Vui lòng kiểm tra: 1. Kết nối internet của bạn 2. URL điểm cuối API chính xác 3. Dịch vụ không bị ngừng hoạt động Bản phiên âm đã được lưu mà không cần cải tiến.                 \"\""
   to_finish_transcription: "Không thể hoàn tất phiên âm"
@@ -1045,6 +1402,8 @@ undo:
   _self: "Hoàn tác"
 unfiled:
   _self: "Chưa nộp hồ sơ"
+unknown:
+  _self: "Unknown"
 unpin:
   from_screen: "Bỏ ghim khỏi màn hình"
 update:
@@ -1083,12 +1442,23 @@ view:
   transcription_history: "Xem lịch sử phiên âm"
 vocabulary:
   _self: "Từ vựng"
+voice:
+  _self: "Voice"
 vs:
   typing: "vs đánh máy"
+web:
+  link: "Web link"
 welcome:
   to_pindrop: "Chào mừng đến với Pindrop"
+what:
+  s_new: "Có gì mới…"
+  s_new_in_pindrop: "Có gì mới trong Pindrop"
+while:
+  recording: "Khi ghi âm"
 whisperkit:
   _self: "WhisperKit"
+window:
+  _self: "Cửa sổ"
 word:
   _self: "Từ"
   replacements: "Thay thế từ"
@@ -1110,371 +1480,13 @@ you:
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Bạn đã vượt quá giới hạn hoặc hạn ngạch tốc độ API của mình.                                  Để khắc phục điều này: 1. Đợi vài phút và thử lại 2. Kiểm tra giới hạn sử dụng của nhà cung cấp API của bạn 3. Cân nhắc nâng cấp gói API của bạn Bản ghi đã được lưu mà không cần cải tiến.                 \"\""
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" Khóa API của bạn có vẻ không hợp lệ hoặc đã hết hạn.                                  Để khắc phục điều này: 1. Mở Cài đặt → Cải tiến AI 2. Xác minh khóa API của bạn là chính xác 3. Kiểm tra xem điểm cuối API của bạn có đúng không. Bản chép lời đã được lưu mà không cần cải tiến.                 \"\""
+  floating_indicator_is_now_a_living_audio_re: "Chỉ báo nổi của bạn giờ là một orb sống động, phản ứng với âm thanh. Nó thở khi rảnh, phồng lên khi bạn nói và truyền trực tiếp lời của bạn khi bạn đọc chính tả."
   hotkeys_are_ready_to_use_nyou_can_customize: "Phím nóng của bạn đã sẵn sàng để sử dụng.nBạn có thể tùy chỉnh chúng sau trong Cài đặt."
   hotkeys_are_ready_to_use_you_can_customize: |-
     Phím nóng của bạn đã sẵn sàng để sử dụng.
     Bạn có thể tùy chỉnh chúng sau trong Cài đặt.
   model_is_ready_to_use: "Mô hình của bạn đã sẵn sàng để sử dụng."
   stats: "Số liệu thống kê của bạn"
-  floating_indicator_is_now_a_living_audio_re: "Chỉ báo nổi của bạn giờ là một orb sống động, phản ứng với âm thanh. Nó thở khi rảnh, phồng lên khi bạn nói và truyền trực tiếp lời của bạn khi bạn đọc chính tả."
-orb:
-  _self: "Quả cầu"
-meeting:
-  saved: "Đã lưu cuộc họp"
-russian:
-  _self: "Russian"
-ukrainian:
-  _self: "Ukrainian"
-what:
-  s_new_in_pindrop: "Có gì mới trong Pindrop"
-  s_new: "Có gì mới…"
-meet:
-  the_new_orb: "Gặp Orb mới"
-thanks:
-  to_for_investigating_and_kicking_off_the: "Cảm ơn %@ đã điều tra và khởi đầu bản sửa lỗi (PR #64)."
-  to_for_the_contribution_pr_61: "Cảm ơn %@ vì đóng góp (PR #61)."
-dictate:
-  in_russian_and_ukrainian: "Đọc chính tả bằng tiếng Nga và tiếng Ukraina"
-two:
-  new_dictation_languages_fully_wired_into_mod: "Hai ngôn ngữ đọc chính tả mới, được kết nối đầy đủ với đề xuất mô hình."
-also:
-  new_rtl_layout_support_and_20_new_interface: "Cũng mới: hỗ trợ bố cục RTL và 20 ngôn ngữ giao diện mới."
-advanced:
-  _self: "Nâng cao"
-agent:
-  setup: "Thiết lập tác nhân"
-appearance:
-  _self: "Giao diện"
-bearer:
-  token: "Bearer Token"
-changes:
-  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
-client:
-  _self: "Máy khách"
-configuration:
-  file: "Configuration File"
-  scope: "Configuration Scope"
-  snippet: "Configuration Snippet"
-dictation:
-  _self: "Chính tả"
-  language: "Ngôn ngữ chính tả"
-  polish: "Làm mượt chính tả"
-done:
-  _self: "Xong"
-input:
-  device: "Thiết bị đầu vào"
-license:
-  _self: "Giấy phép"
-mcp:
-  configuration_error: "MCP Configuration Error"
-  server: "Máy chủ MCP"
-main:
-  window: "Cửa sổ chính"
-name:
-  _self: "Tên"
-port:
-  _self: "Cổng"
-  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
-project:
-  _self: "Dự án"
-regenerate:
-  _self: "Tạo lại"
-shortcuts:
-  _self: "Phím tắt"
-speakers:
-  _self: "Người nói"
-these:
-  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
-while:
-  recording: "Khi ghi âm"
-may:
-  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
-library:
-  _self: "Thư viện"
-conflicts:
-  with: "Conflicts with %@"
-file:
-  _self: "Tệp"
-window:
-  _self: "Cửa sổ"
-help:
-  _self: "Trợ giúp"
-close:
-  _self: "Đóng"
-find:
-  _self: "Tìm"
-minimize:
-  _self: "Thu nhỏ"
+  stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "Phóng to"
-bring:
-  all_to_front: "Đưa tất cả ra phía trước"
-home:
-  _self: "Trang chủ"
-newest:
-  _self: "Mới nhất"
-oldest:
-  _self: "Cũ nhất"
-plain:
-  text_txt: "Văn bản thuần (.txt)"
-markdown:
-  md: "Markdown (.md)"
-subtitles:
-  srt: "Phụ đề (.srt)"
-timestamps:
-  json: "Dấu thời gian (.json)"
-inserted:
-  into_d_words: "Đã chèn vào %@ · %d từ"
-unknown:
-  app: "Ứng dụng không xác định"
-pinned:
-  _self: "Đã ghim"
-speak:
-  to_append: "Nói để thêm"
-
-diarized:
-  _self: "đã phân vai nói"
-
-summary:
-  ready: "tóm tắt sẵn sàng"
-
-prompts:
-  are_sent_in_english: "Prompt được gửi bằng tiếng Anh"
-
-preset_example:
-  clean_input: "ờ vậy cuộc họp lúc ba rưỡi chấm bạn có thể xác nhận chấm hỏi không"
-  clean_output: "Vậy cuộc họp lúc 15:30. Bạn có thể xác nhận không?"
-  meeting_input: "alice sẽ gửi deck trước thứ sáu bob phụ trách xem xét giá chúng ta cần quyết định tuần sau"
-  meeting_output: "## Việc cần làm\\n- **Alice** sẽ gửi deck trước **thứ Sáu**\\n- **Bob** phụ trách xem xét giá\\n\\n## Bước tiếp theo\\n- Cần quyết định tuần sau"
-  email_input: "chào jordan chỉ kiểm tra xem bạn đã nhận ghi chú hôm qua của tôi chưa cảm ơn"
-  email_output: "Chào Jordan,\\n\\nChỉ kiểm tra xem bạn đã nhận ghi chú hôm qua của tôi chưa.\\n\\nCảm ơn,"
-  social_input: "ờ chúng tôi vừa ra mắt chế độ tối và trông tuyệt vời bạn nên thử"
-  social_output: "Chúng tôi vừa ra mắt chế độ tối.\\n\\nTrông tuyệt vời — bạn nên thử."
-  bullets_input: "chúng ta đã bàn về độ trễ onboarding rồi giá và cuối cùng ngày ra mắt mùng mười hai tháng năm"
-  bullets_output: "- Độ trễ onboarding\\n- Giá\\n- Ngày ra mắt: 12 tháng 5"
-  technical_input: "gọi fetch user mũi tên rồi ánh xạ phản hồi bằng bằng hai trăm"
-  technical_output: "Gọi `fetchUser` -> rồi ánh xạ phản hồi `==` 200."
-  live_input: "ờ tôi nghĩ chúng ta nên phát hành beta trước thứ sáu chấm"
-  live_output: "Tôi nghĩ chúng ta nên phát hành beta trước thứ Sáu."
-  edits_input: "ờ đây là correct ly hai mươi lăm"
-  edits_output: "Đây là correctly 25"
-
-inserted:
-  into_d_words: "Inserted into %@ · %d words"
-
-unknown:
-  app: "Unknown App"
-
-u3_library:
-  rename_speaker_ellipsis: "Đổi tên người nói…"
-  assign_speaker: "Gán người nói"
-  record_meeting_ellipsis: "Ghi âm cuộc họp…"
-  dictations: "Chính tả nói"
-  meetings: "Cuộc họp"
-  one_recording: "1 bản ghi"
-  n_recordings: "%d bản ghi"
-  h_m_spoken: "%d giờ %d phút nói"
-  h_spoken: "%d giờ nói"
-  m_spoken: "%d phút nói"
-  audio_kept_7_days: "giữ âm thanh 7 ngày"
-  audio_kept_30_days: "giữ âm thanh 30 ngày"
-  audio_kept_forever: "giữ âm thanh mãi mãi"
-  inserted_into: "đã chèn vào %@"
-  import_files: "Nhập tệp…"
-  paste_link: "Dán liên kết…"
-  insert_again: "Chèn lại"
-  playback_speed: "Tốc độ phát"
-  no_recordings_yet: "Chưa có bản ghi"
-  start_dictation_or_import: "Bắt đầu chính tả từ Trang chủ hoặc nhập tệp."
-  no_dictations_yet: "Chưa có chính tả"
-  dictations_appear_after_use: "Chính tả xuất hiện ở đây sau khi dùng giọng nói."
-  no_meeting_recordings: "Không có bản ghi cuộc họp"
-  record_meeting_from_home: "Ghi cuộc họp từ Trang chủ để xem tại đây."
-  import_file_or_paste_link: "Nhập tệp hoặc dán liên kết để phiên âm media."
-  try_different_search_or_filter: "Thử từ khóa hoặc bộ lọc khác."
-  untitled: "Không tiêu đề"
-  https_placeholder: "https://…"
-  summary_label: "TÓM TẮT"
-  click_line_to_jump: "nhấp dòng để nhảy phát"
-  meeting_recording: "Bản ghi cuộc họp"
-  voice_transcription: "Phiên âm giọng nói"
-  imported_audio: "Âm thanh đã nhập"
-  web_transcription: "Phiên âm web"
-
-u5_u7:
-  new_note: "New note"
-  add_word: "Add word"
-  add_replacement: "Add replacement"
-  teach_pindrop_your_words: "Teach Pindrop your words"
-  words_recognizer_should_trust: "Words the recognizer should trust"
-  applied_after_transcription: "Applied after transcription, before insert"
-  case_insensitive: "case-insensitive"
-  exact: "exact"
-  command: "command"
-  replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
-  no_dictionary_entries: "No dictionary entries"
-  add_words_or_replacements: "Add words the recognizer should trust, or replacements applied after transcription."
-  match_mode: "Match mode"
-  everything_runs_on_this_mac: "Everything runs on this Mac"
-  on_disk: "TRÊN Ổ ĐĨA"
-  speech_to_text: "Speech to text"
-  on_device_helpers: "On-device helpers"
-  installed: "Installed"
-  models_privacy_footnote: "Models never leave this Mac. Audio is processed locally unless you choose a cloud provider in Settings → AI."
-  listening_speak_to_append: "Listening — speak to append…"
-  cmd_s_to_save: "⌘S to save"
-  edited_format: "edited %@"
-  just_now: "just now"
-  m_ago: "%d m ago"
-  h_ago: "%d h ago"
-  d_ago: "%d d ago"
-  edited: "edited"
-  open_note: "Open Note"
-  copy_content: "Copy Content"
-  unpin: "Unpin"
-  pin: "Pin"
-  delete_note: "Delete Note"
-  replacements_section: "Replacements"
-  untitled_note: "Untitled Note"
-u4_home:
-  you_spoke_this_week: "Bạn đã nói %@ tuần này."
-  n_words_grouped: "%@ từ"
-  zero_day: "0-ngày"
-  one_day: "1-ngày"
-  n_day: "%d-ngày"
-  duration_h_m: "%d giờ %d phút"
-  duration_h: "%d giờ"
-  duration_m: "%d phút"
-  subline_full: "%@ đọc chính tả — tiết kiệm khoảng %@ so với gõ."
-  subline_duration_only: "%@ đọc chính tả."
-  words_today: "Từ hôm nay"
-  words_per_min: "Từ / phút"
-  streak: "Chuỗi"
-  open_library_arrow: "Mở thư viện →"
-  this_week: "Tuần này"
-  words_so_far: "Từ cho đến nay"
-  welcome_tagline: "Nói. Đã được viết."
-  press_hotkey_hint: "Nhấn %@ ở bất kỳ đâu để bắt đầu đọc chính tả."
-  bar_a11y_one: "%@, 1 từ"
-  bar_a11y_n: "%@, %@ từ"
-  recent_empty_hint: "Các bản đọc chính tả mới nhất sẽ hiện ở đây."
-  option_space_fallback: "⌥Space"
-
-u8_settings:
-  reset_all_settings_ellipsis: "Đặt lại tất cả cài đặt…"
-  separate_from_interface_language: "Tách biệt với ngôn ngữ giao diện"
-  keep_dictation_audio: "Giữ âm thanh chính tả"
-  days_7: "7 ngày"
-  days_30: "30 ngày"
-  forever: "Mãi mãi"
-  audio_on_disk_format: "Âm thanh trên ổ đĩa: %@ · %@"
-  one_snippet: "1 đoạn"
-  n_snippets: "%d đoạn"
-  delete_all_audio_ellipsis: "Xóa tất cả âm thanh…"
-  delete_all_audio_question: "Xóa tất cả âm thanh?"
-  delete_all_audio: "Xóa tất cả âm thanh"
-  removes_kept_dictation_audio: "Xóa các tệp âm thanh chính tả đã lưu giữ. Bản ghi vẫn còn trong Thư viện của bạn."
-  speaker_profiles: "Hồ sơ người nói"
-  one_trained: "1 đã huấn luyện"
-  n_trained: "%d đã huấn luyện"
-  trained_summary_format: "%@ — dùng để gắn nhãn ai đã nói gì trong cuộc họp"
-  manage_ellipsis: "Quản lý…"
-  theme_preset: "Cài đặt trước chủ đề"
-  presets_recolor_caption: "Cài đặt trước sẽ đổi màu nhấn và nền. Độ tương phản văn bản được xác thực tự động."
-  recording_indicator: "Chỉ báo ghi âm"
-  toggle_dictation: "Chuyển đổi chính tả"
-  push_to_talk: "Nhấn để nói"
-  copy_last_transcript: "Sao chép bản ghi cuối cùng"
-  no_conflicts_with_system_or_app: "Không có xung đột với phím tắt hệ thống hoặc ứng dụng."
-  some_shortcuts_conflict_each_other: "Một số phím tắt xung đột lẫn nhau."
-  some_shortcuts_may_conflict_system: "Một số phím tắt có thể xung đột với phím tắt hệ thống."
-  listening_ellipsis: "Đang nghe…"
-  enhance_transcripts: "Cải thiện bản ghi"
-  choose_a_provider: "Chọn nhà cung cấp"
-  edit_prompt_ellipsis: "Chỉnh sửa prompt…"
-  example_label: "VÍ DỤ"
-  advanced_assignments: "Phân công nâng cao"
-  endpoint: "Điểm cuối"
-  copy_token: "Sao chép mã thông báo"
-  log_level: "Mức nhật ký"
-  debug: "Gỡ lỗi"
-  info: "Thông tin"
-  warning: "Cảnh báo"
-  diagnostics: "Chẩn đoán"
-  logs_never_include_transcript: "Nhật ký không bao giờ chứa nội dung bản ghi"
-  export_logs_ellipsis: "Xuất nhật ký…"
-  choose_folder_export_logs: "Chọn thư mục để sao chép các tệp nhật ký Pindrop vào đó."
-  github: "GitHub"
-  website: "Trang web"
-  license_mit: "Giấy phép — MIT"
-  acknowledgements: "Lời cảm ơn"
-  bundled_fonts_ofl: "Phông chữ đi kèm (Newsreader, Inter, JetBrains Mono) được cấp phép theo SIL Open Font License."
-  made_with_care: "Được chăm chút tạo ra cho lời nói cục bộ."
-  release_channel: "Release"
-  beta_channel: "Beta"
-  last_checked_format: "Kiểm tra lần cuối %@"
-  update_checks_unavailable: "Việc kiểm tra cập nhật tạm thời không khả dụng."
-  checks_for_updates_automatically: "Pindrop tự động kiểm tra cập nhật."
-  n_samples: "%d mẫu"
-u10_floating:
-  transcribing: "Đang chép lời…"
-  word_count: "%d từ"
-  inserted_into: "Đã chèn vào %@"
-  microphone_unavailable: "Micrô không khả dụng"
-  whats_new: "Có gì mới"
-  version_line: "Pindrop 0.10.0 · tháng 7 năm 2026"
-  announcement_summary: "Phát lại, giao diện mới và điều khiển bằng bàn phím trên toàn Pindrop."
-  replay_title: "Phát lại mọi lần đọc chính tả"
-  replay_body: "Pindrop có thể giữ âm thanh trong bảy ngày để bạn nghe lại từ Thư viện khi cần."
-  new_look_title: "Giao diện mới"
-  new_look_body: "Thiết kế ấm áp và yên tĩnh hơn đặt lời của bạn lên trước. Các cài đặt chủ đề được giữ lại, cùng mặc định mới là Thư viện."
-  keyboard_title: "Bàn phím ở mọi nơi"
-  keyboard_body: "Điều hướng, tìm kiếm, tạo ghi chú, xuất và xóa mà không rời bàn phím."
-u11:
-  recording_started: "Đã bắt đầu ghi âm"
-  recording_stopped: "Đã dừng ghi âm"
-  recording_processing: "Đã dừng ghi âm. Đang xử lý bản chép lời."
-  transcription_complete: "Đã chép lời xong"
-  live_transcript: "Bản chép lời trực tiếp"
-  estimating_time: "Đang ước tính thời gian còn lại…"
-  seconds_left: "còn khoảng %d giây"
-  minutes_left: "còn khoảng %d phút"
-  microphone_muted: "Micrô đã tắt tiếng"
-u11b:
-  playback_position: "Vị trí phát"
-  expired: "Đã hết hạn"
-  expand: "Mở rộng"
-  step_x_of_y: "Bước %d trên %d"
-sessions_in: "%@ sessions in %@"
-0_m: "0 m"
-1_year: "1 year"
-90_days: "90 days"
-ai_enhanced: "AI-enhanced"
-active_days: "Active days"
-activity: "Activity"
-all_time: "All time"
-audio_duration: "Audio duration"
-average_session: "Average session"
-average_words_session: "Average words / session"
-by_weekday: "By weekday"
-destinations: "Destinations"
-dictation_words_min: "Dictation words / min"
-duration: "Duration"
-estimated_time_saved: "Estimated time saved"
-imported_file: "Imported file"
-longest_streak: "Longest streak"
-manual_capture: "Manual capture"
-metric: "Metric"
-no_activity_in_this_period: "No activity in this period"
-no_destination_data: "No destination data"
-other: "Other"
-overview: "Overview"
-sources: "Sources"
-stats: "Stats"
-time_of_day: "Time of day"
-time_range: "Time range"
-transcribed_words: "Transcribed words"
-unknown: "Unknown"
-voice: "Voice"
-web_link: "Web link"
-your_stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."

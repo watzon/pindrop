@@ -495,6 +495,11 @@ private struct SpeakerProfilesManageSheet: View {
                                         .foregroundStyle(AppColors.textSecondary)
                                         .lineLimit(2)
                                 }
+                                if profile.needsVoiceRetraining {
+                                    Text(localized("Voice matching needs retraining after the diarization update.", locale: locale))
+                                        .font(AppTypography.caption)
+                                        .foregroundStyle(AppColors.textSecondary)
+                                }
                                 Text(
                                     profile.evidenceCount == 0
                                         ? localized("Not enough voice data yet", locale: locale)

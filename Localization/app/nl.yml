@@ -1,61 +1,61 @@
-u9_onboarding:
-  download_amount_format: "%@ van %@"
-  download_background_hint: "Ga door met instellen tijdens het downloaden — we ronden het op de achtergrond af."
-  you_say: "Jij zegt"
-  pindrop_writes: "Pindrop schrijft"
-  enable_enhancement: "Verbetering inschakelen"
-  accessibility_clipboard_fallback: "Zonder Toegankelijkheid kopieert Pindrop de tekst naar het klembord."
-  change_hotkey_hint: "Druk op een andere combinatie om deze te wijzigen"
-  granted_state: "Verleend"
-  ready_heading: "Je bent klaar."
-  ready_instruction_format: "Druk op %@ en begin te praten — Pindrop typt waar je cursor staat."
-  try_it_now: "Probeer het nu"
-
+0:
+  m: "0 m"
 100:
   local_processing: "100% lokale verwerking"
 1:
   folder: "1 map"
+  note: "1 notitie"
   speaker: "1 spreker"
   transcription: "1 transcriptie"
-  note: "1 notitie"
   word: "1 woord"
+  year: "1 year"
+90:
+  days: "90 days"
 a:
-  native_macos_menu_bar_dictation_app_using_loca: "Een native macOS-dicteerapp voor de menubalk die lokale spraak-naar-tekst gebruikt met WhisperKit. Standaard 100% lokale verwerking met optionele AI-verbetering."
   big_round_of_upgrades_and_two_community_shout: "Een grote ronde upgrades — en twee bedankjes aan de community."
+  native_macos_menu_bar_dictation_app_using_loca: "Een native macOS-dicteerapp voor de menubalk die lokale spraak-naar-tekst gebruikt met WhisperKit. Standaard 100% lokale verwerking met optionele AI-verbetering."
 about:
   _self: "Over"
   pindrop: "Over Pindrop"
 accessibility:
   _self: "Toegankelijkheid"
+  permission: "Toegankelijkheidsrechten"
   permission_is_enabled_full_ui_cont: "Toegankelijkheidsrechten zijn ingeschakeld. Volledige UI-context is beschikbaar."
   permission_is_not_granted_vibe_mod: "Toegankelijkheidstoestemming wordt niet verleend. De Vibe-modus blijft niet-blokkerend met beperkte context."
   permission_recommended: "Toegankelijkheidstoestemming aanbevolen"
   permission_required: "Toegankelijkheidstoestemming vereist"
-  permission: "Toegankelijkheidsrechten"
 accuracy:
   _self: "Nauwkeurigheid"
 acknowledgments:
   _self: "Dankbetuigingen"
 active:
   _self: "Actief"
+  days: "Active days"
+activity:
+  _self: "Activity"
 add:
   _self: "Toevoegen"
   a_provider_to_start_using_ai_enhancement: "Voeg een provider toe om AI-verbetering te gaan gebruiken."
   custom_words_to_improve_transcription_accura: "Voeg aangepaste woorden toe om de nauwkeurigheid van de transcriptie voor gespecialiseerde termen, namen of jargon te verbeteren."
   provider: "Aanbieder toevoegen"
   tag: "Label toevoegen..."
+  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
+  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
+  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
+  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
+  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
   to_existing: "Toevoegen aan bestaand"
   trailing_space: "Voeg volgspatie toe"
   word_replacements_to_automatically_correct_c: "Voeg woordvervangingen toe om veelvoorkomende transcriptiefouten automatisch te corrigeren."
   words_to_help_pindrop_recognize_them_properl: "Voeg woorden toe zodat Pindrop ze goed kan herkennen"
   words_you_manually_correct_into_your_vocabul: "Voeg woorden die u handmatig corrigeert toe aan uw vocabulaire voor toekomstige transcripties."
-  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
-  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
-  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
-  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
-  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
+advanced:
+  _self: "Geavanceerd"
+agent:
+  setup: "Agentinstelling"
 ai:
   _self: "AI"
+  enhanced: "AI-enhanced"
   enhancement: "AI-verbetering"
   enhancement_529f5583: "AI-verbetering: %@"
   enhancement_failed: "AI-verbetering mislukt"
@@ -64,6 +64,9 @@ ai:
   model: "AI-model"
 all:
   _self: "Alle"
+  time: "All time"
+also:
+  new_rtl_layout_support_and_20_new_interface: "Ook nieuw: ondersteuning voor RTL-layouts en 20 nieuwe interfacetalen."
 an:
   error_occurred_while_enhancing_your_transcrip: |-
     Er is een fout opgetreden bij het verbeteren van uw transcriptie:
@@ -72,7 +75,7 @@ an:
     
     De originele transcriptie is zonder verbeteringen opgeslagen.
     U kunt proberen AI-verbetering opnieuw in te schakelen in Instellingen.
-  error_occurred_while_enhancing_your_transcrip_8c664cb4: "Er is een fout opgetreden bij het verbeteren van uw transcriptie:nn%@nnDe oorspronkelijke transcriptie is zonder verbeteringen opgeslagen.nU kunt proberen AI-verbetering opnieuw in te schakelen in Instellingen."
+  error_occurred_while_enhancing_your_transcrip_1790ad05: "Er is een fout opgetreden bij het verbeteren van uw transcriptie:nn%@nnDe oorspronkelijke transcriptie is zonder verbeteringen opgeslagen.nU kunt proberen AI-verbetering opnieuw in te schakelen in Instellingen."
 anthropic:
   _self: "Anthropic"
 api:
@@ -82,6 +85,8 @@ api:
   key_saved_endpoint: "API-sleutel opgeslagen • Eindpunt: %@"
 app:
   info_acknowledgments_support_and_logs: "App-info, bevestigingen, ondersteuning en logboeken"
+appearance:
+  _self: "Weergave"
 append:
   a_space_after_each_transcription_for_seam: "Voeg na elke transcriptie een spatie toe voor naadloos dicteren."
 apple:
@@ -99,6 +104,7 @@ assignments:
 attach:
   logs_from_this_folder_when_filing_a_githu: "Voeg logboeken uit deze map toe wanneer u een GitHub-probleem indient."
 audio:
+  duration: "Audio duration"
   input: "Audio-invoer"
 automatic:
   follow_system: "Automatisch (volgsysteem)"
@@ -109,6 +115,9 @@ automatically:
   start_pindrop_when_you_sign_in: "Start Pindrop automatisch wanneer u zich aanmeldt."
 available:
   models: "Beschikbare modellen"
+average:
+  session: "Average session"
+  words_session: "Average words / session"
 avg:
   speed: "Gem. snelheid"
 back:
@@ -116,14 +125,20 @@ back:
   to_library: "Terug naar bibliotheek"
 base:
   _self: "Baseren"
+bearer:
+  token: "Bearer-token"
 best:
   _self: "Best"
 better:
   _self: "Beter"
   bluetooth_external_mic_support: "Betere ondersteuning voor Bluetooth en externe microfoons"
+bring:
+  all_to_front: "Alles op de voorgrond"
 built:
   in_presets: "Ingebouwde voorinstellingen"
   in_read_only: "Ingebouwd (alleen-lezen)"
+by:
+  weekday: "By weekday"
 cancel:
   _self: "Annuleren"
   operation: "Annuleer bewerking"
@@ -132,6 +147,8 @@ capture:
 change:
   microphone: "Microfoon wijzigen"
   microphone_ac9970f4: "Microfoon wisselen"
+changes:
+  the_language_used_by_pindrop_s_interface: "Wijzigt de taal van de Pindrop-interface."
 check:
   for_updates: "Controleer op updates..."
   for_updates_736b9062: "Controleer op updates"
@@ -144,24 +161,24 @@ choose:
   a_model: "Kies een model"
   a_provider_first: "Kies eerst een aanbieder"
   an_audio_or_video_file_to_transcribe: "Kies een audio- of videobestand om te transcriberen"
-  between_nemotron_punctuated_downloaded_mod: "Kies tussen Nemotron (met interpunctie, gedownload model) en Apple SpeechTranscriber (macOS 26+, meegeleverd met het systeem)."
+  between_nemotron_punctuated_downloaded_mo: "Kies tussen Nemotron (met interpunctie, gedownload model) en Apple SpeechTranscriber (macOS 26+, meegeleverd met het systeem)."
   file: "Kies bestand"
   how_dictated_text_lands_then_tune_the_fin: "Kies hoe gedicteerde tekst terechtkomt en stem vervolgens het uiteindelijke invoeggedrag af."
+  how_pindrop_appears_on_screen_while_you_d: "Kies hoe Pindrop op het scherm verschijnt terwijl je dicteert."
   how_pindrop_follows_system_appearance_the: "Kies hoe Pindrop het uiterlijk van het systeem volgt en meng vervolgens samengestelde lichte en donkere paletten."
+  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   how_to_import_the_dictionary_data: "Kies hoe u de woordenboekgegevens wilt importeren"
   how_to_import_the_preset_data: "Kies hoe u de vooraf ingestelde gegevens wilt importeren"
   languages_for_the_interface_and_for_dicta: "Kies talen voor de interface en voor dicteren. Automatisch volgt het systeem."
   location_to_save_presets: "Kies een locatie om voorinstellingen op te slaan"
+  model: "Kies model…"
   the_daytime_shell_used_in_light_mode: "Kies de dagschaal die in de lichtmodus wordt gebruikt."
   the_low_glare_shell_used_in_dark_mode: "Kies de laag-reflecterende behuizing die in de donkere modus wordt gebruikt."
-  which_microphone_pindrop_should_use_for_d: "Kies welke microfoon Pindrop moet gebruiken voor dicteren en hoe deze zich gedraagt ​​tijdens het opnemen."
-  which_side_the_navigation_sidebar_appears: "Kies aan welke kant de navigatiebalk verschijnt."
-  how_pindrop_appears_on_screen_while_you_d: "Kies hoe Pindrop op het scherm verschijnt terwijl je dicteert."
-  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
+  which_microphone_pindrop_should_use_for_d: "Kies welke microfoon Pindrop moet gebruiken voor dicteren en hoe deze zich gedraagt ​​tijdens het opnemen."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
-  model: "Kies model…"
+  which_side_the_navigation_sidebar_appears: "Kies aan welke kant de navigatiebalk verschijnt."
 clean:
   up_filler_words: "Ruim opvulwoorden op"
 clear:
@@ -170,15 +187,19 @@ clear:
   shortcut: "Sneltoets wissen"
 clears:
   preferences_and_restarts_onboarding: "Wist voorkeuren en start de onboarding opnieuw"
-  preferences_and_restarts_onboarding_7d85115c: "Clears preferences and restarts onboarding."
+  preferences_and_restarts_onboarding_7d851: "Clears preferences and restarts onboarding."
 click:
   or_hold: "Klik of houd vast"
   or_press: "Klik of druk"
   or_set_a_hotkey_to_start_talking: "Klik of stel een sneltoets in om te beginnen met praten"
   this_icon_anytime_to: "Klik op elk gewenst moment op dit pictogram om:"
+client:
+  _self: "Client"
 clipboard:
   _self: "Klembord"
   temporarily_copies_the_transcript_for: "Clipboard temporarily copies the transcript for pasting. Direct Insert types into the active app when possible."
+close:
+  _self: "Sluit"
 cloud:
   _self: "Wolk"
   model: "Wolkenmodel"
@@ -187,9 +208,15 @@ collapse:
 coming:
   soon: "%@ Binnenkort beschikbaar"
   soon_04d2fd85: "Binnenkort beschikbaar"
+configuration:
+  file: "Configuration File"
+  scope: "Configuration Scope"
+  snippet: "Configuration Snippet"
 configure:
   ai_providers_and_credentials_apple_int: "Configureer AI-providers en inloggegevens. Apple Intelligence draait op het apparaat; andere providers hebben API-sleutels nodig."
   keyboard_shortcuts_for_recording_and_n: "Configureer sneltoetsen voor het opnemen en vastleggen van notities"
+conflicts:
+  with: "Conflicts with %@"
 continue:
   _self: "Doorgaan"
   with_default: "Ga verder met Standaard"
@@ -206,29 +233,29 @@ copy:
   enhanced: "Kopieer verbeterd"
   last_transcript: "Kopieer laatste transcript"
   original: "Kopieer origineel"
+  system_info: "Copy System Info"
   system_info_for_bug_report: "Kopieer systeeminformatie voor bugrapport"
+  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
   the_most_recent_transcript_to_the_clipboard: "Kopieer het meest recente transcript naar het klembord"
+  the_most_recent_transcript_to_the_clipboard_03a8d47b: "Copy the most recent transcript to the clipboard."
   to_clipboard: "Kopiëren naar klembord"
   transcript: "Kopieer transcript"
-  system_info: "Copy System Info"
-  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
-  the_most_recent_transcript_to_the_clipboard_b9736933: "Copy the most recent transcript to the clipboard."
 correct:
   grammar_mistakes: "Corrigeer grammaticafouten"
 create:
-  new_profile: "Create New Profile…"
-  speaker_profile: "Create Speaker Profile"
   _self: "Creëren"
   new_note: "Nieuwe notitie maken"
   new_preset: "Nieuwe voorinstelling maken"
+  new_profile: "Create New Profile…"
+  preset: "Create Preset"
+  speaker_profile: "Create Speaker Profile"
   your_first_note_to_get_started: "Maak uw eerste notitie om aan de slag te gaan"
   your_first_preset_or_duplicate_a_built_in: "Maak uw eerste voorinstelling of dupliceer een ingebouwde voorinstelling om deze aan te passen."
   your_own_presets_or_duplicate_built_in_on: "Maak uw eigen voorinstellingen of dupliceer ingebouwde voorinstellingen om ze aan te passen."
-  preset: "Create Preset"
 credentials:
   are_stored_securely_in_keychain: "Inloggegevens worden veilig opgeslagen in Keychain"
+  are_stored_securely_in_keychain_5acf: "Credentials are stored securely in Keychain."
   saved_successfully: "Inloggegevens zijn succesvol opgeslagen"
-  are_stored_securely_in_keychain_5acff5d3: "Credentials are stored securely in Keychain."
 current:
   _self: "Huidig: %@"
 custom:
@@ -242,8 +269,8 @@ cut:
   _self: "Snee"
 d:
   characters: "%d characters"
-  speakers: "%d sprekers"
   samples: "%d samples · %@"
+  speakers: "%d sprekers"
   words: "%d woorden"
 dark:
   _self: "Donker"
@@ -263,17 +290,39 @@ degraded:
   _self: "Gedegradeerd"
 delete:
   _self: "Verwijderen"
+  all: "Alles verwijderen"
+  all_participants: "Delete All Participants?"
+  all_participants_60ed6e73: "Delete All Participants…"
   folder: "Map verwijderen"
   folder_e556e7c2: "Map verwijderen?"
   model: "Model verwijderen"
+  note: "Notitie verwijderen?"
   preset: "Voorinstelling verwijderen"
   preset_4f6cfe36: "Voorinstelling verwijderen?"
   transcription: "Transcriptie verwijderen"
   transcription_f82187c4: "Transcriptie verwijderen?"
-  all: "Alles verwijderen"
-  all_participants: "Delete All Participants?"
-  all_participants_60ed6e73: "Delete All Participants…"
-  note: "Notitie verwijderen?"
+destinations:
+  _self: "Destinations"
+diarization:
+  _self: "Speaker diarization"
+  automatic: "Automatic"
+  clear_assignment: "Clear assignment"
+  download_model: "Download model"
+  expected_speakers: "Expected speakers"
+  model_ready: "Speaker diarization is ready."
+  model_setup_issue_media: "Download the speaker diarization model before starting media transcription."
+  model_setup_issue_recording: "Download the speaker diarization model before starting recording."
+  retraining_required: "Voice matching needs retraining after the diarization update."
+  similar_voice_help: "Similar voices may be merged. Set an expected speaker count when you know how many people are present."
+diarized:
+  _self: "gediariseerd"
+dictate:
+  in_russian_and_ukrainian: "Dicteer in het Russisch en Oekraïens"
+dictation:
+  _self: "Dictee"
+  language: "Dictatetaal"
+  polish: "Dictee polijsten"
+  words_min: "Dictation words / min"
 dictionary:
   _self: "Woordenboek"
 direct:
@@ -288,6 +337,8 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Geef Pindrop weer in het Dock in plaats van alleen als menubalk-app te draaien."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Dock de zijbalk aan de linker- of rechterrand van het venster."
+done:
+  _self: "Gereed"
 download:
   _self: "Downloaden"
   complete: "Downloaden voltooid!"
@@ -304,6 +355,8 @@ drop:
   audio_or_video_here: "Zet hier audio of video neer"
 duplicate:
   preset: "Dubbele voorinstelling"
+duration:
+  _self: "Duration"
 dutch:
   _self: "Nederlands"
 edit:
@@ -315,8 +368,8 @@ empty:
 enable:
   ai_enhancement: "Schakel AI-verbetering in"
   live_session_updates_during_recording: "Schakel live sessie-updates in tijdens het opnemen"
-  vibe_mode_ui_context: "Schakel sfeermodus in (UI-context)"
   mcp_server: "Enable MCP Server"
+  vibe_mode_ui_context: "Schakel sfeermodus in (UI-context)"
 enabled:
   _self: "Ingeschakeld"
 endpoint:
@@ -336,6 +389,8 @@ enter:
   word_to_add: "Voer het woord in dat u wilt toevoegen"
 error:
   _self: "Fout"
+estimated:
+  time_saved: "Estimated time saved"
 european:
   multilingual: "Europees meertalig"
 excellent:
@@ -378,6 +433,10 @@ feature:
   models: "Functiemodellen"
 fetch:
   models_in_models: "Haal modellen op in Modellen"
+file:
+  _self: "Archief"
+find:
+  _self: "Zoek"
 fix:
   punctuation_and_capitalization: "Corrigeer interpunctie en hoofdlettergebruik"
 floating:
@@ -418,9 +477,11 @@ grant:
   _self: "Studiebeurs"
 great:
   _self: "Geweldig"
+help:
+  _self: "Help"
 hide:
-  this_for_1_hour: "Verberg dit gedurende 1 uur"
   api_key: "API-sleutel verbergen"
+  this_for_1_hour: "Verberg dit gedurende 1 uur"
 history:
   _self: "Geschiedenis"
 hold:
@@ -429,6 +490,8 @@ hold:
   to_record_release_to_stop_and_transcribe: "Houd ingedrukt om op te nemen, laat los om te stoppen en te transcriberen"
   to_record_release_to_transcribe: "Houd ingedrukt om op te nemen, laat los om te transcriberen"
   to_record_then_release_to_open_the_note_edi: "Hold to record, then release to open the note editor with the transcription."
+home:
+  _self: "Home"
 hotkey:
   conflict: "Sneltoetsconflict"
 hotkeys:
@@ -445,11 +508,16 @@ import:
   presets: "Voorinstellingen importeren"
   strategy: "Importstrategie"
 imported:
+  file: "Imported file"
   files_and_web_links_will_appear_here_on: "Geïmporteerde bestanden en weblinks verschijnen hier zodra de verwerking is voltooid."
 improve:
   transcription_quality_using_ai: "Verbeter de transcriptiekwaliteit met behulp van AI"
 include:
   clipboard_text: "Inclusief klembordtekst"
+input:
+  device: "Invoerapparaat"
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
 interface:
   _self: "Interface"
   language: "Interfacetaal"
@@ -462,8 +530,8 @@ items:
 japanese:
   _self: "Japanse"
 keep:
-  pindrop_current_automatically_or_trigger_a: "Houd Pindrop automatisch actueel of activeer een handmatige controle wanneer u maar wilt."
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
+  pindrop_current_automatically_or_trigger_a: "Houd Pindrop automatisch actueel of activeer een handmatige controle wanneer u maar wilt."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -479,18 +547,22 @@ large:
 launch:
   at_login: "Start bij inloggen: %@"
   at_login_0b36c78f: "Start bij inloggen"
-  at_login_fd1a3b7b: "Starten bij inloggen"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
+  at_login_fd1a3b7b: "Starten bij inloggen"
 layout:
   _self: "Indeling"
 learn:
   corrected_words_automatically: "Leer automatisch gecorrigeerde woorden"
-legacy:
-  _self: "Legacy"
 left:
   _self: "Links"
+legacy:
+  _self: "Legacy"
 let:
   pindrop_quietly_learn_vocabulary_from_the_co: "Laat Pindrop rustig de woordenschat leren van de correcties die u in de loop van de tijd aanbrengt."
+library:
+  _self: "Bibliotheek"
+license:
+  _self: "Licentie"
 light:
   _self: "Licht"
   dark_and_curated_palette_presets: "Lichte, donkere en samengestelde paletvoorinstellingen"
@@ -529,28 +601,49 @@ local:
   speech_to_text_right_from_your_menu_bar_nf: "Lokale spraak-naar-tekst, rechtstreeks vanuit uw menubalk.nSnel, privé en altijd beschikbaar."
   speech_to_text_with_whisperkit: "Lokale spraak-naar-tekst met WhisperKit"
   voice_to_text: "Lokale spraak-naar-tekst"
+longest:
+  streak: "Longest streak"
 low:
   latency_mode_less_accurate: "Lage-latentiemodus (minder nauwkeurig)"
+main:
+  window: "Hoofdvenster"
 manage:
   local_speech_models_feature_models_and_th: "Beheer lokale spraakmodellen, functiemodellen en de standaardengine die Pindrop gebruikt voor transcriptie."
   models: "Beheer modellen"
   presets: "Beheer voorinstellingen"
   presets_ab87986d: "Voorinstellingen beheren..."
   presets_d5d4c2c2: "Manage Presets…"
+manual:
+  capture: "Manual capture"
 manually:
   check_for_new_versions_now: "Controleer nu handmatig op nieuwe versies."
+markdown:
+  md: "Markdown (.md)"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+mcp:
+  configuration_error: "MCP Configuration Error"
+  server: "MCP-server"
 media:
   library: "Mediabibliotheek"
+  saved: "Media opgeslagen"
   transcription: "Mediatranscriptie"
   unavailable: "Media niet beschikbaar"
-  saved: "Media opgeslagen"
 medium:
   _self: "Medium"
+meet:
+  the_new_orb: "Maak kennis met de nieuwe Orb"
+meeting:
+  saved: "Vergadering opgeslagen"
+metric:
+  _self: "Metric"
 microphone:
   _self: "Microfoon"
   permission_is_required_to_continue: "Microfoontoestemming is vereist om door te gaan"
   permission_is_required_to_continue_dc: "Microfoontoestemming is vereist om door te gaan."
   permission_required: "Microfoontoestemming vereist"
+minimize:
+  _self: "Minimaliseer"
 mit:
   license: "MIT-licentie"
 mode:
@@ -570,19 +663,29 @@ must:
   be_openai_compatible: "Moet OpenAI-compatibel zijn"
 mute:
   system_audio_during_recording: "Systeemaudio dempen tijdens opname"
+name:
+  _self: "Naam"
+nemotron:
+  default: "Nemotron (default)"
 new:
   folder: "Nieuwe map"
   note: "Nieuwe notitie"
   preset: "Nieuwe voorinstelling"
+newest:
+  _self: "Nieuwste"
 next:
   _self: "Volgende"
 no:
+  activity_in_this_period: "No activity in this period"
   api_key: "Geen API-sleutel"
   api_key_endpoint: "Geen API-sleutel • Eindpunt: %@"
+  conflicts_found: "No conflicts found"
   custom_presets: "Geen aangepaste voorinstellingen"
+  destination_data: "No destination data"
   downloaded_models: "Geen gedownloade modellen"
   folders_yet: "Nog geen mappen"
   items_in: "Geen items in %@"
+  learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Nog geen mediatranscripties"
   model_loaded: "Geen model geladen"
   model_selected: "Geen model geselecteerd"
@@ -594,33 +697,31 @@ no:
   models_match: "Er komen geen modellen overeen met '%@'"
   notes_yet: "Nog geen opmerkingen"
   providers_configured_yet: "Nog geen providers geconfigureerd."
+  providers_configured_yet_e6bc0075: "No providers configured yet"
   replacements: "Geen vervangingen"
   results_found: "Geen resultaten gevonden"
   settings_found: "Geen instellingen gevonden"
   transcriptions_yet: "Nog geen transcripties"
   vocabulary_words: "Geen woordenschatwoorden"
-  learned_participants_yet: "No learned participants yet"
-  providers_configured_yet_e6bc0075: "No providers configured yet"
-  conflicts_found: "No conflicts found"
 not:
   assigned: "Niet toegewezen"
+  enough_voice_data_yet: "Not enough voice data yet"
+  generated_yet_enable_the_server: "Not generated yet — enable the server"
+  granted: "Niet verleend"
   selected: "Niet geselecteerd"
   set: "Niet ingesteld"
   set_93039e60: "Niet ingesteld"
-  granted: "Niet verleend"
-  enough_voice_data_yet: "Not enough voice data yet"
-  generated_yet_enable_the_server: "Not generated yet — enable the server"
 note:
   _self: "Opmerking"
+  capture_hold: "Note Capture — Hold"
   capture_push_to_talk: "Notitie vastleggen (Push-to-Talk)"
   capture_toggle: "Notitie vastleggen (schakelen)"
+  capture_toggle_7139a240: "Note Capture — Toggle"
   enhancement: "Opmerking Verbetering"
   from: "Opmerking van"
   metadata: "Let op Metagegevens"
-  title: "Opmerking Titel"
   saved: "Notitie opgeslagen"
-  capture_hold: "Note Capture — Hold"
-  capture_toggle_7139a240: "Note Capture — Toggle"
+  title: "Opmerking Titel"
 notes:
   _self: "Opmerkingen"
   3add7b96: "notities"
@@ -628,6 +729,8 @@ off:
   _self: "Uit"
 ok:
   _self: "OK"
+oldest:
+  _self: "Oudste"
 ollama:
   _self: "Ollama"
   usually_does_not_require_authentication_f: "Ollama vereist meestal geen authenticatie voor lokale verzoeken."
@@ -637,13 +740,13 @@ on:
 open:
   _self: "Open"
   history: "Geschiedenis openen"
+  library: "Bibliotheek openen"
   logs_in_finder: "Open Logboeken in Finder"
   original_link: "Originele link openen"
   progress: "Voortgang openen"
   settings: "Instellingen openen"
   settings_fd7108f8: "Instellingen openen"
   system_settings: "Open Systeeminstellingen"
-  library: "Bibliotheek openen"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI-compatibele lokale server"
@@ -659,17 +762,21 @@ optionally:
 or:
   _self: "of"
   just_use_your_hotkey: "Of gebruik gewoon uw sneltoets!"
+orb:
+  _self: "Orb"
 original:
   _self: "Origineel"
   text_use_commas_for_multiple: "Originele tekst (gebruik komma's voor meerdere)"
 originals:
   comma_separated: "Originelen (door komma's gescheiden)"
+other:
+  _self: "Other"
 output:
   _self: "Uitvoer"
   audio_interface_and_everyday_behavior: "Uitvoer, audio, interface en alledaags gedrag"
   mode: "Uitvoermodus"
-nemotron:
-  default: "Nemotron (default)"
+overview:
+  _self: "Overview"
 paste:
   _self: "Plakken"
   a_video_or_audio_link: "Plak een video- of audiolink"
@@ -683,13 +790,15 @@ permissions:
   _self: "Machtigingen"
 pick:
   which_provider_and_model_handles_each_ai_ta: "Kies welke provider en welk model elke AI-taak afhandelt. Laat het staan ​​op 'Niet toegewezen' om een ​​doel over te slaan."
-  which_provider_and_model_handles_each_ai_ta_b719504f: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
+  which_provider_and_model_handles_each_ai_ta_3140fe59: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
 pill:
   _self: "Pil"
 pin:
   to_screen_always_on_top: "Vastzetten op scherm (altijd bovenaan)"
 pindrop:
   _self: "Pindrop"
+  1_19: "Pindrop 1.19"
+  help: "Pindrop-help"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop is klaar voor gebruik.
     Klik op het menubalkpictogram om aan de slag te gaan.
@@ -701,11 +810,13 @@ pindrop:
   needs_accessibility_permission_to_insert: "\"\" Pindrop heeft toegankelijkheidstoestemming nodig om tekst bij uw cursor in te voegen.                          Om toestemming te verlenen: 1. Klik hieronder op \"Systeeminstellingen openen\" 2. Klik op de knop + 3. Navigeer naar de app die wordt weergegeven in Finder 4. Start Pindrop opnieuw op nadat u toestemming hebt verleend Zonder deze toestemming wordt tekst alleen naar uw klembord gekopieerd.             \"\""
   needs_microphone_access_to_record_and_tr: "Pindrop heeft microfoontoegang nodig om je stem op te nemen en te transcriberen.nnVerleen toestemming in Systeeminstellingen."
   on_github: "Pindrop op GitHub"
+  orb: "Pindrop-orb"
   pill: "Pindrop-pil"
   theme: "Pindrop-thema"
-  orb: "Pindrop-orb"
-  1_19: "Pindrop 1.19"
-  help: "Pindrop-help"
+pinned:
+  _self: "Vastgezet"
+plain:
+  text_txt: "Platte tekst (.txt)"
 play:
   _self: "Toneelstuk"
 please:
@@ -714,8 +825,11 @@ please:
     Download een Whisper-model in Instellingen voordat u gaat opnemen.
     
     Ga naar Instellingen → Modellen om een ​​model te downloaden.
-  download_a_whisper_model_in_settings_befo_a71d286e: "Download een Whisper-model in Instellingen voordat u gaat opnemen.nnGa naar Instellingen → Modellen om een ​​model te downloaden."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Download een Whisper-model in Instellingen voordat u gaat opnemen.nnGa naar Instellingen → Modellen om een ​​model te downloaden."
   wait: "Even geduld a.u.b...."
+port:
+  _self: "Poort"
+  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
 portuguese:
   brazil: "Portugees (Brazilië)"
 powered:
@@ -723,28 +837,48 @@ powered:
 preparing:
   model: "Model voorbereiden..."
 preset:
+  example_bullets_input: "we hebben onboarding-latentie besproken daarna prijzen en tot slot de lanceerdatum van twaalf mei"
+  example_bullets_output: "- Onboarding-latentie\\n- Prijzen\\n- Lanceerdatum: 12 mei"
+  example_clean_input: "eh dus de vergadering is om half vier punt kun je bevestigen vraagteken"
+  example_clean_output: "Dus de vergadering is om 15:30. Kun je bevestigen?"
+  example_edits_input: "eh dit is correct ly vijfentwintig"
+  example_edits_output: "Dit is correctly 25"
+  example_email_input: "hey jordan even checken of je mijn notities van gisteren hebt gekregen bedankt"
+  example_email_output: "Hey Jordan,\\n\\nEven checken of je mijn notities van gisteren hebt gekregen.\\n\\nBedankt,"
+  example_live_input: "eh ik denk dat we de bèta vrijdag moeten shippen punt"
+  example_live_output: "Ik denk dat we de bèta vrijdag moeten shippen."
+  example_meeting_input: "alice stuurt het deck vrijdag bob doet de prijsreview we hebben volgende week een beslissing nodig"
+  example_meeting_output: "## Acties\\n- **Alice** stuurt het deck op **vrijdag**\\n- **Bob** doet de prijsreview\\n\\n## Volgende stappen\\n- Beslissing nodig volgende week"
+  example_social_input: "eh we hebben net dark mode uitgebracht en het ziet er geweldig uit je moet het proberen"
+  example_social_output: "We hebben net dark mode uitgebracht.\\n\\nHet ziet er geweldig uit — je moet het proberen."
+  example_technical_input: "roep fetch user pijl aan map dan de response is gelijk aan tweehonderd"
+  example_technical_output: "Roep `fetchUser` -> map dan de response `==` 200."
   name: "Vooraf ingestelde naam"
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "Houd ingedrukt om in elke app te dicteren. Pindrop zal uw toespraak transcriberen en de tekst invoegen waar uw cursor zich bevindt."
   esc_to_cancel: "Druk op Esc om te annuleren"
   keys: "Toetsen indrukken..."
+  keys_98b8167e: "Druk op toetsen…"
   once_to_start_again_to_stop: "Druk één keer om te starten, nogmaals om te stoppen"
   once_to_start_recording_press_again_to_sto: "Druk één keer om de opname te starten, druk nogmaals om te stoppen en te transcriberen"
+  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
   once_to_start_recording_then_press_again_t: "Druk één keer om de opname te starten en druk vervolgens nogmaals om te stoppen en te transcriberen."
   to_start_recording_press_again_to_open_not: "Druk hierop om de opname te starten, druk nogmaals om de notitie-editor te openen"
-  keys_98b8167e: "Druk op toetsen…"
-  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
 primary:
   text: "Primaire tekst"
 processing:
   _self: "Verwerking"
   272bc02e: "Verwerken..."
   5aa377e2: "⏳ Verwerking"
-  transcript: "Processing transcript"
   ellipsis: "Verwerken…"
+  transcript: "Processing transcript"
+project:
+  _self: "Project"
 prompt:
   _self: "Snel"
   preset: "Snelle voorinstelling"
+prompts:
+  are_sent_in_english: "Prompts worden in het Engels verzonden"
 provider:
   _self: "Aanbieder"
   kind: "Soort aanbieder"
@@ -773,7 +907,7 @@ recent:
 recommended:
   _self: "Aanbevolen"
   the_deterministic_cleaner_handles_mo: "Aanbevolen: de deterministische opschoner handelt de meeste dicteren prima af. Schakel de LLM-stap alleen in als je extra politoer wilt en af en toe modelkwalen (inleidingen, gespreksantwoorden) accepteert."
-  the_deterministic_cleaner_handles_mo_ca42c3e4: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
+  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "Dossier"
 recording:
@@ -787,13 +921,15 @@ redo:
 refresh:
   _self: "Vernieuwen"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
+regenerate:
+  _self: "Opnieuw genereren"
 remove:
-  from_speaker_profiles: "Remove from speaker profiles"
-  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Verwijderen"
   and_clear_any_assignments_that_reference: "'%@' verwijderen en alle toewijzingen wissen die ernaar verwijzen? Opgeslagen inloggegevens worden verwijderd."
   from_folder: "Verwijderen uit map"
+  from_speaker_profiles: "Remove from speaker profiles"
   provider: "Aanbieder verwijderen"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
 rename:
   _self: "Hernoemen"
   folder: "Hernoem map"
@@ -812,32 +948,34 @@ required:
   _self: "Vereist"
   for_recording_your_voice: "Vereist voor het opnemen van uw stem"
 requires:
+  a_fast_provider_apple_foundation_models: "Vereist een snelle provider (Apple Foundation Models aanbevolen). Cloudproviders zullen één API-oproep per pauze doen."
   diarization_model: "Requires diarization model"
   speaker_diarization: "Requires speaker diarization"
-  a_fast_provider_apple_foundation_models: "Vereist een snelle provider (Apple Foundation Models aanbevolen). Cloudproviders zullen één API-oproep per pauze doen."
 reset:
   _self: "Opnieuw instellen"
   all_settings: "Alle instellingen resetten?"
   all_settings_7262c7b7: "Reset alle instellingen"
-  to_default: "Terugzetten naar standaard"
   all_settings_e5dbc5fc: "Reset All Settings…"
+  to_default: "Terugzetten naar standaard"
 retry:
   _self: "Opnieuw proberen"
 right:
   _self: "Rechts"
 run:
-  llm_polish_after_dictation_stops: "LLM-polijsten uitvoeren nadat het dicteren stopt"
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
+  llm_polish_after_dictation_stops: "LLM-polijsten uitvoeren nadat het dicteren stopt"
 runtime:
   _self: "Looptijd: %@"
   status: "Runtimestatus"
+russian:
+  _self: "Russian"
 save:
   _self: "Redden"
   as_note: "Opslaan als notitie"
   continue: "Opslaan en doorgaan"
   credentials: "Bewaar referenties"
-  prompt: "Bewaar prompt"
   now_s: "Nu opslaan (⌘S)"
+  prompt: "Bewaar prompt"
 saved:
   _self: "Opgeslagen"
   as_note: "Opgeslagen als notitie"
@@ -862,9 +1000,9 @@ select:
   all: "Selecteer Alles"
   language: "Selecteer Taal"
   language_daea52c9: "Selecteer taal"
+  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
   this_floating_indicator_style: "Selecteer deze zwevende indicatorstijl."
   voice_model: "Selecteer Spraakmodel"
-  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
 selected:
   _self: "Gekozen"
 sent:
@@ -872,6 +1010,7 @@ sent:
 sessions:
   _self: "Sessies"
   781791f5: "sessies"
+  in: "%@ sessions in %@"
 set:
   as_default: "Instellen als standaard"
 settings:
@@ -880,15 +1019,17 @@ settings:
   fa67a397: "Instellingen…"
 setup:
   required: "Instelling vereist"
+shortcuts:
+  _self: "Sneltoetsen"
 show:
+  api_key: "API-sleutel tonen"
   app: "Toon app"
   app_in_finder: "Toon app in Finder"
   in_dock: "Weergeven in Dock"
-  api_key: "API-sleutel tonen"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
-  as_a_pill_at_the_bottom_of_the_screen: "Wordt weergegeven als een pil onder aan het scherm"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Wordt weergegeven als een orb van vloeibaar glas in de hoek van het scherm"
+  as_a_pill_at_the_bottom_of_the_screen: "Wordt weergegeven als een pil onder aan het scherm"
 sidebar:
   position: "Zijbalkpositie"
   position_916f66ea: "Positie zijbalk"
@@ -919,13 +1060,19 @@ sort:
   by: "Sorteer op"
 source:
   _self: "Bron"
+sources:
+  _self: "Sources"
 spanish:
   _self: "Spaans"
+speak:
+  to_append: "Spreek om toe te voegen"
 speaker:
-  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Sprekersdialoog en tijdstempels zijn aan het afspelen gekoppeld."
   diarization_is_required: "Sprekersdagboek is vereist"
+  profile_training: "Speaker profile training"
+speakers:
+  _self: "Sprekers"
 speed:
   _self: "Snelheid"
 start:
@@ -934,19 +1081,25 @@ start:
   recording_to_see_your_transcriptions_here: "Begin met opnemen om hier uw transcripties te bekijken"
   stop_recording: "Opname starten/stoppen"
   using_pindrop: "Begin met het gebruik van Pindrop"
+stats:
+  _self: "Stats"
 status:
   _self: "Status"
 stop:
-  recording: "Stop met opnemen"
   listening: "Stop met luisteren"
+  recording: "Stop met opnemen"
 streaming:
   enhancement: "Streamingverbetering"
   transcription_currently_supports_engli: "Streamingtranscriptie ondersteunt momenteel alleen Engels, ongeacht de geselecteerde taal."
+  transcription_instantly_ready: "Streamingtranscriptie, direct klaar"
   transcription_is_disabled_while_ai_enh: "Streamingtranscriptie is uitgeschakeld terwijl AI Enhancement is ingeschakeld."
   transcription_model_nemotron_speech: "Streaming-transcriptiemodel (Nemotron Speech Streaming) gelicentieerd door NVIDIA Corporation onder de NVIDIA Open Model License."
-  transcription_instantly_ready: "Streamingtranscriptie, direct klaar"
+subtitles:
+  srt: "Ondertitels (.srt)"
 success:
   _self: "Succes!"
+summary:
+  ready: "samenvatting klaar"
 support:
   _self: "Steun"
   coming_soon: "%@ Ondersteuning binnenkort beschikbaar"
@@ -965,34 +1118,43 @@ temporarily:
   pause_active_media_playback_while_di: "Pauzeer tijdelijk het actieve afspelen van media terwijl het dictaat wordt opgenomen."
 tertiary:
   text: "Tertiaire tekst"
+thanks:
+  to_for_investigating_and_kicking_off_the: "Dank aan %@ voor het onderzoeken en het starten van de oplossing (PR #64)."
+  to_for_the_contribution_pr_61: "Dank aan %@ voor de bijdrage (PR #61)."
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" Het model kon niet binnen 60 seconden worden geladen. Dit betekent meestal dat de modelbestanden beschadigd of incompatibel zijn.                          Om dit op te lossen: 1. Open Instellingen → Modellen 2. Verwijder het problematische model 3. Download het model opnieuw. Als het probleem zich blijft voordoen, probeer dan een kleiner model (Tiny of Base).             \"\""
-  selected_chunk_variant_isn_t_downloaded_yet: "De geselecteerde chunk-variant is nog niet gedownload. Omschakelen start een download."
   new_nemotron_streaming_engine_shows_words_as: "De nieuwe Nemotron-streamingengine toont woorden terwijl je ze uitspreekt en warmt op bij het starten, zodat je eerste dictaat zonder vertraging begint."
+  selected_chunk_variant_isn_t_downloaded_yet: "De geselecteerde chunk-variant is nog niet gedownload. Omschakelen start een download."
 theme:
   _self: "Thema"
   changes_apply_live_across_the_workspace_se: "Themawijzigingen zijn live van toepassing op de werkruimte, instellingen, notitie-editor en zwevende indicatoren."
   mode: "Thema-modus"
   mode_bb6b0b3d: "Themamodus"
+these:
+  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 this:
-  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Deze vooraf ingestelde naam is al in gebruik."
   provider_will_be_available_in_a_future_upda: |-
     Deze provider zal beschikbaar zijn in een toekomstige update.
     Probeer voorlopig OpenAI of gebruik een aangepast eindpunt.
-  provider_will_be_available_in_a_future_upda_3e35a952: |-
+  provider_will_be_available_in_a_future_upda_ba16848d: "Deze provider zal beschikbaar zijn in een toekomstige update.nProbeer nu OpenAI of gebruik een aangepast eindpunt."
+  provider_will_be_available_in_a_future_upda_4af6ff9b: |-
     Deze provider zal beschikbaar zijn in een toekomstige update.
     Probeer OpenAI of gebruik een aangepast eindpunt.
-  provider_will_be_available_in_a_future_upda_0677ac1d: "Deze provider zal beschikbaar zijn in een toekomstige update.nProbeer nu OpenAI of gebruik een aangepast eindpunt."
-  transcription_could_not_be_found: "Deze transcriptie kon niet worden gevonden."
-  will_clear_all_your_settings_including_api: "Hiermee worden al uw instellingen gewist, inclusief API-sleutels, sneltoetsen en modelvoorkeuren. De app wordt afgesloten en wordt bij de volgende lancering opnieuw onboarding weergegeven."
-  will_permanently_remove_the_transcript_and: "Hierdoor worden het transcript en het beheerde mediabestand permanent verwijderd."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
-  will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  transcription_could_not_be_found: "Deze transcriptie kon niet worden gevonden."
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
+  will_clear_all_your_settings_including_api: "Hiermee worden al uw instellingen gewist, inclusief API-sleutels, sneltoetsen en modelvoorkeuren. De app wordt afgesloten en wordt bij de volgende lancering opnieuw onboarding weergegeven."
+  will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_the_transcript_and: "Hierdoor worden het transcript en het beheerde mediabestand permanent verwijderd."
   will_permanently_remove_this_note: "Dit verwijdert deze notitie permanent."
 time:
-  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+  of_day: "Time of day"
+  range: "Time range"
   saved: "Tijd bespaard"
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+timestamps:
+  json: "Tijdstempels (.json)"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "om te dicteren en Pindrop voor u te laten transcriberen"
   start_talking: "om te beginnen praten"
@@ -1007,6 +1169,7 @@ transcribe:
   media: "Media transcriberen"
 transcribed:
   _self: "getranscribeerd"
+  words: "Transcribed words"
 transcription:
   _self: "Transcriptie"
   backend: "Transcriptie-backend"
@@ -1016,8 +1179,8 @@ transcription:
   finished: "Transcriptie voltooid."
   in_progress: "Transcriptie wordt uitgevoerd"
   metadata: "Metagegevens van transcriptie"
-  update: "Transcriptie-update"
   saved: "Transcriptie opgeslagen"
+  update: "Transcriptie-update"
 transcriptions:
   _self: "Transcripties"
   f0972acc: "transcripties"
@@ -1031,8 +1194,202 @@ try:
   searching_for_terms_like_hotkeys_microphone: "Probeer te zoeken naar termen als sneltoetsen, microfoon, updates of sfeermodus."
 turkish:
   _self: "Turks"
+two:
+  new_dictation_languages_fully_wired_into_mod: "Twee nieuwe dicteertalen, volledig gekoppeld aan modelaanbevelingen."
 type:
   text_directly_into_the_active_app_when_poss: "Typ indien mogelijk tekst rechtstreeks in de actieve app"
+u10:
+  floating_announcement_summary: "Opnieuw afspelen, een nieuwe uitstraling en toetsenbordbediening in heel Pindrop."
+  floating_inserted_into: "Ingevoegd in %@"
+  floating_keyboard_body: "Navigeer, zoek, maak notities, exporteer en verwijder zonder het toetsenbord te verlaten."
+  floating_keyboard_title: "Toetsenbord overal"
+  floating_microphone_unavailable: "Microfoon niet beschikbaar"
+  floating_new_look_body: "Een warmer en rustiger ontwerp zet je woorden voorop. Je themavoorinstellingen blijven behouden, met een nieuwe standaard: Bibliotheek."
+  floating_new_look_title: "Een nieuwe uitstraling"
+  floating_replay_body: "Pindrop kan audio zeven dagen bewaren, zodat je die vanuit de Bibliotheek opnieuw kunt beluisteren."
+  floating_replay_title: "Speel elk dictaat opnieuw af"
+  floating_transcribing: "Transcriberen…"
+  floating_version_line: "Pindrop 0.10.0 · juli 2026"
+  floating_whats_new: "Nieuw"
+  floating_word_count: "%d woorden"
+u11:
+  estimating_time: "Resterende tijd wordt geschat…"
+  live_transcript: "Live transcript"
+  microphone_muted: "Microfoon gedempt"
+  minutes_left: "nog ongeveer %d min."
+  recording_processing: "Opname gestopt. Transcriptie wordt verwerkt."
+  recording_started: "Opname gestart"
+  recording_stopped: "Opname gestopt"
+  seconds_left: "nog ongeveer %d sec."
+  transcription_complete: "Transcriptie voltooid"
+u11b:
+  expand: "Uitvouwen"
+  expired: "Verlopen"
+  playback_position: "Afspeelpositie"
+  step_x_of_y: "Stap %d van %d"
+u3:
+  library_assign_speaker: "Spreker toewijzen"
+  library_audio_kept_30_days: "audio 30 dagen bewaard"
+  library_audio_kept_7_days: "audio 7 dagen bewaard"
+  library_audio_kept_forever: "audio voor altijd bewaard"
+  library_click_line_to_jump: "klik op een regel om afspelen te springen"
+  library_dictations: "Dictaten"
+  library_dictations_appear_after_use: "Dictaten verschijnen hier na spraakinvoer."
+  library_h_m_spoken: "%d u %d m gesproken"
+  library_h_spoken: "%d u gesproken"
+  library_https_placeholder: "https://…"
+  library_import_file_or_paste_link: "Importeer een bestand of plak een link om media te transcriberen."
+  library_import_files: "Bestanden importeren…"
+  library_imported_audio: "Geïmporteerde audio"
+  library_insert_again: "Opnieuw invoegen"
+  library_inserted_into: "ingevoegd in %@"
+  library_m_spoken: "%d m gesproken"
+  library_meeting_recording: "Vergaderopname"
+  library_meetings: "Vergaderingen"
+  library_n_recordings: "%d opnames"
+  library_no_dictations_yet: "Nog geen dictaten"
+  library_no_meeting_recordings: "Geen vergaderopnames"
+  library_no_recordings_yet: "Nog geen opnames"
+  library_one_recording: "1 opname"
+  library_paste_link: "Link plakken…"
+  library_playback_speed: "Afspeelsnelheid"
+  library_record_meeting_ellipsis: "Vergadering opnemen…"
+  library_record_meeting_from_home: "Neem een vergadering op vanaf Home om die hier te zien."
+  library_rename_speaker_ellipsis: "Spreker hernoemen…"
+  library_start_dictation_or_import: "Start een dictaat vanaf Home of importeer een bestand."
+  library_summary_label: "SAMENVATTING"
+  library_try_different_search_or_filter: "Probeer een andere zoekterm of filter."
+  library_untitled: "Naamloos"
+  library_voice_transcription: "Spraaktranscriptie"
+  library_web_transcription: "Webtranscriptie"
+u4:
+  home_bar_a11y_n: "%@, %@ woorden"
+  home_bar_a11y_one: "%@, 1 woord"
+  home_duration_h: "%d u"
+  home_duration_h_m: "%d u %d m"
+  home_duration_m: "%d m"
+  home_n_day: "%d-dag"
+  home_n_words_grouped: "%@ woorden"
+  home_one_day: "1-dag"
+  home_open_library_arrow: "Bibliotheek openen →"
+  home_option_space_fallback: "⌥Space"
+  home_press_hotkey_hint: "Druk overal op %@ om te beginnen met dicteren."
+  home_recent_empty_hint: "Je nieuwste dictaten verschijnen hier."
+  home_streak: "Reeks"
+  home_subline_duration_only: "%@ dicteren."
+  home_subline_full: "%@ dicteren — ongeveer %@ bespaard ten opzichte van typen."
+  home_this_week: "Deze week"
+  home_welcome_tagline: "Spreek. Het is geschreven."
+  home_words_per_min: "Woorden / min"
+  home_words_so_far: "Woorden tot nu toe"
+  home_words_today: "Woorden vandaag"
+  home_you_spoke_this_week: "Je zei %@ deze week."
+  home_zero_day: "0-dag"
+u5:
+  u7_add_replacement: "Vervanging toevoegen"
+  u7_add_word: "Woord toevoegen"
+  u7_add_words_or_replacements: "Voeg woorden toe die de herkenner moet vertrouwen, of vervangingen na transcriptie."
+  u7_applied_after_transcription: "Toegepast na transcriptie, vóór invoegen"
+  u7_case_insensitive: "hoofdletterongevoelig"
+  u7_cmd_s_to_save: "⌘S om op te slaan"
+  u7_command: "commando"
+  u7_copy_content: "Inhoud kopiëren"
+  u7_d_ago: "%d d geleden"
+  u7_delete_note: "Notitie verwijderen"
+  u7_edited: "bewerkt"
+  u7_edited_format: "bewerkt %@"
+  u7_everything_runs_on_this_mac: "Alles draait op deze Mac"
+  u7_exact: "exact"
+  u7_h_ago: "%d u geleden"
+  u7_installed: "Geïnstalleerd"
+  u7_just_now: "zojuist"
+  u7_listening_speak_to_append: "Luistert — spreek om toe te voegen…"
+  u7_m_ago: "%d m geleden"
+  u7_match_mode: "Overeenkomstmodus"
+  u7_models_privacy_footnote: "Modellen verlaten deze Mac nooit. Audio wordt lokaal verwerkt tenzij je een cloudprovider kiest in Instellingen → AI."
+  u7_new_note: "Nieuwe notitie"
+  u7_no_dictionary_entries: "Geen woordenboekitems"
+  u7_on_device_helpers: "Helpers op het apparaat"
+  u7_on_disk: "OP SCHIJF"
+  u7_open_note: "Notitie openen"
+  u7_pin: "Vastzetten"
+  u7_replacements_run_in_order: "Vervangingen lopen op volgorde. Sleep rijen om te herordenen — de eerste match wint."
+  u7_replacements_section: "Vervangingen"
+  u7_speech_to_text: "Spraak naar tekst"
+  u7_teach_pindrop_your_words: "Leer Pindrop jouw woorden"
+  u7_unpin: "Losmaken"
+  u7_untitled_note: "Naamloze notitie"
+  u7_words_recognizer_should_trust: "Woorden die de herkenner moet vertrouwen"
+u8:
+  settings_acknowledgements: "Dankbetuigingen"
+  settings_advanced_assignments: "Geavanceerde toewijzingen"
+  settings_audio_on_disk_format: "Audio op schijf: %@ · %@"
+  settings_beta_channel: "Beta"
+  settings_bundled_fonts_ofl: "Meegeleverde lettertypen (Newsreader, Inter, JetBrains Mono) zijn gelicentieerd onder de SIL Open Font License."
+  settings_checks_for_updates_automatically: "Pindrop controleert automatisch op updates."
+  settings_choose_a_provider: "Kies een aanbieder"
+  settings_choose_folder_export_logs: "Kies een map om de Pindrop-logbestanden naartoe te kopiëren."
+  settings_copy_last_transcript: "Kopieer laatste transcript"
+  settings_copy_token: "Token kopiëren"
+  settings_days_30: "30 dagen"
+  settings_days_7: "7 dagen"
+  settings_debug: "Foutopsporing"
+  settings_delete_all_audio: "Alle audio verwijderen"
+  settings_delete_all_audio_ellipsis: "Alle audio verwijderen…"
+  settings_delete_all_audio_question: "Alle audio verwijderen?"
+  settings_diagnostics: "Diagnostiek"
+  settings_edit_prompt_ellipsis: "Prompt bewerken…"
+  settings_endpoint: "Eindpunt"
+  settings_enhance_transcripts: "Transcripten verbeteren"
+  settings_example_label: "VOORBEELD"
+  settings_export_logs_ellipsis: "Logboeken exporteren…"
+  settings_forever: "Voor altijd"
+  settings_github: "GitHub"
+  settings_info: "Info"
+  settings_keep_dictation_audio: "Dicteeraudio bewaren"
+  settings_last_checked_format: "Laatst gecontroleerd: %@"
+  settings_license_mit: "Licentie — MIT"
+  settings_listening_ellipsis: "Luisteren…"
+  settings_log_level: "Logniveau"
+  settings_logs_never_include_transcript: "Logboeken bevatten nooit transcripttekst"
+  settings_made_with_care: "Met zorg gemaakt voor lokale spraak."
+  settings_manage_ellipsis: "Beheren…"
+  settings_n_samples: "%d samples"
+  settings_n_snippets: "%d fragmenten"
+  settings_n_trained: "%d getraind"
+  settings_no_conflicts_with_system_or_app: "Geen conflicten met systeem- of appsneltoetsen."
+  settings_one_snippet: "1 fragment"
+  settings_one_trained: "1 getraind"
+  settings_presets_recolor_caption: "Voorinstellingen geven het accent en de achtergronden een nieuwe kleur. Tekstcontrast wordt automatisch gevalideerd."
+  settings_push_to_talk: "Push-to-talk"
+  settings_recording_indicator: "Opname-indicator"
+  settings_release_channel: "Release"
+  settings_removes_kept_dictation_audio: "Verwijdert bewaarde dicteeraudiobestanden. Transcripten blijven in je Bibliotheek."
+  settings_reset_all_settings_ellipsis: "Alle instellingen resetten…"
+  settings_separate_from_interface_language: "Los van de interfacetaal"
+  settings_some_shortcuts_conflict_each_other: "Sommige sneltoetsen conflicteren met elkaar."
+  settings_some_shortcuts_may_conflict_system: "Sommige sneltoetsen kunnen conflicteren met systeemsneltoetsen."
+  settings_speaker_profiles: "Sprekersprofielen"
+  settings_theme_preset: "Thema-voorinstelling"
+  settings_toggle_dictation: "Dicteren in-/uitschakelen"
+  settings_trained_summary_format: "%@ — gebruikt om te labelen wie wat heeft gezegd in vergaderingen"
+  settings_update_checks_unavailable: "Updatecontroles zijn tijdelijk niet beschikbaar."
+  settings_warning: "Waarschuwing"
+  settings_website: "Website"
+u9:
+  onboarding_accessibility_clipboard_fallback: "Zonder Toegankelijkheid kopieert Pindrop de tekst naar het klembord."
+  onboarding_change_hotkey_hint: "Druk op een andere combinatie om deze te wijzigen"
+  onboarding_download_amount_format: "%@ van %@"
+  onboarding_download_background_hint: "Ga door met instellen tijdens het downloaden — we ronden het op de achtergrond af."
+  onboarding_enable_enhancement: "Verbetering inschakelen"
+  onboarding_granted_state: "Verleend"
+  onboarding_pindrop_writes: "Pindrop schrijft"
+  onboarding_ready_heading: "Je bent klaar."
+  onboarding_ready_instruction_format: "Druk op %@ en begin te praten — Pindrop typt waar je cursor staat."
+  onboarding_try_it_now: "Probeer het nu"
+  onboarding_you_say: "Jij zegt"
+ukrainian:
+  _self: "Ukrainian"
 unable:
   to_connect_to_the_ai_enhancement_service: "\"\" Kan geen verbinding maken met de AI-verbeteringsservice.                                  Controleer het volgende: 1. Uw internetverbinding 2. De API-eindpunt-URL is correct 3. De service ondervindt geen storing De transcriptie is zonder verbeteringen opgeslagen.                 \"\""
   to_finish_transcription: "Kan transcriptie niet voltooien"
@@ -1045,6 +1402,8 @@ undo:
   _self: "Ongedaan maken"
 unfiled:
   _self: "Niet-gearchiveerd"
+unknown:
+  _self: "Unknown"
 unpin:
   from_screen: "Losmaken van het scherm"
 update:
@@ -1083,12 +1442,23 @@ view:
   transcription_history: "Transcriptiegeschiedenis bekijken"
 vocabulary:
   _self: "Vocabulaire"
+voice:
+  _self: "Voice"
 vs:
   typing: "versus typen"
+web:
+  link: "Web link"
 welcome:
   to_pindrop: "Welkom bij Pindrop"
+what:
+  s_new: "Nieuw…"
+  s_new_in_pindrop: "Nieuw in Pindrop"
+while:
+  recording: "Tijdens opname"
 whisperkit:
   _self: "WhisperKit"
+window:
+  _self: "Venster"
 word:
   _self: "Woord"
   replacements: "Woordvervangingen"
@@ -1110,371 +1480,13 @@ you:
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" U heeft uw API-limiet of quotum overschreden.                                  Om dit op te lossen: 1. Wacht een paar minuten en probeer het opnieuw 2. Controleer de gebruikslimieten van uw API-provider 3. Overweeg een upgrade van uw API-abonnement De transcriptie is zonder verbeteringen opgeslagen.                 \"\""
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" Uw API-sleutel lijkt ongeldig of verlopen te zijn.                                  Om dit op te lossen: 1. Open Instellingen → AI-verbetering 2. Controleer of uw API-sleutel correct is 3. Controleer of uw API-eindpunt correct is De transcriptie is zonder verbeteringen opgeslagen.                 \"\""
+  floating_indicator_is_now_a_living_audio_re: "Je zwevende indicator is nu een levende, audio-reactieve orb. Hij ademt wanneer hij inactief is, zwelt op wanneer je spreekt en streamt je woorden live terwijl je dicteert."
   hotkeys_are_ready_to_use_nyou_can_customize: "Uw sneltoetsen zijn klaar voor gebruik.nU kunt ze later aanpassen in Instellingen."
   hotkeys_are_ready_to_use_you_can_customize: |-
     Uw sneltoetsen zijn klaar voor gebruik.
     Je kunt ze later aanpassen in Instellingen.
   model_is_ready_to_use: "Uw model is klaar voor gebruik."
   stats: "Jouw statistieken"
-  floating_indicator_is_now_a_living_audio_re: "Je zwevende indicator is nu een levende, audio-reactieve orb. Hij ademt wanneer hij inactief is, zwelt op wanneer je spreekt en streamt je woorden live terwijl je dicteert."
-orb:
-  _self: "Orb"
-meeting:
-  saved: "Vergadering opgeslagen"
-russian:
-  _self: "Russian"
-ukrainian:
-  _self: "Ukrainian"
-what:
-  s_new_in_pindrop: "Nieuw in Pindrop"
-  s_new: "Nieuw…"
-meet:
-  the_new_orb: "Maak kennis met de nieuwe Orb"
-thanks:
-  to_for_investigating_and_kicking_off_the: "Dank aan %@ voor het onderzoeken en het starten van de oplossing (PR #64)."
-  to_for_the_contribution_pr_61: "Dank aan %@ voor de bijdrage (PR #61)."
-dictate:
-  in_russian_and_ukrainian: "Dicteer in het Russisch en Oekraïens"
-two:
-  new_dictation_languages_fully_wired_into_mod: "Twee nieuwe dicteertalen, volledig gekoppeld aan modelaanbevelingen."
-also:
-  new_rtl_layout_support_and_20_new_interface: "Ook nieuw: ondersteuning voor RTL-layouts en 20 nieuwe interfacetalen."
-advanced:
-  _self: "Geavanceerd"
-agent:
-  setup: "Agentinstelling"
-appearance:
-  _self: "Weergave"
-bearer:
-  token: "Bearer-token"
-changes:
-  the_language_used_by_pindrop_s_interface: "Wijzigt de taal van de Pindrop-interface."
-client:
-  _self: "Client"
-configuration:
-  file: "Configuration File"
-  scope: "Configuration Scope"
-  snippet: "Configuration Snippet"
-dictation:
-  _self: "Dictee"
-  language: "Dictatetaal"
-  polish: "Dictee polijsten"
-done:
-  _self: "Gereed"
-input:
-  device: "Invoerapparaat"
-license:
-  _self: "Licentie"
-mcp:
-  configuration_error: "MCP Configuration Error"
-  server: "MCP-server"
-main:
-  window: "Hoofdvenster"
-name:
-  _self: "Naam"
-port:
-  _self: "Poort"
-  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
-project:
-  _self: "Project"
-regenerate:
-  _self: "Opnieuw genereren"
-shortcuts:
-  _self: "Sneltoetsen"
-speakers:
-  _self: "Sprekers"
-these:
-  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
-while:
-  recording: "Tijdens opname"
-may:
-  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
-library:
-  _self: "Bibliotheek"
-conflicts:
-  with: "Conflicts with %@"
-file:
-  _self: "Archief"
-window:
-  _self: "Venster"
-help:
-  _self: "Help"
-close:
-  _self: "Sluit"
-find:
-  _self: "Zoek"
-minimize:
-  _self: "Minimaliseer"
+  stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "Zoom"
-bring:
-  all_to_front: "Alles op de voorgrond"
-home:
-  _self: "Home"
-newest:
-  _self: "Nieuwste"
-oldest:
-  _self: "Oudste"
-plain:
-  text_txt: "Platte tekst (.txt)"
-markdown:
-  md: "Markdown (.md)"
-subtitles:
-  srt: "Ondertitels (.srt)"
-timestamps:
-  json: "Tijdstempels (.json)"
-inserted:
-  into_d_words: "Ingevoegd in %@ · %d woorden"
-unknown:
-  app: "Onbekende app"
-pinned:
-  _self: "Vastgezet"
-speak:
-  to_append: "Spreek om toe te voegen"
-
-diarized:
-  _self: "gediariseerd"
-
-summary:
-  ready: "samenvatting klaar"
-
-prompts:
-  are_sent_in_english: "Prompts worden in het Engels verzonden"
-
-preset_example:
-  clean_input: "eh dus de vergadering is om half vier punt kun je bevestigen vraagteken"
-  clean_output: "Dus de vergadering is om 15:30. Kun je bevestigen?"
-  meeting_input: "alice stuurt het deck vrijdag bob doet de prijsreview we hebben volgende week een beslissing nodig"
-  meeting_output: "## Acties\\n- **Alice** stuurt het deck op **vrijdag**\\n- **Bob** doet de prijsreview\\n\\n## Volgende stappen\\n- Beslissing nodig volgende week"
-  email_input: "hey jordan even checken of je mijn notities van gisteren hebt gekregen bedankt"
-  email_output: "Hey Jordan,\\n\\nEven checken of je mijn notities van gisteren hebt gekregen.\\n\\nBedankt,"
-  social_input: "eh we hebben net dark mode uitgebracht en het ziet er geweldig uit je moet het proberen"
-  social_output: "We hebben net dark mode uitgebracht.\\n\\nHet ziet er geweldig uit — je moet het proberen."
-  bullets_input: "we hebben onboarding-latentie besproken daarna prijzen en tot slot de lanceerdatum van twaalf mei"
-  bullets_output: "- Onboarding-latentie\\n- Prijzen\\n- Lanceerdatum: 12 mei"
-  technical_input: "roep fetch user pijl aan map dan de response is gelijk aan tweehonderd"
-  technical_output: "Roep `fetchUser` -> map dan de response `==` 200."
-  live_input: "eh ik denk dat we de bèta vrijdag moeten shippen punt"
-  live_output: "Ik denk dat we de bèta vrijdag moeten shippen."
-  edits_input: "eh dit is correct ly vijfentwintig"
-  edits_output: "Dit is correctly 25"
-
-inserted:
-  into_d_words: "Inserted into %@ · %d words"
-
-unknown:
-  app: "Unknown App"
-
-u3_library:
-  rename_speaker_ellipsis: "Spreker hernoemen…"
-  assign_speaker: "Spreker toewijzen"
-  record_meeting_ellipsis: "Vergadering opnemen…"
-  dictations: "Dictaten"
-  meetings: "Vergaderingen"
-  one_recording: "1 opname"
-  n_recordings: "%d opnames"
-  h_m_spoken: "%d u %d m gesproken"
-  h_spoken: "%d u gesproken"
-  m_spoken: "%d m gesproken"
-  audio_kept_7_days: "audio 7 dagen bewaard"
-  audio_kept_30_days: "audio 30 dagen bewaard"
-  audio_kept_forever: "audio voor altijd bewaard"
-  inserted_into: "ingevoegd in %@"
-  import_files: "Bestanden importeren…"
-  paste_link: "Link plakken…"
-  insert_again: "Opnieuw invoegen"
-  playback_speed: "Afspeelsnelheid"
-  no_recordings_yet: "Nog geen opnames"
-  start_dictation_or_import: "Start een dictaat vanaf Home of importeer een bestand."
-  no_dictations_yet: "Nog geen dictaten"
-  dictations_appear_after_use: "Dictaten verschijnen hier na spraakinvoer."
-  no_meeting_recordings: "Geen vergaderopnames"
-  record_meeting_from_home: "Neem een vergadering op vanaf Home om die hier te zien."
-  import_file_or_paste_link: "Importeer een bestand of plak een link om media te transcriberen."
-  try_different_search_or_filter: "Probeer een andere zoekterm of filter."
-  untitled: "Naamloos"
-  https_placeholder: "https://…"
-  summary_label: "SAMENVATTING"
-  click_line_to_jump: "klik op een regel om afspelen te springen"
-  meeting_recording: "Vergaderopname"
-  voice_transcription: "Spraaktranscriptie"
-  imported_audio: "Geïmporteerde audio"
-  web_transcription: "Webtranscriptie"
-
-u5_u7:
-  new_note: "Nieuwe notitie"
-  add_word: "Woord toevoegen"
-  add_replacement: "Vervanging toevoegen"
-  teach_pindrop_your_words: "Leer Pindrop jouw woorden"
-  words_recognizer_should_trust: "Woorden die de herkenner moet vertrouwen"
-  applied_after_transcription: "Toegepast na transcriptie, vóór invoegen"
-  case_insensitive: "hoofdletterongevoelig"
-  exact: "exact"
-  command: "commando"
-  replacements_run_in_order: "Vervangingen lopen op volgorde. Sleep rijen om te herordenen — de eerste match wint."
-  no_dictionary_entries: "Geen woordenboekitems"
-  add_words_or_replacements: "Voeg woorden toe die de herkenner moet vertrouwen, of vervangingen na transcriptie."
-  match_mode: "Overeenkomstmodus"
-  everything_runs_on_this_mac: "Alles draait op deze Mac"
-  on_disk: "OP SCHIJF"
-  speech_to_text: "Spraak naar tekst"
-  on_device_helpers: "Helpers op het apparaat"
-  installed: "Geïnstalleerd"
-  models_privacy_footnote: "Modellen verlaten deze Mac nooit. Audio wordt lokaal verwerkt tenzij je een cloudprovider kiest in Instellingen → AI."
-  listening_speak_to_append: "Luistert — spreek om toe te voegen…"
-  cmd_s_to_save: "⌘S om op te slaan"
-  edited_format: "bewerkt %@"
-  just_now: "zojuist"
-  m_ago: "%d m geleden"
-  h_ago: "%d u geleden"
-  d_ago: "%d d geleden"
-  edited: "bewerkt"
-  open_note: "Notitie openen"
-  copy_content: "Inhoud kopiëren"
-  unpin: "Losmaken"
-  pin: "Vastzetten"
-  delete_note: "Notitie verwijderen"
-  replacements_section: "Vervangingen"
-  untitled_note: "Naamloze notitie"
-u4_home:
-  you_spoke_this_week: "Je zei %@ deze week."
-  n_words_grouped: "%@ woorden"
-  zero_day: "0-dag"
-  one_day: "1-dag"
-  n_day: "%d-dag"
-  duration_h_m: "%d u %d m"
-  duration_h: "%d u"
-  duration_m: "%d m"
-  subline_full: "%@ dicteren — ongeveer %@ bespaard ten opzichte van typen."
-  subline_duration_only: "%@ dicteren."
-  words_today: "Woorden vandaag"
-  words_per_min: "Woorden / min"
-  streak: "Reeks"
-  open_library_arrow: "Bibliotheek openen →"
-  this_week: "Deze week"
-  words_so_far: "Woorden tot nu toe"
-  welcome_tagline: "Spreek. Het is geschreven."
-  press_hotkey_hint: "Druk overal op %@ om te beginnen met dicteren."
-  bar_a11y_one: "%@, 1 woord"
-  bar_a11y_n: "%@, %@ woorden"
-  recent_empty_hint: "Je nieuwste dictaten verschijnen hier."
-  option_space_fallback: "⌥Space"
-
-u8_settings:
-  reset_all_settings_ellipsis: "Alle instellingen resetten…"
-  separate_from_interface_language: "Los van de interfacetaal"
-  keep_dictation_audio: "Dicteeraudio bewaren"
-  days_7: "7 dagen"
-  days_30: "30 dagen"
-  forever: "Voor altijd"
-  audio_on_disk_format: "Audio op schijf: %@ · %@"
-  one_snippet: "1 fragment"
-  n_snippets: "%d fragmenten"
-  delete_all_audio_ellipsis: "Alle audio verwijderen…"
-  delete_all_audio_question: "Alle audio verwijderen?"
-  delete_all_audio: "Alle audio verwijderen"
-  removes_kept_dictation_audio: "Verwijdert bewaarde dicteeraudiobestanden. Transcripten blijven in je Bibliotheek."
-  speaker_profiles: "Sprekersprofielen"
-  one_trained: "1 getraind"
-  n_trained: "%d getraind"
-  trained_summary_format: "%@ — gebruikt om te labelen wie wat heeft gezegd in vergaderingen"
-  manage_ellipsis: "Beheren…"
-  theme_preset: "Thema-voorinstelling"
-  presets_recolor_caption: "Voorinstellingen geven het accent en de achtergronden een nieuwe kleur. Tekstcontrast wordt automatisch gevalideerd."
-  recording_indicator: "Opname-indicator"
-  toggle_dictation: "Dicteren in-/uitschakelen"
-  push_to_talk: "Push-to-talk"
-  copy_last_transcript: "Kopieer laatste transcript"
-  no_conflicts_with_system_or_app: "Geen conflicten met systeem- of appsneltoetsen."
-  some_shortcuts_conflict_each_other: "Sommige sneltoetsen conflicteren met elkaar."
-  some_shortcuts_may_conflict_system: "Sommige sneltoetsen kunnen conflicteren met systeemsneltoetsen."
-  listening_ellipsis: "Luisteren…"
-  enhance_transcripts: "Transcripten verbeteren"
-  choose_a_provider: "Kies een aanbieder"
-  edit_prompt_ellipsis: "Prompt bewerken…"
-  example_label: "VOORBEELD"
-  advanced_assignments: "Geavanceerde toewijzingen"
-  endpoint: "Eindpunt"
-  copy_token: "Token kopiëren"
-  log_level: "Logniveau"
-  debug: "Foutopsporing"
-  info: "Info"
-  warning: "Waarschuwing"
-  diagnostics: "Diagnostiek"
-  logs_never_include_transcript: "Logboeken bevatten nooit transcripttekst"
-  export_logs_ellipsis: "Logboeken exporteren…"
-  choose_folder_export_logs: "Kies een map om de Pindrop-logbestanden naartoe te kopiëren."
-  github: "GitHub"
-  website: "Website"
-  license_mit: "Licentie — MIT"
-  acknowledgements: "Dankbetuigingen"
-  bundled_fonts_ofl: "Meegeleverde lettertypen (Newsreader, Inter, JetBrains Mono) zijn gelicentieerd onder de SIL Open Font License."
-  made_with_care: "Met zorg gemaakt voor lokale spraak."
-  release_channel: "Release"
-  beta_channel: "Beta"
-  last_checked_format: "Laatst gecontroleerd: %@"
-  update_checks_unavailable: "Updatecontroles zijn tijdelijk niet beschikbaar."
-  checks_for_updates_automatically: "Pindrop controleert automatisch op updates."
-  n_samples: "%d samples"
-u10_floating:
-  transcribing: "Transcriberen…"
-  word_count: "%d woorden"
-  inserted_into: "Ingevoegd in %@"
-  microphone_unavailable: "Microfoon niet beschikbaar"
-  whats_new: "Nieuw"
-  version_line: "Pindrop 0.10.0 · juli 2026"
-  announcement_summary: "Opnieuw afspelen, een nieuwe uitstraling en toetsenbordbediening in heel Pindrop."
-  replay_title: "Speel elk dictaat opnieuw af"
-  replay_body: "Pindrop kan audio zeven dagen bewaren, zodat je die vanuit de Bibliotheek opnieuw kunt beluisteren."
-  new_look_title: "Een nieuwe uitstraling"
-  new_look_body: "Een warmer en rustiger ontwerp zet je woorden voorop. Je themavoorinstellingen blijven behouden, met een nieuwe standaard: Bibliotheek."
-  keyboard_title: "Toetsenbord overal"
-  keyboard_body: "Navigeer, zoek, maak notities, exporteer en verwijder zonder het toetsenbord te verlaten."
-u11:
-  recording_started: "Opname gestart"
-  recording_stopped: "Opname gestopt"
-  recording_processing: "Opname gestopt. Transcriptie wordt verwerkt."
-  transcription_complete: "Transcriptie voltooid"
-  live_transcript: "Live transcript"
-  estimating_time: "Resterende tijd wordt geschat…"
-  seconds_left: "nog ongeveer %d sec."
-  minutes_left: "nog ongeveer %d min."
-  microphone_muted: "Microfoon gedempt"
-u11b:
-  playback_position: "Afspeelpositie"
-  expired: "Verlopen"
-  expand: "Uitvouwen"
-  step_x_of_y: "Stap %d van %d"
-sessions_in: "%@ sessions in %@"
-0_m: "0 m"
-1_year: "1 year"
-90_days: "90 days"
-ai_enhanced: "AI-enhanced"
-active_days: "Active days"
-activity: "Activity"
-all_time: "All time"
-audio_duration: "Audio duration"
-average_session: "Average session"
-average_words_session: "Average words / session"
-by_weekday: "By weekday"
-destinations: "Destinations"
-dictation_words_min: "Dictation words / min"
-duration: "Duration"
-estimated_time_saved: "Estimated time saved"
-imported_file: "Imported file"
-longest_streak: "Longest streak"
-manual_capture: "Manual capture"
-metric: "Metric"
-no_activity_in_this_period: "No activity in this period"
-no_destination_data: "No destination data"
-other: "Other"
-overview: "Overview"
-sources: "Sources"
-stats: "Stats"
-time_of_day: "Time of day"
-time_range: "Time range"
-transcribed_words: "Transcribed words"
-unknown: "Unknown"
-voice: "Voice"
-web_link: "Web link"
-your_stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."

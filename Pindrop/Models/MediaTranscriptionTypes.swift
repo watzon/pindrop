@@ -31,17 +31,22 @@ struct TranscriptionJobOptions: Sendable, Equatable {
     var language: AppLanguage
     var outputFormat: TranscribeOutputFormat
     var diarizationEnabled: Bool
+    /// Optional exact speaker-count hint for offline diarization (`1...20`).
+    /// `nil` means automatic detection. Validated at the transcription service boundary.
+    var expectedSpeakerCount: Int?
 
     init(
         modelName: String,
         language: AppLanguage = .automatic,
         outputFormat: TranscribeOutputFormat = .plainText,
-        diarizationEnabled: Bool = true
+        diarizationEnabled: Bool = true,
+        expectedSpeakerCount: Int? = nil
     ) {
         self.modelName = modelName
         self.language = language
         self.outputFormat = outputFormat
         self.diarizationEnabled = diarizationEnabled
+        self.expectedSpeakerCount = expectedSpeakerCount
     }
 }
 
@@ -239,6 +244,8 @@ final class MediaTranscriptionFeatureState {
     var librarySearchText: String = ""
     var librarySortMode: MediaLibrarySortMode = .newest
     var setupIssue: String?
+    var isDiarizationModelDownloading = false
+    var diarizationModelDownloadProgress: Double = 0.0
     var libraryMessage: String?
 
     func beginJob(_ job: MediaTranscriptionJobState) {
@@ -376,6 +383,8 @@ final class RecordingFeatureState {
     var isRecording = false
     var recordingStartedAt: Date?
     var audioLevel: Float = 0.0
+    var isDiarizationModelDownloading = false
+    var diarizationModelDownloadProgress: Double = 0.0
     var currentJob: MediaTranscriptionJobState?
     var setupIssue: String?
     var message: String?

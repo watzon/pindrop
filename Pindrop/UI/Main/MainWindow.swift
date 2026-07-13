@@ -99,13 +99,14 @@ struct MainWindow: View {
     @State private var historyRecordIDToOpen: UUID?
     let floatingIndicatorState: FloatingIndicatorState?
     let mediaTranscriptionState: MediaTranscriptionFeatureState?
+    let recordingState: RecordingFeatureState?
     let modelManager: ModelManager?
     let onImportMediaFiles: (([URL], TranscriptionJobOptions) -> Void)?
     let onSubmitMediaLink: ((String, TranscriptionJobOptions) -> Void)?
     let onClearMediaQueue: (() -> Void)?
     let onDownloadDiarizationModel: (() -> Void)?
     let onNewTranscription: (() -> Void)?
-    let onStartMeetingCapture: (() -> Void)?
+    let onStartMeetingCapture: ((Int?) -> Void)?
     let onStartNoteCapture: (() -> Void)?
     let onOpenSettings: (SettingsTab) -> Void
 
@@ -216,6 +217,7 @@ struct MainWindow: View {
             DashboardView(
                 floatingIndicatorState: floatingIndicatorState,
                 settingsStore: settingsStore,
+                recordingState: recordingState,
                 onOpenHotkeys: { navigateToSettings(.shortcuts) },
                 onViewAllHistory: { navigateTo(.history) },
                 onShowMoreStats: { navigateTo(.stats) },
@@ -226,7 +228,8 @@ struct MainWindow: View {
                 onNewTranscription: onNewTranscription,
                 onTranscribeFile: { navigateTo(.history) },
                 onRecordMeeting: onStartMeetingCapture,
-                onNewNote: onStartNoteCapture
+                onNewNote: onStartNoteCapture,
+                onDownloadDiarizationModel: onDownloadDiarizationModel
             )
         case .stats:
             StatsView()
@@ -234,10 +237,12 @@ struct MainWindow: View {
             HistoryView(
                 recordIDToOpen: historyRecordIDToOpen,
                 mediaTranscriptionState: mediaTranscriptionState,
+                recordingState: recordingState,
                 settingsStore: settingsStore,
                 onImportMediaFiles: onImportMediaFiles,
                 onSubmitMediaLink: onSubmitMediaLink,
-                onStartMeetingCapture: onStartMeetingCapture
+                onStartMeetingCapture: onStartMeetingCapture,
+                onDownloadDiarizationModel: onDownloadDiarizationModel
             )
         case .notes:
             NotesView()
@@ -246,10 +251,12 @@ struct MainWindow: View {
             HistoryView(
                 recordIDToOpen: historyRecordIDToOpen,
                 mediaTranscriptionState: mediaTranscriptionState,
+                recordingState: recordingState,
                 settingsStore: settingsStore,
                 onImportMediaFiles: onImportMediaFiles,
                 onSubmitMediaLink: onSubmitMediaLink,
-                onStartMeetingCapture: onStartMeetingCapture
+                onStartMeetingCapture: onStartMeetingCapture,
+                onDownloadDiarizationModel: onDownloadDiarizationModel
             )
         case .models:
             if let modelManager {
@@ -280,6 +287,65 @@ struct MainWindow: View {
         .background(AppColors.contentBackground)
     }
 }
+
+// MARK: - Meeting capture options
+
+/// Shared speaker-count picker for Dashboard and Library "Record Meeting…" flows.
+/// Start invokes the callback with `nil` (Automatic) or `1...20`; Cancel starts nothing.
+struct MeetingCaptureOptionsSheet: View {
+    @Environment(\.locale) private var locale
+    @Environment(\.dismiss) private var dismiss
+
+    let onStart: (Int?) -> Void
+
+    /// `0` represents Automatic detection; `1...20` are exact speaker counts.
+    @State private var selectedOption: Int = 0
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(localized("Record Meeting…", locale: locale))
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.textPrimary)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(localized("Expected speakers", locale: locale))
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.textSecondary)
+
+                Picker(localized("Expected speakers", locale: locale), selection: $selectedOption) {
+                    Text(localized("Automatic", locale: locale)).tag(0)
+                    ForEach(1...20, id: \.self) { count in
+                        Text("\(count)").tag(count)
+                    }
+                }
+                .labelsHidden()
+                .pickerStyle(.menu)
+                .accessibilityIdentifier("meetingExpectedSpeakerPicker")
+            }
+
+            HStack {
+                Spacer()
+                Button(localized("Cancel", locale: locale)) {
+                    dismiss()
+                }
+                .keyboardShortcut(.cancelAction)
+                .accessibilityIdentifier("meetingCaptureCancelButton")
+
+                Button(localized("Start Recording", locale: locale)) {
+                    let expectedCount = selectedOption == 0 ? nil : selectedOption
+                    onStart(expectedCount)
+                    dismiss()
+                }
+                .keyboardShortcut(.defaultAction)
+                .accessibilityIdentifier("meetingCaptureStartButton")
+            }
+        }
+        .padding(24)
+        .frame(minWidth: 360)
+        .accessibilityIdentifier("meetingCaptureOptionsSheet")
+    }
+}
+
 
 // MARK: - Sidebar
 
@@ -581,6 +647,7 @@ final class MainWindowController {
     private var modelContainer: ModelContainer?
     private var floatingIndicatorState: FloatingIndicatorState?
     private var mediaTranscriptionState: MediaTranscriptionFeatureState?
+    private var recordingState: RecordingFeatureState?
     private var modelManager: ModelManager?
     private var settingsStore: SettingsStore?
     private var navObserver: Any?
@@ -591,7 +658,7 @@ final class MainWindowController {
     var onClearMediaQueue: (() -> Void)?
     var onDownloadDiarizationModel: (() -> Void)?
     var onNewTranscription: (() -> Void)?
-    var onStartMeetingCapture: (() -> Void)?
+    var onStartMeetingCapture: ((Int?) -> Void)?
     var onStartNoteCapture: (() -> Void)?
     var onOpenSettings: ((SettingsTab) -> Void)?
 
@@ -614,11 +681,13 @@ final class MainWindowController {
 
     func configureMeetingCapture(
         floatingIndicatorState: FloatingIndicatorState,
+        recordingState: RecordingFeatureState? = nil,
         onNewTranscription: @escaping () -> Void,
-        onStartMeetingCapture: @escaping () -> Void,
+        onStartMeetingCapture: @escaping (Int?) -> Void,
         onStartNoteCapture: @escaping () -> Void
     ) {
         self.floatingIndicatorState = floatingIndicatorState
+        self.recordingState = recordingState
         self.onNewTranscription = onNewTranscription
         self.onStartMeetingCapture = onStartMeetingCapture
         self.onStartNoteCapture = onStartNoteCapture
@@ -697,6 +766,7 @@ final class MainWindowController {
                 settingsStore: settingsStore,
                 floatingIndicatorState: floatingIndicatorState,
                 mediaTranscriptionState: mediaTranscriptionState,
+                recordingState: recordingState,
                 modelManager: modelManager,
                 onImportMediaFiles: onImportMediaFiles,
                 onSubmitMediaLink: onSubmitMediaLink,
@@ -833,6 +903,7 @@ final class MainWindowController {
         settingsStore: SettingsStore(),
         floatingIndicatorState: nil,
         mediaTranscriptionState: nil,
+        recordingState: nil,
         modelManager: nil,
         onImportMediaFiles: nil,
         onSubmitMediaLink: nil,
@@ -853,6 +924,7 @@ final class MainWindowController {
         settingsStore: SettingsStore(),
         floatingIndicatorState: nil,
         mediaTranscriptionState: nil,
+        recordingState: nil,
         modelManager: nil,
         onImportMediaFiles: nil,
         onSubmitMediaLink: nil,

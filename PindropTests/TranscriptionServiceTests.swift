@@ -458,14 +458,12 @@ struct TranscriptionServiceTests {
         #expect(mockEngine.transcribeCallCount == 2)
     }
 
-    @Test func transcribeWithDiarizationRegistersKnownSpeakersBeforeDiarizing() async throws {
+    @Test func transcribeWithDiarizationDoesNotRegisterKnownSpeakersBeforeDiarizing() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["Hello team"]
 
-        let knownSpeaker = Speaker(id: UUID().uuidString, label: "Alice", embedding: [0.2, 0.4, 0.6])
-        let identityService = MockSpeakerIdentityService(knownSpeakers: [knownSpeaker])
-
-        let diarizedSpeaker = Speaker(id: "speaker-a", label: "Alice", embedding: [0.2, 0.4, 0.6])
+        let identityService = MockSpeakerIdentityService()
+        let diarizedSpeaker = Speaker(id: "speaker-a", label: "Speaker 1", embedding: [0.2, 0.4, 0.6])
         let diarizationResult = DiarizationResult(
             segments: [
                 SpeakerSegment(speaker: diarizedSpeaker, startTime: 0.0, endTime: 1.5, confidence: 0.92)
@@ -489,9 +487,10 @@ struct TranscriptionServiceTests {
             diarizationEnabled: true
         )
 
-        #expect(identityService.knownSpeakersCallCount == 1)
-        #expect(mockDiarizer.clearKnownSpeakersCallCount == 1)
-        #expect(mockDiarizer.registeredKnownSpeakers == [knownSpeaker])
+        #expect(identityService.knownSpeakersCallCount == 0)
+        #expect(mockDiarizer.clearKnownSpeakersCallCount == 0)
+        #expect(mockDiarizer.registeredKnownSpeakers.isEmpty)
+        #expect(mockDiarizer.diarizeCallCount == 1)
     }
 
     @Test func transcribeWithDiarizationUsesMatchedParticipantNameWhenConfidenceGatePasses() async throws {
@@ -529,7 +528,7 @@ struct TranscriptionServiceTests {
 
         #expect(output.text == "Hello team")
         #expect(output.diarizedSegments?.map(\.speakerLabel) == [""])
-        #expect(identityService.bestMatchCallCount == 1)
+        #expect(identityService.bestMatchCallCount == 2)
     }
 
     @Test func transcribeWithDiarizationFallsBackWhenKnownSpeakerMatchDoesNotClearGate() async throws {
@@ -777,6 +776,58 @@ struct TranscriptionServiceTests {
         #expect(service.state == .ready)
     }
 
+    @Test func invalidExpectedSpeakerCountFailsBeforeModelWork() async throws {
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        let service = TranscriptionService(engineFactory: { _ in mockEngine })
+
+        do {
+            _ = try await service.transcribe(
+                audioData: makeFloatAudioData(seconds: 1.0),
+                diarizationEnabled: true,
+                options: TranscriptionOptions(),
+                diarizationOptions: DiarizationOptions(expectedSpeakerCount: 21)
+            )
+            Issue.record("Expected expected-speaker validation failure")
+        } catch let error as TranscriptionService.TranscriptionError {
+            guard case .diarizationFailed(let message) = error else {
+                Issue.record("Unexpected transcription error: \(error)")
+                return
+            }
+            #expect(message.contains("between 1 and 20"))
+            #expect(mockEngine.state == .unloaded)
+        }
+    }
+
+    @Test func requiredDiarizationFailureIsTypedInsteadOfFallingBack() async throws {
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        mockEngine.transcribeResponses = ["plain fallback"]
+        let mockDiarizer = MockSpeakerDiarizer()
+        mockDiarizer.diarizeError = NSError(domain: "DiarizationTests", code: 1)
+        let service = TranscriptionService(
+            engineFactory: { _ in mockEngine },
+            diarizerFactory: { mockDiarizer }
+        )
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        do {
+            _ = try await service.transcribe(
+                audioData: makeFloatAudioData(seconds: 1.0),
+                diarizationEnabled: true,
+                options: TranscriptionOptions(),
+                diarizationOptions: DiarizationOptions(expectedSpeakerCount: 2),
+                diarizationFailurePolicy: .required
+            )
+            Issue.record("Expected required diarization failure")
+        } catch let error as TranscriptionService.TranscriptionError {
+            guard case .diarizationFailed = error else {
+                Issue.record("Unexpected transcription error: \(error)")
+                return
+            }
+            #expect(mockEngine.transcribeCallCount == 0)
+            #expect(mockDiarizer.lastOptions?.expectedSpeakerCount == 2)
+        }
+    }
+
     @Test func transcribeWithDiarizationCancellationPropagates() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
         mockEngine.transcribeResponses = ["should not transcribe"]
@@ -813,7 +864,7 @@ struct TranscriptionServiceTests {
 
     @Test func transcribeWithDiarizationNormalizesAndMergesSegments() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
-        mockEngine.transcribeResponses = ["Merged speaker text", "Second speaker text"]
+        mockEngine.transcribeResponses = ["Merged speaker text", "Second speaker text", "Third speaker text"]
 
         let speakerA = Speaker(id: "speaker-a", label: "A", embedding: nil)
         let speakerB = Speaker(id: "speaker-b", label: "B", embedding: nil)
@@ -821,7 +872,7 @@ struct TranscriptionServiceTests {
 
         let diarizationResult = DiarizationResult(
             segments: [
-                SpeakerSegment(speaker: speakerC, startTime: 3.0, endTime: 4.2, confidence: 0.7),
+                SpeakerSegment(speaker: speakerC, startTime: 3.0, endTime: 4.2, confidence: .nan),
                 SpeakerSegment(speaker: speakerA, startTime: 1.25, endTime: 2.4, confidence: 0.9), // merge
                 SpeakerSegment(speaker: speakerB, startTime: 2.8, endTime: 2.5, confidence: 0.6),   // invalid
                 SpeakerSegment(speaker: speakerA, startTime: 0.0, endTime: 1.1, confidence: 0.5),
@@ -845,17 +896,19 @@ struct TranscriptionServiceTests {
             diarizationEnabled: true
         )
 
-        #expect(output.text == "Speaker 1: Merged speaker text\nSpeaker 2: Second speaker text")
-        #expect(mockEngine.transcribeCallCount == 2)
+        #expect(output.text == "Speaker 1: Merged speaker text\nSpeaker 2: Second speaker text\nSpeaker 3: Third speaker text")
+        #expect(mockEngine.transcribeCallCount == 3)
 
         let diarizedSegments = try #require(output.diarizedSegments, "Expected diarized segments")
 
-        #expect(diarizedSegments.count == 2)
+        #expect(diarizedSegments.count == 3)
         #expect(diarizedSegments[0].speakerId == "speaker-a")
         #expect(abs(diarizedSegments[0].startTime - 0.0) < 0.0001)
         #expect(abs(diarizedSegments[0].endTime - 2.4) < 0.0001)
-        #expect(diarizedSegments[1].speakerId == "speaker-c")
-        #expect(diarizedSegments.map(\.speakerLabel) == ["Speaker 1", "Speaker 2"])
+        #expect(diarizedSegments[1].speakerId == "speaker-b")
+        #expect(diarizedSegments[2].speakerId == "speaker-c")
+        #expect(diarizedSegments.map(\.speakerLabel) == ["Speaker 1", "Speaker 2", "Speaker 3"])
+        #expect(diarizedSegments.allSatisfy { $0.confidence.isFinite && (0...1).contains($0.confidence) })
     }
 
     @Test func transcribeWithDiarizationSplitsLongSegmentsIntoSmallerTimedChunks() async throws {
@@ -1350,6 +1403,7 @@ private final class MockSpeakerDiarizer: SpeakerDiarizer {
     var diarizeError: Error?
     var diarizeDelayNanoseconds: UInt64?
     var nonCooperativeDiarizeDelayNanoseconds: UInt64?
+    private(set) var lastOptions: DiarizationOptions?
     private(set) var loadModelsCallCount = 0
     private(set) var unloadModelsCallCount = 0
     private(set) var diarizeCallCount = 0
@@ -1366,7 +1420,13 @@ private final class MockSpeakerDiarizer: SpeakerDiarizer {
         state = .unloaded
     }
 
-    func diarize(samples: [Float], sampleRate: Int) async throws -> DiarizationResult {
+    func diarize(
+        samples: [Float],
+        sampleRate: Int,
+        options: DiarizationOptions
+    ) async throws -> DiarizationResult {
+        _ = options
+        lastOptions = options
         diarizeCallCount += 1
         if let nonCooperativeDiarizeDelayNanoseconds {
             await withCheckedContinuation { continuation in
@@ -1386,18 +1446,7 @@ private final class MockSpeakerDiarizer: SpeakerDiarizer {
         return nextResult
     }
 
-    func compareSpeakers(audio1: [Float], audio2: [Float]) async throws -> Float {
-        0.0
-    }
-
-    func registerKnownSpeaker(_ speaker: Speaker) async throws {
-        registeredKnownSpeakers.append(speaker)
-    }
-
-    func clearKnownSpeakers() async {
-        clearKnownSpeakersCallCount += 1
-        registeredKnownSpeakers.removeAll()
-    }
+    // Anonymous diarization intentionally has no known-speaker registration APIs.
 }
 
 @MainActor
@@ -1413,10 +1462,6 @@ private final class MockSpeakerIdentityService: SpeakerIdentityManaging {
         self.matchesByEmbeddingKey = matchesByEmbeddingKey
     }
 
-    func knownSpeakers() throws -> [Speaker] {
-        knownSpeakersCallCount += 1
-        return speakers
-    }
 
     func bestMatch(for embedding: [Float]) throws -> SpeakerIdentityMatch? {
         bestMatchCallCount += 1
@@ -1434,6 +1479,11 @@ private final class MockSpeakerIdentityService: SpeakerIdentityManaging {
     func learnFromDictation(recordID: UUID, segments: [DiarizedTranscriptSegment]) throws {}
     func hasTrainingEvidence(for recordID: UUID) throws -> Bool { false }
     func removeTrainingEvidence(for recordID: UUID) throws {}
+    func removeTrainingEvidence(
+        recordID: UUID,
+        sourceSpeakerID: String,
+        sourceType: String
+    ) throws {}
     func createProfile(displayName: String, notes: String?) throws -> ParticipantProfile {
         ParticipantProfile(normalizedName: displayName.lowercased(), displayName: displayName, notes: notes)
     }

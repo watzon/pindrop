@@ -1,61 +1,61 @@
-u9_onboarding:
-  download_amount_format: "%@ из %@"
-  download_background_hint: "Продолжайте настройку во время загрузки — мы завершим её в фоновом режиме."
-  you_say: "Вы говорите"
-  pindrop_writes: "Pindrop пишет"
-  enable_enhancement: "Включить улучшение"
-  accessibility_clipboard_fallback: "Без Универсального доступа Pindrop копирует текст в буфер обмена."
-  change_hotkey_hint: "Нажмите другое сочетание, чтобы изменить его"
-  granted_state: "Предоставлено"
-  ready_heading: "Всё готово."
-  ready_instruction_format: "Нажмите %@ и начинайте говорить — Pindrop печатает там, где находится курсор."
-  try_it_now: "Попробовать сейчас"
-
+0:
+  m: "0 m"
 100:
   local_processing: "100% местная обработка"
 1:
   folder: "1 папка"
+  note: "1 заметка"
   speaker: "1 спикер"
   transcription: "1 транскрипция"
-  note: "1 заметка"
   word: "1 слово"
+  year: "1 year"
+90:
+  days: "90 days"
 a:
-  native_macos_menu_bar_dictation_app_using_loca: "Нативное приложение для диктовки в строке меню macOS, использующее локальное преобразование речи в текст с помощью WhisperKit. 100% локальная обработка по умолчанию с дополнительным улучшением AI."
   big_round_of_upgrades_and_two_community_shout: "Большая порция улучшений — и две благодарности участникам сообщества."
+  native_macos_menu_bar_dictation_app_using_loca: "Нативное приложение для диктовки в строке меню macOS, использующее локальное преобразование речи в текст с помощью WhisperKit. 100% локальная обработка по умолчанию с дополнительным улучшением AI."
 about:
   _self: "О"
   pindrop: "О Пиндропе"
 accessibility:
   _self: "Доступность"
+  permission: "Разрешение «Универсальный доступ»"
   permission_is_enabled_full_ui_cont: "Разрешение на доступ включено. Доступен полный контекст пользовательского интерфейса."
   permission_is_not_granted_vibe_mod: "Разрешение на доступ не предоставлено. Режим Vibe остается неблокирующим с ограниченным контекстом."
   permission_recommended: "Рекомендуется разрешение на доступность"
   permission_required: "Требуется разрешение на доступ"
-  permission: "Разрешение «Универсальный доступ»"
 accuracy:
   _self: "Точность"
 acknowledgments:
   _self: "Благодарности"
 active:
   _self: "Активный"
+  days: "Active days"
+activity:
+  _self: "Activity"
 add:
   _self: "Добавлять"
   a_provider_to_start_using_ai_enhancement: "Добавьте поставщика, чтобы начать использовать улучшения AI."
   custom_words_to_improve_transcription_accura: "Добавляйте собственные слова, чтобы повысить точность транскрипции специализированных терминов, имен или жаргона."
   provider: "Добавить поставщика"
   tag: "Добавить тег..."
+  this_to_claude_settings_json_in_your_project: "Добавьте это в .claude/settings.json в корне проекта или в ~/.claude/settings.json для пользователя."
+  this_to_codex_config_toml_project_scoped_con: "Добавьте это в ~/.codex/config.toml. Конфигурация проекта может быть в .codex/config.toml для доверенных проектов."
+  this_to_config_opencode_opencode_json_for_us: "Добавьте это в ~/.config/opencode/opencode.json для доступа пользователя во всех проектах."
+  this_to_cursor_mcp_json_in_your_project_root: "Добавьте это в .cursor/mcp.json в корне проекта или в ~/.cursor/mcp.json для всех проектов. Перезапустите Cursor после сохранения."
+  this_to_opencode_json_in_your_project_root_f: "Добавьте это в opencode.json в корне проекта для доступа в рамках проекта."
   to_existing: "Добавить к существующим"
   trailing_space: "Добавить конечный пробел"
   word_replacements_to_automatically_correct_c: "Добавляйте замены слов, чтобы автоматически исправлять распространенные ошибки транскрипции."
   words_to_help_pindrop_recognize_them_properl: "Добавляйте слова, чтобы Pindrop правильно их распознавал."
   words_you_manually_correct_into_your_vocabul: "Добавляйте слова, которые вы исправляете вручную, в свой словарный запас для будущих транскрипций."
-  this_to_claude_settings_json_in_your_project: "Добавьте это в .claude/settings.json в корне проекта или в ~/.claude/settings.json для пользователя."
-  this_to_cursor_mcp_json_in_your_project_root: "Добавьте это в .cursor/mcp.json в корне проекта или в ~/.cursor/mcp.json для всех проектов. Перезапустите Cursor после сохранения."
-  this_to_opencode_json_in_your_project_root_f: "Добавьте это в opencode.json в корне проекта для доступа в рамках проекта."
-  this_to_codex_config_toml_project_scoped_con: "Добавьте это в ~/.codex/config.toml. Конфигурация проекта может быть в .codex/config.toml для доверенных проектов."
-  this_to_config_opencode_opencode_json_for_us: "Добавьте это в ~/.config/opencode/opencode.json для доступа пользователя во всех проектах."
+advanced:
+  _self: "Дополнительно"
+agent:
+  setup: "Настройка агента"
 ai:
   _self: "ИИ"
+  enhanced: "AI-enhanced"
   enhancement: "Улучшение искусственного интеллекта"
   enhancement_529f5583: "Улучшение ИИ: %@"
   enhancement_failed: "Улучшение ИИ не удалось"
@@ -64,6 +64,9 @@ ai:
   model: "Модель ИИ"
 all:
   _self: "Все"
+  time: "All time"
+also:
+  new_rtl_layout_support_and_20_new_interface: "Также новое: поддержка RTL-разметки и 20 новых языков интерфейса."
 an:
   error_occurred_while_enhancing_your_transcrip: |-
     При расширении транскрипции произошла ошибка:
@@ -72,7 +75,7 @@ an:
     
     Исходная транскрипция была сохранена без улучшений.
     Вы можете попробовать снова включить улучшение AI в настройках.
-  error_occurred_while_enhancing_your_transcrip_8c664cb4: "При улучшении вашей транскрипции произошла ошибка: nn%@nnИсходная транскрипция была сохранена без улучшения.nВы можете попробовать снова включить AI-улучшение в настройках."
+  error_occurred_while_enhancing_your_transcrip_1790ad05: "При улучшении вашей транскрипции произошла ошибка: nn%@nnИсходная транскрипция была сохранена без улучшения.nВы можете попробовать снова включить AI-улучшение в настройках."
 anthropic:
   _self: "Anthropic"
 api:
@@ -82,6 +85,8 @@ api:
   key_saved_endpoint: "Ключ API сохранен • Конечная точка: %@."
 app:
   info_acknowledgments_support_and_logs: "Информация о приложении, подтверждения, поддержка и журналы"
+appearance:
+  _self: "Оформление"
 append:
   a_space_after_each_transcription_for_seam: "Добавьте пробел после каждой транскрипции для плавной диктовки."
 apple:
@@ -99,6 +104,7 @@ assignments:
 attach:
   logs_from_this_folder_when_filing_a_githu: "Прикрепите журналы из этой папки при регистрации проблемы на GitHub."
 audio:
+  duration: "Audio duration"
   input: "Аудиовход"
 automatic:
   follow_system: "Автоматический (следовать системе)"
@@ -109,6 +115,9 @@ automatically:
   start_pindrop_when_you_sign_in: "Автоматически запускать Pindrop при входе в систему."
 available:
   models: "Доступные модели"
+average:
+  session: "Average session"
+  words_session: "Average words / session"
 avg:
   speed: "Средняя скорость"
 back:
@@ -116,14 +125,20 @@ back:
   to_library: "Вернуться в библиотеку"
 base:
   _self: "База"
+bearer:
+  token: "Bearer-токен"
 best:
   _self: "Лучший"
 better:
   _self: "Лучше"
   bluetooth_external_mic_support: "Лучшая поддержка Bluetooth и внешних микрофонов"
+bring:
+  all_to_front: "Переместить все вперед"
 built:
   in_presets: "Встроенные пресеты"
   in_read_only: "Встроенный (только для чтения)"
+by:
+  weekday: "By weekday"
 cancel:
   _self: "Отмена"
   operation: "Отменить операцию"
@@ -132,6 +147,8 @@ capture:
 change:
   microphone: "Сменить микрофон"
   microphone_ac9970f4: "Сменить микрофон"
+changes:
+  the_language_used_by_pindrop_s_interface: "Меняет язык интерфейса Pindrop."
 check:
   for_updates: "Проверьте наличие обновлений..."
   for_updates_736b9062: "Проверьте наличие обновлений"
@@ -144,24 +161,24 @@ choose:
   a_model: "Выберите модель"
   a_provider_first: "Сначала выберите провайдера"
   an_audio_or_video_file_to_transcribe: "Выберите аудио или видео файл для расшифровки"
-  between_nemotron_punctuated_downloaded_mod: "Выберите между Nemotron (с пунктуацией, загружаемая модель) и Apple SpeechTranscriber (macOS 26+, входит в состав системы)."
+  between_nemotron_punctuated_downloaded_mo: "Выберите между Nemotron (с пунктуацией, загружаемая модель) и Apple SpeechTranscriber (macOS 26+, входит в состав системы)."
   file: "Выбрать файл"
   how_dictated_text_lands_then_tune_the_fin: "Выберите, как будет располагаться продиктованный текст, а затем настройте окончательное поведение вставки."
+  how_pindrop_appears_on_screen_while_you_d: "Выберите, как Pindrop отображается на экране во время диктовки."
   how_pindrop_follows_system_appearance_the: "Выберите, как Pindrop соответствует внешнему виду системы, а затем смешайте выбранные светлые и темные палитры."
+  how_recording_and_processing_status_appea: "Выберите, как отображается статус записи и обработки во время работы."
   how_to_import_the_dictionary_data: "Выберите способ импорта данных словаря"
   how_to_import_the_preset_data: "Выберите способ импорта предустановленных данных"
   languages_for_the_interface_and_for_dicta: "Выбирайте языки для интерфейса и для диктовки. Автомат следует за системой."
   location_to_save_presets: "Выберите место для сохранения пресетов"
+  model: "Выбрать модель…"
   the_daytime_shell_used_in_light_mode: "Выберите дневную оболочку, используемую в светлом режиме."
   the_low_glare_shell_used_in_dark_mode: "Выберите корпус с низким уровнем бликов, используемый в темном режиме."
-  which_microphone_pindrop_should_use_for_d: "Выберите, какой микрофон Pindrop должен использовать для диктовки и как он будет вести себя во время записи."
-  which_side_the_navigation_sidebar_appears: "Выберите, на какой стороне будет отображаться боковая панель навигации."
-  how_pindrop_appears_on_screen_while_you_d: "Выберите, как Pindrop отображается на экране во время диктовки."
-  how_recording_and_processing_status_appea: "Выберите, как отображается статус записи и обработки во время работы."
   whether_pindrop_starts_when_you_sign_in_a: "Выберите, запускать ли Pindrop при входе и показывать ли его в Dock."
   which_edge_of_the_main_window_holds_the_n: "Выберите, с какой стороны главного окна располагается панель навигации."
+  which_microphone_pindrop_should_use_for_d: "Выберите, какой микрофон Pindrop должен использовать для диктовки и как он будет вести себя во время записи."
   which_microphone_pindrop_uses_for_dictati: "Выберите микрофон, который Pindrop использует для диктовки."
-  model: "Выбрать модель…"
+  which_side_the_navigation_sidebar_appears: "Выберите, на какой стороне будет отображаться боковая панель навигации."
 clean:
   up_filler_words: "Очистите слова-паразиты"
 clear:
@@ -170,15 +187,19 @@ clear:
   shortcut: "Очистить сочетание"
 clears:
   preferences_and_restarts_onboarding: "Очищает настройки и возобновляет регистрацию."
-  preferences_and_restarts_onboarding_7d85115c: "Сбрасывает настройки и перезапускает онбординг."
+  preferences_and_restarts_onboarding_7d851: "Сбрасывает настройки и перезапускает онбординг."
 click:
   or_hold: "Нажмите или удерживайте"
   or_press: "Нажмите или нажмите"
   or_set_a_hotkey_to_start_talking: "Нажмите или установите горячую клавишу, чтобы начать говорить"
   this_icon_anytime_to: "Нажмите на этот значок в любое время, чтобы:"
+client:
+  _self: "Клиент"
 clipboard:
   _self: "Буфер обмена"
   temporarily_copies_the_transcript_for: "Буфер обмена временно копирует текст для вставки. Прямая вставка набирает в активном приложении, если возможно."
+close:
+  _self: "Закрыть"
 cloud:
   _self: "Облако"
   model: "Облачная модель"
@@ -187,9 +208,15 @@ collapse:
 coming:
   soon: "%@ Скоро появится"
   soon_04d2fd85: "Вскоре"
+configuration:
+  file: "Файл конфигурации"
+  scope: "Область конфигурации"
+  snippet: "Фрагмент конфигурации"
 configure:
   ai_providers_and_credentials_apple_int: "Настройте поставщиков ИИ и учетные данные. Apple Intelligence работает на устройстве; другим поставщикам требуются ключи API."
   keyboard_shortcuts_for_recording_and_n: "Настройка сочетаний клавиш для записи и захвата заметок"
+conflicts:
+  with: "Conflicts with %@"
 continue:
   _self: "Продолжать"
   with_default: "Продолжить по умолчанию"
@@ -206,29 +233,29 @@ copy:
   enhanced: "Копировать расширенное"
   last_transcript: "Копировать последнюю стенограмму"
   original: "Копировать оригинал"
+  system_info: "Копировать сведения о системе"
   system_info_for_bug_report: "Скопировать информацию о системе для отчета об ошибке"
+  the_configuration_snippet_into_your_preferr: "Скопируйте фрагмент конфигурации в предпочитаемый хост AI-агента."
   the_most_recent_transcript_to_the_clipboard: "Скопируйте самую последнюю расшифровку в буфер обмена."
+  the_most_recent_transcript_to_the_clipboard_03a8d47b: "Копирует последнюю расшифровку в буфер обмена."
   to_clipboard: "Скопировать в буфер обмена"
   transcript: "Копировать стенограмму"
-  system_info: "Копировать сведения о системе"
-  the_configuration_snippet_into_your_preferr: "Скопируйте фрагмент конфигурации в предпочитаемый хост AI-агента."
-  the_most_recent_transcript_to_the_clipboard_b9736933: "Копирует последнюю расшифровку в буфер обмена."
 correct:
   grammar_mistakes: "Исправьте грамматические ошибки"
 create:
-  new_profile: "Create New Profile…"
-  speaker_profile: "Create Speaker Profile"
   _self: "Создавать"
   new_note: "Создать новую заметку"
   new_preset: "Создать новый пресет"
+  new_profile: "Create New Profile…"
+  preset: "Создать пресет"
+  speaker_profile: "Create Speaker Profile"
   your_first_note_to_get_started: "Создайте свою первую заметку, чтобы начать"
   your_first_preset_or_duplicate_a_built_in: "Создайте свой первый пресет или дублируйте встроенный, чтобы настроить его."
   your_own_presets_or_duplicate_built_in_on: "Создавайте свои собственные пресеты или дублируйте встроенные, чтобы персонализировать их."
-  preset: "Создать пресет"
 credentials:
   are_stored_securely_in_keychain: "Учетные данные надежно хранятся в связке ключей."
+  are_stored_securely_in_keychain_5acf: "Учётные данные надёжно хранятся в Связке ключей."
   saved_successfully: "Учетные данные успешно сохранены"
-  are_stored_securely_in_keychain_5acff5d3: "Учётные данные надёжно хранятся в Связке ключей."
 current:
   _self: "Текущий: %@"
 custom:
@@ -242,8 +269,8 @@ cut:
   _self: "Резать"
 d:
   characters: "%d символы"
-  speakers: "%d спикеров"
   samples: "%d сэмплов · %@"
+  speakers: "%d спикеров"
   words: "%d слов"
 dark:
   _self: "Темный"
@@ -263,17 +290,39 @@ degraded:
   _self: "Деградированный"
 delete:
   _self: "Удалить"
+  all: "Удалить все"
+  all_participants: "Удалить всех участников?"
+  all_participants_60ed6e73: "Удалить всех участников…"
   folder: "Удалить папку"
   folder_e556e7c2: "Удалить папку?"
   model: "Удалить модель"
+  note: "Удалить заметку?"
   preset: "Удалить предустановку"
   preset_4f6cfe36: "Удалить предустановку?"
   transcription: "Удалить транскрипцию"
   transcription_f82187c4: "Удалить транскрипцию?"
-  all: "Удалить все"
-  all_participants: "Удалить всех участников?"
-  all_participants_60ed6e73: "Удалить всех участников…"
-  note: "Удалить заметку?"
+destinations:
+  _self: "Destinations"
+diarization:
+  _self: "Speaker diarization"
+  automatic: "Automatic"
+  clear_assignment: "Clear assignment"
+  download_model: "Download model"
+  expected_speakers: "Expected speakers"
+  model_ready: "Speaker diarization is ready."
+  model_setup_issue_media: "Download the speaker diarization model before starting media transcription."
+  model_setup_issue_recording: "Download the speaker diarization model before starting recording."
+  retraining_required: "Voice matching needs retraining after the diarization update."
+  similar_voice_help: "Similar voices may be merged. Set an expected speaker count when you know how many people are present."
+diarized:
+  _self: "с диаризацией"
+dictate:
+  in_russian_and_ukrainian: "Диктуйте на русском и украинском"
+dictation:
+  _self: "Диктовка"
+  language: "Язык диктовки"
+  polish: "Полировка диктовки"
+  words_min: "Dictation words / min"
 dictionary:
   _self: "Словарь"
 direct:
@@ -288,6 +337,8 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Отображайте Pindrop в Dock вместо того, чтобы запускать его только как приложение в строке меню."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Прикрепите боковую панель к левому или правому краю окна."
+done:
+  _self: "Готово"
 download:
   _self: "Скачать"
   complete: "Загрузка завершена!"
@@ -304,6 +355,8 @@ drop:
   audio_or_video_here: "Скиньте сюда аудио или видео"
 duplicate:
   preset: "Дублировать пресет"
+duration:
+  _self: "Duration"
 dutch:
   _self: "Голландский"
 edit:
@@ -315,8 +368,8 @@ empty:
 enable:
   ai_enhancement: "Включить улучшение ИИ"
   live_session_updates_during_recording: "Включить обновления сеанса в реальном времени во время записи"
-  vibe_mode_ui_context: "Включить режим Vibe (контекст пользовательского интерфейса)"
   mcp_server: "Включить сервер MCP"
+  vibe_mode_ui_context: "Включить режим Vibe (контекст пользовательского интерфейса)"
 enabled:
   _self: "Включено"
 endpoint:
@@ -336,6 +389,8 @@ enter:
   word_to_add: "Введите слово, которое нужно добавить"
 error:
   _self: "Ошибка"
+estimated:
+  time_saved: "Estimated time saved"
 european:
   multilingual: "Европейский многоязычный"
 excellent:
@@ -378,6 +433,10 @@ feature:
   models: "Особенности модели"
 fetch:
   models_in_models: "Получение моделей в разделе «Модели»"
+file:
+  _self: "Файл"
+find:
+  _self: "Найти"
 fix:
   punctuation_and_capitalization: "Исправьте пунктуацию и заглавные буквы"
 floating:
@@ -418,9 +477,11 @@ grant:
   _self: "Грант"
 great:
   _self: "Большой"
+help:
+  _self: "Справка"
 hide:
-  this_for_1_hour: "Скрыть это на 1 час"
   api_key: "Скрыть API-ключ"
+  this_for_1_hour: "Скрыть это на 1 час"
 history:
   _self: "История"
 hold:
@@ -429,6 +490,8 @@ hold:
   to_record_release_to_stop_and_transcribe: "Удерживайте, чтобы записать, отпустите, чтобы остановить и расшифровать"
   to_record_release_to_transcribe: "Удерживайте, чтобы записать, отпустите, чтобы расшифровать"
   to_record_then_release_to_open_the_note_edi: "Удерживайте для записи; отпустите, чтобы открыть редактор заметок с расшифровкой."
+home:
+  _self: "Главная"
 hotkey:
   conflict: "Конфликт горячих клавиш"
 hotkeys:
@@ -445,11 +508,16 @@ import:
   presets: "Импортировать пресеты"
   strategy: "Стратегия импорта"
 imported:
+  file: "Imported file"
   files_and_web_links_will_appear_here_on: "Импортированные файлы и веб-ссылки появятся здесь после завершения обработки."
 improve:
   transcription_quality_using_ai: "Улучшите качество транскрипции с помощью ИИ"
 include:
   clipboard_text: "Включить текст буфера обмена"
+input:
+  device: "Устройство ввода"
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
 interface:
   _self: "Интерфейс"
   language: "Язык интерфейса"
@@ -462,8 +530,8 @@ items:
 japanese:
   _self: "японский"
 keep:
-  pindrop_current_automatically_or_trigger_a: "Поддерживайте актуальность Pindrop автоматически или запускайте ручную проверку, когда захотите."
   pindrop_current_automatically_or_check_for: "Обновляйте Pindrop автоматически или проверьте новую версию сейчас."
+  pindrop_current_automatically_or_trigger_a: "Поддерживайте актуальность Pindrop автоматически или запускайте ручную проверку, когда захотите."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -479,18 +547,22 @@ large:
 launch:
   at_login: "Запуск при входе: %@"
   at_login_0b36c78f: "Запуск при входе в систему"
-  at_login_fd1a3b7b: "Запускать при входе"
   at_login_could_not_be_changed: "Не удалось изменить «Запускать при входе»"
+  at_login_fd1a3b7b: "Запускать при входе"
 layout:
   _self: "Макет"
 learn:
   corrected_words_automatically: "Выучите исправленные слова автоматически"
-legacy:
-  _self: "Legacy"
 left:
   _self: "Левый"
+legacy:
+  _self: "Legacy"
 let:
   pindrop_quietly_learn_vocabulary_from_the_co: "Позвольте Pindrop незаметно выучить словарный запас на основе исправлений, которые вы вносите с течением времени."
+library:
+  _self: "Библиотека"
+license:
+  _self: "Лицензия"
 light:
   _self: "Свет"
   dark_and_curated_palette_presets: "Светлые, темные и тщательно подобранные пресеты палитры"
@@ -529,28 +601,49 @@ local:
   speech_to_text_right_from_your_menu_bar_nf: "Локальное преобразование речи в текст прямо из строки меню. Быстро, конфиденциально и всегда доступно."
   speech_to_text_with_whisperkit: "Локальное преобразование речи в текст с помощью WhisperKit"
   voice_to_text: "Локальная передача голоса в текст"
+longest:
+  streak: "Longest streak"
 low:
   latency_mode_less_accurate: "Режим с низкой задержкой (менее точный)"
+main:
+  window: "Главное окно"
 manage:
   local_speech_models_feature_models_and_th: "Управляйте локальными речевыми моделями, моделями функций и механизмом по умолчанию, который Pindrop использует для транскрипции."
   models: "Управление моделями"
   presets: "Управление пресетами"
   presets_ab87986d: "Управление пресетами..."
   presets_d5d4c2c2: "Управление пресетами…"
+manual:
+  capture: "Manual capture"
 manually:
   check_for_new_versions_now: "Проверьте наличие новых версий вручную."
+markdown:
+  md: "Markdown (.md)"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+mcp:
+  configuration_error: "Ошибка конфигурации MCP"
+  server: "Сервер MCP"
 media:
   library: "Медиатека"
+  saved: "Медиа сохранено"
   transcription: "Транскрипция СМИ"
   unavailable: "Медиа недоступны"
-  saved: "Медиа сохранено"
 medium:
   _self: "Середина"
+meet:
+  the_new_orb: "Знакомьтесь: новый Orb"
+meeting:
+  saved: "Встреча сохранена"
+metric:
+  _self: "Metric"
 microphone:
   _self: "Микрофон"
   permission_is_required_to_continue: "Для продолжения требуется разрешение на использование микрофона."
   permission_is_required_to_continue_dc: "Для продолжения требуется разрешение микрофона."
   permission_required: "Требуется разрешение микрофона"
+minimize:
+  _self: "Убрать в Dock"
 mit:
   license: "Лицензия MIT"
 mode:
@@ -570,19 +663,29 @@ must:
   be_openai_compatible: "Должен быть OpenAI-совместимым"
 mute:
   system_audio_during_recording: "Отключение звука системы во время записи"
+name:
+  _self: "Имя"
+nemotron:
+  default: "Nemotron (default)"
 new:
   folder: "Новая папка"
   note: "Новая заметка"
   preset: "Новый пресет"
+newest:
+  _self: "Сначала новые"
 next:
   _self: "Следующий"
 no:
+  activity_in_this_period: "No activity in this period"
   api_key: "Нет ключа API"
   api_key_endpoint: "Нет ключа API • Конечная точка: %@."
+  conflicts_found: "No conflicts found"
   custom_presets: "Нет пользовательских пресетов"
+  destination_data: "No destination data"
   downloaded_models: "Нет загруженных моделей"
   folders_yet: "Папок пока нет"
   items_in: "В %@ нет элементов."
+  learned_participants_yet: "Пока нет выученных участников"
   media_transcriptions_yet: "Медиа-транскрипций пока нет"
   model_loaded: "Модель не загружена"
   model_selected: "Модель не выбрана"
@@ -594,33 +697,31 @@ no:
   models_match: "Нет моделей, соответствующих \"%@\""
   notes_yet: "Пока нет заметок"
   providers_configured_yet: "Поставщики пока не настроены."
+  providers_configured_yet_e6bc0075: "Провайдеры ещё не настроены"
   replacements: "Нет замен"
   results_found: "Результаты не найдены"
   settings_found: "Настройки не найдены"
   transcriptions_yet: "Транскрипций пока нет"
   vocabulary_words: "Нет словарных слов"
-  learned_participants_yet: "Пока нет выученных участников"
-  providers_configured_yet_e6bc0075: "Провайдеры ещё не настроены"
-  conflicts_found: "No conflicts found"
 not:
   assigned: "Не назначено"
+  enough_voice_data_yet: "Пока недостаточно голосовых данных"
+  generated_yet_enable_the_server: "Ещё не сгенерирован — включите сервер"
+  granted: "Не предоставлено"
   selected: "Не выбрано"
   set: "Не установлено"
   set_93039e60: "Не установлено"
-  granted: "Не предоставлено"
-  enough_voice_data_yet: "Пока недостаточно голосовых данных"
-  generated_yet_enable_the_server: "Ещё не сгенерирован — включите сервер"
 note:
   _self: "Примечание"
+  capture_hold: "Захват заметки — удержание"
   capture_push_to_talk: "Захват заметок (Push-to-Talk)"
   capture_toggle: "Захват заметок (переключить)"
+  capture_toggle_7139a240: "Захват заметки — переключение"
   enhancement: "Улучшение заметок"
   from: "Примечание от"
   metadata: "Метаданные заметки"
-  title: "Название заметки"
   saved: "Заметка сохранена"
-  capture_hold: "Захват заметки — удержание"
-  capture_toggle_7139a240: "Захват заметки — переключение"
+  title: "Название заметки"
 notes:
   _self: "Примечания"
   3add7b96: "примечания"
@@ -628,6 +729,8 @@ off:
   _self: "Выключенный"
 ok:
   _self: "ХОРОШО"
+oldest:
+  _self: "Сначала старые"
 ollama:
   _self: "Ollama"
   usually_does_not_require_authentication_f: "Оллама обычно не требует аутентификации для локальных запросов."
@@ -637,13 +740,13 @@ on:
 open:
   _self: "Открыть"
   history: "Открыть историю"
+  library: "Открыть библиотеку"
   logs_in_finder: "Открыть журналы в Finder"
   original_link: "Открыть оригинальную ссылку"
   progress: "Открыть прогресс"
   settings: "Открыть настройки"
   settings_fd7108f8: "Открыть настройки"
   system_settings: "Открыть настройки системы"
-  library: "Открыть библиотеку"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI-совместимый локальный сервер"
@@ -659,17 +762,21 @@ optionally:
 or:
   _self: "или"
   just_use_your_hotkey: "Или просто используйте горячую клавишу!"
+orb:
+  _self: "Сфера"
 original:
   _self: "Оригинал"
   text_use_commas_for_multiple: "Исходный текст (используйте запятые для нескольких)"
 originals:
   comma_separated: "Оригиналы (через запятую)"
+other:
+  _self: "Other"
 output:
   _self: "Выход"
   audio_interface_and_everyday_behavior: "Выход, звук, интерфейс и повседневное поведение"
   mode: "Режим вывода"
-nemotron:
-  default: "Nemotron (default)"
+overview:
+  _self: "Overview"
 paste:
   _self: "Вставить"
   a_video_or_audio_link: "Вставьте ссылку на видео или аудио"
@@ -683,13 +790,15 @@ permissions:
   _self: "Разрешения"
 pick:
   which_provider_and_model_handles_each_ai_ta: "Выберите, какой поставщик и модель будет выполнять каждую задачу ИИ. Оставьте значение «Не назначено», чтобы пропустить цель."
-  which_provider_and_model_handles_each_ai_ta_b719504f: "Выберите провайдера и модель для каждой AI-задачи. Неназначенные цели пропускаются."
+  which_provider_and_model_handles_each_ai_ta_3140fe59: "Выберите провайдера и модель для каждой AI-задачи. Неназначенные цели пропускаются."
 pill:
   _self: "Таблетка"
 pin:
   to_screen_always_on_top: "Закрепить на экране (всегда сверху)"
 pindrop:
   _self: "Pindrop"
+  1_19: "Pindrop 1.19"
+  help: "Справка Pindrop"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Пиндроп готов к использованию.
     Нажмите значок в строке меню, чтобы начать.
@@ -701,11 +810,13 @@ pindrop:
   needs_accessibility_permission_to_insert: "\"\" Pindrop требуется разрешение на доступ к специальным возможностям, чтобы вставлять текст под курсором.                          Чтобы предоставить разрешение: 1. Нажмите «Открыть настройки системы» ниже. 2. Нажмите кнопку «+». 3. Перейдите к приложению, показанному в Finder. 4. Перезапустите Pindrop после предоставления разрешения. Без этого разрешения текст будет копироваться только в буфер обмена.             \"\""
   needs_microphone_access_to_record_and_tr: "Pindrop необходим доступ к микрофону для записи и расшифровки вашего голоса. Предоставьте разрешение в настройках системы."
   on_github: "Пиндроп на GitHub"
+  orb: "Сфера Pindrop"
   pill: "Таблетка Пиндроп"
   theme: "Тема Пиндроп"
-  orb: "Сфера Pindrop"
-  1_19: "Pindrop 1.19"
-  help: "Справка Pindrop"
+pinned:
+  _self: "Закреплённые"
+plain:
+  text_txt: "Простой текст (.txt)"
 play:
   _self: "Играть"
 please:
@@ -714,8 +825,11 @@ please:
     Перед записью загрузите модель Whisper в настройках.
     
     Перейдите в Настройки → Модели, чтобы загрузить модель.
-  download_a_whisper_model_in_settings_befo_a71d286e: "Перед записью загрузите модель Whisper в настройках. Чтобы загрузить модель, перейдите в «Настройки» → «Модели»."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Перед записью загрузите модель Whisper в настройках. Чтобы загрузить модель, перейдите в «Настройки» → «Модели»."
   wait: "Пожалуйста, подождите..."
+port:
+  _self: "Порт"
+  changes_take_effect_the_next_time_the_serve: "Изменения порта вступят в силу при следующем запуске сервера."
 portuguese:
   brazil: "Португальский (Бразилия)"
 powered:
@@ -723,28 +837,48 @@ powered:
 preparing:
   model: "Подготовка модели..."
 preset:
+  example_bullets_input: "мы обсудили задержку онбординга потом цены и наконец дату запуска двенадцатого мая"
+  example_bullets_output: "- Задержка онбординга\\n- Цены\\n- Дата запуска: 12 мая"
+  example_clean_input: "эм так встреча в половине четвёртого точка можешь подтвердить вопросительный знак"
+  example_clean_output: "Так, встреча в 15:30. Можешь подтвердить?"
+  example_edits_input: "эм это correct ly двадцать пять"
+  example_edits_output: "Это correctly 25"
+  example_email_input: "привет джордан просто проверяю получил ли ты мои заметки вчера спасибо"
+  example_email_output: "Привет, Джордан,\\n\\nПросто проверяю, получил ли ты мои заметки вчера.\\n\\nСпасибо,"
+  example_live_input: "эм думаю нам стоит выпустить бету к пятнице точка"
+  example_live_output: "Думаю, нам стоит выпустить бету к пятнице."
+  example_meeting_input: "элис пришлёт колоду до пятницы боб займётся проверкой цен нам нужно решение на следующей неделе"
+  example_meeting_output: "## Задачи\\n- **Элис** пришлёт колоду до **пятницы**\\n- **Боб** займётся проверкой цен\\n\\n## Дальнейшие шаги\\n- Решение нужно на следующей неделе"
+  example_social_input: "эм мы только что выпустили тёмный режим и он выглядит потрясающе тебе стоит попробовать"
+  example_social_output: "Мы только что выпустили тёмный режим.\\n\\nОн выглядит потрясающе — тебе стоит попробовать."
+  example_technical_input: "вызови fetch user стрелка затем сопоставь ответ равно равно двести"
+  example_technical_output: "Вызови `fetchUser` -> затем сопоставь ответ `==` 200."
   name: "Имя предустановки"
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "Нажмите и удерживайте, чтобы диктовать в любом приложении. Pindrop расшифрует вашу речь и вставит текст в место, где находится курсор."
   esc_to_cancel: "Нажмите Esc, чтобы отменить"
   keys: "Нажимайте клавиши..."
+  keys_98b8167e: "Нажмите клавиши…"
   once_to_start_again_to_stop: "Нажмите один раз, чтобы начать, еще раз, чтобы остановить"
   once_to_start_recording_press_again_to_sto: "Нажмите один раз, чтобы начать запись, нажмите еще раз, чтобы остановить и расшифровать"
+  once_to_start_recording_then_again_to_open: "Нажмите один раз, чтобы начать запись, и ещё раз, чтобы открыть редактор заметок."
   once_to_start_recording_then_press_again_t: "Нажмите один раз, чтобы начать запись, затем нажмите еще раз, чтобы остановить и расшифровать."
   to_start_recording_press_again_to_open_not: "Нажмите, чтобы начать запись, нажмите еще раз, чтобы открыть редактор заметок."
-  keys_98b8167e: "Нажмите клавиши…"
-  once_to_start_recording_then_again_to_open: "Нажмите один раз, чтобы начать запись, и ещё раз, чтобы открыть редактор заметок."
 primary:
   text: "Основной текст"
 processing:
   _self: "Обработка"
   272bc02e: "Обработка..."
   5aa377e2: "⏳ Обработка"
-  transcript: "Транскрипт обработки"
   ellipsis: "Обработка…"
+  transcript: "Транскрипт обработки"
+project:
+  _self: "Проект"
 prompt:
   _self: "Быстрый"
   preset: "Подсказка предустановки"
+prompts:
+  are_sent_in_english: "Промпты отправляются на английском"
 provider:
   _self: "Поставщик"
   kind: "Вид поставщика"
@@ -773,7 +907,7 @@ recent:
 recommended:
   _self: "Рекомендуется"
   the_deterministic_cleaner_handles_mo: "Рекомендуется: детерминированный очиститель аккуратно справляется с большинством диктовок. Включайте пропуск LLM только в том случае, если вы хотите доработать модель и принять случайные особенности модели (преамбулу, диалоговые ответы)."
-  the_deterministic_cleaner_handles_mo_ca42c3e4: "Рекомендуется: детерминированный очиститель справляется с большинством диктовок. Включайте LLM-проход только для доп. полировки, принимая редкие странности модели."
+  the_deterministic_cleaner_handles_mo_4b468fe8: "Рекомендуется: детерминированный очиститель справляется с большинством диктовок. Включайте LLM-проход только для доп. полировки, принимая редкие странности модели."
 record:
   _self: "Записывать"
 recording:
@@ -787,13 +921,15 @@ redo:
 refresh:
   _self: "Обновить"
   the_provider_or_open_edit_to_fetch_model: "Обновите провайдера или откройте «Изменить», чтобы загрузить модели."
+regenerate:
+  _self: "Сгенерировать заново"
 remove:
-  from_speaker_profiles: "Remove from speaker profiles"
-  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Удалять"
   and_clear_any_assignments_that_reference: "Удалить «%@» и очистить все назначения, которые ссылаются на него? Сохраненные учетные данные будут удалены."
   from_folder: "Удалить из папки"
+  from_speaker_profiles: "Remove from speaker profiles"
   provider: "Удалить поставщика"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
 rename:
   _self: "Переименовать"
   folder: "Переименовать папку"
@@ -812,32 +948,34 @@ required:
   _self: "Необходимый"
   for_recording_your_voice: "Требуется для записи вашего голоса"
 requires:
+  a_fast_provider_apple_foundation_models: "Требуется быстрый поставщик (рекомендуются модели Apple Foundation). Облачные провайдеры будут выполнять один вызов API за паузу."
   diarization_model: "Requires diarization model"
   speaker_diarization: "Requires speaker diarization"
-  a_fast_provider_apple_foundation_models: "Требуется быстрый поставщик (рекомендуются модели Apple Foundation). Облачные провайдеры будут выполнять один вызов API за паузу."
 reset:
   _self: "Перезагрузить"
   all_settings: "Сбросить все настройки?"
   all_settings_7262c7b7: "Сбросить все настройки"
-  to_default: "Сбросить настройки по умолчанию"
   all_settings_e5dbc5fc: "Сбросить все настройки…"
+  to_default: "Сбросить настройки по умолчанию"
 retry:
   _self: "Повторить попытку"
 right:
   _self: "Верно"
 run:
-  llm_polish_after_dictation_stops: "Запустите полировку LLM после остановки диктовки"
   a_local_http_server_so_ai_agents_can_submit: "Запускает локальный HTTP-сервер, чтобы AI-агенты могли отправлять задания транскрипции, искать в истории и управлять спикерами."
+  llm_polish_after_dictation_stops: "Запустите полировку LLM после остановки диктовки"
 runtime:
   _self: "Время выполнения: %@"
   status: "Состояние среды выполнения"
+russian:
+  _self: "Русский"
 save:
   _self: "Сохранять"
   as_note: "Сохранить как заметку"
   continue: "Сохранить и продолжить"
   credentials: "Сохранить учетные данные"
-  prompt: "Сохранить подсказку"
   now_s: "Сохранить сейчас (⌘S)"
+  prompt: "Сохранить подсказку"
 saved:
   _self: "Сохранено"
   as_note: "Сохранено как заметка"
@@ -862,9 +1000,9 @@ select:
   all: "Выбрать все"
   language: "Выберите язык"
   language_daea52c9: "Выберите язык"
+  the_language_pindrop_should_expect_when_t: "Выберите язык, который Pindrop должен ожидать при транскрипции речи."
   this_floating_indicator_style: "Выберите этот стиль плавающего индикатора."
   voice_model: "Выберите модель голоса"
-  the_language_pindrop_should_expect_when_t: "Выберите язык, который Pindrop должен ожидать при транскрипции речи."
 selected:
   _self: "Выбрано"
 sent:
@@ -872,6 +1010,7 @@ sent:
 sessions:
   _self: "Сессии"
   781791f5: "сессии"
+  in: "%@ sessions in %@"
 set:
   as_default: "Установить по умолчанию"
 settings:
@@ -880,15 +1019,17 @@ settings:
   fa67a397: "Настройки…"
 setup:
   required: "Требуется настройка"
+shortcuts:
+  _self: "Сочетания клавиш"
 show:
+  api_key: "Показать API-ключ"
   app: "Показать приложение"
   app_in_finder: "Показать приложение в Finder"
   in_dock: "Показать в доке"
-  api_key: "Показать API-ключ"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
-  as_a_pill_at_the_bottom_of_the_screen: "Отображается в виде таблетки внизу экрана."
   as_a_liquid_glass_orb_in_the_corner_of_the: "Отображается как сфера из жидкого стекла в углу экрана"
+  as_a_pill_at_the_bottom_of_the_screen: "Отображается в виде таблетки внизу экрана."
 sidebar:
   position: "Положение боковой панели"
   position_916f66ea: "Положение боковой панели"
@@ -919,13 +1060,19 @@ sort:
   by: "Сортировать по"
 source:
   _self: "Источник"
+sources:
+  _self: "Sources"
 spanish:
   _self: "испанский"
+speak:
+  to_append: "Диктовать для добавления"
 speaker:
-  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "К воспроизведению прикрепляются дневники докладчиков и временные метки."
   diarization_is_required: "Требуется диаризация спикеров"
+  profile_training: "Speaker profile training"
+speakers:
+  _self: "Спикеры"
 speed:
   _self: "Скорость"
 start:
@@ -934,19 +1081,25 @@ start:
   recording_to_see_your_transcriptions_here: "Начните запись, чтобы увидеть ваши транскрипции здесь"
   stop_recording: "Начать/остановить запись"
   using_pindrop: "Начните использовать Pindrop"
+stats:
+  _self: "Stats"
 status:
   _self: "Статус"
 stop:
-  recording: "Остановить запись"
   listening: "Остановить прослушивание"
+  recording: "Остановить запись"
 streaming:
   enhancement: "Улучшение потоковой передачи"
   transcription_currently_supports_engli: "Потоковая транскрипция в настоящее время поддерживает только английский язык, независимо от выбранного языка."
+  transcription_instantly_ready: "Потоковая транскрипция, сразу готовая к работе"
   transcription_is_disabled_while_ai_enh: "Потоковая транскрипция отключена, пока включена функция AI Enhancement."
   transcription_model_nemotron_speech: "Модель потоковой транскрипции (Nemotron Speech Streaming) лицензирована NVIDIA Corporation по лицензии NVIDIA Open Model License."
-  transcription_instantly_ready: "Потоковая транскрипция, сразу готовая к работе"
+subtitles:
+  srt: "Субтитры (.srt)"
 success:
   _self: "Успех!"
+summary:
+  ready: "сводка готова"
 support:
   _self: "Поддерживать"
   coming_soon: "Поддержка %@ скоро появится"
@@ -965,34 +1118,43 @@ temporarily:
   pause_active_media_playback_while_di: "Временно приостановите воспроизведение активного мультимедиа во время записи диктовки."
 tertiary:
   text: "Третичный текст"
+thanks:
+  to_for_investigating_and_kicking_off_the: "Спасибо %@ за расследование и запуск исправления (PR #64)."
+  to_for_the_contribution_pr_61: "Спасибо %@ за вклад (PR #61)."
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" Модель не удалось загрузить в течение 60 секунд. Обычно это означает, что файлы модели повреждены или несовместимы.                          Чтобы это исправить: 1. Откройте «Настройки» → «Модели». 2. Удалите проблемную модель. 3. Загрузите модель заново. Если проблема не устранена, попробуйте модель меньшего размера (Tiny или Base).             \"\""
-  selected_chunk_variant_isn_t_downloaded_yet: "Выбранный вариант фрагмента еще не загружен. При переключении начнется загрузка."
   new_nemotron_streaming_engine_shows_words_as: "Новый потоковый движок Nemotron показывает слова по мере произнесения и прогревается при запуске, чтобы первая диктовка начиналась без задержки."
+  selected_chunk_variant_isn_t_downloaded_yet: "Выбранный вариант фрагмента еще не загружен. При переключении начнется загрузка."
 theme:
   _self: "Тема"
   changes_apply_live_across_the_workspace_se: "Изменения темы применяются в реальном времени во всей рабочей области, настройках, редакторе заметок и плавающих индикаторах."
   mode: "Тематический режим"
   mode_bb6b0b3d: "Режим темы"
+these:
+  options_are_mutually_exclusive_enabling_on: "Эти параметры взаимоисключающие. Включение одного отключает другой."
 this:
-  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Это имя предустановки уже используется."
   provider_will_be_available_in_a_future_upda: |-
     Этот поставщик будет доступен в будущем обновлении.
     А пока попробуйте OpenAI или используйте пользовательскую конечную точку.
-  provider_will_be_available_in_a_future_upda_3e35a952: |-
+  provider_will_be_available_in_a_future_upda_ba16848d: "Этот поставщик будет доступен в будущем обновлении. nА сейчас попробуйте OpenAI или используйте пользовательскую конечную точку."
+  provider_will_be_available_in_a_future_upda_4af6ff9b: |-
     Этот поставщик будет доступен в будущем обновлении.
     Попробуйте OpenAI или используйте пользовательскую конечную точку.
-  provider_will_be_available_in_a_future_upda_0677ac1d: "Этот поставщик будет доступен в будущем обновлении. nА сейчас попробуйте OpenAI или используйте пользовательскую конечную точку."
-  transcription_could_not_be_found: "Эту транскрипцию не удалось найти."
-  will_clear_all_your_settings_including_api: "Это приведет к очистке всех ваших настроек, включая ключи API, горячие клавиши и настройки модели. Приложение закроется и снова отобразит регистрацию при следующем запуске."
-  will_permanently_remove_the_transcript_and: "Это приведет к безвозвратному удалению расшифровки и ее управляемого медиафайла."
   removes_all_learned_voice_profiles_and_trai: "Удаляет все выученные голосовые профили и обучающие данные. Отменить нельзя."
-  will_clear_all_your_settings_including_api_2841f4a1: "Это сбросит все настройки, включая API-ключи, и перезапустит онбординг"
+  transcription_could_not_be_found: "Эту транскрипцию не удалось найти."
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
+  will_clear_all_your_settings_including_api: "Это приведет к очистке всех ваших настроек, включая ключи API, горячие клавиши и настройки модели. Приложение закроется и снова отобразит регистрацию при следующем запуске."
+  will_clear_all_your_settings_including_api_8cd9a6fb: "Это сбросит все настройки, включая API-ключи, и перезапустит онбординг"
+  will_permanently_remove_the_transcript_and: "Это приведет к безвозвратному удалению расшифровки и ее управляемого медиафайла."
   will_permanently_remove_this_note: "Это навсегда удалит эту заметку."
 time:
-  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+  of_day: "Time of day"
+  range: "Time range"
   saved: "Сэкономленное время"
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+timestamps:
+  json: "Метки времени (.json)"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "диктовать и позволить Pindrop расшифровывать для вас"
   start_talking: "начать говорить"
@@ -1007,6 +1169,7 @@ transcribe:
   media: "Транскрипция медиа"
 transcribed:
   _self: "переписанный"
+  words: "Transcribed words"
 transcription:
   _self: "Транскрипция"
   backend: "Серверная часть транскрипции"
@@ -1016,8 +1179,8 @@ transcription:
   finished: "Транскрипция завершена."
   in_progress: "Транскрипция в процессе"
   metadata: "Метаданные транскрипции"
-  update: "Обновление транскрипции"
   saved: "Расшифровка сохранена"
+  update: "Обновление транскрипции"
 transcriptions:
   _self: "Транскрипции"
   f0972acc: "транскрипции"
@@ -1031,8 +1194,202 @@ try:
   searching_for_terms_like_hotkeys_microphone: "Попробуйте выполнить поиск по таким словам, как «горячие клавиши», «микрофон», «обновления» или «режим Vibe»."
 turkish:
   _self: "турецкий"
+two:
+  new_dictation_languages_fully_wired_into_mod: "Два новых языка диктовки, полностью подключенные к рекомендациям моделей."
 type:
   text_directly_into_the_active_app_when_poss: "По возможности вводите текст непосредственно в активное приложение."
+u10:
+  floating_announcement_summary: "Повторное воспроизведение, новый облик и управление с клавиатуры во всём Pindrop."
+  floating_inserted_into: "Вставлено в %@"
+  floating_keyboard_body: "Переходите между страницами, ищите, создавайте заметки, экспортируйте и удаляйте, не покидая клавиатуру."
+  floating_keyboard_title: "Клавиатура повсюду"
+  floating_microphone_unavailable: "Микрофон недоступен"
+  floating_new_look_body: "Более тёплый и спокойный дизайн ставит ваши слова на первое место. Настройки тем сохраняются, а новой темой по умолчанию стала Библиотека."
+  floating_new_look_title: "Новый облик"
+  floating_replay_body: "Pindrop может хранить аудио семь дней, чтобы вы могли прослушать его из Библиотеки."
+  floating_replay_title: "Прослушивайте каждую диктовку"
+  floating_transcribing: "Расшифровка…"
+  floating_version_line: "Pindrop 0.10.0 · июль 2026 г."
+  floating_whats_new: "Что нового"
+  floating_word_count: "%d слов"
+u11:
+  estimating_time: "Оценка оставшегося времени…"
+  live_transcript: "Текст в реальном времени"
+  microphone_muted: "Микрофон отключён"
+  minutes_left: "осталось около %d мин"
+  recording_processing: "Запись остановлена. Обработка расшифровки."
+  recording_started: "Запись начата"
+  recording_stopped: "Запись остановлена"
+  seconds_left: "осталось около %d с"
+  transcription_complete: "Расшифровка завершена"
+u11b:
+  expand: "Развернуть"
+  expired: "Срок истёк"
+  playback_position: "Позиция воспроизведения"
+  step_x_of_y: "Шаг %d из %d"
+u3:
+  library_assign_speaker: "Назначить говорящего"
+  library_audio_kept_30_days: "аудио хранится 30 дней"
+  library_audio_kept_7_days: "аудио хранится 7 дней"
+  library_audio_kept_forever: "аудио хранится всегда"
+  library_click_line_to_jump: "нажмите строку, чтобы перейти к воспроизведению"
+  library_dictations: "Диктовки"
+  library_dictations_appear_after_use: "Диктовки появляются здесь после голосового ввода."
+  library_h_m_spoken: "%d ч %d м речи"
+  library_h_spoken: "%d ч речи"
+  library_https_placeholder: "https://…"
+  library_import_file_or_paste_link: "Импортируйте файл или вставьте ссылку для транскрипции."
+  library_import_files: "Импорт файлов…"
+  library_imported_audio: "Импортированное аудио"
+  library_insert_again: "Вставить снова"
+  library_inserted_into: "вставлено в %@"
+  library_m_spoken: "%d м речи"
+  library_meeting_recording: "Запись встречи"
+  library_meetings: "Встречи"
+  library_n_recordings: "%d записей"
+  library_no_dictations_yet: "Пока нет диктовок"
+  library_no_meeting_recordings: "Нет записей встреч"
+  library_no_recordings_yet: "Пока нет записей"
+  library_one_recording: "1 запись"
+  library_paste_link: "Вставить ссылку…"
+  library_playback_speed: "Скорость воспроизведения"
+  library_record_meeting_ellipsis: "Записать встречу…"
+  library_record_meeting_from_home: "Запишите встречу на главной, чтобы увидеть её здесь."
+  library_rename_speaker_ellipsis: "Переименовать говорящего…"
+  library_start_dictation_or_import: "Начните диктовку на главной или импортируйте файл."
+  library_summary_label: "КРАТКОЕ СОДЕРЖАНИЕ"
+  library_try_different_search_or_filter: "Попробуйте другой поисковый запрос или фильтр."
+  library_untitled: "Без названия"
+  library_voice_transcription: "Голосовая транскрипция"
+  library_web_transcription: "Веб-транскрипция"
+u4:
+  home_bar_a11y_n: "%@, %@ слов"
+  home_bar_a11y_one: "%@, 1 слово"
+  home_duration_h: "%d ч"
+  home_duration_h_m: "%d ч %d м"
+  home_duration_m: "%d м"
+  home_n_day: "%d дн."
+  home_n_words_grouped: "%@ слов"
+  home_one_day: "1 дн."
+  home_open_library_arrow: "Открыть библиотеку →"
+  home_option_space_fallback: "⌥Space"
+  home_press_hotkey_hint: "Нажмите %@ в любом месте, чтобы начать диктовку."
+  home_recent_empty_hint: "Ваши последние диктовки появятся здесь."
+  home_streak: "Серия"
+  home_subline_duration_only: "%@ диктовки."
+  home_subline_full: "%@ диктовки — примерно %@ сэкономлено по сравнению с набором."
+  home_this_week: "На этой неделе"
+  home_welcome_tagline: "Говорите. Это записано."
+  home_words_per_min: "Слов / мин"
+  home_words_so_far: "Слов на данный момент"
+  home_words_today: "Слов сегодня"
+  home_you_spoke_this_week: "На этой неделе вы произнесли %@."
+  home_zero_day: "0 дн."
+u5:
+  u7_add_replacement: "Добавить замену"
+  u7_add_word: "Добавить слово"
+  u7_add_words_or_replacements: "Добавьте слова для распознавателя или замены после транскрипции."
+  u7_applied_after_transcription: "Применяется после транскрипции, до вставки"
+  u7_case_insensitive: "без учёта регистра"
+  u7_cmd_s_to_save: "⌘S для сохранения"
+  u7_command: "команда"
+  u7_copy_content: "Копировать содержимое"
+  u7_d_ago: "%d дн назад"
+  u7_delete_note: "Удалить заметку"
+  u7_edited: "изменено"
+  u7_edited_format: "изменено %@"
+  u7_everything_runs_on_this_mac: "Всё работает на этом Mac"
+  u7_exact: "точный"
+  u7_h_ago: "%d ч назад"
+  u7_installed: "Установлено"
+  u7_just_now: "только что"
+  u7_listening_speak_to_append: "Слушаю — говорите, чтобы добавить…"
+  u7_m_ago: "%d мин назад"
+  u7_match_mode: "Режим совпадения"
+  u7_models_privacy_footnote: "Модели никогда не покидают этот Mac. Аудио обрабатывается локально, если вы не выберете облачный провайдер в Настройки → ИИ."
+  u7_new_note: "Новая заметка"
+  u7_no_dictionary_entries: "Нет записей словаря"
+  u7_on_device_helpers: "Локальные помощники"
+  u7_on_disk: "НА ДИСКЕ"
+  u7_open_note: "Открыть заметку"
+  u7_pin: "Закрепить"
+  u7_replacements_run_in_order: "Замены выполняются по порядку. Перетащите строки, чтобы изменить порядок — срабатывает первое совпадение."
+  u7_replacements_section: "Замены"
+  u7_speech_to_text: "Речь в текст"
+  u7_teach_pindrop_your_words: "Научите Pindrop вашим словам"
+  u7_unpin: "Открепить"
+  u7_untitled_note: "Заметка без названия"
+  u7_words_recognizer_should_trust: "Слова, которым должен доверять распознаватель"
+u8:
+  settings_acknowledgements: "Благодарности"
+  settings_advanced_assignments: "Дополнительные назначения"
+  settings_audio_on_disk_format: "Аудио на диске: %@ · %@"
+  settings_beta_channel: "Beta"
+  settings_bundled_fonts_ofl: "Встроенные шрифты (Newsreader, Inter, JetBrains Mono) лицензированы согласно SIL Open Font License."
+  settings_checks_for_updates_automatically: "Pindrop автоматически проверяет наличие обновлений."
+  settings_choose_a_provider: "Выберите поставщика"
+  settings_choose_folder_export_logs: "Выберите папку для копирования файлов журналов Pindrop."
+  settings_copy_last_transcript: "Копировать последнюю стенограмму"
+  settings_copy_token: "Копировать токен"
+  settings_days_30: "30 дней"
+  settings_days_7: "7 дней"
+  settings_debug: "Отладка"
+  settings_delete_all_audio: "Удалить всё аудио"
+  settings_delete_all_audio_ellipsis: "Удалить всё аудио…"
+  settings_delete_all_audio_question: "Удалить всё аудио?"
+  settings_diagnostics: "Диагностика"
+  settings_edit_prompt_ellipsis: "Изменить подсказку…"
+  settings_endpoint: "Конечная точка"
+  settings_enhance_transcripts: "Улучшать стенограммы"
+  settings_example_label: "ПРИМЕР"
+  settings_export_logs_ellipsis: "Экспортировать журналы…"
+  settings_forever: "Всегда"
+  settings_github: "GitHub"
+  settings_info: "Информация"
+  settings_keep_dictation_audio: "Хранить аудио диктовки"
+  settings_last_checked_format: "Последняя проверка: %@"
+  settings_license_mit: "Лицензия — MIT"
+  settings_listening_ellipsis: "Слушаю…"
+  settings_log_level: "Уровень журнала"
+  settings_logs_never_include_transcript: "Журналы никогда не содержат текст стенограммы"
+  settings_made_with_care: "Сделано с заботой о локальной речи."
+  settings_manage_ellipsis: "Управлять…"
+  settings_n_samples: "%d сэмплов"
+  settings_n_snippets: "%d записей"
+  settings_n_trained: "%d обучено"
+  settings_no_conflicts_with_system_or_app: "Нет конфликтов с сочетаниями клавиш системы или приложения."
+  settings_one_snippet: "1 запись"
+  settings_one_trained: "1 обучено"
+  settings_presets_recolor_caption: "Пресеты перекрашивают акцент и фоны. Контраст текста проверяется автоматически."
+  settings_push_to_talk: "Нажми и говори"
+  settings_recording_indicator: "Индикатор записи"
+  settings_release_channel: "Релиз"
+  settings_removes_kept_dictation_audio: "Удаляет сохранённые аудиофайлы диктовки. Стенограммы остаются в вашей Библиотеке."
+  settings_reset_all_settings_ellipsis: "Сбросить все настройки…"
+  settings_separate_from_interface_language: "Отдельно от языка интерфейса"
+  settings_some_shortcuts_conflict_each_other: "Некоторые сочетания клавиш конфликтуют друг с другом."
+  settings_some_shortcuts_may_conflict_system: "Некоторые сочетания клавиш могут конфликтовать с системными сочетаниями."
+  settings_speaker_profiles: "Профили спикеров"
+  settings_theme_preset: "Пресет темы"
+  settings_toggle_dictation: "Переключение диктовки"
+  settings_trained_summary_format: "%@ — используется, чтобы отмечать, кто что сказал на встречах"
+  settings_update_checks_unavailable: "Проверка обновлений временно недоступна."
+  settings_warning: "Предупреждение"
+  settings_website: "Веб-сайт"
+u9:
+  onboarding_accessibility_clipboard_fallback: "Без Универсального доступа Pindrop копирует текст в буфер обмена."
+  onboarding_change_hotkey_hint: "Нажмите другое сочетание, чтобы изменить его"
+  onboarding_download_amount_format: "%@ из %@"
+  onboarding_download_background_hint: "Продолжайте настройку во время загрузки — мы завершим её в фоновом режиме."
+  onboarding_enable_enhancement: "Включить улучшение"
+  onboarding_granted_state: "Предоставлено"
+  onboarding_pindrop_writes: "Pindrop пишет"
+  onboarding_ready_heading: "Всё готово."
+  onboarding_ready_instruction_format: "Нажмите %@ и начинайте говорить — Pindrop печатает там, где находится курсор."
+  onboarding_try_it_now: "Попробовать сейчас"
+  onboarding_you_say: "Вы говорите"
+ukrainian:
+  _self: "Украинский"
 unable:
   to_connect_to_the_ai_enhancement_service: "«» Невозможно подключиться к службе улучшения ИИ.                                  Пожалуйста, проверьте: 1. Ваше подключение к Интернету. 2. URL-адрес конечной точки API правильный. 3. В службе нет сбоев. Транскрипция сохранена без изменений.                 \"\""
   to_finish_transcription: "Не удалось завершить транскрипцию"
@@ -1045,6 +1402,8 @@ undo:
   _self: "Отменить"
 unfiled:
   _self: "Неподшитый"
+unknown:
+  _self: "Unknown"
 unpin:
   from_screen: "Открепить от экрана"
 update:
@@ -1083,12 +1442,23 @@ view:
   transcription_history: "Посмотреть историю транскрипции"
 vocabulary:
   _self: "Словарный запас"
+voice:
+  _self: "Voice"
 vs:
   typing: "против набора текста"
+web:
+  link: "Web link"
 welcome:
   to_pindrop: "Добро пожаловать в Пиндроп"
+what:
+  s_new: "Что нового…"
+  s_new_in_pindrop: "Что нового в Pindrop"
+while:
+  recording: "Во время записи"
 whisperkit:
   _self: "WhisperKit"
+window:
+  _self: "Окно"
 word:
   _self: "Слово"
   replacements: "Замены слов"
@@ -1110,371 +1480,13 @@ you:
   ve_exceeded_your_api_rate_limit_or_quota_to: "«» Вы превысили лимит скорости или квоту API.                                  Чтобы это исправить: 1. Подождите несколько минут и повторите попытку. 2. Проверьте ограничения на использование вашего провайдера API. 3. Рассмотрите возможность обновления вашего плана API. Транскрипция была сохранена без улучшений.                 \"\""
 your:
   api_key_appears_to_be_invalid_or_expired_to: "«» Ваш ключ API недействителен или срок его действия истек.                                  Чтобы это исправить: 1. Откройте «Настройки» → «Расширение AI». 2. Убедитесь, что ваш ключ API верен. 3. Убедитесь, что ваша конечная точка API верна. Транскрипция была сохранена без улучшения.                 \"\""
+  floating_indicator_is_now_a_living_audio_re: "Плавающий индикатор теперь стал живым orb, реагирующим на звук. Он дышит в простое, увеличивается, когда вы говорите, и показывает ваши слова в реальном времени во время диктовки."
   hotkeys_are_ready_to_use_nyou_can_customize: "Ваши горячие клавиши готовы к использованию. Вы можете настроить их позже в настройках."
   hotkeys_are_ready_to_use_you_can_customize: |-
     Ваши горячие клавиши готовы к использованию.
     Вы можете настроить их позже в настройках.
   model_is_ready_to_use: "Ваша модель готова к использованию."
   stats: "Ваша статистика"
-  floating_indicator_is_now_a_living_audio_re: "Плавающий индикатор теперь стал живым orb, реагирующим на звук. Он дышит в простое, увеличивается, когда вы говорите, и показывает ваши слова в реальном времени во время диктовки."
-orb:
-  _self: "Сфера"
-meeting:
-  saved: "Встреча сохранена"
-russian:
-  _self: "Русский"
-ukrainian:
-  _self: "Украинский"
-what:
-  s_new_in_pindrop: "Что нового в Pindrop"
-  s_new: "Что нового…"
-meet:
-  the_new_orb: "Знакомьтесь: новый Orb"
-thanks:
-  to_for_investigating_and_kicking_off_the: "Спасибо %@ за расследование и запуск исправления (PR #64)."
-  to_for_the_contribution_pr_61: "Спасибо %@ за вклад (PR #61)."
-dictate:
-  in_russian_and_ukrainian: "Диктуйте на русском и украинском"
-two:
-  new_dictation_languages_fully_wired_into_mod: "Два новых языка диктовки, полностью подключенные к рекомендациям моделей."
-also:
-  new_rtl_layout_support_and_20_new_interface: "Также новое: поддержка RTL-разметки и 20 новых языков интерфейса."
-advanced:
-  _self: "Дополнительно"
-agent:
-  setup: "Настройка агента"
-appearance:
-  _self: "Оформление"
-bearer:
-  token: "Bearer-токен"
-changes:
-  the_language_used_by_pindrop_s_interface: "Меняет язык интерфейса Pindrop."
-client:
-  _self: "Клиент"
-configuration:
-  file: "Файл конфигурации"
-  scope: "Область конфигурации"
-  snippet: "Фрагмент конфигурации"
-dictation:
-  _self: "Диктовка"
-  language: "Язык диктовки"
-  polish: "Полировка диктовки"
-done:
-  _self: "Готово"
-input:
-  device: "Устройство ввода"
-license:
-  _self: "Лицензия"
-mcp:
-  configuration_error: "Ошибка конфигурации MCP"
-  server: "Сервер MCP"
-main:
-  window: "Главное окно"
-name:
-  _self: "Имя"
-port:
-  _self: "Порт"
-  changes_take_effect_the_next_time_the_serve: "Изменения порта вступят в силу при следующем запуске сервера."
-project:
-  _self: "Проект"
-regenerate:
-  _self: "Сгенерировать заново"
-shortcuts:
-  _self: "Сочетания клавиш"
-speakers:
-  _self: "Спикеры"
-these:
-  options_are_mutually_exclusive_enabling_on: "Эти параметры взаимоисключающие. Включение одного отключает другой."
-while:
-  recording: "Во время записи"
-may:
-  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
-library:
-  _self: "Библиотека"
-conflicts:
-  with: "Conflicts with %@"
-file:
-  _self: "Файл"
-window:
-  _self: "Окно"
-help:
-  _self: "Справка"
-close:
-  _self: "Закрыть"
-find:
-  _self: "Найти"
-minimize:
-  _self: "Убрать в Dock"
+  stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "Изменить масштаб"
-bring:
-  all_to_front: "Переместить все вперед"
-home:
-  _self: "Главная"
-newest:
-  _self: "Сначала новые"
-oldest:
-  _self: "Сначала старые"
-plain:
-  text_txt: "Простой текст (.txt)"
-markdown:
-  md: "Markdown (.md)"
-subtitles:
-  srt: "Субтитры (.srt)"
-timestamps:
-  json: "Метки времени (.json)"
-inserted:
-  into_d_words: "Вставлено в %@ · %d слов"
-unknown:
-  app: "Неизвестное приложение"
-pinned:
-  _self: "Закреплённые"
-speak:
-  to_append: "Диктовать для добавления"
-
-diarized:
-  _self: "с диаризацией"
-
-summary:
-  ready: "сводка готова"
-
-prompts:
-  are_sent_in_english: "Промпты отправляются на английском"
-
-preset_example:
-  clean_input: "эм так встреча в половине четвёртого точка можешь подтвердить вопросительный знак"
-  clean_output: "Так, встреча в 15:30. Можешь подтвердить?"
-  meeting_input: "элис пришлёт колоду до пятницы боб займётся проверкой цен нам нужно решение на следующей неделе"
-  meeting_output: "## Задачи\\n- **Элис** пришлёт колоду до **пятницы**\\n- **Боб** займётся проверкой цен\\n\\n## Дальнейшие шаги\\n- Решение нужно на следующей неделе"
-  email_input: "привет джордан просто проверяю получил ли ты мои заметки вчера спасибо"
-  email_output: "Привет, Джордан,\\n\\nПросто проверяю, получил ли ты мои заметки вчера.\\n\\nСпасибо,"
-  social_input: "эм мы только что выпустили тёмный режим и он выглядит потрясающе тебе стоит попробовать"
-  social_output: "Мы только что выпустили тёмный режим.\\n\\nОн выглядит потрясающе — тебе стоит попробовать."
-  bullets_input: "мы обсудили задержку онбординга потом цены и наконец дату запуска двенадцатого мая"
-  bullets_output: "- Задержка онбординга\\n- Цены\\n- Дата запуска: 12 мая"
-  technical_input: "вызови fetch user стрелка затем сопоставь ответ равно равно двести"
-  technical_output: "Вызови `fetchUser` -> затем сопоставь ответ `==` 200."
-  live_input: "эм думаю нам стоит выпустить бету к пятнице точка"
-  live_output: "Думаю, нам стоит выпустить бету к пятнице."
-  edits_input: "эм это correct ly двадцать пять"
-  edits_output: "Это correctly 25"
-
-inserted:
-  into_d_words: "Inserted into %@ · %d words"
-
-unknown:
-  app: "Unknown App"
-
-u3_library:
-  rename_speaker_ellipsis: "Переименовать говорящего…"
-  assign_speaker: "Назначить говорящего"
-  record_meeting_ellipsis: "Записать встречу…"
-  dictations: "Диктовки"
-  meetings: "Встречи"
-  one_recording: "1 запись"
-  n_recordings: "%d записей"
-  h_m_spoken: "%d ч %d м речи"
-  h_spoken: "%d ч речи"
-  m_spoken: "%d м речи"
-  audio_kept_7_days: "аудио хранится 7 дней"
-  audio_kept_30_days: "аудио хранится 30 дней"
-  audio_kept_forever: "аудио хранится всегда"
-  inserted_into: "вставлено в %@"
-  import_files: "Импорт файлов…"
-  paste_link: "Вставить ссылку…"
-  insert_again: "Вставить снова"
-  playback_speed: "Скорость воспроизведения"
-  no_recordings_yet: "Пока нет записей"
-  start_dictation_or_import: "Начните диктовку на главной или импортируйте файл."
-  no_dictations_yet: "Пока нет диктовок"
-  dictations_appear_after_use: "Диктовки появляются здесь после голосового ввода."
-  no_meeting_recordings: "Нет записей встреч"
-  record_meeting_from_home: "Запишите встречу на главной, чтобы увидеть её здесь."
-  import_file_or_paste_link: "Импортируйте файл или вставьте ссылку для транскрипции."
-  try_different_search_or_filter: "Попробуйте другой поисковый запрос или фильтр."
-  untitled: "Без названия"
-  https_placeholder: "https://…"
-  summary_label: "КРАТКОЕ СОДЕРЖАНИЕ"
-  click_line_to_jump: "нажмите строку, чтобы перейти к воспроизведению"
-  meeting_recording: "Запись встречи"
-  voice_transcription: "Голосовая транскрипция"
-  imported_audio: "Импортированное аудио"
-  web_transcription: "Веб-транскрипция"
-
-u5_u7:
-  new_note: "Новая заметка"
-  add_word: "Добавить слово"
-  add_replacement: "Добавить замену"
-  teach_pindrop_your_words: "Научите Pindrop вашим словам"
-  words_recognizer_should_trust: "Слова, которым должен доверять распознаватель"
-  applied_after_transcription: "Применяется после транскрипции, до вставки"
-  case_insensitive: "без учёта регистра"
-  exact: "точный"
-  command: "команда"
-  replacements_run_in_order: "Замены выполняются по порядку. Перетащите строки, чтобы изменить порядок — срабатывает первое совпадение."
-  no_dictionary_entries: "Нет записей словаря"
-  add_words_or_replacements: "Добавьте слова для распознавателя или замены после транскрипции."
-  match_mode: "Режим совпадения"
-  everything_runs_on_this_mac: "Всё работает на этом Mac"
-  on_disk: "НА ДИСКЕ"
-  speech_to_text: "Речь в текст"
-  on_device_helpers: "Локальные помощники"
-  installed: "Установлено"
-  models_privacy_footnote: "Модели никогда не покидают этот Mac. Аудио обрабатывается локально, если вы не выберете облачный провайдер в Настройки → ИИ."
-  listening_speak_to_append: "Слушаю — говорите, чтобы добавить…"
-  cmd_s_to_save: "⌘S для сохранения"
-  edited_format: "изменено %@"
-  just_now: "только что"
-  m_ago: "%d мин назад"
-  h_ago: "%d ч назад"
-  d_ago: "%d дн назад"
-  edited: "изменено"
-  open_note: "Открыть заметку"
-  copy_content: "Копировать содержимое"
-  unpin: "Открепить"
-  pin: "Закрепить"
-  delete_note: "Удалить заметку"
-  replacements_section: "Замены"
-  untitled_note: "Заметка без названия"
-u4_home:
-  you_spoke_this_week: "На этой неделе вы произнесли %@."
-  n_words_grouped: "%@ слов"
-  zero_day: "0 дн."
-  one_day: "1 дн."
-  n_day: "%d дн."
-  duration_h_m: "%d ч %d м"
-  duration_h: "%d ч"
-  duration_m: "%d м"
-  subline_full: "%@ диктовки — примерно %@ сэкономлено по сравнению с набором."
-  subline_duration_only: "%@ диктовки."
-  words_today: "Слов сегодня"
-  words_per_min: "Слов / мин"
-  streak: "Серия"
-  open_library_arrow: "Открыть библиотеку →"
-  this_week: "На этой неделе"
-  words_so_far: "Слов на данный момент"
-  welcome_tagline: "Говорите. Это записано."
-  press_hotkey_hint: "Нажмите %@ в любом месте, чтобы начать диктовку."
-  bar_a11y_one: "%@, 1 слово"
-  bar_a11y_n: "%@, %@ слов"
-  recent_empty_hint: "Ваши последние диктовки появятся здесь."
-  option_space_fallback: "⌥Space"
-
-u8_settings:
-  reset_all_settings_ellipsis: "Сбросить все настройки…"
-  separate_from_interface_language: "Отдельно от языка интерфейса"
-  keep_dictation_audio: "Хранить аудио диктовки"
-  days_7: "7 дней"
-  days_30: "30 дней"
-  forever: "Всегда"
-  audio_on_disk_format: "Аудио на диске: %@ · %@"
-  one_snippet: "1 запись"
-  n_snippets: "%d записей"
-  delete_all_audio_ellipsis: "Удалить всё аудио…"
-  delete_all_audio_question: "Удалить всё аудио?"
-  delete_all_audio: "Удалить всё аудио"
-  removes_kept_dictation_audio: "Удаляет сохранённые аудиофайлы диктовки. Стенограммы остаются в вашей Библиотеке."
-  speaker_profiles: "Профили спикеров"
-  one_trained: "1 обучено"
-  n_trained: "%d обучено"
-  trained_summary_format: "%@ — используется, чтобы отмечать, кто что сказал на встречах"
-  manage_ellipsis: "Управлять…"
-  theme_preset: "Пресет темы"
-  presets_recolor_caption: "Пресеты перекрашивают акцент и фоны. Контраст текста проверяется автоматически."
-  recording_indicator: "Индикатор записи"
-  toggle_dictation: "Переключение диктовки"
-  push_to_talk: "Нажми и говори"
-  copy_last_transcript: "Копировать последнюю стенограмму"
-  no_conflicts_with_system_or_app: "Нет конфликтов с сочетаниями клавиш системы или приложения."
-  some_shortcuts_conflict_each_other: "Некоторые сочетания клавиш конфликтуют друг с другом."
-  some_shortcuts_may_conflict_system: "Некоторые сочетания клавиш могут конфликтовать с системными сочетаниями."
-  listening_ellipsis: "Слушаю…"
-  enhance_transcripts: "Улучшать стенограммы"
-  choose_a_provider: "Выберите поставщика"
-  edit_prompt_ellipsis: "Изменить подсказку…"
-  example_label: "ПРИМЕР"
-  advanced_assignments: "Дополнительные назначения"
-  endpoint: "Конечная точка"
-  copy_token: "Копировать токен"
-  log_level: "Уровень журнала"
-  debug: "Отладка"
-  info: "Информация"
-  warning: "Предупреждение"
-  diagnostics: "Диагностика"
-  logs_never_include_transcript: "Журналы никогда не содержат текст стенограммы"
-  export_logs_ellipsis: "Экспортировать журналы…"
-  choose_folder_export_logs: "Выберите папку для копирования файлов журналов Pindrop."
-  github: "GitHub"
-  website: "Веб-сайт"
-  license_mit: "Лицензия — MIT"
-  acknowledgements: "Благодарности"
-  bundled_fonts_ofl: "Встроенные шрифты (Newsreader, Inter, JetBrains Mono) лицензированы согласно SIL Open Font License."
-  made_with_care: "Сделано с заботой о локальной речи."
-  release_channel: "Релиз"
-  beta_channel: "Beta"
-  last_checked_format: "Последняя проверка: %@"
-  update_checks_unavailable: "Проверка обновлений временно недоступна."
-  checks_for_updates_automatically: "Pindrop автоматически проверяет наличие обновлений."
-  n_samples: "%d сэмплов"
-u10_floating:
-  transcribing: "Расшифровка…"
-  word_count: "%d слов"
-  inserted_into: "Вставлено в %@"
-  microphone_unavailable: "Микрофон недоступен"
-  whats_new: "Что нового"
-  version_line: "Pindrop 0.10.0 · июль 2026 г."
-  announcement_summary: "Повторное воспроизведение, новый облик и управление с клавиатуры во всём Pindrop."
-  replay_title: "Прослушивайте каждую диктовку"
-  replay_body: "Pindrop может хранить аудио семь дней, чтобы вы могли прослушать его из Библиотеки."
-  new_look_title: "Новый облик"
-  new_look_body: "Более тёплый и спокойный дизайн ставит ваши слова на первое место. Настройки тем сохраняются, а новой темой по умолчанию стала Библиотека."
-  keyboard_title: "Клавиатура повсюду"
-  keyboard_body: "Переходите между страницами, ищите, создавайте заметки, экспортируйте и удаляйте, не покидая клавиатуру."
-u11:
-  recording_started: "Запись начата"
-  recording_stopped: "Запись остановлена"
-  recording_processing: "Запись остановлена. Обработка расшифровки."
-  transcription_complete: "Расшифровка завершена"
-  live_transcript: "Текст в реальном времени"
-  estimating_time: "Оценка оставшегося времени…"
-  seconds_left: "осталось около %d с"
-  minutes_left: "осталось около %d мин"
-  microphone_muted: "Микрофон отключён"
-u11b:
-  playback_position: "Позиция воспроизведения"
-  expired: "Срок истёк"
-  expand: "Развернуть"
-  step_x_of_y: "Шаг %d из %d"
-sessions_in: "%@ sessions in %@"
-0_m: "0 m"
-1_year: "1 year"
-90_days: "90 days"
-ai_enhanced: "AI-enhanced"
-active_days: "Active days"
-activity: "Activity"
-all_time: "All time"
-audio_duration: "Audio duration"
-average_session: "Average session"
-average_words_session: "Average words / session"
-by_weekday: "By weekday"
-destinations: "Destinations"
-dictation_words_min: "Dictation words / min"
-duration: "Duration"
-estimated_time_saved: "Estimated time saved"
-imported_file: "Imported file"
-longest_streak: "Longest streak"
-manual_capture: "Manual capture"
-metric: "Metric"
-no_activity_in_this_period: "No activity in this period"
-no_destination_data: "No destination data"
-other: "Other"
-overview: "Overview"
-sources: "Sources"
-stats: "Stats"
-time_of_day: "Time of day"
-time_range: "Time range"
-transcribed_words: "Transcribed words"
-unknown: "Unknown"
-voice: "Voice"
-web_link: "Web link"
-your_stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."

@@ -156,4 +156,19 @@ struct MediaTranscriptionFeatureStateTests {
         #expect(sut.recordingStartedAt == nil)
         #expect(sut.message == "Done")
     }
+    @Test func diarizationDownloadStateExposesProgressToTheSetupBanner() {
+        let mediaState = MediaTranscriptionFeatureState()
+        let recordingState = RecordingFeatureState()
+
+        mediaState.isDiarizationModelDownloading = true
+        mediaState.diarizationModelDownloadProgress = 0.42
+        recordingState.isDiarizationModelDownloading = true
+        recordingState.diarizationModelDownloadProgress = 0.42
+
+        #expect(mediaState.isDiarizationModelDownloading)
+        #expect(mediaState.diarizationModelDownloadProgress == 0.42)
+        #expect(recordingState.isDiarizationModelDownloading)
+        #expect(recordingState.diarizationModelDownloadProgress == 0.42)
+    }
+
 }

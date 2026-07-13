@@ -189,6 +189,9 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		VOCABBIASPROMPTESTBUILD01 /* VocabularyBiasPromptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = VOCABBIASPROMPTESTFILE01 /* VocabularyBiasPromptTests.swift */; };
 		STRWORDCOUNTBUILD01 /* String+WordCount.swift in Sources */ = {isa = PBXBuildFile; fileRef = STRWORDCOUNTFILE01 /* String+WordCount.swift */; };
 		SCHEMV8TESTBUILD01 /* SchemaV8MigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHEMV8TESTFILE01 /* SchemaV8MigrationTests.swift */; };
+		A1B2C3D4E5F6012345678903 /* MCPToolDispatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678904 /* MCPToolDispatcherTests.swift */; };
+		A1B2C3D4E5F6012345678905 /* SchemaV9MigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678906 /* SchemaV9MigrationTests.swift */; };
+		A1B2C3D4E5F6012345678907 /* DiarizationQualityIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678908 /* DiarizationQualityIntegrationTests.swift */; };
 		WORDCNTHLPTESTBUILD01 /* WordCountHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = WORDCNTHLPTESTFILE01 /* WordCountHelperTests.swift */; };
 		REPLMATCHTESTBUILD01 /* ReplacementMatchModeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = REPLMATCHTESTFILE01 /* ReplacementMatchModeTests.swift */; };
 		MEDIATRANSSTATEBUILDTEST01A2B3C4D5E6F /* MediaTranscriptionFeatureStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIATRANSSTATEFILETEST01A2B3C4D5E6F /* MediaTranscriptionFeatureStateTests.swift */; };
@@ -528,6 +531,9 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		VOCABWORDA1B2C3D4E5 /* VocabularyWord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyWord.swift; sourceTree = "<group>"; };
 		WHISPERENG01A2B3C4D5E6F /* WhisperKitEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperKitEngineTests.swift; sourceTree = "<group>"; };
 		WHISPERENG03A2B3C4D5E6F /* WhisperKitEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperKitEngine.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6012345678904 /* MCPToolDispatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPToolDispatcherTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6012345678906 /* SchemaV9MigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaV9MigrationTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6012345678908 /* DiarizationQualityIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiarizationQualityIntegrationTests.swift; sourceTree = "<group>"; };
 		WKSPIDX01A2B3C4D5E6F /* WorkspaceFileIndexService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceFileIndexService.swift; sourceTree = "<group>"; };
 		WORDRPLACEA1B2C3D4E5 /* WordReplacement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordReplacement.swift; sourceTree = "<group>"; };
 		a2189a034cf447e08e86f24b /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
@@ -821,6 +827,9 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				LAUNCHLOGINTESTFILE1A2B3C4D5E6F71 /* LaunchAtLoginManagerTests.swift */,
 				DICTMODELTESTFILE1A2B3C4D5E6F71 /* DictionaryModelsTests.swift */,
 				SCHEMV8TESTFILE01 /* SchemaV8MigrationTests.swift */,
+				A1B2C3D4E5F6012345678906 /* SchemaV9MigrationTests.swift */,
+				A1B2C3D4E5F6012345678904 /* MCPToolDispatcherTests.swift */,
+				A1B2C3D4E5F6012345678908 /* DiarizationQualityIntegrationTests.swift */,
 				WORDCNTHLPTESTFILE01 /* WordCountHelperTests.swift */,
 				REPLMATCHTESTFILE01 /* ReplacementMatchModeTests.swift */,
 				VOCABBIASPROMPTESTFILE01 /* VocabularyBiasPromptTests.swift */,
@@ -1229,6 +1238,9 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				LAUNCHLOGINTESTBUILD1A2B3C4D5E6F70 /* LaunchAtLoginManagerTests.swift in Sources */,
 				DICTMODELTESTBUILD1A2B3C4D5E6F70 /* DictionaryModelsTests.swift in Sources */,
 				SCHEMV8TESTBUILD01 /* SchemaV8MigrationTests.swift in Sources */,
+				A1B2C3D4E5F6012345678903 /* MCPToolDispatcherTests.swift in Sources */,
+				A1B2C3D4E5F6012345678905 /* SchemaV9MigrationTests.swift in Sources */,
+				A1B2C3D4E5F6012345678907 /* DiarizationQualityIntegrationTests.swift in Sources */,
 				WORDCNTHLPTESTBUILD01 /* WordCountHelperTests.swift in Sources */,
 				THEMEFOUNDTESTBUILDTHEMEFOUNDAT /* ThemeFoundationTests.swift in Sources */,
 				REPLMATCHTESTBUILD01 /* ReplacementMatchModeTests.swift in Sources */,

@@ -19,7 +19,6 @@ struct HistoryStoreTests {
     }
 
     private final class FailingSpeakerIdentityService: SpeakerIdentityManaging {
-        func knownSpeakers() throws -> [Speaker] { [] }
         func bestMatch(for embedding: [Float]) throws -> SpeakerIdentityMatch? { nil }
         func learnFromDictation(recordID: UUID, segments: [DiarizedTranscriptSegment]) throws {
             throw SpeakerLearningTestError.failed
@@ -31,6 +30,11 @@ struct HistoryStoreTests {
         ) throws {}
         func hasTrainingEvidence(for recordID: UUID) throws -> Bool { false }
         func removeTrainingEvidence(for recordID: UUID) throws {}
+        func removeTrainingEvidence(
+            recordID: UUID,
+            sourceSpeakerID: String,
+            sourceType: String
+        ) throws {}
         func createProfile(displayName: String, notes: String?) throws -> ParticipantProfile { fatalError() }
         func fetchAllProfiles() throws -> [ParticipantProfile] { [] }
         func updateProfile(_ profile: ParticipantProfile, displayName: String, notes: String?) throws {}
@@ -46,7 +50,6 @@ struct HistoryStoreTests {
             self.profile = profile
         }
 
-        func knownSpeakers() throws -> [Speaker] { [] }
         func bestMatch(for embedding: [Float]) throws -> SpeakerIdentityMatch? { nil }
         func learnFromDictation(recordID: UUID, segments: [DiarizedTranscriptSegment]) throws {
             profile.displayName = "Mutated after persistence"
@@ -60,6 +63,11 @@ struct HistoryStoreTests {
         ) throws {}
         func hasTrainingEvidence(for recordID: UUID) throws -> Bool { false }
         func removeTrainingEvidence(for recordID: UUID) throws {}
+        func removeTrainingEvidence(
+            recordID: UUID,
+            sourceSpeakerID: String,
+            sourceType: String
+        ) throws {}
         func createProfile(displayName: String, notes: String?) throws -> ParticipantProfile { fatalError() }
         func fetchAllProfiles() throws -> [ParticipantProfile] { [] }
         func updateProfile(_ profile: ParticipantProfile, displayName: String, notes: String?) throws {}
@@ -502,7 +510,7 @@ struct HistoryStoreTests {
         try fixture.speakerIdentityService.deleteProfile(bob)
 
         let rewrittenRecord = try #require(try fixture.historyStore.fetchRecord(with: record.id))
-        #expect(rewrittenRecord.diarizedSegments.map(\.speakerLabel) == ["Alicia", "Bob"])
+        #expect(rewrittenRecord.diarizedSegments.map(\.speakerLabel) == ["Alicia", "Speaker 2"])
         #expect(rewrittenRecord.diarizedSegments.map(\.speakerProfileID) == [alice.id, nil])
     }
 
@@ -576,10 +584,12 @@ struct HistoryStoreTests {
     @Test func speakerIdentityBestMatchReturnsProfileWhenSimilarityAndMarginPass() throws {
         let fixture = try makeFixture()
         let alice = ParticipantProfile(normalizedName: "alice", displayName: "Alice")
+        alice.embeddingSpaceIdentifier = SpeakerEmbeddingSpace.current
         alice.centroidEmbeddingData = try JSONEncoder().encode([1.0 as Float, 0.0, 0.0])
         fixture.modelContext.insert(alice)
 
         let bob = ParticipantProfile(normalizedName: "bob", displayName: "Bob")
+        bob.embeddingSpaceIdentifier = SpeakerEmbeddingSpace.current
         bob.centroidEmbeddingData = try JSONEncoder().encode([0.0 as Float, 1.0, 0.0])
         fixture.modelContext.insert(bob)
         try fixture.modelContext.save()

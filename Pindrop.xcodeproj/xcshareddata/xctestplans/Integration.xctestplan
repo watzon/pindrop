@@ -29,7 +29,8 @@
         "name" : "PindropTests"
       },
       "selectedTests" : [
-        "PermissionManagerTests"
+        "PermissionManagerTests",
+        "DiarizationQualityIntegrationTests"
       ]
     }
   ],

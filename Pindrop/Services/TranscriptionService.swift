@@ -9,6 +9,11 @@ import AVFoundation
 import Foundation
 import os.log
 
+enum DiarizationFailurePolicy: Sendable, Equatable {
+    case bestEffort
+    case required
+}
+
 @MainActor
 @Observable
 class TranscriptionService {
@@ -26,6 +31,7 @@ class TranscriptionService {
         case invalidAudioData
         case transcriptionFailed(String)
         case modelLoadFailed(String)
+        case diarizationFailed(String)
         case engineSwitchDuringTranscription
         case streamingModelNotAvailable(String)
         case streamingNotReady
@@ -43,6 +49,8 @@ class TranscriptionService {
                 return "Transcription failed: \(message)"
             case .modelLoadFailed(let message):
                 return "Model load failed: \(message)"
+            case .diarizationFailed(let message):
+                return "Diarization failed: \(message)"
             case .engineSwitchDuringTranscription:
                 return "Cannot switch engines during active transcription"
             case .streamingModelNotAvailable(let path):
@@ -61,7 +69,12 @@ class TranscriptionService {
 
     private static let sampleRate = 16_000
     private static let diarizationMergeGapSeconds: TimeInterval = 0.30
-    private static let minimumSegmentDurationSeconds: TimeInterval = 1.0
+    private static let segmentContextPaddingSeconds: TimeInterval = 0.150
+    private static let identityEligibleSegmentDurationSeconds: TimeInterval = 1.0
+    private static let identityEligibleSegmentConfidence: Float = 0.45
+    private static let identityLongSegmentDurationSeconds: TimeInterval = 5.0
+    private static let identityConsensusWeightRatio: Float = 0.70
+    private static let offlineCommunity1ClusteringThreshold: Float = 0.60
     private static let maximumTranscriptChunkDurationSeconds: TimeInterval = 12.0
     private static let maximumTranscriptChunkWordCount = 28
     private static let targetTranscriptChunkWordCount = 20
@@ -364,7 +377,25 @@ class TranscriptionService {
         diarizationEnabled: Bool,
         options: TranscriptionOptions
     ) async throws -> TranscriptionOutput {
+        try await transcribe(
+            audioData: audioData,
+            diarizationEnabled: diarizationEnabled,
+            options: options,
+            diarizationOptions: .init(),
+            diarizationFailurePolicy: .bestEffort
+        )
+    }
+
+    func transcribe(
+        audioData: Data,
+        diarizationEnabled: Bool,
+        options: TranscriptionOptions,
+        diarizationOptions: DiarizationOptions = .init(),
+        diarizationFailurePolicy: DiarizationFailurePolicy = .bestEffort
+    ) async throws -> TranscriptionOutput {
         Log.transcription.debug("Transcribe called with \(audioData.count) bytes, state: \(String(describing: self.state))")
+
+        try validateExpectedSpeakerCount(diarizationOptions.expectedSpeakerCount)
 
         try await ensureBatchEngineLoaded()
         guard let engine else { throw TranscriptionError.modelNotLoaded }
@@ -395,7 +426,9 @@ class TranscriptionService {
                 audioData: audioData,
                 sampleRate: Self.sampleRate,
                 diarizationEnabled: diarizationEnabled,
-                options: options
+                options: options,
+                diarizationOptions: diarizationOptions,
+                diarizationFailurePolicy: diarizationFailurePolicy
             )
 
             let elapsed = Date().timeIntervalSince(startTime)
@@ -448,12 +481,13 @@ class TranscriptionService {
         }
 
         let samples = await Self.floatSamples(from: audioData)
-        let diarizer = try await prepareSpeakerDiarizer()
+        let diarizer = getOrCreateSpeakerDiarizer()
         try await diarizer.loadModels()
         let result = try await diarizeWithWatchdog(
             diarizer: diarizer,
             samples: samples,
-            sampleRate: Self.sampleRate
+            sampleRate: Self.sampleRate,
+            options: .init()
         )
         let segments = normalizedDiarizationSegments(
             result.segments,
@@ -711,7 +745,9 @@ class TranscriptionService {
         audioData: Data,
         sampleRate: Int,
         diarizationEnabled: Bool,
-        options: TranscriptionOptions
+        options: TranscriptionOptions,
+        diarizationOptions: DiarizationOptions,
+        diarizationFailurePolicy: DiarizationFailurePolicy
     ) async throws -> TranscriptionOutput {
         guard diarizationEnabled else {
             return try await transcribeWithoutDiarization(engine: engine, audioData: audioData, options: options)
@@ -724,24 +760,41 @@ class TranscriptionService {
             // Sample conversion is only needed for diarization / per-segment slicing.
             let samples = await Self.floatSamples(from: audioData)
             try Task.checkCancellation()
-            let diarizer = try await prepareSpeakerDiarizer()
+            let diarizer = getOrCreateSpeakerDiarizer()
             try Task.checkCancellation()
             try await diarizer.loadModels()
             try Task.checkCancellation()
+
+            let diarizationStarted = CFAbsoluteTimeGetCurrent()
             let diarizationResult = try await diarizeWithWatchdog(
                 diarizer: diarizer,
                 samples: samples,
-                sampleRate: sampleRate
+                sampleRate: sampleRate,
+                options: diarizationOptions
             )
+            let processingDuration = CFAbsoluteTimeGetCurrent() - diarizationStarted
             try Task.checkCancellation()
+
             let normalizedSegments = normalizedDiarizationSegments(
                 diarizationResult.segments,
                 audioDuration: diarizationResult.audioDuration
             )
+            let observedSpeakerCount = Set(normalizedSegments.map(\.speaker.id)).count
+            logDiarizationDiagnostics(
+                requestedSpeakerCount: diarizationOptions.expectedSpeakerCount,
+                observedSpeakerCount: observedSpeakerCount,
+                audioDuration: diarizationResult.audioDuration,
+                processingDuration: processingDuration
+            )
 
             guard !normalizedSegments.isEmpty else {
-                Log.transcription.warning("Speaker diarization returned no usable segments. Falling back to plain transcript.")
-                return try await transcribeWithoutDiarization(engine: engine, audioData: audioData, options: options)
+                return try await handleDiarizationFallback(
+                    engine: engine,
+                    audioData: audioData,
+                    options: options,
+                    policy: diarizationFailurePolicy,
+                    reason: "Speaker diarization returned no usable segments."
+                )
             }
 
             let output = try await transcribeBySpeakerSegments(
@@ -757,13 +810,42 @@ class TranscriptionService {
                 return output
             }
 
-            Log.transcription.warning("Speaker diarization produced no transcript text. Falling back to plain transcript.")
-            return try await transcribeWithoutDiarization(engine: engine, audioData: audioData, options: options)
+            return try await handleDiarizationFallback(
+                engine: engine,
+                audioData: audioData,
+                options: options,
+                policy: diarizationFailurePolicy,
+                reason: "Speaker diarization produced no transcript text."
+            )
         } catch is CancellationError {
             Log.transcription.info("Speaker diarization canceled")
             throw CancellationError()
+        } catch let error as TranscriptionError {
+            throw error
         } catch {
-            Log.transcription.warning("Speaker diarization unavailable, falling back to plain transcript: \(error.localizedDescription)")
+            return try await handleDiarizationFallback(
+                engine: engine,
+                audioData: audioData,
+                options: options,
+                policy: diarizationFailurePolicy,
+                reason: error.localizedDescription
+            )
+        }
+    }
+
+    private func handleDiarizationFallback(
+        engine: any TranscriptionEngine,
+        audioData: Data,
+        options: TranscriptionOptions,
+        policy: DiarizationFailurePolicy,
+        reason: String
+    ) async throws -> TranscriptionOutput {
+        switch policy {
+        case .required:
+            Log.transcription.error("Speaker diarization required but failed: \(reason)")
+            throw TranscriptionError.diarizationFailed(reason)
+        case .bestEffort:
+            Log.transcription.warning("Speaker diarization unavailable, falling back to plain transcript: \(reason)")
             return try await transcribeWithoutDiarization(engine: engine, audioData: audioData, options: options)
         }
     }
@@ -777,17 +859,18 @@ class TranscriptionService {
     private func diarizeWithWatchdog(
         diarizer: any SpeakerDiarizer,
         samples: [Float],
-        sampleRate: Int
+        sampleRate: Int,
+        options: DiarizationOptions
     ) async throws -> DiarizationResult {
         guard let timeoutSeconds = diarizationTimeoutSeconds else {
-            return try await diarizer.diarize(samples: samples, sampleRate: sampleRate)
+            return try await diarizer.diarize(samples: samples, sampleRate: sampleRate, options: options)
         }
 
         return try await withAsyncWatchdog(
             timeoutSeconds: timeoutSeconds,
             timeoutError: { DiarizationTimeoutError(timeoutSeconds: timeoutSeconds) }
         ) {
-            try await diarizer.diarize(samples: samples, sampleRate: sampleRate)
+            try await diarizer.diarize(samples: samples, sampleRate: sampleRate, options: options)
         }
     }
 
@@ -807,7 +890,8 @@ class TranscriptionService {
         segments: [SpeakerSegment],
         options: TranscriptionOptions
     ) async throws -> TranscriptionOutput {
-        var speakerLabelsByID = try matchedSpeakerLabelsByID(from: segments)
+        let identityMatchesByID = try matchedSpeakerIdentitiesByID(from: segments)
+        var genericLabelsByID: [String: String] = [:]
         var fallbackSpeakerIndex = 1
         let segmentOptions = await transcriptionOptionsForDiarizedSegments(
             engine: engine,
@@ -818,13 +902,18 @@ class TranscriptionService {
         var transcriptSegments: [DiarizedTranscriptSegment] = []
         var transcribedSpeakerIDs = Set<String>()
         var textLines: [String] = []
-        for segment in segments {
+
+        for (index, segment) in segments.enumerated() {
             try Task.checkCancellation()
+            let previousEnd = index > 0 ? segments[index - 1].endTime : nil
+            let nextStart = index + 1 < segments.count ? segments[index + 1].startTime : nil
             guard let segmentData = extractAudioData(
                 samples: samples,
                 sampleRate: sampleRate,
                 startTime: segment.startTime,
-                endTime: segment.endTime
+                endTime: segment.endTime,
+                previousEndTime: previousEnd,
+                nextStartTime: nextStart
             ) else {
                 continue
             }
@@ -834,12 +923,15 @@ class TranscriptionService {
             guard !trimmed.isEmpty else { continue }
 
             let speakerID = segment.speaker.id
+            let identityMatch = identityMatchesByID[speakerID]
             let resolvedSpeakerLabel: String
-            if let existingLabel = speakerLabelsByID[speakerID] {
+            if let identityMatch {
+                resolvedSpeakerLabel = identityMatch.displayName
+            } else if let existingLabel = genericLabelsByID[speakerID] {
                 resolvedSpeakerLabel = existingLabel
             } else {
                 resolvedSpeakerLabel = "Speaker \(fallbackSpeakerIndex)"
-                speakerLabelsByID[speakerID] = resolvedSpeakerLabel
+                genericLabelsByID[speakerID] = resolvedSpeakerLabel
                 fallbackSpeakerIndex += 1
             }
             transcribedSpeakerIDs.insert(speakerID)
@@ -847,6 +939,7 @@ class TranscriptionService {
             let diarizedSegment = DiarizedTranscriptSegment(
                 speakerId: speakerID,
                 speakerLabel: resolvedSpeakerLabel,
+                speakerProfileID: identityMatch?.profileID,
                 speakerEmbedding: segment.speaker.embedding,
                 startTime: segment.startTime,
                 endTime: segment.endTime,
@@ -869,6 +962,7 @@ class TranscriptionService {
             if !transcriptSegments.isEmpty {
                 Log.transcription.info("Speaker diarization detected a single speaker; omitting labels from transcript output")
             }
+            // Preserve accepted profile IDs even when labels are hidden for single-speaker output.
             visibleSegments = transcriptSegments.map { segment in
                 DiarizedTranscriptSegment(
                     speakerId: segment.speakerId,
@@ -922,7 +1016,9 @@ class TranscriptionService {
     }
 
 
-    private func matchedSpeakerLabelsByID(from segments: [SpeakerSegment]) throws -> [String: String] {
+    private func matchedSpeakerIdentitiesByID(
+        from segments: [SpeakerSegment]
+    ) throws -> [String: SpeakerIdentityMatch] {
         guard let speakerIdentityService else { return [:] }
 
         var segmentsBySpeakerID: [String: [SpeakerSegment]] = [:]
@@ -931,30 +1027,117 @@ class TranscriptionService {
             segmentsBySpeakerID[segment.speaker.id, default: []].append(segment)
         }
 
-        var labelsByID: [String: String] = [:]
+        var matchesByID: [String: SpeakerIdentityMatch] = [:]
         for (speakerID, speakerSegments) in segmentsBySpeakerID {
             try Task.checkCancellation()
-            guard let representativeEmbedding = representativeEmbedding(from: speakerSegments),
-                  let match = try speakerIdentityService.bestMatch(for: representativeEmbedding) else {
+            guard let aggregateEmbedding = weightedAggregateEmbedding(from: speakerSegments),
+                  let aggregateMatch = try speakerIdentityService.bestMatch(for: aggregateEmbedding),
+                  try hasSegmentConsensus(
+                    for: aggregateMatch,
+                    segments: speakerSegments,
+                    identityService: speakerIdentityService
+                  ) else {
                 continue
             }
 
-            labelsByID[speakerID] = match.displayName
+            matchesByID[speakerID] = aggregateMatch
         }
 
-        return labelsByID
+        return matchesByID
     }
 
-    private func representativeEmbedding(from segments: [SpeakerSegment]) -> [Float]? {
-        segments
-            .sorted { lhs, rhs in
-                if lhs.duration == rhs.duration {
-                    return lhs.confidence > rhs.confidence
-                }
-                return lhs.duration > rhs.duration
+    private func weightedAggregateEmbedding(from segments: [SpeakerSegment]) -> [Float]? {
+        var weightedEmbeddings: [(embedding: [Float], weight: Float)] = []
+        weightedEmbeddings.reserveCapacity(segments.count)
+
+        for segment in segments {
+            guard let embedding = validEmbedding(segment.speaker.embedding) else { continue }
+            let weight = Float(max(segment.duration, 0)) * max(segment.confidence, 0)
+            weightedEmbeddings.append((embedding, weight))
+        }
+
+        guard let dimension = weightedEmbeddings.first?.embedding.count,
+              dimension > 0,
+              weightedEmbeddings.allSatisfy({ $0.embedding.count == dimension }) else {
+            return nil
+        }
+
+        let totalWeight = weightedEmbeddings.reduce(Float(0)) { $0 + $1.weight }
+        let useEqualWeights = !totalWeight.isFinite || totalWeight <= 0
+        var aggregate = Array(repeating: Float(0), count: dimension)
+        var appliedWeight: Float = 0
+
+        for item in weightedEmbeddings {
+            let weight = useEqualWeights ? 1 : item.weight
+            guard weight.isFinite, weight > 0 else { continue }
+            appliedWeight += weight
+            for index in 0..<dimension {
+                let value = item.embedding[index]
+                guard value.isFinite else { continue }
+                aggregate[index] += value * weight
             }
-            .compactMap(\.speaker.embedding)
-            .first(where: { !$0.isEmpty })
+        }
+
+        guard appliedWeight.isFinite, appliedWeight > 0 else { return nil }
+        for index in 0..<dimension {
+            aggregate[index] /= appliedWeight
+            guard aggregate[index].isFinite else { return nil }
+        }
+        return aggregate
+    }
+
+    private func hasSegmentConsensus(
+        for aggregateMatch: SpeakerIdentityMatch,
+        segments: [SpeakerSegment],
+        identityService: SpeakerIdentityManaging
+    ) throws -> Bool {
+        var agreeingWeight: Float = 0
+        var totalWeight: Float = 0
+        var hasLongAgreeingSegment = false
+        var eligibleSegmentCount = 0
+
+        for segment in segments {
+            try Task.checkCancellation()
+            guard segment.duration >= Self.identityEligibleSegmentDurationSeconds,
+                  segment.confidence >= Self.identityEligibleSegmentConfidence,
+                  let embedding = validEmbedding(segment.speaker.embedding) else {
+                continue
+            }
+
+            let weight = Float(max(segment.duration, 0)) * max(segment.confidence, 0)
+            guard weight.isFinite, weight > 0 else { continue }
+
+            eligibleSegmentCount += 1
+            totalWeight += weight
+
+            guard let match = try identityService.bestMatch(for: embedding),
+                  match.profileID == aggregateMatch.profileID else {
+                continue
+            }
+
+            agreeingWeight += weight
+            if segment.duration >= Self.identityLongSegmentDurationSeconds {
+                hasLongAgreeingSegment = true
+            }
+        }
+
+        if hasLongAgreeingSegment {
+            return true
+        }
+
+        guard eligibleSegmentCount >= 2,
+              totalWeight.isFinite,
+              totalWeight > 0 else {
+            return false
+        }
+
+        return (agreeingWeight / totalWeight) >= Self.identityConsensusWeightRatio
+    }
+
+    private func validEmbedding(_ embedding: [Float]?) -> [Float]? {
+        guard let embedding, !embedding.isEmpty else { return nil }
+        guard embedding.allSatisfy(\.isFinite) else { return nil }
+        return embedding
     }
 
     private func splitTranscriptSegmentIfNeeded(
@@ -999,6 +1182,7 @@ class TranscriptionService {
                 DiarizedTranscriptSegment(
                     speakerId: segment.speakerId,
                     speakerLabel: segment.speakerLabel,
+                    speakerProfileID: segment.speakerProfileID,
                     speakerEmbedding: segment.speakerEmbedding,
                     startTime: chunkStart,
                     endTime: chunkEnd,
@@ -1105,11 +1289,14 @@ class TranscriptionService {
                 let start = max(0, min(segment.startTime, audioDuration))
                 let end = max(0, min(segment.endTime, audioDuration))
                 guard end > start else { return nil }
+                let confidence = segment.confidence.isFinite
+                    ? min(max(segment.confidence, 0), 1)
+                    : 0
                 return SpeakerSegment(
                     speaker: segment.speaker,
                     startTime: start,
                     endTime: end,
-                    confidence: segment.confidence
+                    confidence: confidence
                 )
             }
             .sorted { $0.startTime < $1.startTime }
@@ -1128,19 +1315,32 @@ class TranscriptionService {
             let gap = segment.startTime - previous.endTime
             let sameSpeaker = previous.speaker.id == segment.speaker.id
 
+            // Only merge identical ephemeral IDs within the gap budget.
             if sameSpeaker && gap <= Self.diarizationMergeGapSeconds {
-                let previousDuration = max(previous.duration, 0.001)
-                let currentDuration = max(segment.duration, 0.001)
+                let previousDuration = max(previous.duration, 0)
+                let currentDuration = max(segment.duration, 0)
                 let combinedDuration = previousDuration + currentDuration
-                let weightedConfidence = (
-                    previous.confidence * Float(previousDuration) +
-                    segment.confidence * Float(currentDuration)
-                ) / Float(combinedDuration)
+                let weightedConfidence: Float
+                if combinedDuration > 0 {
+                    weightedConfidence = (
+                        previous.confidence * Float(previousDuration) +
+                        segment.confidence * Float(currentDuration)
+                    ) / Float(combinedDuration)
+                } else {
+                    weightedConfidence = (previous.confidence + segment.confidence) / 2
+                }
+
+                let mergedEmbedding = durationWeightedEmbedding(
+                    lhs: previous.speaker.embedding,
+                    lhsDuration: previousDuration,
+                    rhs: segment.speaker.embedding,
+                    rhsDuration: currentDuration
+                )
 
                 let mergedSpeaker = Speaker(
                     id: previous.speaker.id,
                     label: previous.speaker.label,
-                    embedding: previous.speaker.embedding ?? segment.speaker.embedding
+                    embedding: mergedEmbedding
                 )
 
                 let merged = SpeakerSegment(
@@ -1159,41 +1359,83 @@ class TranscriptionService {
         return mergedSegments
     }
 
+    private func durationWeightedEmbedding(
+        lhs: [Float]?,
+        lhsDuration: TimeInterval,
+        rhs: [Float]?,
+        rhsDuration: TimeInterval
+    ) -> [Float]? {
+        let left = validEmbedding(lhs)
+        let right = validEmbedding(rhs)
+
+        switch (left, right) {
+        case let (left?, right?) where left.count == right.count:
+            let leftWeight = Float(max(lhsDuration, 0))
+            let rightWeight = Float(max(rhsDuration, 0))
+            let totalWeight = leftWeight + rightWeight
+            if totalWeight > 0 {
+                return zip(left, right).map { leftValue, rightValue in
+                    ((leftValue * leftWeight) + (rightValue * rightWeight)) / totalWeight
+                }
+            }
+            return zip(left, right).map { ($0 + $1) / 2 }
+        case let (left?, nil):
+            return left
+        case let (nil, right?):
+            return right
+        default:
+            return left ?? right
+        }
+    }
+
     private func extractAudioData(
         samples: [Float],
         sampleRate: Int,
         startTime: TimeInterval,
-        endTime: TimeInterval
+        endTime: TimeInterval,
+        previousEndTime: TimeInterval? = nil,
+        nextStartTime: TimeInterval? = nil
     ) -> Data? {
         guard sampleRate > 0, !samples.isEmpty else { return nil }
+        guard endTime > startTime else { return nil }
 
-        let startIndex = max(0, min(samples.count - 1, Int((startTime * Double(sampleRate)).rounded(.down))))
-        let endIndex = max(startIndex, min(samples.count, Int((endTime * Double(sampleRate)).rounded(.up))))
+        let audioDuration = Double(samples.count) / Double(sampleRate)
+
+        // Pad up to 150 ms of context on each side, clamped to recording bounds
+        // and the midpoint of any gap to the adjacent segment. No padding across
+        // overlapping or abutting neighbors.
+        var paddedStart = max(0, startTime - Self.segmentContextPaddingSeconds)
+        if let previousEndTime {
+            if previousEndTime >= startTime {
+                paddedStart = startTime
+            } else {
+                let midpoint = (previousEndTime + startTime) / 2
+                paddedStart = max(paddedStart, midpoint)
+            }
+        }
+
+        var paddedEnd = min(audioDuration, endTime + Self.segmentContextPaddingSeconds)
+        if let nextStartTime {
+            if nextStartTime <= endTime {
+                paddedEnd = endTime
+            } else {
+                let midpoint = (endTime + nextStartTime) / 2
+                paddedEnd = min(paddedEnd, midpoint)
+            }
+        }
+
+        paddedStart = max(0, min(paddedStart, audioDuration))
+        paddedEnd = max(paddedStart, min(paddedEnd, audioDuration))
+        guard paddedEnd > paddedStart else { return nil }
+
+        let startIndex = max(0, min(samples.count - 1, Int((paddedStart * Double(sampleRate)).rounded(.down))))
+        let endIndex = max(startIndex + 1, min(samples.count, Int((paddedEnd * Double(sampleRate)).rounded(.up))))
         guard endIndex > startIndex else { return nil }
-
-        let minimumSamples = Int(Double(sampleRate) * Self.minimumSegmentDurationSeconds)
-        guard (endIndex - startIndex) >= minimumSamples else { return nil }
 
         let segmentSamples = Array(samples[startIndex..<endIndex])
         return segmentSamples.withUnsafeBufferPointer { pointer in
             Data(buffer: pointer)
         }
-    }
-
-    private func prepareSpeakerDiarizer() async throws -> any SpeakerDiarizer {
-        let diarizer = getOrCreateSpeakerDiarizer()
-        await diarizer.clearKnownSpeakers()
-
-        guard let speakerIdentityService else {
-            return diarizer
-        }
-
-        for speaker in try speakerIdentityService.knownSpeakers() {
-            try Task.checkCancellation()
-            try await diarizer.registerKnownSpeaker(speaker)
-        }
-
-        return diarizer
     }
 
     private func getOrCreateSpeakerDiarizer() -> any SpeakerDiarizer {
@@ -1204,6 +1446,27 @@ class TranscriptionService {
         let created = speakerDiarizerFactory()
         speakerDiarizer = created
         return created
+    }
+
+    private func validateExpectedSpeakerCount(_ expectedSpeakerCount: Int?) throws {
+        guard let expectedSpeakerCount else { return }
+        guard (1...20).contains(expectedSpeakerCount) else {
+            throw TranscriptionError.diarizationFailed(
+                "Expected speaker count must be between 1 and 20."
+            )
+        }
+    }
+
+    private func logDiarizationDiagnostics(
+        requestedSpeakerCount: Int?,
+        observedSpeakerCount: Int,
+        audioDuration: TimeInterval,
+        processingDuration: TimeInterval
+    ) {
+        let requestedDescription = requestedSpeakerCount.map(String.init) ?? "automatic"
+        Log.transcription.info(
+            "Diarization pipeline=offline-community1 requestedSpeakers=\(requestedDescription) observedSpeakers=\(observedSpeakerCount) audioDuration=\(String(format: "%.2f", audioDuration))s processingDuration=\(String(format: "%.2f", processingDuration))s clusteringThreshold=\(String(format: "%.2f", Self.offlineCommunity1ClusteringThreshold))"
+        )
     }
 
     private static func defaultEngineFactory(

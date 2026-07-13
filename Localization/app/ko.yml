@@ -1,61 +1,61 @@
-u9_onboarding:
-  download_amount_format: "%@ / %@"
-  download_background_hint: "다운로드하는 동안 설정을 계속하세요. 나머지는 백그라운드에서 완료됩니다."
-  you_say: "사용자 음성"
-  pindrop_writes: "Pindrop 작성"
-  enable_enhancement: "향상 기능 활성화"
-  accessibility_clipboard_fallback: "손쉬운 사용 권한이 없으면 Pindrop이 텍스트를 클립보드에 복사합니다."
-  change_hotkey_hint: "변경하려면 다른 키 조합을 누르세요"
-  granted_state: "허용됨"
-  ready_heading: "준비되었습니다."
-  ready_instruction_format: "%@을 누르고 말하기 시작하세요. Pindrop이 커서가 있는 곳에 입력합니다."
-  try_it_now: "지금 사용해 보기"
-
+0:
+  m: "0 m"
 100:
   local_processing: "100% 로컬 처리"
 1:
   folder: "폴더 1개"
+  note: "메모 1개"
   speaker: "화자 1명"
   transcription: "1 전사"
-  note: "메모 1개"
   word: "단어 1개"
+  year: "1 year"
+90:
+  days: "90 days"
 a:
-  native_macos_menu_bar_dictation_app_using_loca: "WhisperKit을 통해 로컬 음성-텍스트 변환을 사용하는 기본 macOS 메뉴 표시줄 받아쓰기 앱입니다. AI 향상 옵션이 기본적으로 100% 로컬 처리됩니다."
   big_round_of_upgrades_and_two_community_shout: "큰 업그레이드 한 묶음 — 그리고 커뮤니티에 전하는 두 번의 감사."
+  native_macos_menu_bar_dictation_app_using_loca: "WhisperKit을 통해 로컬 음성-텍스트 변환을 사용하는 기본 macOS 메뉴 표시줄 받아쓰기 앱입니다. AI 향상 옵션이 기본적으로 100% 로컬 처리됩니다."
 about:
   _self: "에 대한"
   pindrop: "핀드롭 소개"
 accessibility:
   _self: "접근성"
+  permission: "손쉬운 사용 권한"
   permission_is_enabled_full_ui_cont: "접근성 권한이 활성화되었습니다. 전체 UI 컨텍스트를 사용할 수 있습니다."
   permission_is_not_granted_vibe_mod: "접근성 권한이 부여되지 않았습니다. Vibe 모드는 제한된 상황에서 비차단 상태로 유지됩니다."
   permission_recommended: "접근성 권한 권장"
   permission_required: "접근성 권한 필요"
-  permission: "손쉬운 사용 권한"
 accuracy:
   _self: "정확성"
 acknowledgments:
   _self: "감사의 말"
 active:
   _self: "활동적인"
+  days: "Active days"
+activity:
+  _self: "Activity"
 add:
   _self: "추가하다"
   a_provider_to_start_using_ai_enhancement: "AI 향상 기능을 사용하려면 공급자를 추가하세요."
   custom_words_to_improve_transcription_accura: "특수 용어, 이름 또는 전문 용어에 대한 전사 정확도를 높이려면 사용자 정의 단어를 추가하세요."
   provider: "공급자 추가"
   tag: "태그 추가..."
+  this_to_claude_settings_json_in_your_project: "프로젝트 루트의 .claude/settings.json 또는 사용자 전역 ~/.claude/settings.json 에 추가하세요."
+  this_to_codex_config_toml_project_scoped_con: "~/.codex/config.toml 에 추가하세요. 신뢰하는 프로젝트는 .codex/config.toml 에 프로젝트 설정을 둘 수 있습니다."
+  this_to_config_opencode_opencode_json_for_us: "모든 프로젝트에 대한 사용자 전역 접근을 위해 ~/.config/opencode/opencode.json 에 추가하세요."
+  this_to_cursor_mcp_json_in_your_project_root: "프로젝트 루트의 .cursor/mcp.json 또는 모든 프로젝트용 ~/.cursor/mcp.json 에 추가한 뒤 Cursor를 다시 시작하세요."
+  this_to_opencode_json_in_your_project_root_f: "프로젝트별 접근을 위해 프로젝트 루트의 opencode.json 에 추가하세요."
   to_existing: "기존에 추가"
   trailing_space: "뒤에 공백 추가"
   word_replacements_to_automatically_correct_c: "일반적인 전사 오류를 자동으로 수정하려면 단어 대체를 추가하세요."
   words_to_help_pindrop_recognize_them_properl: "Pindrop이 올바르게 인식할 수 있도록 단어를 추가하세요."
   words_you_manually_correct_into_your_vocabul: "향후 전사를 위해 수동으로 수정하는 단어를 어휘에 추가하세요."
-  this_to_claude_settings_json_in_your_project: "프로젝트 루트의 .claude/settings.json 또는 사용자 전역 ~/.claude/settings.json 에 추가하세요."
-  this_to_cursor_mcp_json_in_your_project_root: "프로젝트 루트의 .cursor/mcp.json 또는 모든 프로젝트용 ~/.cursor/mcp.json 에 추가한 뒤 Cursor를 다시 시작하세요."
-  this_to_opencode_json_in_your_project_root_f: "프로젝트별 접근을 위해 프로젝트 루트의 opencode.json 에 추가하세요."
-  this_to_codex_config_toml_project_scoped_con: "~/.codex/config.toml 에 추가하세요. 신뢰하는 프로젝트는 .codex/config.toml 에 프로젝트 설정을 둘 수 있습니다."
-  this_to_config_opencode_opencode_json_for_us: "모든 프로젝트에 대한 사용자 전역 접근을 위해 ~/.config/opencode/opencode.json 에 추가하세요."
+advanced:
+  _self: "고급"
+agent:
+  setup: "에이전트 설정"
 ai:
   _self: "AI"
+  enhanced: "AI-enhanced"
   enhancement: "AI 강화"
   enhancement_529f5583: "AI 강화: %@"
   enhancement_failed: "AI 강화 실패"
@@ -64,6 +64,9 @@ ai:
   model: "AI 모델"
 all:
   _self: "모두"
+  time: "All time"
+also:
+  new_rtl_layout_support_and_20_new_interface: "또한 RTL 레이아웃 지원과 20개의 새로운 인터페이스 언어가 추가되었습니다."
 an:
   error_occurred_while_enhancing_your_transcrip: |-
     스크립트를 개선하는 중에 오류가 발생했습니다.
@@ -72,7 +75,7 @@ an:
     
     원본 전사본이 향상되지 않고 저장되었습니다.
     설정에서 AI 향상을 다시 활성화해 볼 수 있습니다.
-  error_occurred_while_enhancing_your_transcrip_8c664cb4: "전사를 강화하는 동안 오류가 발생했습니다:nn%@nn원본 전사가 강화되지 않고 저장되었습니다.n설정에서 AI 강화를 다시 활성화할 수 있습니다."
+  error_occurred_while_enhancing_your_transcrip_1790ad05: "전사를 강화하는 동안 오류가 발생했습니다:nn%@nn원본 전사가 강화되지 않고 저장되었습니다.n설정에서 AI 강화를 다시 활성화할 수 있습니다."
 anthropic:
   _self: "Anthropic"
 api:
@@ -82,6 +85,8 @@ api:
   key_saved_endpoint: "API 키가 저장되었습니다. • 엔드포인트: %@"
 app:
   info_acknowledgments_support_and_logs: "앱 정보, 승인, 지원 및 로그"
+appearance:
+  _self: "모양"
 append:
   a_space_after_each_transcription_for_seam: "원활한 받아쓰기를 위해 각 텍스트 변환 뒤에 공백을 추가하세요."
 apple:
@@ -99,6 +104,7 @@ assignments:
 attach:
   logs_from_this_folder_when_filing_a_githu: "GitHub 문제를 제출할 때 이 폴더의 로그를 첨부하세요."
 audio:
+  duration: "Audio duration"
   input: "오디오 입력"
 automatic:
   follow_system: "자동(추종 시스템)"
@@ -109,6 +115,9 @@ automatically:
   start_pindrop_when_you_sign_in: "로그인하면 Pindrop이 자동으로 시작됩니다."
 available:
   models: "사용 가능한 모델"
+average:
+  session: "Average session"
+  words_session: "Average words / session"
 avg:
   speed: "평균 속도"
 back:
@@ -116,14 +125,20 @@ back:
   to_library: "도서관으로 돌아가기"
 base:
   _self: "베이스"
+bearer:
+  token: "Bearer 토큰"
 best:
   _self: "최상의"
 better:
   _self: "더 나은"
   bluetooth_external_mic_support: "Bluetooth 및 외부 마이크 지원 개선"
+bring:
+  all_to_front: "모두 앞으로 가져오기"
 built:
   in_presets: "내장 사전 설정"
   in_read_only: "내장(읽기 전용)"
+by:
+  weekday: "By weekday"
 cancel:
   _self: "취소"
   operation: "작업 취소"
@@ -132,6 +147,8 @@ capture:
 change:
   microphone: "마이크 변경"
   microphone_ac9970f4: "마이크 변경"
+changes:
+  the_language_used_by_pindrop_s_interface: "Pindrop 인터페이스 언어를 변경합니다."
 check:
   for_updates: "업데이트 확인..."
   for_updates_736b9062: "업데이트 확인"
@@ -144,24 +161,24 @@ choose:
   a_model: "모델을 선택하세요"
   a_provider_first: "먼저 제공업체를 선택하세요"
   an_audio_or_video_file_to_transcribe: "텍스트로 변환할 오디오 또는 비디오 파일을 선택하세요"
-  between_nemotron_punctuated_downloaded_mod: "Nemotron(구두점 지원, 다운로드 모델)과 Apple SpeechTranscriber(macOS 26+, OS 내장) 중에서 선택하세요."
+  between_nemotron_punctuated_downloaded_mo: "Nemotron(구두점 지원, 다운로드 모델)과 Apple SpeechTranscriber(macOS 26+, OS 내장) 중에서 선택하세요."
   file: "파일 선택"
   how_dictated_text_lands_then_tune_the_fin: "받아쓰기 텍스트가 어떻게 전달되는지 선택한 다음 최종 삽입 동작을 조정하세요."
+  how_pindrop_appears_on_screen_while_you_d: "받아쓰기 중 Pindrop이 화면에 표시되는 방식을 선택하세요."
   how_pindrop_follows_system_appearance_the: "Pindrop이 시스템 모양을 따르는 방식을 선택한 다음 엄선된 밝은 팔레트와 어두운 팔레트를 혼합합니다."
+  how_recording_and_processing_status_appea: "작업 중 녹음 및 처리 상태가 표시되는 방식을 선택합니다."
   how_to_import_the_dictionary_data: "사전 데이터를 가져오는 방법을 선택하세요."
   how_to_import_the_preset_data: "사전 설정 데이터를 가져오는 방법을 선택하세요."
   languages_for_the_interface_and_for_dicta: "인터페이스와 받아쓰기에 사용할 언어를 선택하세요. 자동은 시스템을 따릅니다."
   location_to_save_presets: "사전 설정을 저장할 위치를 선택하세요."
+  model: "모델 선택…"
   the_daytime_shell_used_in_light_mode: "조명 모드에서 사용되는 주간 쉘을 선택하십시오."
   the_low_glare_shell_used_in_dark_mode: "다크 모드에서 사용되는 눈부심 방지 쉘을 선택하세요."
-  which_microphone_pindrop_should_use_for_d: "받아쓰기에 Pindrop이 사용할 마이크와 녹음하는 동안 마이크가 어떻게 작동하는지 선택하세요."
-  which_side_the_navigation_sidebar_appears: "탐색 사이드바가 표시될 위치를 선택하세요."
-  how_pindrop_appears_on_screen_while_you_d: "받아쓰기 중 Pindrop이 화면에 표시되는 방식을 선택하세요."
-  how_recording_and_processing_status_appea: "작업 중 녹음 및 처리 상태가 표시되는 방식을 선택합니다."
   whether_pindrop_starts_when_you_sign_in_a: "로그인 시 Pindrop 실행 여부와 Dock 표시 여부를 선택합니다."
   which_edge_of_the_main_window_holds_the_n: "메인 창의 어느 쪽에 탐색 사이드바를 둘지 선택합니다."
+  which_microphone_pindrop_should_use_for_d: "받아쓰기에 Pindrop이 사용할 마이크와 녹음하는 동안 마이크가 어떻게 작동하는지 선택하세요."
   which_microphone_pindrop_uses_for_dictati: "받아쓰기에 사용할 마이크를 선택합니다."
-  model: "모델 선택…"
+  which_side_the_navigation_sidebar_appears: "탐색 사이드바가 표시될 위치를 선택하세요."
 clean:
   up_filler_words: "필러 단어 정리"
 clear:
@@ -170,15 +187,19 @@ clear:
   shortcut: "단축키 지우기"
 clears:
   preferences_and_restarts_onboarding: "기본 설정을 지우고 온보딩을 다시 시작합니다."
-  preferences_and_restarts_onboarding_7d85115c: "환경설정을 지우고 온보딩을 다시 시작합니다."
+  preferences_and_restarts_onboarding_7d851: "환경설정을 지우고 온보딩을 다시 시작합니다."
 click:
   or_hold: "클릭하거나 길게 누르세요."
   or_press: "클릭하거나 누르세요."
   or_set_a_hotkey_to_start_talking: "대화를 시작하려면 단축키를 클릭하거나 설정하세요."
   this_icon_anytime_to: "언제든지 이 아이콘을 클릭하여 다음을 수행하세요."
+client:
+  _self: "클라이언트"
 clipboard:
   _self: "클립보드"
   temporarily_copies_the_transcript_for: "클립보드는 붙여넣기용으로 임시 복사합니다. 직접 입력은 가능하면 활성 앱에 입력합니다."
+close:
+  _self: "닫기"
 cloud:
   _self: "구름"
   model: "클라우드 모델"
@@ -187,9 +208,15 @@ collapse:
 coming:
   soon: "%@ 출시 예정"
   soon_04d2fd85: "출시 예정"
+configuration:
+  file: "구성 파일"
+  scope: "구성 범위"
+  snippet: "구성 스니펫"
 configure:
   ai_providers_and_credentials_apple_int: "AI 공급자 및 자격 증명을 구성합니다. Apple Intelligence는 기기 내에서 실행됩니다. 다른 제공업체에는 API 키가 필요합니다."
   keyboard_shortcuts_for_recording_and_n: "녹음 및 메모 캡처를 위한 키보드 단축키 구성"
+conflicts:
+  with: "Conflicts with %@"
 continue:
   _self: "계속하다"
   with_default: "기본값으로 계속"
@@ -206,29 +233,29 @@ copy:
   enhanced: "향상된 복사"
   last_transcript: "마지막 성적표 복사"
   original: "원본 복사"
+  system_info: "시스템 정보 복사"
   system_info_for_bug_report: "버그 신고를 위한 시스템 정보 복사"
+  the_configuration_snippet_into_your_preferr: "구성 스니펫을 선호하는 AI 에이전트 호스트에 복사하세요."
   the_most_recent_transcript_to_the_clipboard: "가장 최근의 성적표를 클립보드에 복사하세요."
+  the_most_recent_transcript_to_the_clipboard_03a8d47b: "가장 최근 전사 내용을 클립보드에 복사합니다."
   to_clipboard: "클립보드에 복사"
   transcript: "성적 증명서 복사"
-  system_info: "시스템 정보 복사"
-  the_configuration_snippet_into_your_preferr: "구성 스니펫을 선호하는 AI 에이전트 호스트에 복사하세요."
-  the_most_recent_transcript_to_the_clipboard_b9736933: "가장 최근 전사 내용을 클립보드에 복사합니다."
 correct:
   grammar_mistakes: "올바른 문법 실수"
 create:
-  new_profile: "Create New Profile…"
-  speaker_profile: "Create Speaker Profile"
   _self: "만들다"
   new_note: "새 메모 만들기"
   new_preset: "새 사전 설정 만들기"
+  new_profile: "Create New Profile…"
+  preset: "프리셋 만들기"
+  speaker_profile: "Create Speaker Profile"
   your_first_note_to_get_started: "시작하려면 첫 번째 메모를 만드세요."
   your_first_preset_or_duplicate_a_built_in: "첫 번째 사전 설정을 만들거나 내장된 사전 설정을 복제하여 사용자 정의하세요."
   your_own_presets_or_duplicate_built_in_on: "나만의 사전 설정을 만들거나 내장된 사전 설정을 복제하여 사용자 정의하세요."
-  preset: "프리셋 만들기"
 credentials:
   are_stored_securely_in_keychain: "자격 증명은 키체인에 안전하게 저장됩니다."
+  are_stored_securely_in_keychain_5acf: "자격 증명은 키체인에 안전하게 저장됩니다."
   saved_successfully: "자격 증명이 성공적으로 저장되었습니다."
-  are_stored_securely_in_keychain_5acff5d3: "자격 증명은 키체인에 안전하게 저장됩니다."
 current:
   _self: "현재: %@"
 custom:
@@ -242,8 +269,8 @@ cut:
   _self: "자르다"
 d:
   characters: "%d characters"
-  speakers: "화자 %d명"
   samples: "%d개 샘플 · %@"
+  speakers: "화자 %d명"
   words: "%d개 단어"
 dark:
   _self: "어두운"
@@ -263,17 +290,39 @@ degraded:
   _self: "타락한"
 delete:
   _self: "삭제"
+  all: "모두 삭제"
+  all_participants: "모든 참가자를 삭제할까요?"
+  all_participants_60ed6e73: "모든 참가자 삭제…"
   folder: "폴더 삭제"
   folder_e556e7c2: "폴더를 삭제하시겠습니까?"
   model: "모델 삭제"
+  note: "메모를 삭제할까요?"
   preset: "프리셋 삭제"
   preset_4f6cfe36: "사전 설정을 삭제하시겠습니까?"
   transcription: "전사 삭제"
   transcription_f82187c4: "스크립트를 삭제하시겠습니까?"
-  all: "모두 삭제"
-  all_participants: "모든 참가자를 삭제할까요?"
-  all_participants_60ed6e73: "모든 참가자 삭제…"
-  note: "메모를 삭제할까요?"
+destinations:
+  _self: "Destinations"
+diarization:
+  _self: "Speaker diarization"
+  automatic: "Automatic"
+  clear_assignment: "Clear assignment"
+  download_model: "Download model"
+  expected_speakers: "Expected speakers"
+  model_ready: "Speaker diarization is ready."
+  model_setup_issue_media: "Download the speaker diarization model before starting media transcription."
+  model_setup_issue_recording: "Download the speaker diarization model before starting recording."
+  retraining_required: "Voice matching needs retraining after the diarization update."
+  similar_voice_help: "Similar voices may be merged. Set an expected speaker count when you know how many people are present."
+diarized:
+  _self: "화자 분리됨"
+dictate:
+  in_russian_and_ukrainian: "러시아어와 우크라이나어로 받아쓰기"
+dictation:
+  _self: "받아쓰기"
+  language: "받아쓰기 언어"
+  polish: "받아쓰기 다듬기"
+  words_min: "Dictation words / min"
 dictionary:
   _self: "사전"
 direct:
@@ -288,6 +337,8 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "메뉴 막대 앱으로만 실행하는 대신 Dock에 Pindrop을 표시합니다."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "사이드바를 창의 왼쪽 또는 오른쪽 가장자리에 고정합니다."
+done:
+  _self: "완료"
 download:
   _self: "다운로드"
   complete: "다운로드 완료!"
@@ -304,6 +355,8 @@ drop:
   audio_or_video_here: "여기에 오디오 또는 비디오를 드롭하세요."
 duplicate:
   preset: "사전 설정 복제"
+duration:
+  _self: "Duration"
 dutch:
   _self: "네덜란드어"
 edit:
@@ -315,8 +368,8 @@ empty:
 enable:
   ai_enhancement: "AI 향상 활성화"
   live_session_updates_during_recording: "녹화 중 실시간 세션 업데이트 활성화"
-  vibe_mode_ui_context: "분위기 모드 활성화(UI 컨텍스트)"
   mcp_server: "MCP 서버 사용"
+  vibe_mode_ui_context: "분위기 모드 활성화(UI 컨텍스트)"
 enabled:
   _self: "활성화됨"
 endpoint:
@@ -336,6 +389,8 @@ enter:
   word_to_add: "추가할 단어를 입력하세요."
 error:
   _self: "오류"
+estimated:
+  time_saved: "Estimated time saved"
 european:
   multilingual: "유럽 ​​다국어"
 excellent:
@@ -378,6 +433,10 @@ feature:
   models: "기능 모델"
 fetch:
   models_in_models: "모델에서 모델 가져오기"
+file:
+  _self: "파일"
+find:
+  _self: "찾기"
 fix:
   punctuation_and_capitalization: "구두점 및 대소문자 수정"
 floating:
@@ -418,9 +477,11 @@ grant:
   _self: "승인하다"
 great:
   _self: "엄청난"
+help:
+  _self: "도움말"
 hide:
-  this_for_1_hour: "이것을 1시간 동안 숨기세요"
   api_key: "API 키 숨기기"
+  this_for_1_hour: "이것을 1시간 동안 숨기세요"
 history:
   _self: "역사"
 hold:
@@ -429,6 +490,8 @@ hold:
   to_record_release_to_stop_and_transcribe: "녹음하려면 길게 누르고, 중지하고 스크립트를 작성하려면 떼세요."
   to_record_release_to_transcribe: "녹음하려면 길게 누르고 스크립트를 작성하려면 떼세요."
   to_record_then_release_to_open_the_note_edi: "누르고 있으면 녹음되고, 놓으면 전사가 포함된 메모 편집기가 열립니다."
+home:
+  _self: "홈"
 hotkey:
   conflict: "단축키 충돌"
 hotkeys:
@@ -445,11 +508,16 @@ import:
   presets: "사전 설정 가져오기"
   strategy: "수입 전략"
 imported:
+  file: "Imported file"
   files_and_web_links_will_appear_here_on: "처리가 완료되면 가져온 파일과 웹 링크가 여기에 표시됩니다."
 improve:
   transcription_quality_using_ai: "AI를 사용하여 전사 품질 향상"
 include:
   clipboard_text: "클립보드 텍스트 포함"
+input:
+  device: "입력 장치"
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
 interface:
   _self: "인터페이스"
   language: "인터페이스 언어"
@@ -462,8 +530,8 @@ items:
 japanese:
   _self: "일본어"
 keep:
-  pindrop_current_automatically_or_trigger_a: "Pindrop을 자동으로 최신 상태로 유지하거나 원할 때마다 수동 검사를 실행하세요."
   pindrop_current_automatically_or_check_for: "Pindrop을 자동으로 최신 상태로 유지하거나 지금 새 버전을 확인합니다."
+  pindrop_current_automatically_or_trigger_a: "Pindrop을 자동으로 최신 상태로 유지하거나 원할 때마다 수동 검사를 실행하세요."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -479,18 +547,22 @@ large:
 launch:
   at_login: "로그인 시 실행: %@"
   at_login_0b36c78f: "로그인 시 실행"
-  at_login_fd1a3b7b: "로그인 시 실행"
   at_login_could_not_be_changed: "「로그인 시 실행」을 변경할 수 없습니다"
+  at_login_fd1a3b7b: "로그인 시 실행"
 layout:
   _self: "레이아웃"
 learn:
   corrected_words_automatically: "자동으로 수정된 단어를 학습하세요"
-legacy:
-  _self: "Legacy"
 left:
   _self: "왼쪽"
+legacy:
+  _self: "Legacy"
 let:
   pindrop_quietly_learn_vocabulary_from_the_co: "Pindrop이 시간이 지남에 따라 수정한 내용을 통해 조용히 단어를 학습하게 하세요."
+library:
+  _self: "라이브러리"
+license:
+  _self: "라이선스"
 light:
   _self: "빛"
   dark_and_curated_palette_presets: "밝음, 어두움 및 선별된 팔레트 사전 설정"
@@ -529,28 +601,49 @@ local:
   speech_to_text_right_from_your_menu_bar_nf: "메뉴 표시줄에서 바로 로컬 음성을 텍스트로 변환합니다.n빠르고 비공개이며 항상 사용 가능합니다."
   speech_to_text_with_whisperkit: "WhisperKit을 사용한 로컬 음성-텍스트 변환"
   voice_to_text: "로컬 음성-텍스트"
+longest:
+  streak: "Longest streak"
 low:
   latency_mode_less_accurate: "저지연 모드 (정확도 낮음)"
+main:
+  window: "메인 창"
 manage:
   local_speech_models_feature_models_and_th: "로컬 음성 모델, 기능 모델 및 Pindrop이 전사에 사용하는 기본 엔진을 관리합니다."
   models: "모델 관리"
   presets: "사전 설정 관리"
   presets_ab87986d: "사전 설정 관리..."
   presets_d5d4c2c2: "프리셋 관리…"
+manual:
+  capture: "Manual capture"
 manually:
   check_for_new_versions_now: "지금 새 버전을 수동으로 확인하세요."
+markdown:
+  md: "Markdown (.md)"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+mcp:
+  configuration_error: "MCP 구성 오류"
+  server: "MCP 서버"
 media:
   library: "미디어 라이브러리"
+  saved: "미디어가 저장됨"
   transcription: "미디어 전사"
   unavailable: "미디어를 사용할 수 없음"
-  saved: "미디어가 저장됨"
 medium:
   _self: "중간"
+meet:
+  the_new_orb: "새로운 Orb 만나보기"
+meeting:
+  saved: "회의가 저장됨"
+metric:
+  _self: "Metric"
 microphone:
   _self: "마이크로폰"
   permission_is_required_to_continue: "계속하려면 마이크 권한이 필요합니다"
   permission_is_required_to_continue_dc: "계속하려면 마이크 권한이 필요합니다."
   permission_required: "마이크 권한이 필요합니다"
+minimize:
+  _self: "최소화"
 mit:
   license: "MIT 라이센스"
 mode:
@@ -570,19 +663,29 @@ must:
   be_openai_compatible: "OpenAI와 호환되어야 합니다."
 mute:
   system_audio_during_recording: "녹음 중 시스템 오디오 음소거"
+name:
+  _self: "이름"
+nemotron:
+  default: "Nemotron (default)"
 new:
   folder: "새 폴더"
   note: "새 메모"
   preset: "새로운 사전 설정"
+newest:
+  _self: "최신순"
 next:
   _self: "다음"
 no:
+  activity_in_this_period: "No activity in this period"
   api_key: "API 키 없음"
   api_key_endpoint: "API 키 없음 • 엔드포인트: %@"
+  conflicts_found: "No conflicts found"
   custom_presets: "맞춤 사전 설정 없음"
+  destination_data: "No destination data"
   downloaded_models: "다운로드한 모델이 없습니다."
   folders_yet: "아직 폴더가 없습니다."
   items_in: "%@에 항목이 없습니다."
+  learned_participants_yet: "아직 학습된 참가자가 없습니다"
   media_transcriptions_yet: "아직 미디어 스크립트가 없습니다."
   model_loaded: "모델이 로드되지 않았습니다."
   model_selected: "선택한 모델이 없습니다."
@@ -594,33 +697,31 @@ no:
   models_match: "\"%@\"와 일치하는 모델이 없습니다."
   notes_yet: "아직 메모가 없습니다."
   providers_configured_yet: "아직 구성된 제공업체가 없습니다."
+  providers_configured_yet_e6bc0075: "아직 구성된 제공자가 없습니다"
   replacements: "교체 없음"
   results_found: "검색결과가 없습니다"
   settings_found: "설정을 찾을 수 없습니다."
   transcriptions_yet: "아직 스크립트가 없습니다."
   vocabulary_words: "어휘 없음"
-  learned_participants_yet: "아직 학습된 참가자가 없습니다"
-  providers_configured_yet_e6bc0075: "아직 구성된 제공자가 없습니다"
-  conflicts_found: "No conflicts found"
 not:
   assigned: "할당되지 않음"
+  enough_voice_data_yet: "아직 음성 데이터가 부족합니다"
+  generated_yet_enable_the_server: "아직 생성되지 않음 — 서버를 사용하세요"
+  granted: "허용되지 않음"
   selected: "선택되지 않음"
   set: "설정되지 않음"
   set_93039e60: "설정되지 않음"
-  granted: "허용되지 않음"
-  enough_voice_data_yet: "아직 음성 데이터가 부족합니다"
-  generated_yet_enable_the_server: "아직 생성되지 않음 — 서버를 사용하세요"
 note:
   _self: "메모"
+  capture_hold: "메모 캡처 — 길게 누르기"
   capture_push_to_talk: "메모 캡처(Push-to-Talk)"
   capture_toggle: "노트 캡처(Toggle)"
+  capture_toggle_7139a240: "메모 캡처 — 토글"
   enhancement: "노트 개선"
   from: "메모"
   metadata: "참고 메타데이터"
-  title: "참고 제목"
   saved: "메모가 저장됨"
-  capture_hold: "메모 캡처 — 길게 누르기"
-  capture_toggle_7139a240: "메모 캡처 — 토글"
+  title: "참고 제목"
 notes:
   _self: "메모"
   3add7b96: "메모"
@@ -628,6 +729,8 @@ off:
   _self: "끄다"
 ok:
   _self: "좋아요"
+oldest:
+  _self: "오래된순"
 ollama:
   _self: "Ollama"
   usually_does_not_require_authentication_f: "Ollama는 일반적으로 로컬 요청에 대한 인증을 요구하지 않습니다."
@@ -637,13 +740,13 @@ on:
 open:
   _self: "열려 있는"
   history: "오픈 히스토리"
+  library: "라이브러리 열기"
   logs_in_finder: "Finder에서 로그 열기"
   original_link: "원본 링크 열기"
   progress: "공개 진행"
   settings: "설정 열기"
   settings_fd7108f8: "설정 열기"
   system_settings: "시스템 설정 열기"
-  library: "라이브러리 열기"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI 호환 로컬 서버"
@@ -659,17 +762,21 @@ optionally:
 or:
   _self: "또는"
   just_use_your_hotkey: "아니면 단축키를 사용하세요!"
+orb:
+  _self: "오브"
 original:
   _self: "원래의"
   text_use_commas_for_multiple: "원본 텍스트(여러 개일 경우 쉼표 사용)"
 originals:
   comma_separated: "원본(쉼표로 구분)"
+other:
+  _self: "Other"
 output:
   _self: "산출"
   audio_interface_and_everyday_behavior: "출력, 오디오, 인터페이스 및 일상적인 동작"
   mode: "출력 모드"
-nemotron:
-  default: "Nemotron (default)"
+overview:
+  _self: "Overview"
 paste:
   _self: "반죽"
   a_video_or_audio_link: "비디오 또는 오디오 링크 붙여넣기"
@@ -683,13 +790,15 @@ permissions:
   _self: "권한"
 pick:
   which_provider_and_model_handles_each_ai_ta: "각 AI 작업을 처리하는 공급자와 모델을 선택하세요. 목적을 건너뛰려면 '할당되지 않음'으로 두세요."
-  which_provider_and_model_handles_each_ai_ta_b719504f: "각 AI 작업을 처리할 제공자와 모델을 선택합니다. 미할당 목적은 건너뜁니다."
+  which_provider_and_model_handles_each_ai_ta_3140fe59: "각 AI 작업을 처리할 제공자와 모델을 선택합니다. 미할당 목적은 건너뜁니다."
 pill:
   _self: "알약"
 pin:
   to_screen_always_on_top: "화면에 고정(항상 맨 위에)"
 pindrop:
   _self: "핀드롭"
+  1_19: "Pindrop 1.19"
+  help: "Pindrop 도움말"
   is_ready_to_use_click_the_menu_bar_icon: |-
     핀드롭을 사용할 준비가 되었습니다.
     시작하려면 메뉴 표시줄 아이콘을 클릭하세요.
@@ -701,11 +810,13 @@ pindrop:
   needs_accessibility_permission_to_insert: "\"\" Pindrop이 커서에 텍스트를 삽입하려면 접근성 권한이 필요합니다.                          권한을 부여하려면: 1. 아래의 \"시스템 설정 열기\"를 클릭합니다. 2. + 버튼을 클릭합니다. 3. Finder에 표시된 앱으로 이동합니다. 4. 권한 부여 후 Pindrop을 다시 시작합니다. 이 권한이 없으면 텍스트가 클립보드에만 복사됩니다.             \"\""
   needs_microphone_access_to_record_and_tr: "Pindrop이 음성을 녹음하고 텍스트로 변환하려면 마이크 액세스 권한이 필요합니다.nn시스템 설정에서 권한을 부여하세요."
   on_github: "GitHub의 핀드롭"
+  orb: "Pindrop 오브"
   pill: "핀드롭 알약"
   theme: "핀드롭 테마"
-  orb: "Pindrop 오브"
-  1_19: "Pindrop 1.19"
-  help: "Pindrop 도움말"
+pinned:
+  _self: "고정됨"
+plain:
+  text_txt: "일반 텍스트 (.txt)"
 play:
   _self: "놀다"
 please:
@@ -714,8 +825,11 @@ please:
     녹음하기 전에 설정에서 Whisper 모델을 다운로드하세요.
     
     설정 → 모델로 이동하여 모델을 다운로드하세요.
-  download_a_whisper_model_in_settings_befo_a71d286e: "녹음하기 전에 설정에서 Whisper 모델을 다운로드하세요.nn모델을 다운로드하려면 설정 → 모델로 이동하세요."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "녹음하기 전에 설정에서 Whisper 모델을 다운로드하세요.nn모델을 다운로드하려면 설정 → 모델로 이동하세요."
   wait: "기다리세요..."
+port:
+  _self: "포트"
+  changes_take_effect_the_next_time_the_serve: "포트 변경은 다음 서버 시작 시 적용됩니다."
 portuguese:
   brazil: "포르투갈어(브라질)"
 powered:
@@ -723,28 +837,48 @@ powered:
 preparing:
   model: "모델 준비 중..."
 preset:
+  example_bullets_input: "온보딩 지연을 다뤘고 그다음 가격 마지막으로 오월 십이일 출시일"
+  example_bullets_output: "- 온보딩 지연\\n- 가격\\n- 출시일: 5월 12일"
+  example_clean_input: "음 그래서 회의는 세 시 반이야 마침표 확인해 줄 수 있어 물음표"
+  example_clean_output: "그래서 회의는 15:30이야. 확인해 줄 수 있어?"
+  example_edits_input: "음 이건 correct ly 이십오"
+  example_edits_output: "이건 correctly 25"
+  example_email_input: "안녕 조던 어제 메모 받았는지 확인만 했어 고마워"
+  example_email_output: "안녕 조던,\\n\\n어제 메모 받았는지 확인만 했어.\\n\\n고마워,"
+  example_live_input: "음 금요일까지 베타를 출시해야 할 것 같아 마침표"
+  example_live_output: "금요일까지 베타를 출시해야 할 것 같아."
+  example_meeting_input: "앨리스가 금요일까지 덱을 보내고 밥이 가격 검토를 맡아 다음 주에 결정이 필요해"
+  example_meeting_output: "## 할 일\\n- **앨리스**가 **금요일**까지 덱을 보냄\\n- **밥**이 가격 검토를 맡음\\n\\n## 다음 단계\\n- 다음 주 결정 필요"
+  example_social_input: "음 방금 다크 모드를 출시했는데 정말 멋져 보여 너도 써 봐야 해"
+  example_social_output: "방금 다크 모드를 출시했어.\\n\\n정말 멋져 보여 — 너도 써 봐야 해."
+  example_technical_input: "fetch user 호출 화살표 그다음 응답을 등호 등호 이백으로 매핑"
+  example_technical_output: "`fetchUser` 호출 -> 그다음 응답을 `==` 200으로 매핑."
   name: "프리셋 이름"
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "어떤 앱에서든 길게 누르면 받아쓰게 됩니다. Pindrop은 귀하의 음성을 기록하고 커서가 있는 곳에 텍스트를 삽입합니다."
   esc_to_cancel: "취소하려면 Esc를 누르세요."
   keys: "키를 누르세요..."
+  keys_98b8167e: "키를 누르세요…"
   once_to_start_again_to_stop: "한 번 누르면 시작되고 다시 누르면 중지됩니다."
   once_to_start_recording_press_again_to_sto: "한 번 누르면 녹음이 시작되고, 다시 누르면 중지되고 스크립트가 작성됩니다."
+  once_to_start_recording_then_again_to_open: "한 번 눌러 녹음을 시작하고, 다시 눌러 메모 편집기를 엽니다."
   once_to_start_recording_then_press_again_t: "한 번 누르면 녹음이 시작되고 다시 누르면 중지 및 스크립트가 작성됩니다."
   to_start_recording_press_again_to_open_not: "녹음을 시작하려면 누르세요. 메모 편집기를 열려면 다시 누르세요."
-  keys_98b8167e: "키를 누르세요…"
-  once_to_start_recording_then_again_to_open: "한 번 눌러 녹음을 시작하고, 다시 눌러 메모 편집기를 엽니다."
 primary:
   text: "기본 텍스트"
 processing:
   _self: "처리"
   272bc02e: "처리 중..."
   5aa377e2: "⏳ 처리"
-  transcript: "Processing transcript"
   ellipsis: "처리 중…"
+  transcript: "Processing transcript"
+project:
+  _self: "프로젝트"
 prompt:
   _self: "즉각적인"
   preset: "프롬프트 사전 설정"
+prompts:
+  are_sent_in_english: "프롬프트는 영어로 전송됩니다"
 provider:
   _self: "공급자"
   kind: "제공자 종류"
@@ -773,7 +907,7 @@ recent:
 recommended:
   _self: "추천"
   the_deterministic_cleaner_handles_mo: "권장: 결정론적 정리기가 대부분의 받아쓰기를 깔끔하게 처리합니다. 추가 마감이 필요하고 가끔 발생하는 모델 특이점(서두, 대화형 응답)을 감수할 수 있을 때만 LLM 단계를 활성화하세요."
-  the_deterministic_cleaner_handles_mo_ca42c3e4: "권장: 결정적 클리너가 대부분의 받아쓰기를 깔끔히 처리합니다. 추가 다듬기가 필요하고 모델 특성을 감수할 때만 LLM 패스를 켜세요."
+  the_deterministic_cleaner_handles_mo_4b468fe8: "권장: 결정적 클리너가 대부분의 받아쓰기를 깔끔히 처리합니다. 추가 다듬기가 필요하고 모델 특성을 감수할 때만 LLM 패스를 켜세요."
 record:
   _self: "기록"
 recording:
@@ -787,13 +921,15 @@ redo:
 refresh:
   _self: "새로 고치다"
   the_provider_or_open_edit_to_fetch_model: "제공자를 새로 고치거나 편집을 열어 모델을 가져오세요."
+regenerate:
+  _self: "다시 생성"
 remove:
-  from_speaker_profiles: "Remove from speaker profiles"
-  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "제거하다"
   and_clear_any_assignments_that_reference: "\"%@\"을 제거하고 이를 참조하는 모든 할당을 지우시겠습니까? 저장된 자격 증명이 삭제됩니다."
   from_folder: "폴더에서 제거"
+  from_speaker_profiles: "Remove from speaker profiles"
   provider: "공급자 제거"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
 rename:
   _self: "이름 바꾸기"
   folder: "폴더 이름 바꾸기"
@@ -812,32 +948,34 @@ required:
   _self: "필수의"
   for_recording_your_voice: "음성 녹음에 필요합니다."
 requires:
+  a_fast_provider_apple_foundation_models: "빠른 공급자가 필요합니다(Apple Foundation Models 권장). 클라우드 제공업체는 일시 중지당 하나의 API 호출을 발행합니다."
   diarization_model: "Requires diarization model"
   speaker_diarization: "Requires speaker diarization"
-  a_fast_provider_apple_foundation_models: "빠른 공급자가 필요합니다(Apple Foundation Models 권장). 클라우드 제공업체는 일시 중지당 하나의 API 호출을 발행합니다."
 reset:
   _self: "다시 놓기"
   all_settings: "모든 설정을 재설정하시겠습니까?"
   all_settings_7262c7b7: "모든 설정 재설정"
-  to_default: "기본값으로 재설정"
   all_settings_e5dbc5fc: "모든 설정 재설정…"
+  to_default: "기본값으로 재설정"
 retry:
   _self: "다시 해 보다"
 right:
   _self: "오른쪽"
 run:
-  llm_polish_after_dictation_stops: "받아쓰기가 멈춘 뒤 LLM 마감 실행"
   a_local_http_server_so_ai_agents_can_submit: "AI 에이전트가 전사 작업을 제출하고 기록을 검색하며 화자를 관리할 수 있도록 로컬 HTTP 서버를 실행합니다."
+  llm_polish_after_dictation_stops: "받아쓰기가 멈춘 뒤 LLM 마감 실행"
 runtime:
   _self: "런타임: %@"
   status: "런타임 상태"
+russian:
+  _self: "Russian"
 save:
   _self: "구하다"
   as_note: "메모로 저장"
   continue: "저장하고 계속하기"
   credentials: "자격 증명 저장"
-  prompt: "프롬프트 저장"
   now_s: "지금 저장 (⌘S)"
+  prompt: "프롬프트 저장"
 saved:
   _self: "저장됨"
   as_note: "메모로 저장됨"
@@ -862,9 +1000,9 @@ select:
   all: "모두 선택"
   language: "언어 선택"
   language_daea52c9: "언어 선택"
+  the_language_pindrop_should_expect_when_t: "음성을 전사할 때 Pindrop이 기대할 언어를 선택합니다."
   this_floating_indicator_style: "이 부동 표시기 스타일을 선택하세요."
   voice_model: "음성 모델 선택"
-  the_language_pindrop_should_expect_when_t: "음성을 전사할 때 Pindrop이 기대할 언어를 선택합니다."
 selected:
   _self: "선택된"
 sent:
@@ -872,6 +1010,7 @@ sent:
 sessions:
   _self: "세션"
   781791f5: "세션"
+  in: "%@ sessions in %@"
 set:
   as_default: "기본값으로 설정"
 settings:
@@ -880,15 +1019,17 @@ settings:
   fa67a397: "설정…"
 setup:
   required: "설정 필요"
+shortcuts:
+  _self: "단축키"
 show:
+  api_key: "API 키 표시"
   app: "앱 표시"
   app_in_finder: "Finder에 앱 표시"
   in_dock: "Dock에 표시"
-  api_key: "API 키 표시"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
-  as_a_pill_at_the_bottom_of_the_screen: "화면 하단에 알약으로 표시됩니다."
   as_a_liquid_glass_orb_in_the_corner_of_the: "화면 모서리에 리퀴드 글래스 오브로 표시됩니다"
+  as_a_pill_at_the_bottom_of_the_screen: "화면 하단에 알약으로 표시됩니다."
 sidebar:
   position: "사이드바 위치"
   position_916f66ea: "사이드바 위치"
@@ -919,13 +1060,19 @@ sort:
   by: "정렬 기준"
 source:
   _self: "원천"
+sources:
+  _self: "Sources"
 spanish:
   _self: "스페인 사람"
+speak:
+  to_append: "말해 추가"
 speaker:
-  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "화자 분할 및 타임스탬프가 재생에 첨부됩니다."
   diarization_is_required: "화자 분할이 필요합니다."
+  profile_training: "Speaker profile training"
+speakers:
+  _self: "화자"
 speed:
   _self: "속도"
 start:
@@ -934,19 +1081,25 @@ start:
   recording_to_see_your_transcriptions_here: "여기에서 스크립트를 보려면 녹음을 시작하세요."
   stop_recording: "녹음 시작/중지"
   using_pindrop: "Pindrop 사용 시작"
+stats:
+  _self: "Stats"
 status:
   _self: "상태"
 stop:
-  recording: "녹음 중지"
   listening: "듣기 중지"
+  recording: "녹음 중지"
 streaming:
   enhancement: "스트리밍 향상"
   transcription_currently_supports_engli: "스트리밍 전사는 현재 선택한 언어와 관계없이 영어만 지원합니다."
+  transcription_instantly_ready: "스트리밍 전사, 즉시 준비 완료"
   transcription_is_disabled_while_ai_enh: "AI Enhancement가 활성화된 동안 스트리밍 전사는 비활성화됩니다."
   transcription_model_nemotron_speech: "스트리밍 전사 모델(Nemotron Speech Streaming)은 NVIDIA Corporation이 NVIDIA Open Model License에 따라 라이선스했습니다."
-  transcription_instantly_ready: "스트리밍 전사, 즉시 준비 완료"
+subtitles:
+  srt: "자막 (.srt)"
 success:
   _self: "성공!"
+summary:
+  ready: "요약 준비됨"
 support:
   _self: "지원하다"
   coming_soon: "%@ 지원 예정"
@@ -965,34 +1118,43 @@ temporarily:
   pause_active_media_playback_while_di: "받아쓰기가 녹음되는 동안 활성 미디어 재생을 일시적으로 일시 중지합니다."
 tertiary:
   text: "3차 텍스트"
+thanks:
+  to_for_investigating_and_kicking_off_the: "문제를 조사하고 수정의 출발점을 마련해 준 %@님께 감사드립니다 (PR #64)."
+  to_for_the_contribution_pr_61: "기여해 준 %@님께 감사드립니다 (PR #61)."
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" 60초 이내에 모델을 불러오지 못했습니다. 이는 일반적으로 모델 파일이 손상되었거나 호환되지 않음을 의미합니다.                          이 문제를 해결하려면: 1. 설정 → 모델을 엽니다. 2. 문제가 있는 모델을 삭제합니다. 3. 모델을 다시 다운로드합니다. 문제가 지속되면 더 작은 모델(Tiny 또는 Base)을 사용해 보십시오.             \"\""
-  selected_chunk_variant_isn_t_downloaded_yet: "선택한 청크 변형이 아직 다운로드되지 않았습니다. 전환하면 다운로드가 시작됩니다."
   new_nemotron_streaming_engine_shows_words_as: "새로운 Nemotron 스트리밍 엔진은 말하는 즉시 단어를 표시하고, 실행 시 미리 준비되어 첫 받아쓰기가 지연 없이 시작됩니다."
+  selected_chunk_variant_isn_t_downloaded_yet: "선택한 청크 변형이 아직 다운로드되지 않았습니다. 전환하면 다운로드가 시작됩니다."
 theme:
   _self: "주제"
   changes_apply_live_across_the_workspace_se: "테마 변경 사항은 작업 공간, 설정, 노트 편집기 및 플로팅 표시기에 실시간으로 적용됩니다."
   mode: "테마 모드"
   mode_bb6b0b3d: "테마 모드"
+these:
+  options_are_mutually_exclusive_enabling_on: "이 옵션은 서로 배타적입니다. 하나를 켜면 다른 하나는 꺼집니다."
 this:
-  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "이 사전 설정 이름은 이미 사용 중입니다."
   provider_will_be_available_in_a_future_upda: |-
     이 공급자는 향후 업데이트에서 사용할 수 있습니다.
     지금은 OpenAI를 사용해 보거나 사용자 지정 엔드포인트를 사용하세요.
-  provider_will_be_available_in_a_future_upda_3e35a952: |-
+  provider_will_be_available_in_a_future_upda_ba16848d: "이 공급자는 향후 업데이트에서 사용할 수 있습니다.n지금은 OpenAI를 사용해 보거나 사용자 지정 엔드포인트를 사용하세요."
+  provider_will_be_available_in_a_future_upda_4af6ff9b: |-
     이 공급자는 향후 업데이트에서 사용할 수 있습니다.
     OpenAI를 사용해 보거나 사용자 지정 엔드포인트를 사용하세요.
-  provider_will_be_available_in_a_future_upda_0677ac1d: "이 공급자는 향후 업데이트에서 사용할 수 있습니다.n지금은 OpenAI를 사용해 보거나 사용자 지정 엔드포인트를 사용하세요."
-  transcription_could_not_be_found: "이 스크립트를 찾을 수 없습니다."
-  will_clear_all_your_settings_including_api: "API 키, 단축키, 모델 기본 설정을 포함한 모든 설정이 삭제됩니다. 다음 실행 시 앱이 종료되고 온보딩이 다시 표시됩니다."
-  will_permanently_remove_the_transcript_and: "이렇게 하면 스크립트와 관리되는 미디어 파일이 영구적으로 제거됩니다."
   removes_all_learned_voice_profiles_and_trai: "학습된 모든 음성 프로필과 학습 데이터를 제거합니다. 되돌릴 수 없습니다."
-  will_clear_all_your_settings_including_api_2841f4a1: "API 키를 포함한 모든 설정을 지우고 온보딩을 다시 시작합니다"
+  transcription_could_not_be_found: "이 스크립트를 찾을 수 없습니다."
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
+  will_clear_all_your_settings_including_api: "API 키, 단축키, 모델 기본 설정을 포함한 모든 설정이 삭제됩니다. 다음 실행 시 앱이 종료되고 온보딩이 다시 표시됩니다."
+  will_clear_all_your_settings_including_api_8cd9a6fb: "API 키를 포함한 모든 설정을 지우고 온보딩을 다시 시작합니다"
+  will_permanently_remove_the_transcript_and: "이렇게 하면 스크립트와 관리되는 미디어 파일이 영구적으로 제거됩니다."
   will_permanently_remove_this_note: "이 메모가 영구적으로 삭제됩니다."
 time:
-  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+  of_day: "Time of day"
+  range: "Time range"
   saved: "시간 절약"
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+timestamps:
+  json: "타임스탬프 (.json)"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "Pindrop이 당신을 위해 받아쓰기하고 받아쓰기하도록 합니다."
   start_talking: "이야기를 시작하다"
@@ -1007,6 +1169,7 @@ transcribe:
   media: "미디어 녹취"
 transcribed:
   _self: "전사된"
+  words: "Transcribed words"
 transcription:
   _self: "전사"
   backend: "전사 백엔드"
@@ -1016,8 +1179,8 @@ transcription:
   finished: "전사가 완료되었습니다."
   in_progress: "스크립트 작성 중"
   metadata: "전사 메타데이터"
-  update: "전사 업데이트"
   saved: "전사 내용이 저장됨"
+  update: "전사 업데이트"
 transcriptions:
   _self: "전사"
   f0972acc: "필사본"
@@ -1031,8 +1194,202 @@ try:
   searching_for_terms_like_hotkeys_microphone: "단축키, 마이크, 업데이트, 진동 모드 등의 용어를 검색해 보세요."
 turkish:
   _self: "터키어"
+two:
+  new_dictation_languages_fully_wired_into_mod: "두 가지 새로운 받아쓰기 언어가 모델 추천에 완전히 연결되었습니다."
 type:
   text_directly_into_the_active_app_when_poss: "가능하면 활성 앱에 직접 텍스트를 입력하세요."
+u10:
+  floating_announcement_summary: "다시 듣기, 새로운 디자인, Pindrop 전체의 키보드 제어."
+  floating_inserted_into: "%@에 삽입됨"
+  floating_keyboard_body: "키보드에서 손을 떼지 않고 페이지 이동, 검색, 메모 작성, 내보내기 및 삭제를 할 수 있습니다."
+  floating_keyboard_title: "어디서나 키보드"
+  floating_microphone_unavailable: "마이크를 사용할 수 없음"
+  floating_new_look_body: "더 따뜻하고 차분한 디자인이 사용자의 말을 중심에 둡니다. 테마 프리셋은 유지되며 새로운 기본값인 보관함이 추가됩니다."
+  floating_new_look_title: "새로운 디자인"
+  floating_replay_body: "Pindrop이 오디오를 7일 동안 보관하므로 필요할 때 보관함에서 다시 들을 수 있습니다."
+  floating_replay_title: "모든 받아쓰기 다시 듣기"
+  floating_transcribing: "전사 중…"
+  floating_version_line: "Pindrop 0.10.0 · 2026년 7월"
+  floating_whats_new: "새로운 기능"
+  floating_word_count: "%d단어"
+u11:
+  estimating_time: "남은 시간 계산 중…"
+  live_transcript: "실시간 전사"
+  microphone_muted: "마이크 음소거됨"
+  minutes_left: "약 %d분 남음"
+  recording_processing: "녹음이 중지되었습니다. 전사를 처리 중입니다."
+  recording_started: "녹음 시작됨"
+  recording_stopped: "녹음 중지됨"
+  seconds_left: "약 %d초 남음"
+  transcription_complete: "전사 완료"
+u11b:
+  expand: "펼치기"
+  expired: "만료됨"
+  playback_position: "재생 위치"
+  step_x_of_y: "%d/%d단계"
+u3:
+  library_assign_speaker: "화자 지정"
+  library_audio_kept_30_days: "오디오 30일 보관"
+  library_audio_kept_7_days: "오디오 7일 보관"
+  library_audio_kept_forever: "오디오 영구 보관"
+  library_click_line_to_jump: "줄을 클릭해 재생 위치로 이동"
+  library_dictations: "받아쓰기"
+  library_dictations_appear_after_use: "음성 받아쓰기 후 여기에 표시됩니다."
+  library_h_m_spoken: "%d시간 %d분 발화"
+  library_h_spoken: "%d시간 발화"
+  library_https_placeholder: "https://…"
+  library_import_file_or_paste_link: "파일을 가져오거나 링크를 붙여넣어 미디어를 전사하세요."
+  library_import_files: "파일 가져오기…"
+  library_imported_audio: "가져온 오디오"
+  library_insert_again: "다시 삽입"
+  library_inserted_into: "%@에 삽입됨"
+  library_m_spoken: "%d분 발화"
+  library_meeting_recording: "회의 녹음"
+  library_meetings: "회의"
+  library_n_recordings: "녹음 %d개"
+  library_no_dictations_yet: "받아쓰기가 없습니다"
+  library_no_meeting_recordings: "회의 녹음이 없습니다"
+  library_no_recordings_yet: "녹음이 없습니다"
+  library_one_recording: "녹음 1개"
+  library_paste_link: "링크 붙여넣기…"
+  library_playback_speed: "재생 속도"
+  library_record_meeting_ellipsis: "회의 녹음…"
+  library_record_meeting_from_home: "홈에서 회의를 녹음하면 여기에 표시됩니다."
+  library_rename_speaker_ellipsis: "화자 이름 변경…"
+  library_start_dictation_or_import: "홈에서 받아쓰기를 시작하거나 파일을 가져오세요."
+  library_summary_label: "요약"
+  library_try_different_search_or_filter: "다른 검색어나 필터를 시도하세요."
+  library_untitled: "제목 없음"
+  library_voice_transcription: "음성 전사"
+  library_web_transcription: "웹 전사"
+u4:
+  home_bar_a11y_n: "%@, %@단어"
+  home_bar_a11y_one: "%@, 1단어"
+  home_duration_h: "%d시간"
+  home_duration_h_m: "%d시간 %d분"
+  home_duration_m: "%d분"
+  home_n_day: "%d일"
+  home_n_words_grouped: "%@단어"
+  home_one_day: "1일"
+  home_open_library_arrow: "라이브러리 열기 →"
+  home_option_space_fallback: "⌥Space"
+  home_press_hotkey_hint: "어디서든 %@을(를) 눌러 받아쓰기를 시작하세요."
+  home_recent_empty_hint: "최근 받아쓰기가 여기에 표시됩니다."
+  home_streak: "연속"
+  home_subline_duration_only: "받아쓰기 %@."
+  home_subline_full: "받아쓰기 %@ — 타이핑 대비 약 %@ 절약."
+  home_this_week: "이번 주"
+  home_welcome_tagline: "말하면 적힙니다."
+  home_words_per_min: "단어 / 분"
+  home_words_so_far: "지금까지 단어"
+  home_words_today: "오늘 단어"
+  home_you_spoke_this_week: "이번 주에 %@ 말했습니다."
+  home_zero_day: "0일"
+u5:
+  u7_add_replacement: "치환 추가"
+  u7_add_word: "단어 추가"
+  u7_add_words_or_replacements: "인식기가 신뢰할 단어나 전사 후 적용할 치환을 추가하세요."
+  u7_applied_after_transcription: "전사 후, 삽입 전에 적용"
+  u7_case_insensitive: "대소문자 구분 안 함"
+  u7_cmd_s_to_save: "⌘S로 저장"
+  u7_command: "명령"
+  u7_copy_content: "내용 복사"
+  u7_d_ago: "%d일 전"
+  u7_delete_note: "메모 삭제"
+  u7_edited: "편집됨"
+  u7_edited_format: "편집됨 %@"
+  u7_everything_runs_on_this_mac: "모두 이 Mac에서 실행"
+  u7_exact: "정확"
+  u7_h_ago: "%d시간 전"
+  u7_installed: "설치됨"
+  u7_just_now: "방금"
+  u7_listening_speak_to_append: "듣는 중 — 말해 추가…"
+  u7_m_ago: "%d분 전"
+  u7_match_mode: "일치 모드"
+  u7_models_privacy_footnote: "모델은 이 Mac을 떠나지 않습니다. 설정 → AI에서 클라우드를 선택하지 않는 한 오디오는 로컬에서 처리됩니다."
+  u7_new_note: "새 메모"
+  u7_no_dictionary_entries: "사전 항목 없음"
+  u7_on_device_helpers: "온디바이스 도우미"
+  u7_on_disk: "디스크"
+  u7_open_note: "메모 열기"
+  u7_pin: "고정"
+  u7_replacements_run_in_order: "치환은 순서대로 실행됩니다. 행을 끌어 재정렬 — 첫 번째 일치가 우선합니다."
+  u7_replacements_section: "치환"
+  u7_speech_to_text: "음성을 텍스트로"
+  u7_teach_pindrop_your_words: "Pindrop에 단어를 가르치기"
+  u7_unpin: "고정 해제"
+  u7_untitled_note: "제목 없는 메모"
+  u7_words_recognizer_should_trust: "인식기가 신뢰해야 할 단어"
+u8:
+  settings_acknowledgements: "감사의 말"
+  settings_advanced_assignments: "고급 할당"
+  settings_audio_on_disk_format: "디스크의 오디오: %@ · %@"
+  settings_beta_channel: "Beta"
+  settings_bundled_fonts_ofl: "번들 폰트(Newsreader, Inter, JetBrains Mono)는 SIL Open Font License에 따라 라이선스가 부여됩니다."
+  settings_checks_for_updates_automatically: "Pindrop이 자동으로 업데이트를 확인합니다."
+  settings_choose_a_provider: "공급자 선택"
+  settings_choose_folder_export_logs: "Pindrop 로그 파일을 복사할 폴더를 선택하세요."
+  settings_copy_last_transcript: "마지막 전사 복사"
+  settings_copy_token: "토큰 복사"
+  settings_days_30: "30일"
+  settings_days_7: "7일"
+  settings_debug: "디버그"
+  settings_delete_all_audio: "모든 오디오 삭제"
+  settings_delete_all_audio_ellipsis: "모든 오디오 삭제…"
+  settings_delete_all_audio_question: "모든 오디오를 삭제할까요?"
+  settings_diagnostics: "진단"
+  settings_edit_prompt_ellipsis: "프롬프트 편집…"
+  settings_endpoint: "엔드포인트"
+  settings_enhance_transcripts: "전사 향상"
+  settings_example_label: "예시"
+  settings_export_logs_ellipsis: "로그 내보내기…"
+  settings_forever: "영구"
+  settings_github: "GitHub"
+  settings_info: "정보"
+  settings_keep_dictation_audio: "받아쓰기 오디오 보관"
+  settings_last_checked_format: "마지막 확인: %@"
+  settings_license_mit: "라이선스 — MIT"
+  settings_listening_ellipsis: "듣는 중…"
+  settings_log_level: "로그 레벨"
+  settings_logs_never_include_transcript: "로그에는 전사 텍스트가 포함되지 않습니다"
+  settings_made_with_care: "로컬 음성을 위해 정성껏 만들었습니다."
+  settings_manage_ellipsis: "관리…"
+  settings_n_samples: "샘플 %d개"
+  settings_n_snippets: "녹음 %d개"
+  settings_n_trained: "%d개 학습됨"
+  settings_no_conflicts_with_system_or_app: "시스템 또는 앱 단축키와 충돌하지 않습니다."
+  settings_one_snippet: "녹음 1개"
+  settings_one_trained: "1개 학습됨"
+  settings_presets_recolor_caption: "사전 설정은 강조 색상과 배경을 다시 칠합니다. 텍스트 대비는 자동으로 검증됩니다."
+  settings_push_to_talk: "푸시투톡"
+  settings_recording_indicator: "녹음 표시기"
+  settings_release_channel: "릴리스"
+  settings_removes_kept_dictation_audio: "보관된 받아쓰기 오디오 파일을 삭제합니다. 전사 내용은 라이브러리에 그대로 남습니다."
+  settings_reset_all_settings_ellipsis: "모든 설정 재설정…"
+  settings_separate_from_interface_language: "인터페이스 언어와 별도로"
+  settings_some_shortcuts_conflict_each_other: "일부 단축키가 서로 충돌합니다."
+  settings_some_shortcuts_may_conflict_system: "일부 단축키가 시스템 단축키와 충돌할 수 있습니다."
+  settings_speaker_profiles: "화자 프로필"
+  settings_theme_preset: "테마 프리셋"
+  settings_toggle_dictation: "받아쓰기 토글"
+  settings_trained_summary_format: "%@ — 회의에서 누가 무엇을 말했는지 표시하는 데 사용됩니다"
+  settings_update_checks_unavailable: "업데이트 확인을 일시적으로 사용할 수 없습니다."
+  settings_warning: "경고"
+  settings_website: "웹사이트"
+u9:
+  onboarding_accessibility_clipboard_fallback: "손쉬운 사용 권한이 없으면 Pindrop이 텍스트를 클립보드에 복사합니다."
+  onboarding_change_hotkey_hint: "변경하려면 다른 키 조합을 누르세요"
+  onboarding_download_amount_format: "%@ / %@"
+  onboarding_download_background_hint: "다운로드하는 동안 설정을 계속하세요. 나머지는 백그라운드에서 완료됩니다."
+  onboarding_enable_enhancement: "향상 기능 활성화"
+  onboarding_granted_state: "허용됨"
+  onboarding_pindrop_writes: "Pindrop 작성"
+  onboarding_ready_heading: "준비되었습니다."
+  onboarding_ready_instruction_format: "%@을 누르고 말하기 시작하세요. Pindrop이 커서가 있는 곳에 입력합니다."
+  onboarding_try_it_now: "지금 사용해 보기"
+  onboarding_you_say: "사용자 음성"
+ukrainian:
+  _self: "Ukrainian"
 unable:
   to_connect_to_the_ai_enhancement_service: "\"\" AI 강화 서비스에 연결할 수 없습니다.                                  다음 사항을 확인하십시오. 1. 인터넷 연결 2. API 끝점 URL이 정확합니다. 3. 서비스가 중단되지 않습니다. 기록이 개선되지 않고 저장되었습니다.                 \"\""
   to_finish_transcription: "스크립트 작성을 완료할 수 없습니다."
@@ -1045,6 +1402,8 @@ undo:
   _self: "끄르다"
 unfiled:
   _self: "미제출"
+unknown:
+  _self: "Unknown"
 unpin:
   from_screen: "화면에서 고정 해제"
 update:
@@ -1083,12 +1442,23 @@ view:
   transcription_history: "전사 기록 보기"
 vocabulary:
   _self: "어휘"
+voice:
+  _self: "Voice"
 vs:
   typing: "vs 타이핑"
+web:
+  link: "Web link"
 welcome:
   to_pindrop: "핀드롭에 오신 것을 환영합니다"
+what:
+  s_new: "새로운 기능…"
+  s_new_in_pindrop: "Pindrop의 새로운 기능"
+while:
+  recording: "녹음 중"
 whisperkit:
   _self: "속삭임 키트"
+window:
+  _self: "윈도우"
 word:
   _self: "단어"
   replacements: "단어 대체"
@@ -1110,371 +1480,13 @@ you:
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" API 속도 제한 또는 할당량을 초과했습니다.                                  이 문제를 해결하려면: 1. 몇 분 정도 기다렸다가 다시 시도하십시오. 2. API 공급자의 사용 제한을 확인하십시오. 3. API 계획 업그레이드를 고려하십시오. 스크립트가 향상되지 않고 저장되었습니다.                 \"\""
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" 귀하의 API 키가 유효하지 않거나 만료된 것 같습니다.                                  이 문제를 해결하려면: 1. 설정 → AI 향상을 엽니다. 2. API 키가 올바른지 확인합니다. 3. API 엔드포인트가 올바른지 확인합니다. 전사가 향상 없이 저장되었습니다.                 \"\""
+  floating_indicator_is_now_a_living_audio_re: "이제 플로팅 표시기는 소리에 반응하는 살아 있는 orb입니다. 대기 중에는 숨 쉬고, 말하면 부풀어 오르며, 받아쓰는 동안 단어를 실시간으로 보여줍니다."
   hotkeys_are_ready_to_use_nyou_can_customize: "단축키를 사용할 준비가 되었습니다.n나중에 설정에서 단축키를 맞춤설정할 수 있습니다."
   hotkeys_are_ready_to_use_you_can_customize: |-
     단축키를 사용할 준비가 되었습니다.
     나중에 설정에서 맞춤설정할 수 있습니다.
   model_is_ready_to_use: "모델을 사용할 준비가 되었습니다."
   stats: "귀하의 통계"
-  floating_indicator_is_now_a_living_audio_re: "이제 플로팅 표시기는 소리에 반응하는 살아 있는 orb입니다. 대기 중에는 숨 쉬고, 말하면 부풀어 오르며, 받아쓰는 동안 단어를 실시간으로 보여줍니다."
-orb:
-  _self: "오브"
-meeting:
-  saved: "회의가 저장됨"
-russian:
-  _self: "Russian"
-ukrainian:
-  _self: "Ukrainian"
-what:
-  s_new_in_pindrop: "Pindrop의 새로운 기능"
-  s_new: "새로운 기능…"
-meet:
-  the_new_orb: "새로운 Orb 만나보기"
-thanks:
-  to_for_investigating_and_kicking_off_the: "문제를 조사하고 수정의 출발점을 마련해 준 %@님께 감사드립니다 (PR #64)."
-  to_for_the_contribution_pr_61: "기여해 준 %@님께 감사드립니다 (PR #61)."
-dictate:
-  in_russian_and_ukrainian: "러시아어와 우크라이나어로 받아쓰기"
-two:
-  new_dictation_languages_fully_wired_into_mod: "두 가지 새로운 받아쓰기 언어가 모델 추천에 완전히 연결되었습니다."
-also:
-  new_rtl_layout_support_and_20_new_interface: "또한 RTL 레이아웃 지원과 20개의 새로운 인터페이스 언어가 추가되었습니다."
-advanced:
-  _self: "고급"
-agent:
-  setup: "에이전트 설정"
-appearance:
-  _self: "모양"
-bearer:
-  token: "Bearer 토큰"
-changes:
-  the_language_used_by_pindrop_s_interface: "Pindrop 인터페이스 언어를 변경합니다."
-client:
-  _self: "클라이언트"
-configuration:
-  file: "구성 파일"
-  scope: "구성 범위"
-  snippet: "구성 스니펫"
-dictation:
-  _self: "받아쓰기"
-  language: "받아쓰기 언어"
-  polish: "받아쓰기 다듬기"
-done:
-  _self: "완료"
-input:
-  device: "입력 장치"
-license:
-  _self: "라이선스"
-mcp:
-  configuration_error: "MCP 구성 오류"
-  server: "MCP 서버"
-main:
-  window: "메인 창"
-name:
-  _self: "이름"
-port:
-  _self: "포트"
-  changes_take_effect_the_next_time_the_serve: "포트 변경은 다음 서버 시작 시 적용됩니다."
-project:
-  _self: "프로젝트"
-regenerate:
-  _self: "다시 생성"
-shortcuts:
-  _self: "단축키"
-speakers:
-  _self: "화자"
-these:
-  options_are_mutually_exclusive_enabling_on: "이 옵션은 서로 배타적입니다. 하나를 켜면 다른 하나는 꺼집니다."
-while:
-  recording: "녹음 중"
-may:
-  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
-library:
-  _self: "라이브러리"
-conflicts:
-  with: "Conflicts with %@"
-file:
-  _self: "파일"
-window:
-  _self: "윈도우"
-help:
-  _self: "도움말"
-close:
-  _self: "닫기"
-find:
-  _self: "찾기"
-minimize:
-  _self: "최소화"
+  stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "확대/축소"
-bring:
-  all_to_front: "모두 앞으로 가져오기"
-home:
-  _self: "홈"
-newest:
-  _self: "최신순"
-oldest:
-  _self: "오래된순"
-plain:
-  text_txt: "일반 텍스트 (.txt)"
-markdown:
-  md: "Markdown (.md)"
-subtitles:
-  srt: "자막 (.srt)"
-timestamps:
-  json: "타임스탬프 (.json)"
-inserted:
-  into_d_words: "%@에 삽입됨 · %d단어"
-unknown:
-  app: "알 수 없는 앱"
-pinned:
-  _self: "고정됨"
-speak:
-  to_append: "말해 추가"
-
-diarized:
-  _self: "화자 분리됨"
-
-summary:
-  ready: "요약 준비됨"
-
-prompts:
-  are_sent_in_english: "프롬프트는 영어로 전송됩니다"
-
-preset_example:
-  clean_input: "음 그래서 회의는 세 시 반이야 마침표 확인해 줄 수 있어 물음표"
-  clean_output: "그래서 회의는 15:30이야. 확인해 줄 수 있어?"
-  meeting_input: "앨리스가 금요일까지 덱을 보내고 밥이 가격 검토를 맡아 다음 주에 결정이 필요해"
-  meeting_output: "## 할 일\\n- **앨리스**가 **금요일**까지 덱을 보냄\\n- **밥**이 가격 검토를 맡음\\n\\n## 다음 단계\\n- 다음 주 결정 필요"
-  email_input: "안녕 조던 어제 메모 받았는지 확인만 했어 고마워"
-  email_output: "안녕 조던,\\n\\n어제 메모 받았는지 확인만 했어.\\n\\n고마워,"
-  social_input: "음 방금 다크 모드를 출시했는데 정말 멋져 보여 너도 써 봐야 해"
-  social_output: "방금 다크 모드를 출시했어.\\n\\n정말 멋져 보여 — 너도 써 봐야 해."
-  bullets_input: "온보딩 지연을 다뤘고 그다음 가격 마지막으로 오월 십이일 출시일"
-  bullets_output: "- 온보딩 지연\\n- 가격\\n- 출시일: 5월 12일"
-  technical_input: "fetch user 호출 화살표 그다음 응답을 등호 등호 이백으로 매핑"
-  technical_output: "`fetchUser` 호출 -> 그다음 응답을 `==` 200으로 매핑."
-  live_input: "음 금요일까지 베타를 출시해야 할 것 같아 마침표"
-  live_output: "금요일까지 베타를 출시해야 할 것 같아."
-  edits_input: "음 이건 correct ly 이십오"
-  edits_output: "이건 correctly 25"
-
-inserted:
-  into_d_words: "Inserted into %@ · %d words"
-
-unknown:
-  app: "Unknown App"
-
-u3_library:
-  rename_speaker_ellipsis: "화자 이름 변경…"
-  assign_speaker: "화자 지정"
-  record_meeting_ellipsis: "회의 녹음…"
-  dictations: "받아쓰기"
-  meetings: "회의"
-  one_recording: "녹음 1개"
-  n_recordings: "녹음 %d개"
-  h_m_spoken: "%d시간 %d분 발화"
-  h_spoken: "%d시간 발화"
-  m_spoken: "%d분 발화"
-  audio_kept_7_days: "오디오 7일 보관"
-  audio_kept_30_days: "오디오 30일 보관"
-  audio_kept_forever: "오디오 영구 보관"
-  inserted_into: "%@에 삽입됨"
-  import_files: "파일 가져오기…"
-  paste_link: "링크 붙여넣기…"
-  insert_again: "다시 삽입"
-  playback_speed: "재생 속도"
-  no_recordings_yet: "녹음이 없습니다"
-  start_dictation_or_import: "홈에서 받아쓰기를 시작하거나 파일을 가져오세요."
-  no_dictations_yet: "받아쓰기가 없습니다"
-  dictations_appear_after_use: "음성 받아쓰기 후 여기에 표시됩니다."
-  no_meeting_recordings: "회의 녹음이 없습니다"
-  record_meeting_from_home: "홈에서 회의를 녹음하면 여기에 표시됩니다."
-  import_file_or_paste_link: "파일을 가져오거나 링크를 붙여넣어 미디어를 전사하세요."
-  try_different_search_or_filter: "다른 검색어나 필터를 시도하세요."
-  untitled: "제목 없음"
-  https_placeholder: "https://…"
-  summary_label: "요약"
-  click_line_to_jump: "줄을 클릭해 재생 위치로 이동"
-  meeting_recording: "회의 녹음"
-  voice_transcription: "음성 전사"
-  imported_audio: "가져온 오디오"
-  web_transcription: "웹 전사"
-
-u5_u7:
-  new_note: "새 메모"
-  add_word: "단어 추가"
-  add_replacement: "치환 추가"
-  teach_pindrop_your_words: "Pindrop에 단어를 가르치기"
-  words_recognizer_should_trust: "인식기가 신뢰해야 할 단어"
-  applied_after_transcription: "전사 후, 삽입 전에 적용"
-  case_insensitive: "대소문자 구분 안 함"
-  exact: "정확"
-  command: "명령"
-  replacements_run_in_order: "치환은 순서대로 실행됩니다. 행을 끌어 재정렬 — 첫 번째 일치가 우선합니다."
-  no_dictionary_entries: "사전 항목 없음"
-  add_words_or_replacements: "인식기가 신뢰할 단어나 전사 후 적용할 치환을 추가하세요."
-  match_mode: "일치 모드"
-  everything_runs_on_this_mac: "모두 이 Mac에서 실행"
-  on_disk: "디스크"
-  speech_to_text: "음성을 텍스트로"
-  on_device_helpers: "온디바이스 도우미"
-  installed: "설치됨"
-  models_privacy_footnote: "모델은 이 Mac을 떠나지 않습니다. 설정 → AI에서 클라우드를 선택하지 않는 한 오디오는 로컬에서 처리됩니다."
-  listening_speak_to_append: "듣는 중 — 말해 추가…"
-  cmd_s_to_save: "⌘S로 저장"
-  edited_format: "편집됨 %@"
-  just_now: "방금"
-  m_ago: "%d분 전"
-  h_ago: "%d시간 전"
-  d_ago: "%d일 전"
-  edited: "편집됨"
-  open_note: "메모 열기"
-  copy_content: "내용 복사"
-  unpin: "고정 해제"
-  pin: "고정"
-  delete_note: "메모 삭제"
-  replacements_section: "치환"
-  untitled_note: "제목 없는 메모"
-u4_home:
-  you_spoke_this_week: "이번 주에 %@ 말했습니다."
-  n_words_grouped: "%@단어"
-  zero_day: "0일"
-  one_day: "1일"
-  n_day: "%d일"
-  duration_h_m: "%d시간 %d분"
-  duration_h: "%d시간"
-  duration_m: "%d분"
-  subline_full: "받아쓰기 %@ — 타이핑 대비 약 %@ 절약."
-  subline_duration_only: "받아쓰기 %@."
-  words_today: "오늘 단어"
-  words_per_min: "단어 / 분"
-  streak: "연속"
-  open_library_arrow: "라이브러리 열기 →"
-  this_week: "이번 주"
-  words_so_far: "지금까지 단어"
-  welcome_tagline: "말하면 적힙니다."
-  press_hotkey_hint: "어디서든 %@을(를) 눌러 받아쓰기를 시작하세요."
-  bar_a11y_one: "%@, 1단어"
-  bar_a11y_n: "%@, %@단어"
-  recent_empty_hint: "최근 받아쓰기가 여기에 표시됩니다."
-  option_space_fallback: "⌥Space"
-
-u8_settings:
-  reset_all_settings_ellipsis: "모든 설정 재설정…"
-  separate_from_interface_language: "인터페이스 언어와 별도로"
-  keep_dictation_audio: "받아쓰기 오디오 보관"
-  days_7: "7일"
-  days_30: "30일"
-  forever: "영구"
-  audio_on_disk_format: "디스크의 오디오: %@ · %@"
-  one_snippet: "녹음 1개"
-  n_snippets: "녹음 %d개"
-  delete_all_audio_ellipsis: "모든 오디오 삭제…"
-  delete_all_audio_question: "모든 오디오를 삭제할까요?"
-  delete_all_audio: "모든 오디오 삭제"
-  removes_kept_dictation_audio: "보관된 받아쓰기 오디오 파일을 삭제합니다. 전사 내용은 라이브러리에 그대로 남습니다."
-  speaker_profiles: "화자 프로필"
-  one_trained: "1개 학습됨"
-  n_trained: "%d개 학습됨"
-  trained_summary_format: "%@ — 회의에서 누가 무엇을 말했는지 표시하는 데 사용됩니다"
-  manage_ellipsis: "관리…"
-  theme_preset: "테마 프리셋"
-  presets_recolor_caption: "사전 설정은 강조 색상과 배경을 다시 칠합니다. 텍스트 대비는 자동으로 검증됩니다."
-  recording_indicator: "녹음 표시기"
-  toggle_dictation: "받아쓰기 토글"
-  push_to_talk: "푸시투톡"
-  copy_last_transcript: "마지막 전사 복사"
-  no_conflicts_with_system_or_app: "시스템 또는 앱 단축키와 충돌하지 않습니다."
-  some_shortcuts_conflict_each_other: "일부 단축키가 서로 충돌합니다."
-  some_shortcuts_may_conflict_system: "일부 단축키가 시스템 단축키와 충돌할 수 있습니다."
-  listening_ellipsis: "듣는 중…"
-  enhance_transcripts: "전사 향상"
-  choose_a_provider: "공급자 선택"
-  edit_prompt_ellipsis: "프롬프트 편집…"
-  example_label: "예시"
-  advanced_assignments: "고급 할당"
-  endpoint: "엔드포인트"
-  copy_token: "토큰 복사"
-  log_level: "로그 레벨"
-  debug: "디버그"
-  info: "정보"
-  warning: "경고"
-  diagnostics: "진단"
-  logs_never_include_transcript: "로그에는 전사 텍스트가 포함되지 않습니다"
-  export_logs_ellipsis: "로그 내보내기…"
-  choose_folder_export_logs: "Pindrop 로그 파일을 복사할 폴더를 선택하세요."
-  github: "GitHub"
-  website: "웹사이트"
-  license_mit: "라이선스 — MIT"
-  acknowledgements: "감사의 말"
-  bundled_fonts_ofl: "번들 폰트(Newsreader, Inter, JetBrains Mono)는 SIL Open Font License에 따라 라이선스가 부여됩니다."
-  made_with_care: "로컬 음성을 위해 정성껏 만들었습니다."
-  release_channel: "릴리스"
-  beta_channel: "Beta"
-  last_checked_format: "마지막 확인: %@"
-  update_checks_unavailable: "업데이트 확인을 일시적으로 사용할 수 없습니다."
-  checks_for_updates_automatically: "Pindrop이 자동으로 업데이트를 확인합니다."
-  n_samples: "샘플 %d개"
-u10_floating:
-  transcribing: "전사 중…"
-  word_count: "%d단어"
-  inserted_into: "%@에 삽입됨"
-  microphone_unavailable: "마이크를 사용할 수 없음"
-  whats_new: "새로운 기능"
-  version_line: "Pindrop 0.10.0 · 2026년 7월"
-  announcement_summary: "다시 듣기, 새로운 디자인, Pindrop 전체의 키보드 제어."
-  replay_title: "모든 받아쓰기 다시 듣기"
-  replay_body: "Pindrop이 오디오를 7일 동안 보관하므로 필요할 때 보관함에서 다시 들을 수 있습니다."
-  new_look_title: "새로운 디자인"
-  new_look_body: "더 따뜻하고 차분한 디자인이 사용자의 말을 중심에 둡니다. 테마 프리셋은 유지되며 새로운 기본값인 보관함이 추가됩니다."
-  keyboard_title: "어디서나 키보드"
-  keyboard_body: "키보드에서 손을 떼지 않고 페이지 이동, 검색, 메모 작성, 내보내기 및 삭제를 할 수 있습니다."
-u11:
-  recording_started: "녹음 시작됨"
-  recording_stopped: "녹음 중지됨"
-  recording_processing: "녹음이 중지되었습니다. 전사를 처리 중입니다."
-  transcription_complete: "전사 완료"
-  live_transcript: "실시간 전사"
-  estimating_time: "남은 시간 계산 중…"
-  seconds_left: "약 %d초 남음"
-  minutes_left: "약 %d분 남음"
-  microphone_muted: "마이크 음소거됨"
-u11b:
-  playback_position: "재생 위치"
-  expired: "만료됨"
-  expand: "펼치기"
-  step_x_of_y: "%d/%d단계"
-sessions_in: "%@ sessions in %@"
-0_m: "0 m"
-1_year: "1 year"
-90_days: "90 days"
-ai_enhanced: "AI-enhanced"
-active_days: "Active days"
-activity: "Activity"
-all_time: "All time"
-audio_duration: "Audio duration"
-average_session: "Average session"
-average_words_session: "Average words / session"
-by_weekday: "By weekday"
-destinations: "Destinations"
-dictation_words_min: "Dictation words / min"
-duration: "Duration"
-estimated_time_saved: "Estimated time saved"
-imported_file: "Imported file"
-longest_streak: "Longest streak"
-manual_capture: "Manual capture"
-metric: "Metric"
-no_activity_in_this_period: "No activity in this period"
-no_destination_data: "No destination data"
-other: "Other"
-overview: "Overview"
-sources: "Sources"
-stats: "Stats"
-time_of_day: "Time of day"
-time_range: "Time range"
-transcribed_words: "Transcribed words"
-unknown: "Unknown"
-voice: "Voice"
-web_link: "Web link"
-your_stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."

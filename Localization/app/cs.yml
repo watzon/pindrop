@@ -1,61 +1,61 @@
-u9_onboarding:
-  download_amount_format: "%@ z %@"
-  download_background_hint: "Pokračujte v nastavení během stahování — dokončíme ho na pozadí."
-  you_say: "Řeknete"
-  pindrop_writes: "Pindrop napíše"
-  enable_enhancement: "Zapnout vylepšení"
-  accessibility_clipboard_fallback: "Bez Zpřístupnění Pindrop místo toho zkopíruje text do schránky."
-  change_hotkey_hint: "Změníte ji stisknutím jiné kombinace"
-  granted_state: "Uděleno"
-  ready_heading: "Vše je připraveno."
-  ready_instruction_format: "Stiskněte %@ a začněte mluvit — Pindrop píše všude, kde je kurzor."
-  try_it_now: "Vyzkoušet nyní"
-
+0:
+  m: "0 m"
 100:
   local_processing: "100% lokální zpracování"
 1:
   folder: "1 složka"
+  note: "1 poznámka"
   speaker: "1 mluvčí"
   transcription: "1 přepis"
-  note: "1 poznámka"
   word: "1 slovo"
+  year: "1 year"
+90:
+  days: "90 days"
 a:
-  native_macos_menu_bar_dictation_app_using_loca: "Nativní aplikace pro diktování na liště nabídek macOS využívající místní převod řeči na text pomocí WhisperKit. 100% místní zpracování ve výchozím nastavení s volitelným vylepšením AI."
   big_round_of_upgrades_and_two_community_shout: "Velká sada vylepšení — a dvě komunitní poděkování."
+  native_macos_menu_bar_dictation_app_using_loca: "Nativní aplikace pro diktování na liště nabídek macOS využívající místní převod řeči na text pomocí WhisperKit. 100% místní zpracování ve výchozím nastavení s volitelným vylepšením AI."
 about:
   _self: "O"
   pindrop: "O Pindropovi"
 accessibility:
   _self: "Přístupnost"
+  permission: "Oprávnění usnadnění"
   permission_is_enabled_full_ui_cont: "Je povoleno oprávnění k usnadnění. K dispozici je úplný kontext uživatelského rozhraní."
   permission_is_not_granted_vibe_mod: "Oprávnění k usnadnění není uděleno. Vibe režim zůstává neblokující s omezeným kontextem."
   permission_recommended: "Doporučeno oprávnění k usnadnění"
   permission_required: "Je vyžadováno oprávnění k usnadnění"
-  permission: "Oprávnění usnadnění"
 accuracy:
   _self: "Přesnost"
 acknowledgments:
   _self: "Poděkování"
 active:
   _self: "Aktivní"
+  days: "Active days"
+activity:
+  _self: "Activity"
 add:
   _self: "Přidat"
   a_provider_to_start_using_ai_enhancement: "Chcete-li začít používat vylepšení AI, přidejte poskytovatele."
   custom_words_to_improve_transcription_accura: "Přidejte vlastní slova, abyste zlepšili přesnost přepisu specializovaných termínů, jmen nebo žargonu."
   provider: "Přidat poskytovatele"
   tag: "Přidat značku..."
+  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
+  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
+  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
+  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
+  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
   to_existing: "Přidat k existujícím"
   trailing_space: "Přidejte mezeru na konci"
   word_replacements_to_automatically_correct_c: "Přidáním náhrad slov automaticky opravíte běžné chyby v přepisu."
   words_to_help_pindrop_recognize_them_properl: "Přidejte slova, abyste je Pindrop mohli správně rozpoznat"
   words_you_manually_correct_into_your_vocabul: "Přidejte slova, která ručně opravíte, do své slovní zásoby pro budoucí přepisy."
-  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
-  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
-  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
-  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
-  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
+advanced:
+  _self: "Pokročilé"
+agent:
+  setup: "Nastavení agenta"
 ai:
   _self: "AI"
+  enhanced: "AI-enhanced"
   enhancement: "Vylepšení AI"
   enhancement_529f5583: "Vylepšení AI: %@"
   enhancement_failed: "Vylepšení AI se nezdařilo"
@@ -64,6 +64,9 @@ ai:
   model: "Model AI"
 all:
   _self: "Vše"
+  time: "All time"
+also:
+  new_rtl_layout_support_and_20_new_interface: "Nově také: podpora rozvržení RTL a 20 nových jazyků rozhraní."
 an:
   error_occurred_while_enhancing_your_transcrip: |-
     Při vylepšování vašeho přepisu došlo k chybě:
@@ -72,7 +75,7 @@ an:
     
     Původní přepis byl uložen bez vylepšení.
     Vylepšení AI můžete zkusit znovu povolit v Nastavení.
-  error_occurred_while_enhancing_your_transcrip_8c664cb4: "Během en došlo k chybě enhancing vaší transcription:nn%@n__PH_10_PH__1 origi transcription bylo uloženo bez enhancement.nVylepšení AI můžete zkusit znovu povolit v Nastavení."
+  error_occurred_while_enhancing_your_transcrip_1790ad05: "Během en došlo k chybě enhancing vaší transcription:nn%@n__PH_10_PH__1 origi transcription bylo uloženo bez enhancement.nVylepšení AI můžete zkusit znovu povolit v Nastavení."
 anthropic:
   _self: "Antropický"
 api:
@@ -82,6 +85,8 @@ api:
   key_saved_endpoint: "Klíč API uložen • Koncový bod: %@"
 app:
   info_acknowledgments_support_and_logs: "Informace o aplikaci, potvrzení, podpora a protokoly"
+appearance:
+  _self: "Vzhled"
 append:
   a_space_after_each_transcription_for_seam: "Za každým přepisem přidejte mezeru pro bezproblémový diktát."
 apple:
@@ -99,6 +104,7 @@ assignments:
 attach:
   logs_from_this_folder_when_filing_a_githu: "Při vyplňování problému na GitHubu připojte protokoly z této složky."
 audio:
+  duration: "Audio duration"
   input: "Zvukový vstup"
 automatic:
   follow_system: "Automaticky (Sledovat systém)"
@@ -109,6 +115,9 @@ automatically:
   start_pindrop_when_you_sign_in: "Automaticky spustit Pindrop, když se přihlásíte."
 available:
   models: "Dostupné modely"
+average:
+  session: "Average session"
+  words_session: "Average words / session"
 avg:
   speed: "Prům. rychlost"
 back:
@@ -116,14 +125,20 @@ back:
   to_library: "Zpět do knihovny"
 base:
   _self: "Báze"
+bearer:
+  token: "Bearer token"
 best:
   _self: "Nejlepší"
 better:
   _self: "Lepší"
   bluetooth_external_mic_support: "Lepší podpora Bluetooth a externích mikrofonů"
+bring:
+  all_to_front: "Přesunout vše do popředí"
 built:
   in_presets: "Vestavěné předvolby"
   in_read_only: "Vestavěný (pouze pro čtení)"
+by:
+  weekday: "By weekday"
 cancel:
   _self: "Zrušit"
   operation: "Zrušit operaci"
@@ -132,6 +147,8 @@ capture:
 change:
   microphone: "Vyměňte mikrofon"
   microphone_ac9970f4: "Vyměňte mikrofon"
+changes:
+  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
   for_updates: "Zkontrolovat aktualizace..."
   for_updates_736b9062: "Zkontrolujte aktualizace"
@@ -144,24 +161,24 @@ choose:
   a_model: "Vyberte model"
   a_provider_first: "Nejprve vyberte poskytovatele"
   an_audio_or_video_file_to_transcribe: "Vyberte zvukový nebo video soubor, který chcete přepsat"
-  between_nemotron_punctuated_downloaded_mod: "Vyberte mezi Nemotron (s interpunkcí, stahovaný model) a Apple SpeechTranscriber (macOS 26+, součást systému)."
+  between_nemotron_punctuated_downloaded_mo: "Vyberte mezi Nemotron (s interpunkcí, stahovaný model) a Apple SpeechTranscriber (macOS 26+, součást systému)."
   file: "Vyberte soubor"
   how_dictated_text_lands_then_tune_the_fin: "Vyberte, jak bude diktovaný text přistávat, a poté vylaďte konečné chování vkládání."
+  how_pindrop_appears_on_screen_while_you_d: "Zvolte, jak se Pindrop zobrazuje na obrazovce během diktování."
   how_pindrop_follows_system_appearance_the: "Vyberte, jak Pindrop sleduje vzhled systému, a poté smíchejte upravené světlé a tmavé palety."
+  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   how_to_import_the_dictionary_data: "Vyberte, jak importovat data slovníku"
   how_to_import_the_preset_data: "Vyberte způsob importu přednastavených dat"
   languages_for_the_interface_and_for_dicta: "Vyberte jazyky pro rozhraní a pro diktování. Automaticky následuje systém."
   location_to_save_presets: "Vyberte umístění pro uložení předvoleb"
+  model: "Choose Model…"
   the_daytime_shell_used_in_light_mode: "Vyberte denní skořepinu používanou ve světelném režimu."
   the_low_glare_shell_used_in_dark_mode: "Vyberte skořepinu s nízkým oslněním použitou v tmavém režimu."
-  which_microphone_pindrop_should_use_for_d: "Vyberte, který mikrofon má Pindrop používat pro diktování a jak se chová při nahrávání."
-  which_side_the_navigation_sidebar_appears: "Vyberte, na které straně se zobrazí postranní navigační panel."
-  how_pindrop_appears_on_screen_while_you_d: "Zvolte, jak se Pindrop zobrazuje na obrazovce během diktování."
-  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
+  which_microphone_pindrop_should_use_for_d: "Vyberte, který mikrofon má Pindrop používat pro diktování a jak se chová při nahrávání."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
-  model: "Choose Model…"
+  which_side_the_navigation_sidebar_appears: "Vyberte, na které straně se zobrazí postranní navigační panel."
 clean:
   up_filler_words: "Vyčistěte výplňová slova"
 clear:
@@ -170,15 +187,19 @@ clear:
   shortcut: "Vymazat zkratku"
 clears:
   preferences_and_restarts_onboarding: "Vymaže předvolby a restartuje registraci"
-  preferences_and_restarts_onboarding_7d85115c: "Clears preferences and restarts onboarding."
+  preferences_and_restarts_onboarding_7d851: "Clears preferences and restarts onboarding."
 click:
   or_hold: "Klikněte nebo podržte"
   or_press: "Klikněte nebo stiskněte"
   or_set_a_hotkey_to_start_talking: "Chcete-li začít mluvit, klikněte nebo nastavte klávesovou zkratku"
   this_icon_anytime_to: "Kliknutím na tuto ikonu můžete kdykoli:"
+client:
+  _self: "Klient"
 clipboard:
   _self: "Schránka"
   temporarily_copies_the_transcript_for: "Clipboard temporarily copies the transcript for pasting. Direct Insert types into the active app when possible."
+close:
+  _self: "Zavřít"
 cloud:
   _self: "Mrak"
   model: "Cloudový model"
@@ -187,9 +208,15 @@ collapse:
 coming:
   soon: "%@ Již brzy"
   soon_04d2fd85: "Již brzy"
+configuration:
+  file: "Configuration File"
+  scope: "Configuration Scope"
+  snippet: "Configuration Snippet"
 configure:
   ai_providers_and_credentials_apple_int: "Nakonfigurujte poskytovatele AI a přihlašovací údaje. Apple Intelligence běží na zařízení; ostatní poskytovatelé vyžadují klíče API."
   keyboard_shortcuts_for_recording_and_n: "Nakonfigurujte klávesové zkratky pro nahrávání a zachycení poznámek"
+conflicts:
+  with: "Conflicts with %@"
 continue:
   _self: "Pokračovat"
   with_default: "Pokračujte s Výchozí"
@@ -206,29 +233,29 @@ copy:
   enhanced: "Vylepšené kopírování"
   last_transcript: "Kopírovat poslední přepis"
   original: "Kopírovat originál"
+  system_info: "Copy System Info"
   system_info_for_bug_report: "Zkopírujte systémové informace pro hlášení chyby"
+  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
   the_most_recent_transcript_to_the_clipboard: "Zkopírujte nejnovější přepis do schránky"
+  the_most_recent_transcript_to_the_clipboard_03a8d47b: "Copy the most recent transcript to the clipboard."
   to_clipboard: "Kopírovat do schránky"
   transcript: "Kopírovat přepis"
-  system_info: "Copy System Info"
-  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
-  the_most_recent_transcript_to_the_clipboard_b9736933: "Copy the most recent transcript to the clipboard."
 correct:
   grammar_mistakes: "Opravte gramatické chyby"
 create:
-  new_profile: "Create New Profile…"
-  speaker_profile: "Create Speaker Profile"
   _self: "Vytvořit"
   new_note: "Vytvořit novou poznámku"
   new_preset: "Vytvořit novou předvolbu"
+  new_profile: "Create New Profile…"
+  preset: "Create Preset"
+  speaker_profile: "Create Speaker Profile"
   your_first_note_to_get_started: "Začněte vytvořením první poznámky"
   your_first_preset_or_duplicate_a_built_in: "Vytvořte svou první předvolbu nebo zkopírujte vestavěnou předvolbu a přizpůsobte ji."
   your_own_presets_or_duplicate_built_in_on: "Vytvořte si vlastní předvolby nebo duplikujte vestavěné a přizpůsobte je."
-  preset: "Create Preset"
 credentials:
   are_stored_securely_in_keychain: "Přihlašovací údaje jsou bezpečně uloženy v Keychain"
+  are_stored_securely_in_keychain_5acf: "Credentials are stored securely in Keychain."
   saved_successfully: "Přihlašovací údaje byly úspěšně uloženy"
-  are_stored_securely_in_keychain_5acff5d3: "Credentials are stored securely in Keychain."
 current:
   _self: "Aktuální: %@"
 custom:
@@ -242,8 +269,8 @@ cut:
   _self: "Střih"
 d:
   characters: "%d znaků"
-  speakers: "%d mluvčích"
   samples: "%d samples · %@"
+  speakers: "%d mluvčích"
   words: "%d slov"
 dark:
   _self: "Tmavý"
@@ -263,17 +290,39 @@ degraded:
   _self: "Degradovaný"
 delete:
   _self: "Vymazat"
+  all: "Smazat vše"
+  all_participants: "Delete All Participants?"
+  all_participants_60ed6e73: "Delete All Participants…"
   folder: "Smazat složku"
   folder_e556e7c2: "Smazat složku?"
   model: "Smazat model"
+  note: "Smazat poznámku?"
   preset: "Smazat předvolbu"
   preset_4f6cfe36: "Smazat předvolbu?"
   transcription: "Smazat přepis"
   transcription_f82187c4: "Smazat přepis?"
-  all: "Smazat vše"
-  all_participants: "Delete All Participants?"
-  all_participants_60ed6e73: "Delete All Participants…"
-  note: "Smazat poznámku?"
+destinations:
+  _self: "Destinations"
+diarization:
+  _self: "Speaker diarization"
+  automatic: "Automatic"
+  clear_assignment: "Clear assignment"
+  download_model: "Download model"
+  expected_speakers: "Expected speakers"
+  model_ready: "Speaker diarization is ready."
+  model_setup_issue_media: "Download the speaker diarization model before starting media transcription."
+  model_setup_issue_recording: "Download the speaker diarization model before starting recording."
+  retraining_required: "Voice matching needs retraining after the diarization update."
+  similar_voice_help: "Similar voices may be merged. Set an expected speaker count when you know how many people are present."
+diarized:
+  _self: "diarizováno"
+dictate:
+  in_russian_and_ukrainian: "Diktujte rusky a ukrajinsky"
+dictation:
+  _self: "Diktování"
+  language: "Jazyk diktování"
+  polish: "Vylepšení diktování"
+  words_min: "Dictation words / min"
 dictionary:
   _self: "Slovník"
 direct:
@@ -288,6 +337,8 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Zobrazte Pindrop v doku místo toho, aby běžel pouze jako aplikace na liště nabídek."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Ukotvete postranní panel k levému nebo pravému okraji okna."
+done:
+  _self: "Hotovo"
 download:
   _self: "Stáhnout"
   complete: "Stahování dokončeno!"
@@ -304,6 +355,8 @@ drop:
   audio_or_video_here: "Sem přetáhněte zvuk nebo video"
 duplicate:
   preset: "Duplikovat předvolbu"
+duration:
+  _self: "Duration"
 dutch:
   _self: "holandský"
 edit:
@@ -315,8 +368,8 @@ empty:
 enable:
   ai_enhancement: "Povolit AI Enhancement"
   live_session_updates_during_recording: "Povolit aktualizace živé relace během nahrávání"
-  vibe_mode_ui_context: "Povolit režim vibrace (kontext uživatelského rozhraní)"
   mcp_server: "Enable MCP Server"
+  vibe_mode_ui_context: "Povolit režim vibrace (kontext uživatelského rozhraní)"
 enabled:
   _self: "Povoleno"
 endpoint:
@@ -336,6 +389,8 @@ enter:
   word_to_add: "Zadejte slovo, které chcete přidat"
 error:
   _self: "Chyba"
+estimated:
+  time_saved: "Estimated time saved"
 european:
   multilingual: "evropská mnohojazyčnost"
 excellent:
@@ -378,6 +433,10 @@ feature:
   models: "Hlavní modely"
 fetch:
   models_in_models: "Vyhledejte modely v Modelech"
+file:
+  _self: "Soubor"
+find:
+  _self: "Najít"
 fix:
   punctuation_and_capitalization: "Opravte interpunkci a velká písmena"
 floating:
@@ -418,9 +477,11 @@ grant:
   _self: "Grant"
 great:
   _self: "Velký"
+help:
+  _self: "Nápověda"
 hide:
-  this_for_1_hour: "Skryjte to na 1 hodinu"
   api_key: "Skrýt API klíč"
+  this_for_1_hour: "Skryjte to na 1 hodinu"
 history:
   _self: "Dějiny"
 hold:
@@ -429,6 +490,8 @@ hold:
   to_record_release_to_stop_and_transcribe: "Podržením záznam nahrajete, uvolněním zastavíte a přepíšete"
   to_record_release_to_transcribe: "Podržením zaznamenáte, uvolněním přepíšete"
   to_record_then_release_to_open_the_note_edi: "Hold to record, then release to open the note editor with the transcription."
+home:
+  _self: "Domů"
 hotkey:
   conflict: "Konflikt klávesových zkratek"
 hotkeys:
@@ -445,11 +508,16 @@ import:
   presets: "Importovat předvolby"
   strategy: "Importní strategie"
 imported:
+  file: "Imported file"
   files_and_web_links_will_appear_here_on: "Po dokončení zpracování se zde zobrazí importované soubory a webové odkazy."
 improve:
   transcription_quality_using_ai: "Zlepšete kvalitu přepisu pomocí AI"
 include:
   clipboard_text: "Zahrnout text ze schránky"
+input:
+  device: "Vstupní zařízení"
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
 interface:
   _self: "Rozhraní"
   language: "Jazyk rozhraní"
@@ -462,8 +530,8 @@ items:
 japanese:
   _self: "japonský"
 keep:
-  pindrop_current_automatically_or_trigger_a: "Udržujte Pindrop aktuální automaticky nebo spusťte ruční kontrolu, kdykoli budete chtít."
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
+  pindrop_current_automatically_or_trigger_a: "Udržujte Pindrop aktuální automaticky nebo spusťte ruční kontrolu, kdykoli budete chtít."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -479,18 +547,22 @@ large:
 launch:
   at_login: "Spustit při přihlášení: %@"
   at_login_0b36c78f: "Spusťte při přihlášení"
-  at_login_fd1a3b7b: "Spustit při přihlášení"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
+  at_login_fd1a3b7b: "Spustit při přihlášení"
 layout:
   _self: "Rozložení"
 learn:
   corrected_words_automatically: "Naučte se opravená slova automaticky"
-legacy:
-  _self: "Legacy"
 left:
   _self: "Vlevo"
+legacy:
+  _self: "Legacy"
 let:
   pindrop_quietly_learn_vocabulary_from_the_co: "Nechte Pindrop tiše se učit slovní zásobu z oprav, které v průběhu času uděláte."
+library:
+  _self: "Knihovna"
+license:
+  _self: "Licence"
 light:
   _self: "Světlo"
   dark_and_curated_palette_presets: "Světlé, tmavé a upravené předvolby palet"
@@ -529,28 +601,49 @@ local:
   speech_to_text_right_from_your_menu_bar_nf: "Místní převod řeči na text přímo z vašeho panelu menu.nRychlé, soukromé a vždy dostupné."
   speech_to_text_with_whisperkit: "Místní převod řeči na text pomocí WhisperKit"
   voice_to_text: "Místní převod hlasu na text"
+longest:
+  streak: "Longest streak"
 low:
   latency_mode_less_accurate: "Režim nízké latence (méně přesné)"
+main:
+  window: "Hlavní okno"
 manage:
   local_speech_models_feature_models_and_th: "Spravujte modely místní řeči, modely funkcí a výchozí modul, který Pindrop používá pro přepis."
   models: "Správa modelů"
   presets: "Správa předvoleb"
   presets_ab87986d: "Spravovat předvolby..."
   presets_d5d4c2c2: "Manage Presets…"
+manual:
+  capture: "Manual capture"
 manually:
   check_for_new_versions_now: "Nyní ručně zkontrolujte nové verze."
+markdown:
+  md: "Markdown (.md)"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+mcp:
+  configuration_error: "MCP Configuration Error"
+  server: "Server MCP"
 media:
   library: "Knihovna médií"
+  saved: "Média uložena"
   transcription: "Přepis médií"
   unavailable: "Média nedostupná"
-  saved: "Média uložena"
 medium:
   _self: "Střední"
+meet:
+  the_new_orb: "Seznamte se s novým Orbem"
+meeting:
+  saved: "Schůzka uložena"
+metric:
+  _self: "Metric"
 microphone:
   _self: "Mikrofon"
   permission_is_required_to_continue: "Pro pokračování je vyžadováno povolení k mikrofonu"
   permission_is_required_to_continue_dc: "Pro pokračování je vyžadováno povolení k mikrofonu."
   permission_required: "Je vyžadováno oprávnění k mikrofonu"
+minimize:
+  _self: "Minimalizovat"
 mit:
   license: "Licence MIT"
 mode:
@@ -570,19 +663,29 @@ must:
   be_openai_compatible: "Musí být kompatibilní s OpenAI"
 mute:
   system_audio_during_recording: "Ztlumit systémový zvuk během nahrávání"
+name:
+  _self: "Název"
+nemotron:
+  default: "Nemotron (default)"
 new:
   folder: "Nová složka"
   note: "Nová poznámka"
   preset: "Nová předvolba"
+newest:
+  _self: "Nejnovější"
 next:
   _self: "Další"
 no:
+  activity_in_this_period: "No activity in this period"
   api_key: "Žádný klíč API"
   api_key_endpoint: "Žádný klíč API • Koncový bod: %@"
+  conflicts_found: "No conflicts found"
   custom_presets: "Žádné vlastní předvolby"
+  destination_data: "No destination data"
   downloaded_models: "Žádné stažené modely"
   folders_yet: "Zatím žádné složky"
   items_in: "Žádné položky v %@"
+  learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Zatím žádné přepisy médií"
   model_loaded: "Není načten žádný model"
   model_selected: "Není vybrán žádný model"
@@ -594,33 +697,31 @@ no:
   models_match: "Žádné modely neodpovídají \"%@\""
   notes_yet: "Zatím žádné poznámky"
   providers_configured_yet: "Zatím nejsou nakonfigurováni žádní poskytovatelé."
+  providers_configured_yet_e6bc0075: "No providers configured yet"
   replacements: "Žádné náhrady"
   results_found: "Nebyly nalezeny žádné výsledky"
   settings_found: "Nebylo nalezeno žádné nastavení"
   transcriptions_yet: "Zatím žádné přepisy"
   vocabulary_words: "Žádná slova slovní zásoby"
-  learned_participants_yet: "No learned participants yet"
-  providers_configured_yet_e6bc0075: "No providers configured yet"
-  conflicts_found: "No conflicts found"
 not:
   assigned: "Nezařazeno"
+  enough_voice_data_yet: "Not enough voice data yet"
+  generated_yet_enable_the_server: "Not generated yet — enable the server"
+  granted: "Neuděleno"
   selected: "Nevybráno"
   set: "Nenastaveno"
   set_93039e60: "Nenastaveno"
-  granted: "Neuděleno"
-  enough_voice_data_yet: "Not enough voice data yet"
-  generated_yet_enable_the_server: "Not generated yet — enable the server"
 note:
   _self: "Poznámka"
+  capture_hold: "Note Capture — Hold"
   capture_push_to_talk: "Zachycení poznámek (Push-to-Talk)"
   capture_toggle: "Zachycení poznámky (přepnout)"
+  capture_toggle_7139a240: "Note Capture — Toggle"
   enhancement: "Poznámka Vylepšení"
   from: "Poznámka od"
   metadata: "Poznámka: Metadata"
-  title: "Název poznámky"
   saved: "Poznámka uložena"
-  capture_hold: "Note Capture — Hold"
-  capture_toggle_7139a240: "Note Capture — Toggle"
+  title: "Název poznámky"
 notes:
   _self: "Poznámky"
   3add7b96: "poznámky"
@@ -628,6 +729,8 @@ off:
   _self: "Vypnuto"
 ok:
   _self: "OK"
+oldest:
+  _self: "Nejstarší"
 ollama:
   _self: "Ollama"
   usually_does_not_require_authentication_f: "Ollama obvykle nevyžaduje ověření pro místní požadavky."
@@ -637,13 +740,13 @@ on:
 open:
   _self: "OTEVŘENO"
   history: "Otevřete historii"
+  library: "Otevřít knihovnu"
   logs_in_finder: "Otevřete protokoly ve Finderu"
   original_link: "Otevřít původní odkaz"
   progress: "Otevřený průběh"
   settings: "Otevřete Nastavení"
   settings_fd7108f8: "Otevřete nastavení"
   system_settings: "Otevřete Nastavení systému"
-  library: "Otevřít knihovnu"
 openai:
   _self: "OpenAI"
   compatible_local_server: "Lokální server kompatibilní s OpenAI"
@@ -659,17 +762,21 @@ optionally:
 or:
   _self: "nebo"
   just_use_your_hotkey: "Nebo použijte svou klávesovou zkratku!"
+orb:
+  _self: "Koule"
 original:
   _self: "Originál"
   text_use_commas_for_multiple: "Původní text (pro více použijte čárky)"
 originals:
   comma_separated: "Originály (oddělené čárkami)"
+other:
+  _self: "Other"
 output:
   _self: "Výstup"
   audio_interface_and_everyday_behavior: "Výstup, zvuk, rozhraní a každodenní chování"
   mode: "Režim výstupu"
-nemotron:
-  default: "Nemotron (default)"
+overview:
+  _self: "Overview"
 paste:
   _self: "Pasta"
   a_video_or_audio_link: "Vložte odkaz na video nebo zvuk"
@@ -683,13 +790,15 @@ permissions:
   _self: "Oprávnění"
 pick:
   which_provider_and_model_handles_each_ai_ta: "Vyberte poskytovatele a model, který zpracuje jednotlivé úkoly AI. Chcete-li přeskočit účel, ponechte jako „Nepřiřazeno“."
-  which_provider_and_model_handles_each_ai_ta_b719504f: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
+  which_provider_and_model_handles_each_ai_ta_3140fe59: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
 pill:
   _self: "Pilulka"
 pin:
   to_screen_always_on_top: "Připnout na obrazovku (vždy nahoře)"
 pindrop:
   _self: "Pindrop"
+  1_19: "Pindrop 1.19"
+  help: "Nápověda Pindrop"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop je připraven k použití.
     Začněte kliknutím na ikonu panelu nabídek.
@@ -701,11 +810,13 @@ pindrop:
   needs_accessibility_permission_to_insert: "\"\" Pindrop potřebuje oprávnění pro usnadnění přístupu, aby mohl vložit text na váš kurzor.                          Udělení oprávnění: 1. Klikněte na „Otevřít nastavení systému“ níže 2. Klikněte na tlačítko + 3. Přejděte do aplikace zobrazené ve Finderu 4. Po udělení oprávnění restartujte Pindrop Bez tohoto oprávnění bude text zkopírován pouze do vaší schránky.             \"\""
   needs_microphone_access_to_record_and_tr: "Pindrop potřebuje přístup k mikrofonu, aby mohl nahrávat a přepisovat váš hlas.nnUdělte prosím oprávnění v Nastavení systému."
   on_github: "Pindrop na GitHubu"
+  orb: "Pindrop Koule"
   pill: "Pindrop pilulka"
   theme: "Pindrop téma"
-  orb: "Pindrop Koule"
-  1_19: "Pindrop 1.19"
-  help: "Nápověda Pindrop"
+pinned:
+  _self: "Připnuté"
+plain:
+  text_txt: "Prostý text (.txt)"
 play:
   _self: "Hrát"
 please:
@@ -714,8 +825,11 @@ please:
     Před nahráváním si prosím stáhněte model Whisper v Nastavení.
     
     Přejděte do Nastavení → Modely a stáhněte si model.
-  download_a_whisper_model_in_settings_befo_a71d286e: "Před nahráváním si prosím stáhněte model Whisper v Nastavení.nnPřejděte do Nastavení → Modely a stáhněte si model."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Před nahráváním si prosím stáhněte model Whisper v Nastavení.nnPřejděte do Nastavení → Modely a stáhněte si model."
   wait: "Čekejte prosím..."
+port:
+  _self: "Port"
+  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
 portuguese:
   brazil: "portugalština (Brazílie)"
 powered:
@@ -723,28 +837,48 @@ powered:
 preparing:
   model: "Příprava modelu..."
 preset:
+  example_bullets_input: "probrali jsme latenci onboardingu pak ceny a nakonec datum spuštění dvanáctého května"
+  example_bullets_output: "- Latence onboardingu\\n- Ceny\\n- Datum spuštění: 12. května"
+  example_clean_input: "ehm takže schůzka je ve tři třicet tečka můžeš potvrdit otazník"
+  example_clean_output: "Takže schůzka je v 15:30. Můžeš potvrdit?"
+  example_edits_input: "ehm to je correct ly dvacet pět"
+  example_edits_output: "To je correctly 25"
+  example_email_input: "ahoj jordane jen kontroluju jestli jsi dostal moje poznámky ze včerejška díky"
+  example_email_output: "Ahoj Jordane,\\n\\nJen kontroluju, jestli jsi dostal moje poznámky ze včerejška.\\n\\nDíky,"
+  example_live_input: "ehm myslím že bychom měli poslat betu do pátku tečka"
+  example_live_output: "Myslím, že bychom měli poslat betu do pátku."
+  example_meeting_input: "alice pošle deck do pátku bob má na starosti kontrolu cen potřebujeme rozhodnutí příští týden"
+  example_meeting_output: "## Úkoly\\n- **Alice** pošle deck do **pátku**\\n- **Bob** má na starosti kontrolu cen\\n\\n## Další kroky\\n- Rozhodnutí potřeba příští týden"
+  example_social_input: "ehm právě jsme vydali tmavý režim a vypadá úžasně měl bys to zkusit"
+  example_social_output: "Právě jsme vydali tmavý režim.\\n\\nVypadá úžasně — měl bys to zkusit."
+  example_technical_input: "zavolej fetch user šipka pak namapuj odpověď rovná se rovná se dvě stě"
+  example_technical_output: "Zavolej `fetchUser` -> pak namapuj odpověď `==` 200."
   name: "Název předvolby"
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "Stisknutím a podržením můžete diktovat v libovolné aplikaci. Pindrop přepíše vaši řeč a vloží text tam, kde je váš kurzor."
   esc_to_cancel: "Pro zrušení stiskněte Esc"
   keys: "Stiskněte klávesy..."
+  keys_98b8167e: "Stiskněte klávesy…"
   once_to_start_again_to_stop: "Jedním stisknutím spustíte, dalším stisknutím zastavíte"
   once_to_start_recording_press_again_to_sto: "Jedním stisknutím spustíte nahrávání, dalším stisknutím zastavíte a přepíšete"
+  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
   once_to_start_recording_then_press_again_t: "Jedním stisknutím zahájíte nahrávání, dalším stisknutím zastavíte a přepíšete."
   to_start_recording_press_again_to_open_not: "Stisknutím spustíte nahrávání, dalším stisknutím otevřete editor poznámek"
-  keys_98b8167e: "Stiskněte klávesy…"
-  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
 primary:
   text: "Primární text"
 processing:
   _self: "Zpracování"
   272bc02e: "Zpracovává se..."
   5aa377e2: "⏳ Zpracování"
-  transcript: "Zpracování přepisu"
   ellipsis: "Zpracování…"
+  transcript: "Zpracování přepisu"
+project:
+  _self: "Projekt"
 prompt:
   _self: "Výzva"
   preset: "Předvolba výzvy"
+prompts:
+  are_sent_in_english: "Prompty se odesílají v angličtině"
 provider:
   _self: "Poskytovatel"
   kind: "Poskytovatel Druh"
@@ -773,7 +907,7 @@ recent:
 recommended:
   _self: "Doporučeno"
   the_deterministic_cleaner_handles_mo: "Doporučeno: deterministický čistič zvládne většinu diktátu čistě. Povolte průkaz LLM pouze v případě, že chcete extra lesk a přijímáte občasné modelové vtipy (preambule, konverzační odpovědi)."
-  the_deterministic_cleaner_handles_mo_ca42c3e4: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
+  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "Záznam"
 recording:
@@ -787,13 +921,15 @@ redo:
 refresh:
   _self: "Obnovit"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
+regenerate:
+  _self: "Znovu vygenerovat"
 remove:
-  from_speaker_profiles: "Remove from speaker profiles"
-  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Odstranit"
   and_clear_any_assignments_that_reference: "Odebrat „%@“ a vymazat všechna přiřazení, která na něj odkazují? Uložené přihlašovací údaje budou smazány."
   from_folder: "Odebrat ze složky"
+  from_speaker_profiles: "Remove from speaker profiles"
   provider: "Odebrat poskytovatele"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
 rename:
   _self: "Přejmenovat"
   folder: "Přejmenovat složku"
@@ -812,32 +948,34 @@ required:
   _self: "Požadovaný"
   for_recording_your_voice: "Vyžadováno pro záznam vašeho hlasu"
 requires:
+  a_fast_provider_apple_foundation_models: "Vyžaduje rychlého poskytovatele (doporučeny modely Apple Foundation). Poskytovatelé cloudu vydají jedno volání API na pauzu."
   diarization_model: "Requires diarization model"
   speaker_diarization: "Requires speaker diarization"
-  a_fast_provider_apple_foundation_models: "Vyžaduje rychlého poskytovatele (doporučeny modely Apple Foundation). Poskytovatelé cloudu vydají jedno volání API na pauzu."
 reset:
   _self: "Resetovat"
   all_settings: "Obnovit všechna nastavení?"
   all_settings_7262c7b7: "Obnovte všechna nastavení"
-  to_default: "Obnovit výchozí"
   all_settings_e5dbc5fc: "Reset All Settings…"
+  to_default: "Obnovit výchozí"
 retry:
   _self: "Zkuste to znovu"
 right:
   _self: "Právo"
 run:
-  llm_polish_after_dictation_stops: "Po zastavení diktování spusťte LLM Polish"
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
+  llm_polish_after_dictation_stops: "Po zastavení diktování spusťte LLM Polish"
 runtime:
   _self: "Doba běhu: %@"
   status: "Stav běhu"
+russian:
+  _self: "Russian"
 save:
   _self: "Uložit"
   as_note: "Uložit jako poznámku"
   continue: "Uložit a pokračovat"
   credentials: "Uložit přihlašovací údaje"
-  prompt: "Výzva k uložení"
   now_s: "Uložit nyní (⌘S)"
+  prompt: "Výzva k uložení"
 saved:
   _self: "Uloženo"
   as_note: "Uloženo jako poznámka"
@@ -862,9 +1000,9 @@ select:
   all: "Vyberte Vše"
   language: "Vyberte Jazyk"
   language_daea52c9: "Vyberte jazyk"
+  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
   this_floating_indicator_style: "Vyberte tento styl plovoucího indikátoru."
   voice_model: "Vyberte Hlasový model"
-  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
 selected:
   _self: "Vybraný"
 sent:
@@ -872,6 +1010,7 @@ sent:
 sessions:
   _self: "Relace"
   781791f5: "sezení"
+  in: "%@ sessions in %@"
 set:
   as_default: "Nastavit jako výchozí"
 settings:
@@ -880,15 +1019,17 @@ settings:
   fa67a397: "Nastavení…"
 setup:
   required: "Je vyžadováno nastavení"
+shortcuts:
+  _self: "Zkratky"
 show:
+  api_key: "Zobrazit API klíč"
   app: "Zobrazit aplikaci"
   app_in_finder: "Zobrazit aplikaci ve Finderu"
   in_dock: "Zobrazit v Docku"
-  api_key: "Zobrazit API klíč"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
-  as_a_pill_at_the_bottom_of_the_screen: "Zobrazuje se jako pilulka ve spodní části obrazovky"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Zobrazuje se jako koule z tekutého skla v rohu obrazovky"
+  as_a_pill_at_the_bottom_of_the_screen: "Zobrazuje se jako pilulka ve spodní části obrazovky"
 sidebar:
   position: "Poloha bočního panelu"
   position_916f66ea: "Pozice postranního panelu"
@@ -919,13 +1060,19 @@ sort:
   by: "Seřadit podle"
 source:
   _self: "Zdroj"
+sources:
+  _self: "Sources"
 spanish:
   _self: "španělština"
+speak:
+  to_append: "Mluvte pro přidání"
 speaker:
-  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "K přehrávání jsou připojeny diarizace a časová razítka reproduktoru."
   diarization_is_required: "Je vyžadována dializace reproduktoru"
+  profile_training: "Speaker profile training"
+speakers:
+  _self: "Řečníci"
 speed:
   _self: "Rychlost"
 start:
@@ -934,19 +1081,25 @@ start:
   recording_to_see_your_transcriptions_here: "Chcete-li zde vidět své přepisy, spusťte nahrávání"
   stop_recording: "Spuštění/zastavení nahrávání"
   using_pindrop: "Začněte používat Pindrop"
+stats:
+  _self: "Stats"
 status:
   _self: "Postavení"
 stop:
-  recording: "Zastavit nahrávání"
   listening: "Ukončit poslech"
+  recording: "Zastavit nahrávání"
 streaming:
   enhancement: "Vylepšení streamování"
   transcription_currently_supports_engli: "Přepis streamování aktuálně podporuje pouze angličtinu, bez ohledu na vybraný jazyk."
+  transcription_instantly_ready: "Streamovaný přepis, připravený okamžitě"
   transcription_is_disabled_while_ai_enh: "Když je povoleno AI Enhancement, přepis streamování je zakázán."
   transcription_model_nemotron_speech: "Model streamovaného přepisu (Nemotron Speech Streaming) je licencován společností NVIDIA Corporation pod licencí NVIDIA Open Model License."
-  transcription_instantly_ready: "Streamovaný přepis, připravený okamžitě"
+subtitles:
+  srt: "Titulky (.srt)"
 success:
   _self: "Úspěch!"
+summary:
+  ready: "shrnutí připraveno"
 support:
   _self: "Podpora"
   coming_soon: "%@ Podpora již brzy"
@@ -965,34 +1118,43 @@ temporarily:
   pause_active_media_playback_while_di: "Dočasně pozastavit aktivní přehrávání médií během nahrávání diktátu."
 tertiary:
   text: "Terciární text"
+thanks:
+  to_for_investigating_and_kicking_off_the: "Díky %@ za prozkoumání a nastartování opravy (PR #64)."
+  to_for_the_contribution_pr_61: "Díky %@ za příspěvek (PR #61)."
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" Model se nepodařilo načíst do 60 sekund. To obvykle znamená, že soubory modelu jsou poškozené nebo nekompatibilní.                          Řešení: 1. Otevřete Nastavení → Modely 2. Odstraňte problematický model 3. Znovu si stáhněte model Pokud problém přetrvává, zkuste menší model (Tiny nebo Base).             \"\""
-  selected_chunk_variant_isn_t_downloaded_yet: "Vybraná varianta bloku ještě není stažena. Přepnutím se zahájí stahování."
   new_nemotron_streaming_engine_shows_words_as: "Nový streamovací engine Nemotron zobrazuje slova tak, jak je říkáte, a při spuštění se předehřívá, takže první diktování začne bez zdržení."
+  selected_chunk_variant_isn_t_downloaded_yet: "Vybraná varianta bloku ještě není stažena. Přepnutím se zahájí stahování."
 theme:
   _self: "Téma"
   changes_apply_live_across_the_workspace_se: "Změny motivu se projeví na pracovní ploše, v nastavení, v editoru poznámek a v plovoucích indikátorech."
   mode: "Tématický režim"
   mode_bb6b0b3d: "Režim motivu"
+these:
+  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 this:
-  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Tento název předvolby se již používá."
   provider_will_be_available_in_a_future_upda: |-
     Tento poskytovatel bude k dispozici v budoucí aktualizaci.
     Prozatím vyzkoušejte OpenAI nebo použijte vlastní koncový bod.
-  provider_will_be_available_in_a_future_upda_3e35a952: |-
+  provider_will_be_available_in_a_future_upda_ba16848d: "Tento poskytovatel bude dostupný in v budoucí aktualizaci.nProzatím vyzkoušejte OpenAI nebo použijte vlastní koncový bod."
+  provider_will_be_available_in_a_future_upda_4af6ff9b: |-
     Tento poskytovatel bude k dispozici v budoucí aktualizaci.
     Vyzkoušejte OpenAI nebo použijte vlastní koncový bod.
-  provider_will_be_available_in_a_future_upda_0677ac1d: "Tento poskytovatel bude dostupný in v budoucí aktualizaci.nProzatím vyzkoušejte OpenAI nebo použijte vlastní koncový bod."
-  transcription_could_not_be_found: "Tento přepis se nepodařilo nalézt."
-  will_clear_all_your_settings_including_api: "Tím vymažete všechna vaše nastavení, včetně klíčů API, klávesových zkratek a předvoleb modelu. Aplikace se ukončí a při příštím spuštění se znovu zobrazí."
-  will_permanently_remove_the_transcript_and: "Tím trvale odstraníte přepis a jeho spravovaný mediální soubor."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
-  will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  transcription_could_not_be_found: "Tento přepis se nepodařilo nalézt."
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
+  will_clear_all_your_settings_including_api: "Tím vymažete všechna vaše nastavení, včetně klíčů API, klávesových zkratek a předvoleb modelu. Aplikace se ukončí a při příštím spuštění se znovu zobrazí."
+  will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_the_transcript_and: "Tím trvale odstraníte přepis a jeho spravovaný mediální soubor."
   will_permanently_remove_this_note: "Tímto trvale odstraníte tuto poznámku."
 time:
-  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+  of_day: "Time of day"
+  range: "Time range"
   saved: "Čas ušetřen"
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+timestamps:
+  json: "Časová razítka (.json)"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "diktovat a nechat Pindrop přepisovat za vás"
   start_talking: "začít mluvit"
@@ -1007,6 +1169,7 @@ transcribe:
   media: "Přepis médií"
 transcribed:
   _self: "přepsáno"
+  words: "Transcribed words"
 transcription:
   _self: "Transkripce"
   backend: "Přepis backend"
@@ -1016,8 +1179,8 @@ transcription:
   finished: "Přepis dokončen."
   in_progress: "Probíhá přepis"
   metadata: "Metadata přepisu"
-  update: "Aktualizace přepisu"
   saved: "Přepis uložen"
+  update: "Aktualizace přepisu"
 transcriptions:
   _self: "Přepisy"
   f0972acc: "přepisy"
@@ -1031,8 +1194,202 @@ try:
   searching_for_terms_like_hotkeys_microphone: "Zkuste vyhledat výrazy jako klávesové zkratky, mikrofon, aktualizace nebo vibrační režim."
 turkish:
   _self: "turečtina"
+two:
+  new_dictation_languages_fully_wired_into_mod: "Dva nové jazyky diktování, plně napojené na doporučení modelů."
 type:
   text_directly_into_the_active_app_when_poss: "Pokud je to možné, zadejte text přímo do aktivní aplikace"
+u10:
+  floating_announcement_summary: "Přehrávání, nový vzhled a ovládání klávesnicí v celém Pindropu."
+  floating_inserted_into: "Vloženo do %@"
+  floating_keyboard_body: "Procházejte stránky, hledejte, tvořte poznámky, exportujte a mažte bez opuštění klávesnice."
+  floating_keyboard_title: "Klávesnice všude"
+  floating_microphone_unavailable: "Mikrofon není dostupný"
+  floating_new_look_body: "Teplejší a klidnější design dává vašim slovům přednost. Předvolby motivů zůstávají a přibývá nový výchozí motiv Knihovna."
+  floating_new_look_title: "Nový vzhled"
+  floating_replay_body: "Pindrop může uchovat zvuk sedm dní, takže si ho kdykoli poslechnete z Knihovny."
+  floating_replay_title: "Přehrajte si každý diktát"
+  floating_transcribing: "Přepisuji…"
+  floating_version_line: "Pindrop 0.10.0 · červenec 2026"
+  floating_whats_new: "Co je nového"
+  floating_word_count: "%d slov"
+u11:
+  estimating_time: "Odhaduje se zbývající čas…"
+  live_transcript: "Živý přepis"
+  microphone_muted: "Mikrofon je ztlumen"
+  minutes_left: "zbývá asi %d min"
+  recording_processing: "Nahrávání zastaveno. Zpracovává se přepis."
+  recording_started: "Nahrávání zahájeno"
+  recording_stopped: "Nahrávání zastaveno"
+  seconds_left: "zbývá asi %d s"
+  transcription_complete: "Přepis dokončen"
+u11b:
+  expand: "Rozbalit"
+  expired: "Platnost vypršela"
+  playback_position: "Pozice přehrávání"
+  step_x_of_y: "Krok %d z %d"
+u3:
+  library_assign_speaker: "Přiřadit mluvčího"
+  library_audio_kept_30_days: "audio uchováno 30 dní"
+  library_audio_kept_7_days: "audio uchováno 7 dní"
+  library_audio_kept_forever: "audio uchováno navždy"
+  library_click_line_to_jump: "klikněte na řádek pro skok v přehrávání"
+  library_dictations: "Diktáty"
+  library_dictations_appear_after_use: "Diktáty se zde objeví po hlasovém diktování."
+  library_h_m_spoken: "%d h %d m mluveno"
+  library_h_spoken: "%d h mluveno"
+  library_https_placeholder: "https://…"
+  library_import_file_or_paste_link: "Importujte soubor nebo vložte odkaz pro přepis médií."
+  library_import_files: "Importovat soubory…"
+  library_imported_audio: "Importované audio"
+  library_insert_again: "Vložit znovu"
+  library_inserted_into: "vloženo do %@"
+  library_m_spoken: "%d m mluveno"
+  library_meeting_recording: "Nahrávka schůzky"
+  library_meetings: "Schůzky"
+  library_n_recordings: "%d nahrávek"
+  library_no_dictations_yet: "Zatím žádné diktáty"
+  library_no_meeting_recordings: "Žádné nahrávky schůzek"
+  library_no_recordings_yet: "Zatím žádné nahrávky"
+  library_one_recording: "1 nahrávka"
+  library_paste_link: "Vložit odkaz…"
+  library_playback_speed: "Rychlost přehrávání"
+  library_record_meeting_ellipsis: "Nahrát schůzku…"
+  library_record_meeting_from_home: "Nahrajte schůzku z Domova a uvidíte ji zde."
+  library_rename_speaker_ellipsis: "Přejmenovat mluvčího…"
+  library_start_dictation_or_import: "Spusťte diktát z Domova nebo importujte soubor."
+  library_summary_label: "SHRNUTÍ"
+  library_try_different_search_or_filter: "Zkuste jiný hledaný výraz nebo filtr."
+  library_untitled: "Bez názvu"
+  library_voice_transcription: "Hlasový přepis"
+  library_web_transcription: "Webový přepis"
+u4:
+  home_bar_a11y_n: "%@, %@ slov"
+  home_bar_a11y_one: "%@, 1 slovo"
+  home_duration_h: "%d h"
+  home_duration_h_m: "%d h %d m"
+  home_duration_m: "%d m"
+  home_n_day: "%ddenní"
+  home_n_words_grouped: "%@ slov"
+  home_one_day: "1denní"
+  home_open_library_arrow: "Otevřít knihovnu →"
+  home_option_space_fallback: "⌥Space"
+  home_press_hotkey_hint: "Stiskněte %@ kdekoli a začněte diktovat."
+  home_recent_empty_hint: "Vaše nejnovější diktáty se zobrazí zde."
+  home_streak: "Série"
+  home_subline_duration_only: "%@ diktování."
+  home_subline_full: "%@ diktování — asi %@ ušetřeno oproti psaní."
+  home_this_week: "Tento týden"
+  home_welcome_tagline: "Mluvte. Je to napsáno."
+  home_words_per_min: "Slov / min"
+  home_words_so_far: "Slov zatím"
+  home_words_today: "Slova dnes"
+  home_you_spoke_this_week: "Tento týden jste pronesli %@."
+  home_zero_day: "0denní"
+u5:
+  u7_add_replacement: "Add replacement"
+  u7_add_word: "Add word"
+  u7_add_words_or_replacements: "Add words the recognizer should trust, or replacements applied after transcription."
+  u7_applied_after_transcription: "Applied after transcription, before insert"
+  u7_case_insensitive: "case-insensitive"
+  u7_cmd_s_to_save: "⌘S to save"
+  u7_command: "command"
+  u7_copy_content: "Copy Content"
+  u7_d_ago: "%d d ago"
+  u7_delete_note: "Delete Note"
+  u7_edited: "edited"
+  u7_edited_format: "edited %@"
+  u7_everything_runs_on_this_mac: "Everything runs on this Mac"
+  u7_exact: "exact"
+  u7_h_ago: "%d h ago"
+  u7_installed: "Installed"
+  u7_just_now: "just now"
+  u7_listening_speak_to_append: "Listening — speak to append…"
+  u7_m_ago: "%d m ago"
+  u7_match_mode: "Match mode"
+  u7_models_privacy_footnote: "Models never leave this Mac. Audio is processed locally unless you choose a cloud provider in Settings → AI."
+  u7_new_note: "New note"
+  u7_no_dictionary_entries: "No dictionary entries"
+  u7_on_device_helpers: "On-device helpers"
+  u7_on_disk: "NA DISKU"
+  u7_open_note: "Open Note"
+  u7_pin: "Pin"
+  u7_replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
+  u7_replacements_section: "Replacements"
+  u7_speech_to_text: "Speech to text"
+  u7_teach_pindrop_your_words: "Teach Pindrop your words"
+  u7_unpin: "Unpin"
+  u7_untitled_note: "Untitled Note"
+  u7_words_recognizer_should_trust: "Words the recognizer should trust"
+u8:
+  settings_acknowledgements: "Poděkování"
+  settings_advanced_assignments: "Pokročilá přiřazení"
+  settings_audio_on_disk_format: "Zvuk na disku: %@ · %@"
+  settings_beta_channel: "Beta"
+  settings_bundled_fonts_ofl: "Přiložená písma (Newsreader, Inter, JetBrains Mono) jsou licencována pod SIL Open Font License."
+  settings_checks_for_updates_automatically: "Pindrop automaticky kontroluje aktualizace."
+  settings_choose_a_provider: "Vyberte poskytovatele"
+  settings_choose_folder_export_logs: "Vyberte složku, do které se zkopírují soubory protokolů Pindrop."
+  settings_copy_last_transcript: "Kopírovat poslední přepis"
+  settings_copy_token: "Kopírovat token"
+  settings_days_30: "30 dní"
+  settings_days_7: "7 dní"
+  settings_debug: "Ladění"
+  settings_delete_all_audio: "Smazat veškerý zvuk"
+  settings_delete_all_audio_ellipsis: "Smazat veškerý zvuk…"
+  settings_delete_all_audio_question: "Smazat veškerý zvuk?"
+  settings_diagnostics: "Diagnostika"
+  settings_edit_prompt_ellipsis: "Upravit výzvu…"
+  settings_endpoint: "Koncový bod"
+  settings_enhance_transcripts: "Vylepšit přepisy"
+  settings_example_label: "PŘÍKLAD"
+  settings_export_logs_ellipsis: "Exportovat protokoly…"
+  settings_forever: "Navždy"
+  settings_github: "GitHub"
+  settings_info: "Informace"
+  settings_keep_dictation_audio: "Ponechat zvuk diktování"
+  settings_last_checked_format: "Naposledy zkontrolováno %@"
+  settings_license_mit: "Licence — MIT"
+  settings_listening_ellipsis: "Poslouchám…"
+  settings_log_level: "Úroveň protokolu"
+  settings_logs_never_include_transcript: "Protokoly nikdy neobsahují text přepisu."
+  settings_made_with_care: "Vytvořeno s péčí pro místní řeč."
+  settings_manage_ellipsis: "Spravovat…"
+  settings_n_samples: "%d vzorků"
+  settings_n_snippets: "%d úryvků"
+  settings_n_trained: "%d natrénovaných"
+  settings_no_conflicts_with_system_or_app: "Žádné konflikty se systémovými nebo aplikačními zkratkami."
+  settings_one_snippet: "1 úryvek"
+  settings_one_trained: "1 natrénovaný"
+  settings_presets_recolor_caption: "Předvolby přebarví akcent a pozadí. Kontrast textu se ověřuje automaticky."
+  settings_push_to_talk: "Push-to-Talk"
+  settings_recording_indicator: "Indikátor nahrávání"
+  settings_release_channel: "Vydání"
+  settings_removes_kept_dictation_audio: "Odstraní uložené zvukové soubory diktování. Přepisy zůstanou ve vaší knihovně."
+  settings_reset_all_settings_ellipsis: "Obnovit všechna nastavení…"
+  settings_separate_from_interface_language: "Oddělené od jazyka rozhraní"
+  settings_some_shortcuts_conflict_each_other: "Některé zkratky jsou ve vzájemném konfliktu."
+  settings_some_shortcuts_may_conflict_system: "Některé zkratky se mohou střetávat se systémovými zkratkami."
+  settings_speaker_profiles: "Profily mluvčích"
+  settings_theme_preset: "Předvolba motivu"
+  settings_toggle_dictation: "Přepnout diktování"
+  settings_trained_summary_format: "%@ — používá se k označení, kdo co řekl na schůzkách"
+  settings_update_checks_unavailable: "Kontroly aktualizací jsou dočasně nedostupné."
+  settings_warning: "Varování"
+  settings_website: "Web"
+u9:
+  onboarding_accessibility_clipboard_fallback: "Bez Zpřístupnění Pindrop místo toho zkopíruje text do schránky."
+  onboarding_change_hotkey_hint: "Změníte ji stisknutím jiné kombinace"
+  onboarding_download_amount_format: "%@ z %@"
+  onboarding_download_background_hint: "Pokračujte v nastavení během stahování — dokončíme ho na pozadí."
+  onboarding_enable_enhancement: "Zapnout vylepšení"
+  onboarding_granted_state: "Uděleno"
+  onboarding_pindrop_writes: "Pindrop napíše"
+  onboarding_ready_heading: "Vše je připraveno."
+  onboarding_ready_instruction_format: "Stiskněte %@ a začněte mluvit — Pindrop píše všude, kde je kurzor."
+  onboarding_try_it_now: "Vyzkoušet nyní"
+  onboarding_you_say: "Řeknete"
+ukrainian:
+  _self: "Ukrainian"
 unable:
   to_connect_to_the_ai_enhancement_service: "\"\" Nelze se připojit ke službě vylepšení AI.                                  Zkontrolujte prosím: 1. Vaše internetové připojení 2. Adresa URL koncového bodu API je správná 3. Služba nemá výpadek Přepis byl uložen bez vylepšení.                 \"\""
   to_finish_transcription: "Přepis nelze dokončit"
@@ -1045,6 +1402,8 @@ undo:
   _self: "Vrátit zpět"
 unfiled:
   _self: "Nezařazeno"
+unknown:
+  _self: "Unknown"
 unpin:
   from_screen: "Odepnout z obrazovky"
 update:
@@ -1083,12 +1442,23 @@ view:
   transcription_history: "Zobrazit historii přepisů"
 vocabulary:
   _self: "Slovník"
+voice:
+  _self: "Voice"
 vs:
   typing: "vs psaní"
+web:
+  link: "Web link"
 welcome:
   to_pindrop: "Vítejte v destinaci Pindrop"
+what:
+  s_new: "Co je nového…"
+  s_new_in_pindrop: "Co je nového v Pindropu"
+while:
+  recording: "Během nahrávání"
 whisperkit:
   _self: "WhisperKit"
+window:
+  _self: "Okno"
 word:
   _self: "Slovo"
   replacements: "Náhrady slov"
@@ -1110,371 +1480,13 @@ you:
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Překročili jste limit nebo kvótu rychlosti API.                                  Chcete-li tento problém vyřešit: 1. Počkejte několik minut a zkuste to znovu. 2. Zkontrolujte limity využití poskytovatele rozhraní API. 3. Zvažte upgrade plánu rozhraní API Přepis byl uložen bez vylepšení.                 \"\""
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" Váš klíč API je zřejmě neplatný nebo vypršela jeho platnost.                                  Chcete-li tento problém vyřešit: 1. Otevřete Nastavení → Vylepšení AI 2. Ověřte správnost klíče API 3. Zkontrolujte, zda je koncový bod rozhraní API správný Přepis byl uložen bez vylepšení.                 \"\""
+  floating_indicator_is_now_a_living_audio_re: "Váš plovoucí indikátor je teď živý, zvukově reaktivní orb. V klidu dýchá, při řeči se zvětšuje a během diktování živě streamuje vaše slova."
   hotkeys_are_ready_to_use_nyou_can_customize: "Vaše klávesové zkratky jsou připraveny k použití.nMůžete si je později přizpůsobit v Nastavení."
   hotkeys_are_ready_to_use_you_can_customize: |-
     Vaše klávesové zkratky jsou připraveny k použití.
     Později je můžete upravit v Nastavení.
   model_is_ready_to_use: "Váš model je připraven k použití."
   stats: "Vaše statistiky"
-  floating_indicator_is_now_a_living_audio_re: "Váš plovoucí indikátor je teď živý, zvukově reaktivní orb. V klidu dýchá, při řeči se zvětšuje a během diktování živě streamuje vaše slova."
-orb:
-  _self: "Koule"
-meeting:
-  saved: "Schůzka uložena"
-russian:
-  _self: "Russian"
-ukrainian:
-  _self: "Ukrainian"
-what:
-  s_new_in_pindrop: "Co je nového v Pindropu"
-  s_new: "Co je nového…"
-meet:
-  the_new_orb: "Seznamte se s novým Orbem"
-thanks:
-  to_for_investigating_and_kicking_off_the: "Díky %@ za prozkoumání a nastartování opravy (PR #64)."
-  to_for_the_contribution_pr_61: "Díky %@ za příspěvek (PR #61)."
-dictate:
-  in_russian_and_ukrainian: "Diktujte rusky a ukrajinsky"
-two:
-  new_dictation_languages_fully_wired_into_mod: "Dva nové jazyky diktování, plně napojené na doporučení modelů."
-also:
-  new_rtl_layout_support_and_20_new_interface: "Nově také: podpora rozvržení RTL a 20 nových jazyků rozhraní."
-advanced:
-  _self: "Pokročilé"
-agent:
-  setup: "Nastavení agenta"
-appearance:
-  _self: "Vzhled"
-bearer:
-  token: "Bearer token"
-changes:
-  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
-client:
-  _self: "Klient"
-configuration:
-  file: "Configuration File"
-  scope: "Configuration Scope"
-  snippet: "Configuration Snippet"
-dictation:
-  _self: "Diktování"
-  language: "Jazyk diktování"
-  polish: "Vylepšení diktování"
-done:
-  _self: "Hotovo"
-input:
-  device: "Vstupní zařízení"
-license:
-  _self: "Licence"
-mcp:
-  configuration_error: "MCP Configuration Error"
-  server: "Server MCP"
-main:
-  window: "Hlavní okno"
-name:
-  _self: "Název"
-port:
-  _self: "Port"
-  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
-project:
-  _self: "Projekt"
-regenerate:
-  _self: "Znovu vygenerovat"
-shortcuts:
-  _self: "Zkratky"
-speakers:
-  _self: "Řečníci"
-these:
-  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
-while:
-  recording: "Během nahrávání"
-may:
-  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
-library:
-  _self: "Knihovna"
-conflicts:
-  with: "Conflicts with %@"
-file:
-  _self: "Soubor"
-window:
-  _self: "Okno"
-help:
-  _self: "Nápověda"
-close:
-  _self: "Zavřít"
-find:
-  _self: "Najít"
-minimize:
-  _self: "Minimalizovat"
+  stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "Přiblížit"
-bring:
-  all_to_front: "Přesunout vše do popředí"
-home:
-  _self: "Domů"
-newest:
-  _self: "Nejnovější"
-oldest:
-  _self: "Nejstarší"
-plain:
-  text_txt: "Prostý text (.txt)"
-markdown:
-  md: "Markdown (.md)"
-subtitles:
-  srt: "Titulky (.srt)"
-timestamps:
-  json: "Časová razítka (.json)"
-inserted:
-  into_d_words: "Vloženo do %@ · %d slov"
-unknown:
-  app: "Neznámá aplikace"
-pinned:
-  _self: "Připnuté"
-speak:
-  to_append: "Mluvte pro přidání"
-
-diarized:
-  _self: "diarizováno"
-
-summary:
-  ready: "shrnutí připraveno"
-
-prompts:
-  are_sent_in_english: "Prompty se odesílají v angličtině"
-
-preset_example:
-  clean_input: "ehm takže schůzka je ve tři třicet tečka můžeš potvrdit otazník"
-  clean_output: "Takže schůzka je v 15:30. Můžeš potvrdit?"
-  meeting_input: "alice pošle deck do pátku bob má na starosti kontrolu cen potřebujeme rozhodnutí příští týden"
-  meeting_output: "## Úkoly\\n- **Alice** pošle deck do **pátku**\\n- **Bob** má na starosti kontrolu cen\\n\\n## Další kroky\\n- Rozhodnutí potřeba příští týden"
-  email_input: "ahoj jordane jen kontroluju jestli jsi dostal moje poznámky ze včerejška díky"
-  email_output: "Ahoj Jordane,\\n\\nJen kontroluju, jestli jsi dostal moje poznámky ze včerejška.\\n\\nDíky,"
-  social_input: "ehm právě jsme vydali tmavý režim a vypadá úžasně měl bys to zkusit"
-  social_output: "Právě jsme vydali tmavý režim.\\n\\nVypadá úžasně — měl bys to zkusit."
-  bullets_input: "probrali jsme latenci onboardingu pak ceny a nakonec datum spuštění dvanáctého května"
-  bullets_output: "- Latence onboardingu\\n- Ceny\\n- Datum spuštění: 12. května"
-  technical_input: "zavolej fetch user šipka pak namapuj odpověď rovná se rovná se dvě stě"
-  technical_output: "Zavolej `fetchUser` -> pak namapuj odpověď `==` 200."
-  live_input: "ehm myslím že bychom měli poslat betu do pátku tečka"
-  live_output: "Myslím, že bychom měli poslat betu do pátku."
-  edits_input: "ehm to je correct ly dvacet pět"
-  edits_output: "To je correctly 25"
-
-inserted:
-  into_d_words: "Inserted into %@ · %d words"
-
-unknown:
-  app: "Unknown App"
-
-u3_library:
-  rename_speaker_ellipsis: "Přejmenovat mluvčího…"
-  assign_speaker: "Přiřadit mluvčího"
-  record_meeting_ellipsis: "Nahrát schůzku…"
-  dictations: "Diktáty"
-  meetings: "Schůzky"
-  one_recording: "1 nahrávka"
-  n_recordings: "%d nahrávek"
-  h_m_spoken: "%d h %d m mluveno"
-  h_spoken: "%d h mluveno"
-  m_spoken: "%d m mluveno"
-  audio_kept_7_days: "audio uchováno 7 dní"
-  audio_kept_30_days: "audio uchováno 30 dní"
-  audio_kept_forever: "audio uchováno navždy"
-  inserted_into: "vloženo do %@"
-  import_files: "Importovat soubory…"
-  paste_link: "Vložit odkaz…"
-  insert_again: "Vložit znovu"
-  playback_speed: "Rychlost přehrávání"
-  no_recordings_yet: "Zatím žádné nahrávky"
-  start_dictation_or_import: "Spusťte diktát z Domova nebo importujte soubor."
-  no_dictations_yet: "Zatím žádné diktáty"
-  dictations_appear_after_use: "Diktáty se zde objeví po hlasovém diktování."
-  no_meeting_recordings: "Žádné nahrávky schůzek"
-  record_meeting_from_home: "Nahrajte schůzku z Domova a uvidíte ji zde."
-  import_file_or_paste_link: "Importujte soubor nebo vložte odkaz pro přepis médií."
-  try_different_search_or_filter: "Zkuste jiný hledaný výraz nebo filtr."
-  untitled: "Bez názvu"
-  https_placeholder: "https://…"
-  summary_label: "SHRNUTÍ"
-  click_line_to_jump: "klikněte na řádek pro skok v přehrávání"
-  meeting_recording: "Nahrávka schůzky"
-  voice_transcription: "Hlasový přepis"
-  imported_audio: "Importované audio"
-  web_transcription: "Webový přepis"
-
-u5_u7:
-  new_note: "New note"
-  add_word: "Add word"
-  add_replacement: "Add replacement"
-  teach_pindrop_your_words: "Teach Pindrop your words"
-  words_recognizer_should_trust: "Words the recognizer should trust"
-  applied_after_transcription: "Applied after transcription, before insert"
-  case_insensitive: "case-insensitive"
-  exact: "exact"
-  command: "command"
-  replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
-  no_dictionary_entries: "No dictionary entries"
-  add_words_or_replacements: "Add words the recognizer should trust, or replacements applied after transcription."
-  match_mode: "Match mode"
-  everything_runs_on_this_mac: "Everything runs on this Mac"
-  on_disk: "NA DISKU"
-  speech_to_text: "Speech to text"
-  on_device_helpers: "On-device helpers"
-  installed: "Installed"
-  models_privacy_footnote: "Models never leave this Mac. Audio is processed locally unless you choose a cloud provider in Settings → AI."
-  listening_speak_to_append: "Listening — speak to append…"
-  cmd_s_to_save: "⌘S to save"
-  edited_format: "edited %@"
-  just_now: "just now"
-  m_ago: "%d m ago"
-  h_ago: "%d h ago"
-  d_ago: "%d d ago"
-  edited: "edited"
-  open_note: "Open Note"
-  copy_content: "Copy Content"
-  unpin: "Unpin"
-  pin: "Pin"
-  delete_note: "Delete Note"
-  replacements_section: "Replacements"
-  untitled_note: "Untitled Note"
-u4_home:
-  you_spoke_this_week: "Tento týden jste pronesli %@."
-  n_words_grouped: "%@ slov"
-  zero_day: "0denní"
-  one_day: "1denní"
-  n_day: "%ddenní"
-  duration_h_m: "%d h %d m"
-  duration_h: "%d h"
-  duration_m: "%d m"
-  subline_full: "%@ diktování — asi %@ ušetřeno oproti psaní."
-  subline_duration_only: "%@ diktování."
-  words_today: "Slova dnes"
-  words_per_min: "Slov / min"
-  streak: "Série"
-  open_library_arrow: "Otevřít knihovnu →"
-  this_week: "Tento týden"
-  words_so_far: "Slov zatím"
-  welcome_tagline: "Mluvte. Je to napsáno."
-  press_hotkey_hint: "Stiskněte %@ kdekoli a začněte diktovat."
-  bar_a11y_one: "%@, 1 slovo"
-  bar_a11y_n: "%@, %@ slov"
-  recent_empty_hint: "Vaše nejnovější diktáty se zobrazí zde."
-  option_space_fallback: "⌥Space"
-
-u8_settings:
-  reset_all_settings_ellipsis: "Obnovit všechna nastavení…"
-  separate_from_interface_language: "Oddělené od jazyka rozhraní"
-  keep_dictation_audio: "Ponechat zvuk diktování"
-  days_7: "7 dní"
-  days_30: "30 dní"
-  forever: "Navždy"
-  audio_on_disk_format: "Zvuk na disku: %@ · %@"
-  one_snippet: "1 úryvek"
-  n_snippets: "%d úryvků"
-  delete_all_audio_ellipsis: "Smazat veškerý zvuk…"
-  delete_all_audio_question: "Smazat veškerý zvuk?"
-  delete_all_audio: "Smazat veškerý zvuk"
-  removes_kept_dictation_audio: "Odstraní uložené zvukové soubory diktování. Přepisy zůstanou ve vaší knihovně."
-  speaker_profiles: "Profily mluvčích"
-  one_trained: "1 natrénovaný"
-  n_trained: "%d natrénovaných"
-  trained_summary_format: "%@ — používá se k označení, kdo co řekl na schůzkách"
-  manage_ellipsis: "Spravovat…"
-  theme_preset: "Předvolba motivu"
-  presets_recolor_caption: "Předvolby přebarví akcent a pozadí. Kontrast textu se ověřuje automaticky."
-  recording_indicator: "Indikátor nahrávání"
-  toggle_dictation: "Přepnout diktování"
-  push_to_talk: "Push-to-Talk"
-  copy_last_transcript: "Kopírovat poslední přepis"
-  no_conflicts_with_system_or_app: "Žádné konflikty se systémovými nebo aplikačními zkratkami."
-  some_shortcuts_conflict_each_other: "Některé zkratky jsou ve vzájemném konfliktu."
-  some_shortcuts_may_conflict_system: "Některé zkratky se mohou střetávat se systémovými zkratkami."
-  listening_ellipsis: "Poslouchám…"
-  enhance_transcripts: "Vylepšit přepisy"
-  choose_a_provider: "Vyberte poskytovatele"
-  edit_prompt_ellipsis: "Upravit výzvu…"
-  example_label: "PŘÍKLAD"
-  advanced_assignments: "Pokročilá přiřazení"
-  endpoint: "Koncový bod"
-  copy_token: "Kopírovat token"
-  log_level: "Úroveň protokolu"
-  debug: "Ladění"
-  info: "Informace"
-  warning: "Varování"
-  diagnostics: "Diagnostika"
-  logs_never_include_transcript: "Protokoly nikdy neobsahují text přepisu."
-  export_logs_ellipsis: "Exportovat protokoly…"
-  choose_folder_export_logs: "Vyberte složku, do které se zkopírují soubory protokolů Pindrop."
-  github: "GitHub"
-  website: "Web"
-  license_mit: "Licence — MIT"
-  acknowledgements: "Poděkování"
-  bundled_fonts_ofl: "Přiložená písma (Newsreader, Inter, JetBrains Mono) jsou licencována pod SIL Open Font License."
-  made_with_care: "Vytvořeno s péčí pro místní řeč."
-  release_channel: "Vydání"
-  beta_channel: "Beta"
-  last_checked_format: "Naposledy zkontrolováno %@"
-  update_checks_unavailable: "Kontroly aktualizací jsou dočasně nedostupné."
-  checks_for_updates_automatically: "Pindrop automaticky kontroluje aktualizace."
-  n_samples: "%d vzorků"
-u10_floating:
-  transcribing: "Přepisuji…"
-  word_count: "%d slov"
-  inserted_into: "Vloženo do %@"
-  microphone_unavailable: "Mikrofon není dostupný"
-  whats_new: "Co je nového"
-  version_line: "Pindrop 0.10.0 · červenec 2026"
-  announcement_summary: "Přehrávání, nový vzhled a ovládání klávesnicí v celém Pindropu."
-  replay_title: "Přehrajte si každý diktát"
-  replay_body: "Pindrop může uchovat zvuk sedm dní, takže si ho kdykoli poslechnete z Knihovny."
-  new_look_title: "Nový vzhled"
-  new_look_body: "Teplejší a klidnější design dává vašim slovům přednost. Předvolby motivů zůstávají a přibývá nový výchozí motiv Knihovna."
-  keyboard_title: "Klávesnice všude"
-  keyboard_body: "Procházejte stránky, hledejte, tvořte poznámky, exportujte a mažte bez opuštění klávesnice."
-u11:
-  recording_started: "Nahrávání zahájeno"
-  recording_stopped: "Nahrávání zastaveno"
-  recording_processing: "Nahrávání zastaveno. Zpracovává se přepis."
-  transcription_complete: "Přepis dokončen"
-  live_transcript: "Živý přepis"
-  estimating_time: "Odhaduje se zbývající čas…"
-  seconds_left: "zbývá asi %d s"
-  minutes_left: "zbývá asi %d min"
-  microphone_muted: "Mikrofon je ztlumen"
-u11b:
-  playback_position: "Pozice přehrávání"
-  expired: "Platnost vypršela"
-  expand: "Rozbalit"
-  step_x_of_y: "Krok %d z %d"
-sessions_in: "%@ sessions in %@"
-0_m: "0 m"
-1_year: "1 year"
-90_days: "90 days"
-ai_enhanced: "AI-enhanced"
-active_days: "Active days"
-activity: "Activity"
-all_time: "All time"
-audio_duration: "Audio duration"
-average_session: "Average session"
-average_words_session: "Average words / session"
-by_weekday: "By weekday"
-destinations: "Destinations"
-dictation_words_min: "Dictation words / min"
-duration: "Duration"
-estimated_time_saved: "Estimated time saved"
-imported_file: "Imported file"
-longest_streak: "Longest streak"
-manual_capture: "Manual capture"
-metric: "Metric"
-no_activity_in_this_period: "No activity in this period"
-no_destination_data: "No destination data"
-other: "Other"
-overview: "Overview"
-sources: "Sources"
-stats: "Stats"
-time_of_day: "Time of day"
-time_range: "Time range"
-transcribed_words: "Transcribed words"
-unknown: "Unknown"
-voice: "Voice"
-web_link: "Web link"
-your_stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."

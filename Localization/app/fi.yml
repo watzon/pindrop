@@ -1,61 +1,61 @@
-u9_onboarding:
-  download_amount_format: "%@ / %@"
-  download_background_hint: "Jatka määritystä latauksen aikana — viimeistelemme taustalla."
-  you_say: "Sinä sanot"
-  pindrop_writes: "Pindrop kirjoittaa"
-  enable_enhancement: "Ota parannus käyttöön"
-  accessibility_clipboard_fallback: "Ilman Käyttöapua Pindrop kopioi tekstin leikepöydälle."
-  change_hotkey_hint: "Vaihda painamalla eri näppäinyhdistelmää"
-  granted_state: "Myönnetty"
-  ready_heading: "Kaikki valmista."
-  ready_instruction_format: "Paina %@ ja aloita puhuminen — Pindrop kirjoittaa kohdistimen kohdalle."
-  try_it_now: "Kokeile nyt"
-
+0:
+  m: "0 m"
 100:
   local_processing: "100 % paikallinen käsittely"
 1:
   folder: "1 kansio"
+  note: "1 muistiinpano"
   speaker: "1 puhuja"
   transcription: "1 transkriptio"
-  note: "1 muistiinpano"
   word: "1 sana"
+  year: "1 year"
+90:
+  days: "90 days"
 a:
-  native_macos_menu_bar_dictation_app_using_loca: "Natiivi macOS-valikkopalkin sanelusovellus, joka käyttää paikallista puheen muuntamista tekstiksi WhisperKitin kanssa. 100 % paikallinen käsittely oletuksena valinnaisella AI-parannuksella."
   big_round_of_upgrades_and_two_community_shout: "Iso kierros päivityksiä — ja kaksi yhteisökiitosta."
+  native_macos_menu_bar_dictation_app_using_loca: "Natiivi macOS-valikkopalkin sanelusovellus, joka käyttää paikallista puheen muuntamista tekstiksi WhisperKitin kanssa. 100 % paikallinen käsittely oletuksena valinnaisella AI-parannuksella."
 about:
   _self: "Noin"
   pindrop: "Tietoja Pindropista"
 accessibility:
   _self: "Esteettömyys"
+  permission: "Käyttöoikeus: Käyttöapu"
   permission_is_enabled_full_ui_cont: "Esteettömyysoikeus on käytössä. Koko käyttöliittymäkonteksti on saatavilla."
   permission_is_not_granted_vibe_mod: "Esteettömyyslupaa ei myönnetä. Vibe-tila pysyy estävänä rajoitetussa kontekstissa."
   permission_recommended: "Esteettömyyslupa suositellaan"
   permission_required: "Esteettömyyslupa vaaditaan"
-  permission: "Käyttöoikeus: Käyttöapu"
 accuracy:
   _self: "Tarkkuus"
 acknowledgments:
   _self: "Kiitokset"
 active:
   _self: "Aktiivinen"
+  days: "Active days"
+activity:
+  _self: "Activity"
 add:
   _self: "Lisätä"
   a_provider_to_start_using_ai_enhancement: "Lisää palveluntarjoaja aloittaaksesi AI-parannuksen käytön."
   custom_words_to_improve_transcription_accura: "Lisää mukautettuja sanoja parantaaksesi erikoistermien, nimien tai ammattislangen transkription tarkkuutta."
   provider: "Lisää palveluntarjoaja"
   tag: "Lisää tunniste..."
+  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
+  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
+  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
+  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
+  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
   to_existing: "Lisää olemassa olevaan"
   trailing_space: "Lisää lopputila"
   word_replacements_to_automatically_correct_c: "Korjaa yleiset transkriptiovirheet automaattisesti lisäämällä sanankorvauksia."
   words_to_help_pindrop_recognize_them_properl: "Lisää sanoja auttaaksesi Pindropia tunnistamaan ne oikein"
   words_you_manually_correct_into_your_vocabul: "Lisää manuaalisesti korjaamasi sanat sanastoon tulevia transkriptioita varten."
-  this_to_claude_settings_json_in_your_project: "Add this to .claude/settings.json in your project root, or ~/.claude/settings.json for user-wide access."
-  this_to_cursor_mcp_json_in_your_project_root: "Add this to .cursor/mcp.json in your project root, or ~/.cursor/mcp.json for all projects. Restart Cursor after saving."
-  this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
-  this_to_codex_config_toml_project_scoped_con: "Add this to ~/.codex/config.toml. Project-scoped configuration can live in .codex/config.toml for trusted projects."
-  this_to_config_opencode_opencode_json_for_us: "Add this to ~/.config/opencode/opencode.json for user-wide access across all projects."
+advanced:
+  _self: "Lisäasetukset"
+agent:
+  setup: "Agentin asetukset"
 ai:
   _self: "AI"
+  enhanced: "AI-enhanced"
   enhancement: "AI Enhancement"
   enhancement_529f5583: "Tekoälyn parannus: %@"
   enhancement_failed: "AI Enhancement Failed"
@@ -64,6 +64,9 @@ ai:
   model: "AI malli"
 all:
   _self: "Kaikki"
+  time: "All time"
+also:
+  new_rtl_layout_support_and_20_new_interface: "Myös uutta: RTL-asettelun tuki ja 20 uutta käyttöliittymäkieltä."
 an:
   error_occurred_while_enhancing_your_transcrip: |-
     Transkriptiota parannettaessa tapahtui virhe:
@@ -72,7 +75,7 @@ an:
     
     Alkuperäinen transkriptio tallennettiin ilman parannuksia.
     Voit yrittää ottaa tekoälyn parannuksen uudelleen käyttöön asetuksista.
-  error_occurred_while_enhancing_your_transcrip_8c664cb4: "Transkriptiota parannettaessa tapahtui virhe:nn%@nnAlkuperäinen transkriptio tallennettiin ilman parannusta.nVoit yrittää ottaa tekoälyn parannuksen uudelleen käyttöön asetuksista."
+  error_occurred_while_enhancing_your_transcrip_1790ad05: "Transkriptiota parannettaessa tapahtui virhe:nn%@nnAlkuperäinen transkriptio tallennettiin ilman parannusta.nVoit yrittää ottaa tekoälyn parannuksen uudelleen käyttöön asetuksista."
 anthropic:
   _self: "Antrooppinen"
 api:
@@ -82,6 +85,8 @@ api:
   key_saved_endpoint: "API-avain tallennettu • Päätepiste: %@"
 app:
   info_acknowledgments_support_and_logs: "Sovellustiedot, kuittaukset, tuki ja lokit"
+appearance:
+  _self: "Ulkoasu"
 append:
   a_space_after_each_transcription_for_seam: "Lisää välilyönti jokaisen transkription jälkeen saumattoman sanelun varmistamiseksi."
 apple:
@@ -99,6 +104,7 @@ assignments:
 attach:
   logs_from_this_folder_when_filing_a_githu: "Liitä lokit tästä kansiosta, kun ilmoitat GitHub-ongelman."
 audio:
+  duration: "Audio duration"
   input: "Äänitulo"
 automatic:
   follow_system: "Automaattinen (seuraa järjestelmää)"
@@ -109,6 +115,9 @@ automatically:
   start_pindrop_when_you_sign_in: "Käynnistä Pindrop automaattisesti, kun kirjaudut sisään."
 available:
   models: "Saatavilla olevat mallit"
+average:
+  session: "Average session"
+  words_session: "Average words / session"
 avg:
   speed: "Keskinopeus"
 back:
@@ -116,14 +125,20 @@ back:
   to_library: "Takaisin kirjastoon"
 base:
   _self: "Pohja"
+bearer:
+  token: "Bearer-tunnus"
 best:
   _self: "Parhaat"
 better:
   _self: "Paremmin"
   bluetooth_external_mic_support: "Parempi Bluetooth- ja ulkoisten mikrofonien tuki"
+bring:
+  all_to_front: "Tuo kaikki eteen"
 built:
   in_presets: "Sisäänrakennetut esiasetukset"
   in_read_only: "Sisäänrakennettu (vain luku)"
+by:
+  weekday: "By weekday"
 cancel:
   _self: "Peruuttaa"
   operation: "Peruuta toiminto"
@@ -132,6 +147,8 @@ capture:
 change:
   microphone: "Vaihda mikrofoni"
   microphone_ac9970f4: "Vaihda mikrofoni"
+changes:
+  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
   for_updates: "Tarkista päivitykset..."
   for_updates_736b9062: "Tarkista päivitykset"
@@ -144,24 +161,24 @@ choose:
   a_model: "Valitse malli"
   a_provider_first: "Valitse ensin palveluntarjoaja"
   an_audio_or_video_file_to_transcribe: "Valitse litteroitava ääni- tai videotiedosto"
-  between_nemotron_punctuated_downloaded_mod: "Valitse Nemotron (välimerkit, ladattava malli) tai Apple SpeechTranscriber (macOS 26+, mukana järjestelmässä)."
+  between_nemotron_punctuated_downloaded_mo: "Valitse Nemotron (välimerkit, ladattava malli) tai Apple SpeechTranscriber (macOS 26+, mukana järjestelmässä)."
   file: "Valitse tiedosto"
   how_dictated_text_lands_then_tune_the_fin: "Valitse sanelun tekstin saapumistapa ja säädä lopullinen lisäyskäyttäytyminen."
+  how_pindrop_appears_on_screen_while_you_d: "Valitse, miten Pindrop näkyy näytöllä sanelun aikana."
   how_pindrop_follows_system_appearance_the: "Valitse, miten Pindrop seuraa järjestelmän ulkonäköä, ja sekoita sitten kuratoituja vaaleita ja tummia paletteja."
+  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   how_to_import_the_dictionary_data: "Valitse, kuinka sanakirjatiedot tuodaan"
   how_to_import_the_preset_data: "Valitse, kuinka esiasetetut tiedot tuodaan"
   languages_for_the_interface_and_for_dicta: "Valitse käyttöliittymän ja sanelun kielet. Automaattinen seuraa järjestelmää."
   location_to_save_presets: "Valitse sijainti esiasetusten tallentamista varten"
+  model: "Choose Model…"
   the_daytime_shell_used_in_light_mode: "Valitse valotilassa käytettävä päiväkuori."
   the_low_glare_shell_used_in_dark_mode: "Valitse pimeässä tilassa käytettävä vähän häikäisevä kuori."
-  which_microphone_pindrop_should_use_for_d: "Valitse, mitä mikrofonia Pindropin tulee käyttää sanelussa ja miten se käyttäytyy tallennuksen aikana."
-  which_side_the_navigation_sidebar_appears: "Valitse, millä puolella navigoinnin sivupalkki näkyy."
-  how_pindrop_appears_on_screen_while_you_d: "Valitse, miten Pindrop näkyy näytöllä sanelun aikana."
-  how_recording_and_processing_status_appea: "Choose how recording and processing status appears while you work."
   whether_pindrop_starts_when_you_sign_in_a: "Choose whether Pindrop starts when you sign in and appears in the Dock."
   which_edge_of_the_main_window_holds_the_n: "Choose which edge of the main window holds the navigation sidebar."
+  which_microphone_pindrop_should_use_for_d: "Valitse, mitä mikrofonia Pindropin tulee käyttää sanelussa ja miten se käyttäytyy tallennuksen aikana."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
-  model: "Choose Model…"
+  which_side_the_navigation_sidebar_appears: "Valitse, millä puolella navigoinnin sivupalkki näkyy."
 clean:
   up_filler_words: "Puhdista täytesanat"
 clear:
@@ -170,15 +187,19 @@ clear:
   shortcut: "Tyhjennä pikakomento"
 clears:
   preferences_and_restarts_onboarding: "Tyhjentää asetukset ja käynnistää uudelleenkäynnistyksen"
-  preferences_and_restarts_onboarding_7d85115c: "Clears preferences and restarts onboarding."
+  preferences_and_restarts_onboarding_7d851: "Clears preferences and restarts onboarding."
 click:
   or_hold: "Napsauta tai pidä painettuna"
   or_press: "Napsauta tai paina"
   or_set_a_hotkey_to_start_talking: "Napsauta tai aseta pikanäppäin aloittaaksesi puhumisen"
   this_icon_anytime_to: "Napsauta tätä kuvaketta milloin tahansa, jos haluat:"
+client:
+  _self: "Asiakas"
 clipboard:
   _self: "Leikepöytä"
   temporarily_copies_the_transcript_for: "Clipboard temporarily copies the transcript for pasting. Direct Insert types into the active app when possible."
+close:
+  _self: "Sulje"
 cloud:
   _self: "Pilvi"
   model: "Pilvi malli"
@@ -187,9 +208,15 @@ collapse:
 coming:
   soon: "%@ Tulossa pian"
   soon_04d2fd85: "Tulossa pian"
+configuration:
+  file: "Configuration File"
+  scope: "Configuration Scope"
+  snippet: "Configuration Snippet"
 configure:
   ai_providers_and_credentials_apple_int: "Määritä AI-palveluntarjoajat ja tunnistetiedot. Apple Intelligence toimii laitteessa; muut palveluntarjoajat vaativat API-avaimia."
   keyboard_shortcuts_for_recording_and_n: "Määritä pikanäppäimet tallennusta ja muistiinpanojen tallentamista varten"
+conflicts:
+  with: "Conflicts with %@"
 continue:
   _self: "Jatkaa"
   with_default: "Jatka oletusasetuksella"
@@ -206,29 +233,29 @@ copy:
   enhanced: "Kopioi parannettu"
   last_transcript: "Kopioi viimeinen transkriptio"
   original: "Kopioi alkuperäinen"
+  system_info: "Copy System Info"
   system_info_for_bug_report: "Kopioi järjestelmätiedot virheraporttia varten"
+  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
   the_most_recent_transcript_to_the_clipboard: "Kopioi viimeisin transkriptio leikepöydälle"
+  the_most_recent_transcript_to_the_clipboard_03a8d47b: "Copy the most recent transcript to the clipboard."
   to_clipboard: "Kopioi leikepöydälle"
   transcript: "Kopioi transkriptio"
-  system_info: "Copy System Info"
-  the_configuration_snippet_into_your_preferr: "Copy the configuration snippet into your preferred AI agent host."
-  the_most_recent_transcript_to_the_clipboard_b9736933: "Copy the most recent transcript to the clipboard."
 correct:
   grammar_mistakes: "Korjaa kielioppivirheet"
 create:
-  new_profile: "Create New Profile…"
-  speaker_profile: "Create Speaker Profile"
   _self: "Luoda"
   new_note: "Luo uusi muistiinpano"
   new_preset: "Luo uusi esiasetus"
+  new_profile: "Create New Profile…"
+  preset: "Create Preset"
+  speaker_profile: "Create Speaker Profile"
   your_first_note_to_get_started: "Aloita luomalla ensimmäinen muistiinpanosi"
   your_first_preset_or_duplicate_a_built_in: "Luo ensimmäinen esiasetus tai kopioi sisäänrakennettu asetus muokataksesi sitä."
   your_own_presets_or_duplicate_built_in_on: "Luo omia esiasetuksiasi tai kopioi sisäänrakennetut asetukset muokataksesi niitä."
-  preset: "Create Preset"
 credentials:
   are_stored_securely_in_keychain: "Tunnukset tallennetaan turvallisesti Keychainiin"
+  are_stored_securely_in_keychain_5acf: "Credentials are stored securely in Keychain."
   saved_successfully: "Tunnistetiedot tallennettu onnistuneesti"
-  are_stored_securely_in_keychain_5acff5d3: "Credentials are stored securely in Keychain."
 current:
   _self: "Nykyinen: %@"
 custom:
@@ -242,8 +269,8 @@ cut:
   _self: "Leikata"
 d:
   characters: "%d merkkiä"
-  speakers: "%d puhujaa"
   samples: "%d samples · %@"
+  speakers: "%d puhujaa"
   words: "%d sanaa"
 dark:
   _self: "Tumma"
@@ -263,17 +290,39 @@ degraded:
   _self: "Heikentynyt"
 delete:
   _self: "Poistaa"
+  all: "Poista kaikki"
+  all_participants: "Delete All Participants?"
+  all_participants_60ed6e73: "Delete All Participants…"
   folder: "Poista kansio"
   folder_e556e7c2: "Poistetaanko kansio?"
   model: "Poista malli"
+  note: "Poistetaanko muistiinpano?"
   preset: "Poista esiasetus"
   preset_4f6cfe36: "Poistetaanko esiasetus?"
   transcription: "Poista transkriptio"
   transcription_f82187c4: "Poistetaanko transkriptio?"
-  all: "Poista kaikki"
-  all_participants: "Delete All Participants?"
-  all_participants_60ed6e73: "Delete All Participants…"
-  note: "Poistetaanko muistiinpano?"
+destinations:
+  _self: "Destinations"
+diarization:
+  _self: "Speaker diarization"
+  automatic: "Automatic"
+  clear_assignment: "Clear assignment"
+  download_model: "Download model"
+  expected_speakers: "Expected speakers"
+  model_ready: "Speaker diarization is ready."
+  model_setup_issue_media: "Download the speaker diarization model before starting media transcription."
+  model_setup_issue_recording: "Download the speaker diarization model before starting recording."
+  retraining_required: "Voice matching needs retraining after the diarization update."
+  similar_voice_help: "Similar voices may be merged. Set an expected speaker count when you know how many people are present."
+diarized:
+  _self: "diarisointi"
+dictate:
+  in_russian_and_ukrainian: "Sanele venäjäksi ja ukrainaksi"
+dictation:
+  _self: "Diktointi"
+  language: "Diktointikieli"
+  polish: "Diktoinnin viimeistely"
+  words_min: "Dictation words / min"
 dictionary:
   _self: "Sanakirja"
 direct:
@@ -288,6 +337,8 @@ display:
   pindrop_in_the_dock_instead_of_running_o: "Näytä Pindrop Dockissa sen sijaan, että se toimisi vain valikkorivisovelluksena."
 dock:
   the_sidebar_to_the_left_or_right_edge_of_th: "Kiinnitä sivupalkki ikkunan vasempaan tai oikeaan reunaan."
+done:
+  _self: "Valmis"
 download:
   _self: "Lataa"
   complete: "Lataus valmis!"
@@ -304,6 +355,8 @@ drop:
   audio_or_video_here: "Pudota ääni tai video tähän"
 duplicate:
   preset: "Kopioi esiasetus"
+duration:
+  _self: "Duration"
 dutch:
   _self: "hollantilainen"
 edit:
@@ -315,8 +368,8 @@ empty:
 enable:
   ai_enhancement: "Ota AI Enhancement käyttöön"
   live_session_updates_during_recording: "Ota live-istunnon päivitykset käyttöön tallennuksen aikana"
-  vibe_mode_ui_context: "Ota Vibe-tila käyttöön (käyttöliittymäkonteksti)"
   mcp_server: "Enable MCP Server"
+  vibe_mode_ui_context: "Ota Vibe-tila käyttöön (käyttöliittymäkonteksti)"
 enabled:
   _self: "Käytössä"
 endpoint:
@@ -336,6 +389,8 @@ enter:
   word_to_add: "Kirjoita lisättävä sana"
 error:
   _self: "Virhe"
+estimated:
+  time_saved: "Estimated time saved"
 european:
   multilingual: "eurooppalainen monikielinen"
 excellent:
@@ -378,6 +433,10 @@ feature:
   models: "Ominaisuusmallit"
 fetch:
   models_in_models: "Hae mallit Mallit-kohdasta"
+file:
+  _self: "Arkisto"
+find:
+  _self: "Etsi"
 fix:
   punctuation_and_capitalization: "Korjaa välimerkit ja isot kirjaimet"
 floating:
@@ -418,9 +477,11 @@ grant:
   _self: "Myöntää"
 great:
   _self: "Hienoa"
+help:
+  _self: "Ohje"
 hide:
-  this_for_1_hour: "Piilota tämä 1 tunnin ajaksi"
   api_key: "Piilota API-avain"
+  this_for_1_hour: "Piilota tämä 1 tunnin ajaksi"
 history:
   _self: "Historia"
 hold:
@@ -429,6 +490,8 @@ hold:
   to_record_release_to_stop_and_transcribe: "Pidä painettuna tallentaaksesi, vapauta pysäyttääksesi ja litteroiksesi"
   to_record_release_to_transcribe: "Pidä painettuna tallentaaksesi, vapauta litteroidaksesi"
   to_record_then_release_to_open_the_note_edi: "Hold to record, then release to open the note editor with the transcription."
+home:
+  _self: "Koti"
 hotkey:
   conflict: "Pikanäppäinkonflikti"
 hotkeys:
@@ -445,11 +508,16 @@ import:
   presets: "Tuo esiasetukset"
   strategy: "Tuontistrategia"
 imported:
+  file: "Imported file"
   files_and_web_links_will_appear_here_on: "Tuodut tiedostot ja verkkolinkit näkyvät täällä, kun käsittely on valmis."
 improve:
   transcription_quality_using_ai: "Paranna transkription laatua tekoälyn avulla"
 include:
   clipboard_text: "Sisällytä leikepöydän teksti"
+input:
+  device: "Syöttölaite"
+inserted:
+  into_d_words: "Inserted into %@ · %d words"
 interface:
   _self: "Käyttöliittymä"
   language: "Käyttöliittymän kieli"
@@ -462,8 +530,8 @@ items:
 japanese:
   _self: "japanilainen"
 keep:
-  pindrop_current_automatically_or_trigger_a: "Pidä Pindrop ajan tasalla automaattisesti tai käynnistä manuaalinen tarkistus milloin haluat."
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
+  pindrop_current_automatically_or_trigger_a: "Pidä Pindrop ajan tasalla automaattisesti tai käynnistä manuaalinen tarkistus milloin haluat."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -479,18 +547,22 @@ large:
 launch:
   at_login: "Käynnistä sisäänkirjautumisen yhteydessä: %@"
   at_login_0b36c78f: "Käynnistä sisäänkirjautumisen yhteydessä"
-  at_login_fd1a3b7b: "Käynnistä kirjautuessa"
   at_login_could_not_be_changed: "Launch at Login Could Not Be Changed"
+  at_login_fd1a3b7b: "Käynnistä kirjautuessa"
 layout:
   _self: "Layout"
 learn:
   corrected_words_automatically: "Opi korjatut sanat automaattisesti"
-legacy:
-  _self: "Legacy"
 left:
   _self: "Vasen"
+legacy:
+  _self: "Legacy"
 let:
   pindrop_quietly_learn_vocabulary_from_the_co: "Anna Pindropin oppia hiljaa sanastoa ajan mittaan tekemistäsi korjauksista."
+library:
+  _self: "Kirjasto"
+license:
+  _self: "Lisenssi"
 light:
   _self: "Kevyt"
   dark_and_curated_palette_presets: "Vaaleat, tummat ja kuratoidut paletin esiasetukset"
@@ -529,28 +601,49 @@ local:
   speech_to_text_right_from_your_menu_bar_nf: "Paikallinen puhe tekstiksi, suoraan valikkopalkistasi.nNopea, yksityinen ja aina käytettävissä."
   speech_to_text_with_whisperkit: "Paikallinen puhe tekstiksi WhisperKitillä"
   voice_to_text: "Paikallinen ääni tekstiksi"
+longest:
+  streak: "Longest streak"
 low:
   latency_mode_less_accurate: "Pienen latenssin tila (vähemmän tarkka)"
+main:
+  window: "Pääikkuna"
 manage:
   local_speech_models_feature_models_and_th: "Hallinnoi paikallisia puhemalleja, ominaisuusmalleja ja oletusmoottoria, jota Pindrop käyttää transkriptioon."
   models: "Hallitse malleja"
   presets: "Hallitse esiasetuksia"
   presets_ab87986d: "Hallitse esiasetuksia..."
   presets_d5d4c2c2: "Manage Presets…"
+manual:
+  capture: "Manual capture"
 manually:
   check_for_new_versions_now: "Tarkista uudet versiot manuaalisesti nyt."
+markdown:
+  md: "Markdown (.md)"
+may:
+  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
+mcp:
+  configuration_error: "MCP Configuration Error"
+  server: "MCP-palvelin"
 media:
   library: "Mediakirjasto"
+  saved: "Media tallennettu"
   transcription: "Median transkriptio"
   unavailable: "Media ei ole käytettävissä"
-  saved: "Media tallennettu"
 medium:
   _self: "Keskikokoinen"
+meet:
+  the_new_orb: "Tutustu uuteen Orbiin"
+meeting:
+  saved: "Kokous tallennettu"
+metric:
+  _self: "Metric"
 microphone:
   _self: "Mikrofoni"
   permission_is_required_to_continue: "Jatkamiseen tarvitaan mikrofonin lupa"
   permission_is_required_to_continue_dc: "Jatkamiseen tarvitaan mikrofonin lupa."
   permission_required: "Mikrofonilupa vaaditaan"
+minimize:
+  _self: "Pienennä"
 mit:
   license: "MIT-lisenssi"
 mode:
@@ -570,19 +663,29 @@ must:
   be_openai_compatible: "Täytyy olla OpenAI-yhteensopiva"
 mute:
   system_audio_during_recording: "Mykistä järjestelmän ääni tallennuksen aikana"
+name:
+  _self: "Nimi"
+nemotron:
+  default: "Nemotron (default)"
 new:
   folder: "Uusi kansio"
   note: "Uusi huomautus"
   preset: "Uusi esiasetus"
+newest:
+  _self: "Uusimmat"
 next:
   _self: "Seuraavaksi"
 no:
+  activity_in_this_period: "No activity in this period"
   api_key: "Ei API-avainta"
   api_key_endpoint: "Ei API-avainta • Päätepiste: %@"
+  conflicts_found: "No conflicts found"
   custom_presets: "Ei mukautettuja esiasetuksia"
+  destination_data: "No destination data"
   downloaded_models: "Ei ladattuja malleja"
   folders_yet: "Ei kansioita vielä"
   items_in: "Ei kohteita kohteessa %@"
+  learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Ei vielä mediatranskriptioita"
   model_loaded: "Mallia ei ladattu"
   model_selected: "Mallia ei ole valittu"
@@ -594,33 +697,31 @@ no:
   models_match: "Yksikään malli ei vastaa \"%@\""
   notes_yet: "Ei muistiinpanoja vielä"
   providers_configured_yet: "Palveluntarjoajia ei ole vielä määritetty."
+  providers_configured_yet_e6bc0075: "No providers configured yet"
   replacements: "Ei vaihtoja"
   results_found: "Tuloksia ei löytynyt"
   settings_found: "Asetuksia ei löytynyt"
   transcriptions_yet: "Ei vielä transkriptioita"
   vocabulary_words: "Ei sanastoa"
-  learned_participants_yet: "No learned participants yet"
-  providers_configured_yet_e6bc0075: "No providers configured yet"
-  conflicts_found: "No conflicts found"
 not:
   assigned: "Ei määrätty"
+  enough_voice_data_yet: "Not enough voice data yet"
+  generated_yet_enable_the_server: "Not generated yet — enable the server"
+  granted: "Ei myönnetty"
   selected: "Ei valittu"
   set: "Ei asetettu"
   set_93039e60: "Ei asetettu"
-  granted: "Ei myönnetty"
-  enough_voice_data_yet: "Not enough voice data yet"
-  generated_yet_enable_the_server: "Not generated yet — enable the server"
 note:
   _self: "Huom"
+  capture_hold: "Note Capture — Hold"
   capture_push_to_talk: "Muistiinpano (Push-to-Talk)"
   capture_toggle: "Muistiinpano (toggle)"
+  capture_toggle_7139a240: "Note Capture — Toggle"
   enhancement: "Huomautus Parannus"
   from: "Huomautus kohteesta"
   metadata: "Huomautus Metatiedot"
-  title: "Huomaa otsikko"
   saved: "Muistiinpano tallennettu"
-  capture_hold: "Note Capture — Hold"
-  capture_toggle_7139a240: "Note Capture — Toggle"
+  title: "Huomaa otsikko"
 notes:
   _self: "Huomautuksia"
   3add7b96: "muistiinpanoja"
@@ -628,6 +729,8 @@ off:
   _self: "Pois"
 ok:
   _self: "OK"
+oldest:
+  _self: "Vanhimmat"
 ollama:
   _self: "Ollama"
   usually_does_not_require_authentication_f: "Ollama ei yleensä vaadi todennusta paikallisiin pyyntöihin."
@@ -637,13 +740,13 @@ on:
 open:
   _self: "Avata"
   history: "Avaa Historia"
+  library: "Avaa kirjasto"
   logs_in_finder: "Avaa lokit Finderissa"
   original_link: "Avaa alkuperäinen linkki"
   progress: "Avaa edistyminen"
   settings: "Avaa Asetukset"
   settings_fd7108f8: "Avaa asetukset"
   system_settings: "Avaa Järjestelmäasetukset"
-  library: "Avaa kirjasto"
 openai:
   _self: "OpenAI"
   compatible_local_server: "OpenAI-yhteensopiva paikallinen palvelin"
@@ -659,17 +762,21 @@ optionally:
 or:
   _self: "tai"
   just_use_your_hotkey: "Tai käytä vain pikanäppäintäsi!"
+orb:
+  _self: "Pallo"
 original:
   _self: "Alkuperäinen"
   text_use_commas_for_multiple: "Alkuperäinen teksti (käytä pilkkuja useille)"
 originals:
   comma_separated: "Alkuperäiset (pilkuilla erotettu)"
+other:
+  _self: "Other"
 output:
   _self: "Lähtö"
   audio_interface_and_everyday_behavior: "Lähtö, ääni, käyttöliittymä ja jokapäiväinen käyttäytyminen"
   mode: "Tulostustila"
-nemotron:
-  default: "Nemotron (default)"
+overview:
+  _self: "Overview"
 paste:
   _self: "Liitä"
   a_video_or_audio_link: "Liitä video- tai äänilinkki"
@@ -683,13 +790,15 @@ permissions:
   _self: "Käyttöoikeudet"
 pick:
   which_provider_and_model_handles_each_ai_ta: "Valitse, mikä toimittaja ja malli hoitaa jokaisen tekoälytehtävän. Jätä \"Ei määritetty\" -asetukseksi ohittaaksesi tarkoituksen."
-  which_provider_and_model_handles_each_ai_ta_b719504f: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
+  which_provider_and_model_handles_each_ai_ta_3140fe59: "Pick which provider and model handles each AI task. Leave a purpose unassigned to skip it."
 pill:
   _self: "Pilleri"
 pin:
   to_screen_always_on_top: "Kiinnitä näyttöön (aina päällä)"
 pindrop:
   _self: "Pindrop"
+  1_19: "Pindrop 1.19"
+  help: "Pindrop-ohje"
   is_ready_to_use_click_the_menu_bar_icon: |-
     Pindrop on käyttövalmis.
     Aloita napsauttamalla valikkopalkin kuvaketta.
@@ -701,11 +810,13 @@ pindrop:
   needs_accessibility_permission_to_insert: "\"\" Pindrop tarvitsee esteettömyysoikeuden lisätäkseen tekstiä kohdistimeen.                          Luvan myöntäminen: 1. Napsauta \"Avaa järjestelmäasetukset\" alla. 2. Napsauta +-painiketta 3. Siirry Finderissa näkyvään sovellukseen 4. Käynnistä Pindrop uudelleen luvan myöntämisen jälkeen Ilman tätä lupaa teksti kopioidaan vain leikepöydällesi.             \"\""
   needs_microphone_access_to_record_and_tr: "Pindrop tarvitsee mikrofonin käyttöoikeuden äänittääkseen ja litteroidakseen äänesi.nnAnna lupa järjestelmäasetuksissa."
   on_github: "Pindrop GitHubissa"
+  orb: "Pindrop-pallo"
   pill: "Pindrop-pilleri"
   theme: "Pindrop-teema"
-  orb: "Pindrop-pallo"
-  1_19: "Pindrop 1.19"
-  help: "Pindrop-ohje"
+pinned:
+  _self: "Kiinnitetyt"
+plain:
+  text_txt: "Muotoilematon teksti (.txt)"
 play:
   _self: "Pelata"
 please:
@@ -714,8 +825,11 @@ please:
     Lataa Whisper-malli asetuksista ennen tallennusta.
     
     Lataa malli siirtymällä kohtaan Asetukset → Mallit.
-  download_a_whisper_model_in_settings_befo_a71d286e: "Lataa Whisper-malli asetuksista ennen tallennusta.nnSiirry kohtaan Asetukset → Mallit ladataksesi malli."
+  download_a_whisper_model_in_settings_befo_34e8a33c: "Lataa Whisper-malli asetuksista ennen tallennusta.nnSiirry kohtaan Asetukset → Mallit ladataksesi malli."
   wait: "Odota..."
+port:
+  _self: "Portti"
+  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
 portuguese:
   brazil: "portugali (Brasilia)"
 powered:
@@ -723,28 +837,48 @@ powered:
 preparing:
   model: "Valmistellaan mallia..."
 preset:
+  example_bullets_input: "kävimme läpi onboarding-latenssin sitten hinnat ja lopuksi julkaisupäivän kahdestoista toukokuuta"
+  example_bullets_output: "- Onboarding-latenssi\\n- Hinnat\\n- Julkaisupäivä: 12. toukokuuta"
+  example_clean_input: "öö eli kokous on puoli neljältä piste voitko vahvistaa kysymysmerkki"
+  example_clean_output: "Eli kokous on klo 15.30. Voitko vahvistaa?"
+  example_edits_input: "öö tämä on correct ly kaksikymmentäviisi"
+  example_edits_output: "Tämä on correctly 25"
+  example_email_input: "moi jordan tarkistan vain saitko eiliset muistiinpanoni kiitos"
+  example_email_output: "Moi Jordan,\\n\\nTarkistan vain, saitko eiliset muistiinpanoni.\\n\\nKiitos,"
+  example_live_input: "öö mielestäni meidän pitäisi julkaista beta perjantaihin mennessä piste"
+  example_live_output: "Mielestäni meidän pitäisi julkaista beta perjantaihin mennessä."
+  example_meeting_input: "alice lähettää dekin perjantaihin mennessä bob hoitaa hintatarkistuksen tarvitsemme päätöksen ensi viikolla"
+  example_meeting_output: "## Toimenpiteet\\n- **Alice** lähettää dekin **perjantaihin** mennessä\\n- **Bob** hoitaa hintatarkistuksen\\n\\n## Seuraavat askeleet\\n- Päätös tarvitaan ensi viikolla"
+  example_social_input: "öö julkaisimme juuri tumman tilan ja se näyttää mahtavalta sinun kannattaa kokeilla"
+  example_social_output: "Julkaisimme juuri tumman tilan.\\n\\nSe näyttää mahtavalta — sinun kannattaa kokeilla."
+  example_technical_input: "kutsu fetch user nuoli sitten mapaa vastaus yhtäsuuri yhtäsuuri kaksisataa"
+  example_technical_output: "Kutsu `fetchUser` -> sitten mapaa vastaus `==` 200."
   name: "Esiasetettu nimi"
 press:
   and_hold_to_dictate_in_any_app_pindrop_wil: "Paina ja pidä painettuna sanellaksesi missä tahansa sovelluksessa. Pindrop litteroi puheesi ja lisää tekstin kohdistimen kohdalle."
   esc_to_cancel: "Peruuta painamalla Esc"
   keys: "Paina näppäimiä..."
+  keys_98b8167e: "Paina näppäimiä…"
   once_to_start_again_to_stop: "Paina kerran aloittaaksesi, uudelleen lopettaaksesi"
   once_to_start_recording_press_again_to_sto: "Paina kerran aloittaaksesi nauhoituksen, paina uudelleen lopettaaksesi ja litteroiksesi"
+  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
   once_to_start_recording_then_press_again_t: "Paina kerran aloittaaksesi nauhoituksen ja paina sitten uudelleen lopettaaksesi ja litteroiksesi."
   to_start_recording_press_again_to_open_not: "Paina aloittaaksesi äänityksen, paina uudelleen avataksesi muistiinpanoeditorin"
-  keys_98b8167e: "Paina näppäimiä…"
-  once_to_start_recording_then_again_to_open: "Press once to start recording, then again to open the note editor."
 primary:
   text: "Ensisijainen teksti"
 processing:
   _self: "Käsittely"
   272bc02e: "Käsitellään..."
   5aa377e2: "⏳ Käsittely"
-  transcript: "Käsitellään transkriptiota"
   ellipsis: "Käsitellään…"
+  transcript: "Käsitellään transkriptiota"
+project:
+  _self: "Projekti"
 prompt:
   _self: "Kehote"
   preset: "Kehotteen esiasetus"
+prompts:
+  are_sent_in_english: "Promptit lähetetään englanniksi"
 provider:
   _self: "Palveluntarjoaja"
   kind: "Tarjoajan tyyppi"
@@ -773,7 +907,7 @@ recent:
 recommended:
   _self: "Suositeltava"
   the_deterministic_cleaner_handles_mo: "Suositus: deterministinen puhdistusaine käsittelee useimmat sanelut siististi. Ota LLM-passi käyttöön vain, jos haluat ylimääräistä kiillotusta ja hyväksy satunnaisia ​​mallien omituisuuksia (johdanto, keskusteluvastaukset)."
-  the_deterministic_cleaner_handles_mo_ca42c3e4: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
+  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "Tallentaa"
 recording:
@@ -787,13 +921,15 @@ redo:
 refresh:
   _self: "Päivitä"
   the_provider_or_open_edit_to_fetch_model: "Refresh the provider or open Edit to fetch models."
+regenerate:
+  _self: "Luo uudelleen"
 remove:
-  from_speaker_profiles: "Remove from speaker profiles"
-  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
   _self: "Poistaa"
   and_clear_any_assignments_that_reference: "Poistetaanko \"%@\" ja tyhjennetäänkö siihen viittaavat tehtävät? Tallennetut tunnistetiedot poistetaan."
   from_folder: "Poista kansiosta"
+  from_speaker_profiles: "Remove from speaker profiles"
   provider: "Poista Palveluntarjoaja"
+  this_transcription_from_speaker_profiles: "Remove this transcription from speaker profiles?"
 rename:
   _self: "Nimeä uudelleen"
   folder: "Nimeä kansio uudelleen"
@@ -812,32 +948,34 @@ required:
   _self: "Pakollinen"
   for_recording_your_voice: "Vaaditaan äänen tallentamiseen"
 requires:
+  a_fast_provider_apple_foundation_models: "Edellyttää nopeaa toimittajaa (Apple Foundation -malleja suositellaan). Pilvipalveluntarjoajat lähettävät yhden API-kutsun taukoa kohden."
   diarization_model: "Requires diarization model"
   speaker_diarization: "Requires speaker diarization"
-  a_fast_provider_apple_foundation_models: "Edellyttää nopeaa toimittajaa (Apple Foundation -malleja suositellaan). Pilvipalveluntarjoajat lähettävät yhden API-kutsun taukoa kohden."
 reset:
   _self: "Nollaa"
   all_settings: "Nollataanko kaikki asetukset?"
   all_settings_7262c7b7: "Palauta kaikki asetukset"
-  to_default: "Palauta oletusarvo"
   all_settings_e5dbc5fc: "Reset All Settings…"
+  to_default: "Palauta oletusarvo"
 retry:
   _self: "Yritä uudelleen"
 right:
   _self: "Oikein"
 run:
-  llm_polish_after_dictation_stops: "Suorita LLM-kiillotus sanelun lopettamisen jälkeen"
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
+  llm_polish_after_dictation_stops: "Suorita LLM-kiillotus sanelun lopettamisen jälkeen"
 runtime:
   _self: "Kesto: %@"
   status: "Ajonaikainen tila"
+russian:
+  _self: "Russian"
 save:
   _self: "Tallentaa"
   as_note: "Tallenna muistiinpanona"
   continue: "Tallenna ja jatka"
   credentials: "Tallenna tunnistetiedot"
-  prompt: "Tallenna kehote"
   now_s: "Tallenna nyt (⌘S)"
+  prompt: "Tallenna kehote"
 saved:
   _self: "Tallennettu"
   as_note: "Tallennettu muistiinpanona"
@@ -862,9 +1000,9 @@ select:
   all: "Valitse Kaikki"
   language: "Valitse Kieli"
   language_daea52c9: "Valitse kieli"
+  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
   this_floating_indicator_style: "Valitse tämä kelluva ilmaisintyyli."
   voice_model: "Valitse Äänimalli"
-  the_language_pindrop_should_expect_when_t: "Select the language Pindrop should expect when transcribing speech."
 selected:
   _self: "Valittu"
 sent:
@@ -872,6 +1010,7 @@ sent:
 sessions:
   _self: "Istunnot"
   781791f5: "istuntoja"
+  in: "%@ sessions in %@"
 set:
   as_default: "Aseta oletukseksi"
 settings:
@@ -880,15 +1019,17 @@ settings:
   fa67a397: "Asetukset…"
 setup:
   required: "Asennus vaaditaan"
+shortcuts:
+  _self: "Pikanäppäimet"
 show:
+  api_key: "Näytä API-avain"
   app: "Näytä sovellus"
   app_in_finder: "Näytä sovellus Finderissa"
   in_dock: "Näytä Dockissa"
-  api_key: "Näytä API-avain"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
-  as_a_pill_at_the_bottom_of_the_screen: "Näkyy pillerinä näytön alareunassa"
   as_a_liquid_glass_orb_in_the_corner_of_the: "Näkyy nestelasisena pallona näytön kulmassa"
+  as_a_pill_at_the_bottom_of_the_screen: "Näkyy pillerinä näytön alareunassa"
 sidebar:
   position: "Sivupalkin sijainti"
   position_916f66ea: "Sivupalkin sijainti"
@@ -919,13 +1060,19 @@ sort:
   by: "Lajitteluperuste"
 source:
   _self: "Lähde"
+sources:
+  _self: "Sources"
 spanish:
   _self: "espanja"
+speak:
+  to_append: "Puhu lisätäksesi"
 speaker:
-  profile_training: "Speaker profile training"
   diarization: "Speaker diarization"
   diarization_and_timestamps_are_attached: "Kaiutinpäiväkirja ja aikaleimat on liitetty toistoon."
   diarization_is_required: "Kaiutinpäiväkirja vaaditaan"
+  profile_training: "Speaker profile training"
+speakers:
+  _self: "Puhujat"
 speed:
   _self: "Nopeus"
 start:
@@ -934,19 +1081,25 @@ start:
   recording_to_see_your_transcriptions_here: "Aloita nauhoitus nähdäksesi transkriptiosi tästä"
   stop_recording: "Aloita/lopeta tallennus"
   using_pindrop: "Aloita Pindropin käyttö"
+stats:
+  _self: "Stats"
 status:
   _self: "Status"
 stop:
-  recording: "Lopeta tallennus"
   listening: "Lopeta kuuntelu"
+  recording: "Lopeta tallennus"
 streaming:
   enhancement: "Suoratoiston parannus"
   transcription_currently_supports_engli: "Suoratoiston transkriptio tukee tällä hetkellä vain englantia valitusta kielestä riippumatta."
+  transcription_instantly_ready: "Suoratoistettava litterointi, heti valmis"
   transcription_is_disabled_while_ai_enh: "Suoratoiston transkriptio on poistettu käytöstä, kun AI Enhancement on käytössä."
   transcription_model_nemotron_speech: "Suoratoistotranskriptiomalli (Nemotron Speech Streaming) on NVIDIA Corporationin lisensoima NVIDIA Open Model License -lisenssillä."
-  transcription_instantly_ready: "Suoratoistettava litterointi, heti valmis"
+subtitles:
+  srt: "Tekstitykset (.srt)"
 success:
   _self: "Menestys!"
+summary:
+  ready: "yhteenveto valmis"
 support:
   _self: "Tukea"
   coming_soon: "%@ Tuki tulossa pian"
@@ -965,34 +1118,43 @@ temporarily:
   pause_active_media_playback_while_di: "Keskeytä aktiivisen median toisto väliaikaisesti sanelun tallennuksen aikana."
 tertiary:
   text: "Kolmannen asteen teksti"
+thanks:
+  to_for_investigating_and_kicking_off_the: "Kiitos %@ selvitystyöstä ja korjauksen käynnistämisestä (PR #64)."
+  to_for_the_contribution_pr_61: "Kiitos %@ panoksesta (PR #61)."
 the:
   model_failed_to_load_within_60_seconds_this: "\"\" Malli ei latautunut 60 sekunnissa. Tämä tarkoittaa yleensä sitä, että mallitiedostot ovat vioittuneet tai yhteensopimattomia.                          Korjaa tämä seuraavasti: 1. Avaa Asetukset → Mallit 2. Poista ongelmallinen malli 3. Lataa malli uudelleen Jos ongelma jatkuu, kokeile pienempää mallia (Tiny tai Base).             \"\""
-  selected_chunk_variant_isn_t_downloaded_yet: "Valittua kappaleversiota ei ole vielä ladattu. Vaihtaminen käynnistää latauksen."
   new_nemotron_streaming_engine_shows_words_as: "Uusi Nemotron-suoratoistomoottori näyttää sanat sitä mukaa kun sanot ne, ja moottori esilämmitetään käynnistyksessä, jotta ensimmäinen sanelu alkaa viiveettä."
+  selected_chunk_variant_isn_t_downloaded_yet: "Valittua kappaleversiota ei ole vielä ladattu. Vaihtaminen käynnistää latauksen."
 theme:
   _self: "Teema"
   changes_apply_live_across_the_workspace_se: "Teeman muutokset ovat voimassa työtilassa, asetuksissa, muistiinpanoeditorissa ja kelluvissa ilmaisimissa."
   mode: "Teematila"
   mode_bb6b0b3d: "Teematila"
+these:
+  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
 this:
-  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
   preset_name_is_already_in_use: "Tämä esiasetettu nimi on jo käytössä."
   provider_will_be_available_in_a_future_upda: |-
     Tämä palveluntarjoaja on saatavilla tulevassa päivityksessä.
     Kokeile toistaiseksi OpenAI:ta tai käytä mukautettua päätepistettä.
-  provider_will_be_available_in_a_future_upda_3e35a952: |-
+  provider_will_be_available_in_a_future_upda_ba16848d: "Tämä palveluntarjoaja on saatavilla tulevassa päivityksessä.nKokeile tällä hetkellä OpenAI:ta tai käytä mukautettua päätepistettä."
+  provider_will_be_available_in_a_future_upda_4af6ff9b: |-
     Tämä palveluntarjoaja on saatavilla tulevassa päivityksessä.
     Kokeile OpenAI:ta tai käytä mukautettua päätepistettä.
-  provider_will_be_available_in_a_future_upda_0677ac1d: "Tämä palveluntarjoaja on saatavilla tulevassa päivityksessä.nKokeile tällä hetkellä OpenAI:ta tai käytä mukautettua päätepistettä."
-  transcription_could_not_be_found: "Tätä transkriptiota ei löytynyt."
-  will_clear_all_your_settings_including_api: "Tämä tyhjentää kaikki asetuksesi, mukaan lukien API-avaimet, pikanäppäimet ja malliasetukset. Sovellus sulkeutuu ja näyttää uudelleen käyttöönoton seuraavan käynnistyksen yhteydessä."
-  will_permanently_remove_the_transcript_and: "Tämä poistaa pysyvästi transkription ja sen hallitun mediatiedoston."
   removes_all_learned_voice_profiles_and_trai: "This removes all learned voice profiles and training data. This cannot be undone."
-  will_clear_all_your_settings_including_api_2841f4a1: "This will clear all your settings including API keys and restart onboarding"
+  transcription_could_not_be_found: "Tätä transkriptiota ei löytynyt."
+  transcription_is_contributing_voice_sampl: "This transcription is contributing voice samples to speaker profiles."
+  will_clear_all_your_settings_including_api: "Tämä tyhjentää kaikki asetuksesi, mukaan lukien API-avaimet, pikanäppäimet ja malliasetukset. Sovellus sulkeutuu ja näyttää uudelleen käyttöönoton seuraavan käynnistyksen yhteydessä."
+  will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
+  will_permanently_remove_the_transcript_and: "Tämä poistaa pysyvästi transkription ja sen hallitun mediatiedoston."
   will_permanently_remove_this_note: "Tämä poistaa muistiinpanon pysyvästi."
 time:
-  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+  of_day: "Time of day"
+  range: "Time range"
   saved: "Säästetty aika"
+  voice_samples_no_longer_affect_recognition: "Its voice samples will no longer affect speaker recognition."
+timestamps:
+  json: "Aikaleimat (.json)"
 to:
   dictate_and_let_pindrop_transcribe_for_you: "sanella ja antaa Pindropin litteroida puolestasi"
   start_talking: "alkaa puhua"
@@ -1007,6 +1169,7 @@ transcribe:
   media: "Transkriptio Media"
 transcribed:
   _self: "litteroitu"
+  words: "Transcribed words"
 transcription:
   _self: "Transkriptio"
   backend: "Transkription taustaohjelma"
@@ -1016,8 +1179,8 @@ transcription:
   finished: "Transkriptio valmis."
   in_progress: "Transkriptio käynnissä"
   metadata: "Transkription metatiedot"
-  update: "Transkription päivitys"
   saved: "Transkriptio tallennettu"
+  update: "Transkription päivitys"
 transcriptions:
   _self: "Transkriptiot"
   f0972acc: "transkriptioita"
@@ -1031,8 +1194,202 @@ try:
   searching_for_terms_like_hotkeys_microphone: "Kokeile hakea termeillä, kuten pikanäppäimet, mikrofoni, päivitykset tai tunnelmatila."
 turkish:
   _self: "turkkilainen"
+two:
+  new_dictation_languages_fully_wired_into_mod: "Kaksi uutta sanelukieltä, täysin liitettynä mallisuosituksiin."
 type:
   text_directly_into_the_active_app_when_poss: "Kirjoita tekstiä suoraan aktiiviseen sovellukseen, jos mahdollista"
+u10:
+  floating_announcement_summary: "Toisto, uusi ulkoasu ja näppäimistöohjaus kaikkialla Pindropissa."
+  floating_inserted_into: "Lisätty sovellukseen %@"
+  floating_keyboard_body: "Selaa, hae, luo muistiinpanoja, vie ja poista irrottamatta käsiä näppäimistöltä."
+  floating_keyboard_title: "Näppäimistö kaikkialla"
+  floating_microphone_unavailable: "Mikrofoni ei ole käytettävissä"
+  floating_new_look_body: "Lämpimämpi ja rauhallisempi ulkoasu nostaa sanasi etusijalle. Teema-asetuksesi säilyvät, ja uusi oletus on Kirjasto."
+  floating_new_look_title: "Uusi ulkoasu"
+  floating_replay_body: "Pindrop voi säilyttää äänen seitsemän päivää, jotta voit kuunnella sen Kirjastosta tarvittaessa."
+  floating_replay_title: "Toista jokainen sanelu"
+  floating_transcribing: "Litteroidaan…"
+  floating_version_line: "Pindrop 0.10.0 · heinäkuu 2026"
+  floating_whats_new: "Uutta"
+  floating_word_count: "%d sanaa"
+u11:
+  estimating_time: "Arvioidaan jäljellä olevaa aikaa…"
+  live_transcript: "Reaaliaikainen litterointi"
+  microphone_muted: "Mikrofoni mykistetty"
+  minutes_left: "noin %d min jäljellä"
+  recording_processing: "Tallennus lopetettu. Litterointia käsitellään."
+  recording_started: "Tallennus aloitettu"
+  recording_stopped: "Tallennus lopetettu"
+  seconds_left: "noin %d s jäljellä"
+  transcription_complete: "Litterointi valmis"
+u11b:
+  expand: "Laajenna"
+  expired: "Vanhentunut"
+  playback_position: "Toistokohta"
+  step_x_of_y: "Vaihe %d/%d"
+u3:
+  library_assign_speaker: "Määritä puhuja"
+  library_audio_kept_30_days: "ääni säilyy 30 päivää"
+  library_audio_kept_7_days: "ääni säilyy 7 päivää"
+  library_audio_kept_forever: "ääni säilyy ikuisesti"
+  library_click_line_to_jump: "napsauta riviä siirtyäksesi toistossa"
+  library_dictations: "Diktoinnit"
+  library_dictations_appear_after_use: "Diktoinnit näkyvät täällä puhekirjoituksen jälkeen."
+  library_h_m_spoken: "%d h %d min puhuttu"
+  library_h_spoken: "%d h puhuttu"
+  library_https_placeholder: "https://…"
+  library_import_file_or_paste_link: "Tuo tiedosto tai liitä linkki median litterointiin."
+  library_import_files: "Tuo tiedostoja…"
+  library_imported_audio: "Tuotu ääni"
+  library_insert_again: "Lisää uudelleen"
+  library_inserted_into: "lisätty kohteeseen %@"
+  library_m_spoken: "%d min puhuttu"
+  library_meeting_recording: "Kokoustallenne"
+  library_meetings: "Kokoukset"
+  library_n_recordings: "%d tallennetta"
+  library_no_dictations_yet: "Ei diktointeja vielä"
+  library_no_meeting_recordings: "Ei kokoustallenteita"
+  library_no_recordings_yet: "Ei tallenteita vielä"
+  library_one_recording: "1 tallenne"
+  library_paste_link: "Liitä linkki…"
+  library_playback_speed: "Toistonopeus"
+  library_record_meeting_ellipsis: "Tallenna kokous…"
+  library_record_meeting_from_home: "Tallenna kokous etusivulta nähdäksesi sen täällä."
+  library_rename_speaker_ellipsis: "Nimeä puhuja uudelleen…"
+  library_start_dictation_or_import: "Aloita diktointi etusivulta tai tuo tiedosto."
+  library_summary_label: "YHTEENVETO"
+  library_try_different_search_or_filter: "Kokeile toista hakusanaa tai suodatinta."
+  library_untitled: "Nimetön"
+  library_voice_transcription: "Puhelitterointi"
+  library_web_transcription: "Verkkolitterointi"
+u4:
+  home_bar_a11y_n: "%@, %@ sanaa"
+  home_bar_a11y_one: "%@, 1 sana"
+  home_duration_h: "%d t"
+  home_duration_h_m: "%d t %d min"
+  home_duration_m: "%d min"
+  home_n_day: "%d päivän"
+  home_n_words_grouped: "%@ sanaa"
+  home_one_day: "1 päivän"
+  home_open_library_arrow: "Avaa kirjasto →"
+  home_option_space_fallback: "⌥Space"
+  home_press_hotkey_hint: "Paina %@ missä tahansa aloittaaksesi diktoinnin."
+  home_recent_empty_hint: "Viimeisimmät diktointisi näkyvät täällä."
+  home_streak: "Putki"
+  home_subline_duration_only: "%@ diktointia."
+  home_subline_full: "%@ diktointia — noin %@ säästetty kirjoittamiseen verrattuna."
+  home_this_week: "Tämä viikko"
+  home_welcome_tagline: "Puhu. Se on kirjoitettu."
+  home_words_per_min: "Sanaa / min"
+  home_words_so_far: "Sanoja tähän mennessä"
+  home_words_today: "Sanoja tänään"
+  home_you_spoke_this_week: "Sanoit %@ tällä viikolla."
+  home_zero_day: "0 päivän"
+u5:
+  u7_add_replacement: "Add replacement"
+  u7_add_word: "Add word"
+  u7_add_words_or_replacements: "Add words the recognizer should trust, or replacements applied after transcription."
+  u7_applied_after_transcription: "Applied after transcription, before insert"
+  u7_case_insensitive: "case-insensitive"
+  u7_cmd_s_to_save: "⌘S to save"
+  u7_command: "command"
+  u7_copy_content: "Copy Content"
+  u7_d_ago: "%d d ago"
+  u7_delete_note: "Delete Note"
+  u7_edited: "edited"
+  u7_edited_format: "edited %@"
+  u7_everything_runs_on_this_mac: "Everything runs on this Mac"
+  u7_exact: "exact"
+  u7_h_ago: "%d h ago"
+  u7_installed: "Installed"
+  u7_just_now: "just now"
+  u7_listening_speak_to_append: "Listening — speak to append…"
+  u7_m_ago: "%d m ago"
+  u7_match_mode: "Match mode"
+  u7_models_privacy_footnote: "Models never leave this Mac. Audio is processed locally unless you choose a cloud provider in Settings → AI."
+  u7_new_note: "New note"
+  u7_no_dictionary_entries: "No dictionary entries"
+  u7_on_device_helpers: "On-device helpers"
+  u7_on_disk: "LEVYLLÄ"
+  u7_open_note: "Open Note"
+  u7_pin: "Pin"
+  u7_replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
+  u7_replacements_section: "Replacements"
+  u7_speech_to_text: "Speech to text"
+  u7_teach_pindrop_your_words: "Teach Pindrop your words"
+  u7_unpin: "Unpin"
+  u7_untitled_note: "Untitled Note"
+  u7_words_recognizer_should_trust: "Words the recognizer should trust"
+u8:
+  settings_acknowledgements: "Kiitokset"
+  settings_advanced_assignments: "Edistyneet tehtävät"
+  settings_audio_on_disk_format: "Ääni levyllä: %@ · %@"
+  settings_beta_channel: "Beta"
+  settings_bundled_fonts_ofl: "Mukana tulevat fontit (Newsreader, Inter, JetBrains Mono) on lisensoitu SIL Open Font License -lisenssillä."
+  settings_checks_for_updates_automatically: "Pindrop tarkistaa päivitykset automaattisesti."
+  settings_choose_a_provider: "Valitse palveluntarjoaja"
+  settings_choose_folder_export_logs: "Valitse kansio, johon Pindropin lokitiedostot kopioidaan."
+  settings_copy_last_transcript: "Kopioi viimeinen transkriptio"
+  settings_copy_token: "Kopioi tunnus"
+  settings_days_30: "30 päivää"
+  settings_days_7: "7 päivää"
+  settings_debug: "Virheenkorjaus"
+  settings_delete_all_audio: "Poista kaikki äänet"
+  settings_delete_all_audio_ellipsis: "Poista kaikki äänet…"
+  settings_delete_all_audio_question: "Poistetaanko kaikki äänet?"
+  settings_diagnostics: "Diagnostiikka"
+  settings_edit_prompt_ellipsis: "Muokkaa kehotetta…"
+  settings_endpoint: "Päätepiste"
+  settings_enhance_transcripts: "Paranna transkriptioita"
+  settings_example_label: "ESIMERKKI"
+  settings_export_logs_ellipsis: "Vie lokit…"
+  settings_forever: "Ikuisesti"
+  settings_github: "GitHub"
+  settings_info: "Info"
+  settings_keep_dictation_audio: "Säilytä sanelun ääni"
+  settings_last_checked_format: "Viimeksi tarkistettu %@"
+  settings_license_mit: "Lisenssi — MIT"
+  settings_listening_ellipsis: "Kuunnellaan…"
+  settings_log_level: "Lokitaso"
+  settings_logs_never_include_transcript: "Lokit eivät koskaan sisällä transkription tekstiä."
+  settings_made_with_care: "Tehty huolella paikallista puhetta varten."
+  settings_manage_ellipsis: "Hallitse…"
+  settings_n_samples: "%d näytettä"
+  settings_n_snippets: "%d katkelmaa"
+  settings_n_trained: "%d koulutettu"
+  settings_no_conflicts_with_system_or_app: "Ei ristiriitoja järjestelmän tai sovellusten pikanäppäinten kanssa."
+  settings_one_snippet: "1 katkelma"
+  settings_one_trained: "1 koulutettu"
+  settings_presets_recolor_caption: "Esiasetukset värittävät korostuksen ja taustat uudelleen. Tekstin kontrasti tarkistetaan automaattisesti."
+  settings_push_to_talk: "Push-to-Talk"
+  settings_recording_indicator: "Tallennuksen ilmaisin"
+  settings_release_channel: "Julkaisu"
+  settings_removes_kept_dictation_audio: "Poistaa tallennetut sanelun äänitiedostot. Transkriptiot säilyvät kirjastossasi."
+  settings_reset_all_settings_ellipsis: "Nollaa kaikki asetukset…"
+  settings_separate_from_interface_language: "Erillään käyttöliittymän kielestä"
+  settings_some_shortcuts_conflict_each_other: "Jotkin pikanäppäimet ovat ristiriidassa keskenään."
+  settings_some_shortcuts_may_conflict_system: "Jotkin pikanäppäimet saattavat olla ristiriidassa järjestelmän pikanäppäinten kanssa."
+  settings_speaker_profiles: "Puhujaprofiilit"
+  settings_theme_preset: "Teeman esiasetus"
+  settings_toggle_dictation: "Sanelu päälle/pois"
+  settings_trained_summary_format: "%@ — käytetään merkitsemään, kuka sanoi mitä kokouksissa"
+  settings_update_checks_unavailable: "Päivitystarkistukset eivät ole tilapäisesti käytettävissä."
+  settings_warning: "Varoitus"
+  settings_website: "Verkkosivusto"
+u9:
+  onboarding_accessibility_clipboard_fallback: "Ilman Käyttöapua Pindrop kopioi tekstin leikepöydälle."
+  onboarding_change_hotkey_hint: "Vaihda painamalla eri näppäinyhdistelmää"
+  onboarding_download_amount_format: "%@ / %@"
+  onboarding_download_background_hint: "Jatka määritystä latauksen aikana — viimeistelemme taustalla."
+  onboarding_enable_enhancement: "Ota parannus käyttöön"
+  onboarding_granted_state: "Myönnetty"
+  onboarding_pindrop_writes: "Pindrop kirjoittaa"
+  onboarding_ready_heading: "Kaikki valmista."
+  onboarding_ready_instruction_format: "Paina %@ ja aloita puhuminen — Pindrop kirjoittaa kohdistimen kohdalle."
+  onboarding_try_it_now: "Kokeile nyt"
+  onboarding_you_say: "Sinä sanot"
+ukrainian:
+  _self: "Ukrainian"
 unable:
   to_connect_to_the_ai_enhancement_service: "\"\" Ei voida muodostaa yhteyttä AI-parannuspalveluun.                                  Tarkista: 1. Internet-yhteytesi 2. API-päätepisteen URL-osoite on oikea 3. Palvelussa ei ole katkosta Transkriptio tallennettiin ilman parannuksia.                 \"\""
   to_finish_transcription: "Transkriptiota ei voi viimeistellä"
@@ -1045,6 +1402,8 @@ undo:
   _self: "Kumoa"
 unfiled:
   _self: "Arkistoimaton"
+unknown:
+  _self: "Unknown"
 unpin:
   from_screen: "Irrota kiinnitys näytöstä"
 update:
@@ -1083,12 +1442,23 @@ view:
   transcription_history: "Näytä transkriptiohistoria"
 vocabulary:
   _self: "Sanasto"
+voice:
+  _self: "Voice"
 vs:
   typing: "vs kirjoittaminen"
+web:
+  link: "Web link"
 welcome:
   to_pindrop: "Tervetuloa Pindroppiin"
+what:
+  s_new: "Uutta…"
+  s_new_in_pindrop: "Uutta Pindropissa"
+while:
+  recording: "Tallennuksen aikana"
 whisperkit:
   _self: "WhisperKit"
+window:
+  _self: "Ikkuna"
 word:
   _self: "Sana"
   replacements: "Sanojen korvaukset"
@@ -1110,371 +1480,13 @@ you:
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Olet ylittänyt API-nopeusrajoituksen tai -kiintiön.                                  Korjaa tämä seuraavasti: 1. Odota muutama minuutti ja yritä uudelleen 2. Tarkista API-palveluntarjoajasi käyttörajoitukset 3. Harkitse API-suunnitelmasi päivittämistä. Transkriptio tallennettiin ilman parannuksia.                 \"\""
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" API-avaimesi näyttää olevan virheellinen tai vanhentunut.                                  Korjaa tämä seuraavasti: 1. Avaa Asetukset → AI Enhancement 2. Varmista, että API-avaimesi on oikea 3. Tarkista, että API-päätepiste on oikea. Transkriptio tallennettiin ilman parannuksia.                 \"\""
+  floating_indicator_is_now_a_living_audio_re: "Kelluva ilmaisimesi on nyt elävä, ääneen reagoiva orb. Se hengittää levossa, kasvaa kun puhut ja näyttää sanasi suorana sanelun aikana."
   hotkeys_are_ready_to_use_nyou_can_customize: "Pikanäppäimet ovat käyttövalmiita.nVoit muokata niitä myöhemmin asetuksissa."
   hotkeys_are_ready_to_use_you_can_customize: |-
     Pikanäppäimet ovat valmiita käytettäväksi.
     Voit muokata niitä myöhemmin asetuksissa.
   model_is_ready_to_use: "Mallisi on käyttövalmis."
   stats: "Omat tilastot"
-  floating_indicator_is_now_a_living_audio_re: "Kelluva ilmaisimesi on nyt elävä, ääneen reagoiva orb. Se hengittää levossa, kasvaa kun puhut ja näyttää sanasi suorana sanelun aikana."
-orb:
-  _self: "Pallo"
-meeting:
-  saved: "Kokous tallennettu"
-russian:
-  _self: "Russian"
-ukrainian:
-  _self: "Ukrainian"
-what:
-  s_new_in_pindrop: "Uutta Pindropissa"
-  s_new: "Uutta…"
-meet:
-  the_new_orb: "Tutustu uuteen Orbiin"
-thanks:
-  to_for_investigating_and_kicking_off_the: "Kiitos %@ selvitystyöstä ja korjauksen käynnistämisestä (PR #64)."
-  to_for_the_contribution_pr_61: "Kiitos %@ panoksesta (PR #61)."
-dictate:
-  in_russian_and_ukrainian: "Sanele venäjäksi ja ukrainaksi"
-two:
-  new_dictation_languages_fully_wired_into_mod: "Kaksi uutta sanelukieltä, täysin liitettynä mallisuosituksiin."
-also:
-  new_rtl_layout_support_and_20_new_interface: "Myös uutta: RTL-asettelun tuki ja 20 uutta käyttöliittymäkieltä."
-advanced:
-  _self: "Lisäasetukset"
-agent:
-  setup: "Agentin asetukset"
-appearance:
-  _self: "Ulkoasu"
-bearer:
-  token: "Bearer-tunnus"
-changes:
-  the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
-client:
-  _self: "Asiakas"
-configuration:
-  file: "Configuration File"
-  scope: "Configuration Scope"
-  snippet: "Configuration Snippet"
-dictation:
-  _self: "Diktointi"
-  language: "Diktointikieli"
-  polish: "Diktoinnin viimeistely"
-done:
-  _self: "Valmis"
-input:
-  device: "Syöttölaite"
-license:
-  _self: "Lisenssi"
-mcp:
-  configuration_error: "MCP Configuration Error"
-  server: "MCP-palvelin"
-main:
-  window: "Pääikkuna"
-name:
-  _self: "Nimi"
-port:
-  _self: "Portti"
-  changes_take_effect_the_next_time_the_serve: "Port changes take effect the next time the server starts."
-project:
-  _self: "Projekti"
-regenerate:
-  _self: "Luo uudelleen"
-shortcuts:
-  _self: "Pikanäppäimet"
-speakers:
-  _self: "Puhujat"
-these:
-  options_are_mutually_exclusive_enabling_on: "These options are mutually exclusive. Enabling one turns the other off."
-while:
-  recording: "Tallennuksen aikana"
-may:
-  conflict_with_a_system_shortcut: "May conflict with a system shortcut (%@)"
-library:
-  _self: "Kirjasto"
-conflicts:
-  with: "Conflicts with %@"
-file:
-  _self: "Arkisto"
-window:
-  _self: "Ikkuna"
-help:
-  _self: "Ohje"
-close:
-  _self: "Sulje"
-find:
-  _self: "Etsi"
-minimize:
-  _self: "Pienennä"
+  stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
 zoom:
   _self: "Zoomaa"
-bring:
-  all_to_front: "Tuo kaikki eteen"
-home:
-  _self: "Koti"
-newest:
-  _self: "Uusimmat"
-oldest:
-  _self: "Vanhimmat"
-plain:
-  text_txt: "Muotoilematon teksti (.txt)"
-markdown:
-  md: "Markdown (.md)"
-subtitles:
-  srt: "Tekstitykset (.srt)"
-timestamps:
-  json: "Aikaleimat (.json)"
-inserted:
-  into_d_words: "Lisätty kohteeseen %@ · %d sanaa"
-unknown:
-  app: "Tuntematon sovellus"
-pinned:
-  _self: "Kiinnitetyt"
-speak:
-  to_append: "Puhu lisätäksesi"
-
-diarized:
-  _self: "diarisointi"
-
-summary:
-  ready: "yhteenveto valmis"
-
-prompts:
-  are_sent_in_english: "Promptit lähetetään englanniksi"
-
-preset_example:
-  clean_input: "öö eli kokous on puoli neljältä piste voitko vahvistaa kysymysmerkki"
-  clean_output: "Eli kokous on klo 15.30. Voitko vahvistaa?"
-  meeting_input: "alice lähettää dekin perjantaihin mennessä bob hoitaa hintatarkistuksen tarvitsemme päätöksen ensi viikolla"
-  meeting_output: "## Toimenpiteet\\n- **Alice** lähettää dekin **perjantaihin** mennessä\\n- **Bob** hoitaa hintatarkistuksen\\n\\n## Seuraavat askeleet\\n- Päätös tarvitaan ensi viikolla"
-  email_input: "moi jordan tarkistan vain saitko eiliset muistiinpanoni kiitos"
-  email_output: "Moi Jordan,\\n\\nTarkistan vain, saitko eiliset muistiinpanoni.\\n\\nKiitos,"
-  social_input: "öö julkaisimme juuri tumman tilan ja se näyttää mahtavalta sinun kannattaa kokeilla"
-  social_output: "Julkaisimme juuri tumman tilan.\\n\\nSe näyttää mahtavalta — sinun kannattaa kokeilla."
-  bullets_input: "kävimme läpi onboarding-latenssin sitten hinnat ja lopuksi julkaisupäivän kahdestoista toukokuuta"
-  bullets_output: "- Onboarding-latenssi\\n- Hinnat\\n- Julkaisupäivä: 12. toukokuuta"
-  technical_input: "kutsu fetch user nuoli sitten mapaa vastaus yhtäsuuri yhtäsuuri kaksisataa"
-  technical_output: "Kutsu `fetchUser` -> sitten mapaa vastaus `==` 200."
-  live_input: "öö mielestäni meidän pitäisi julkaista beta perjantaihin mennessä piste"
-  live_output: "Mielestäni meidän pitäisi julkaista beta perjantaihin mennessä."
-  edits_input: "öö tämä on correct ly kaksikymmentäviisi"
-  edits_output: "Tämä on correctly 25"
-
-inserted:
-  into_d_words: "Inserted into %@ · %d words"
-
-unknown:
-  app: "Unknown App"
-
-u3_library:
-  rename_speaker_ellipsis: "Nimeä puhuja uudelleen…"
-  assign_speaker: "Määritä puhuja"
-  record_meeting_ellipsis: "Tallenna kokous…"
-  dictations: "Diktoinnit"
-  meetings: "Kokoukset"
-  one_recording: "1 tallenne"
-  n_recordings: "%d tallennetta"
-  h_m_spoken: "%d h %d min puhuttu"
-  h_spoken: "%d h puhuttu"
-  m_spoken: "%d min puhuttu"
-  audio_kept_7_days: "ääni säilyy 7 päivää"
-  audio_kept_30_days: "ääni säilyy 30 päivää"
-  audio_kept_forever: "ääni säilyy ikuisesti"
-  inserted_into: "lisätty kohteeseen %@"
-  import_files: "Tuo tiedostoja…"
-  paste_link: "Liitä linkki…"
-  insert_again: "Lisää uudelleen"
-  playback_speed: "Toistonopeus"
-  no_recordings_yet: "Ei tallenteita vielä"
-  start_dictation_or_import: "Aloita diktointi etusivulta tai tuo tiedosto."
-  no_dictations_yet: "Ei diktointeja vielä"
-  dictations_appear_after_use: "Diktoinnit näkyvät täällä puhekirjoituksen jälkeen."
-  no_meeting_recordings: "Ei kokoustallenteita"
-  record_meeting_from_home: "Tallenna kokous etusivulta nähdäksesi sen täällä."
-  import_file_or_paste_link: "Tuo tiedosto tai liitä linkki median litterointiin."
-  try_different_search_or_filter: "Kokeile toista hakusanaa tai suodatinta."
-  untitled: "Nimetön"
-  https_placeholder: "https://…"
-  summary_label: "YHTEENVETO"
-  click_line_to_jump: "napsauta riviä siirtyäksesi toistossa"
-  meeting_recording: "Kokoustallenne"
-  voice_transcription: "Puhelitterointi"
-  imported_audio: "Tuotu ääni"
-  web_transcription: "Verkkolitterointi"
-
-u5_u7:
-  new_note: "New note"
-  add_word: "Add word"
-  add_replacement: "Add replacement"
-  teach_pindrop_your_words: "Teach Pindrop your words"
-  words_recognizer_should_trust: "Words the recognizer should trust"
-  applied_after_transcription: "Applied after transcription, before insert"
-  case_insensitive: "case-insensitive"
-  exact: "exact"
-  command: "command"
-  replacements_run_in_order: "Replacements run in order. Drag rows to re-order — the first match wins."
-  no_dictionary_entries: "No dictionary entries"
-  add_words_or_replacements: "Add words the recognizer should trust, or replacements applied after transcription."
-  match_mode: "Match mode"
-  everything_runs_on_this_mac: "Everything runs on this Mac"
-  on_disk: "LEVYLLÄ"
-  speech_to_text: "Speech to text"
-  on_device_helpers: "On-device helpers"
-  installed: "Installed"
-  models_privacy_footnote: "Models never leave this Mac. Audio is processed locally unless you choose a cloud provider in Settings → AI."
-  listening_speak_to_append: "Listening — speak to append…"
-  cmd_s_to_save: "⌘S to save"
-  edited_format: "edited %@"
-  just_now: "just now"
-  m_ago: "%d m ago"
-  h_ago: "%d h ago"
-  d_ago: "%d d ago"
-  edited: "edited"
-  open_note: "Open Note"
-  copy_content: "Copy Content"
-  unpin: "Unpin"
-  pin: "Pin"
-  delete_note: "Delete Note"
-  replacements_section: "Replacements"
-  untitled_note: "Untitled Note"
-u4_home:
-  you_spoke_this_week: "Sanoit %@ tällä viikolla."
-  n_words_grouped: "%@ sanaa"
-  zero_day: "0 päivän"
-  one_day: "1 päivän"
-  n_day: "%d päivän"
-  duration_h_m: "%d t %d min"
-  duration_h: "%d t"
-  duration_m: "%d min"
-  subline_full: "%@ diktointia — noin %@ säästetty kirjoittamiseen verrattuna."
-  subline_duration_only: "%@ diktointia."
-  words_today: "Sanoja tänään"
-  words_per_min: "Sanaa / min"
-  streak: "Putki"
-  open_library_arrow: "Avaa kirjasto →"
-  this_week: "Tämä viikko"
-  words_so_far: "Sanoja tähän mennessä"
-  welcome_tagline: "Puhu. Se on kirjoitettu."
-  press_hotkey_hint: "Paina %@ missä tahansa aloittaaksesi diktoinnin."
-  bar_a11y_one: "%@, 1 sana"
-  bar_a11y_n: "%@, %@ sanaa"
-  recent_empty_hint: "Viimeisimmät diktointisi näkyvät täällä."
-  option_space_fallback: "⌥Space"
-
-u8_settings:
-  reset_all_settings_ellipsis: "Nollaa kaikki asetukset…"
-  separate_from_interface_language: "Erillään käyttöliittymän kielestä"
-  keep_dictation_audio: "Säilytä sanelun ääni"
-  days_7: "7 päivää"
-  days_30: "30 päivää"
-  forever: "Ikuisesti"
-  audio_on_disk_format: "Ääni levyllä: %@ · %@"
-  one_snippet: "1 katkelma"
-  n_snippets: "%d katkelmaa"
-  delete_all_audio_ellipsis: "Poista kaikki äänet…"
-  delete_all_audio_question: "Poistetaanko kaikki äänet?"
-  delete_all_audio: "Poista kaikki äänet"
-  removes_kept_dictation_audio: "Poistaa tallennetut sanelun äänitiedostot. Transkriptiot säilyvät kirjastossasi."
-  speaker_profiles: "Puhujaprofiilit"
-  one_trained: "1 koulutettu"
-  n_trained: "%d koulutettu"
-  trained_summary_format: "%@ — käytetään merkitsemään, kuka sanoi mitä kokouksissa"
-  manage_ellipsis: "Hallitse…"
-  theme_preset: "Teeman esiasetus"
-  presets_recolor_caption: "Esiasetukset värittävät korostuksen ja taustat uudelleen. Tekstin kontrasti tarkistetaan automaattisesti."
-  recording_indicator: "Tallennuksen ilmaisin"
-  toggle_dictation: "Sanelu päälle/pois"
-  push_to_talk: "Push-to-Talk"
-  copy_last_transcript: "Kopioi viimeinen transkriptio"
-  no_conflicts_with_system_or_app: "Ei ristiriitoja järjestelmän tai sovellusten pikanäppäinten kanssa."
-  some_shortcuts_conflict_each_other: "Jotkin pikanäppäimet ovat ristiriidassa keskenään."
-  some_shortcuts_may_conflict_system: "Jotkin pikanäppäimet saattavat olla ristiriidassa järjestelmän pikanäppäinten kanssa."
-  listening_ellipsis: "Kuunnellaan…"
-  enhance_transcripts: "Paranna transkriptioita"
-  choose_a_provider: "Valitse palveluntarjoaja"
-  edit_prompt_ellipsis: "Muokkaa kehotetta…"
-  example_label: "ESIMERKKI"
-  advanced_assignments: "Edistyneet tehtävät"
-  endpoint: "Päätepiste"
-  copy_token: "Kopioi tunnus"
-  log_level: "Lokitaso"
-  debug: "Virheenkorjaus"
-  info: "Info"
-  warning: "Varoitus"
-  diagnostics: "Diagnostiikka"
-  logs_never_include_transcript: "Lokit eivät koskaan sisällä transkription tekstiä."
-  export_logs_ellipsis: "Vie lokit…"
-  choose_folder_export_logs: "Valitse kansio, johon Pindropin lokitiedostot kopioidaan."
-  github: "GitHub"
-  website: "Verkkosivusto"
-  license_mit: "Lisenssi — MIT"
-  acknowledgements: "Kiitokset"
-  bundled_fonts_ofl: "Mukana tulevat fontit (Newsreader, Inter, JetBrains Mono) on lisensoitu SIL Open Font License -lisenssillä."
-  made_with_care: "Tehty huolella paikallista puhetta varten."
-  release_channel: "Julkaisu"
-  beta_channel: "Beta"
-  last_checked_format: "Viimeksi tarkistettu %@"
-  update_checks_unavailable: "Päivitystarkistukset eivät ole tilapäisesti käytettävissä."
-  checks_for_updates_automatically: "Pindrop tarkistaa päivitykset automaattisesti."
-  n_samples: "%d näytettä"
-u10_floating:
-  transcribing: "Litteroidaan…"
-  word_count: "%d sanaa"
-  inserted_into: "Lisätty sovellukseen %@"
-  microphone_unavailable: "Mikrofoni ei ole käytettävissä"
-  whats_new: "Uutta"
-  version_line: "Pindrop 0.10.0 · heinäkuu 2026"
-  announcement_summary: "Toisto, uusi ulkoasu ja näppäimistöohjaus kaikkialla Pindropissa."
-  replay_title: "Toista jokainen sanelu"
-  replay_body: "Pindrop voi säilyttää äänen seitsemän päivää, jotta voit kuunnella sen Kirjastosta tarvittaessa."
-  new_look_title: "Uusi ulkoasu"
-  new_look_body: "Lämpimämpi ja rauhallisempi ulkoasu nostaa sanasi etusijalle. Teema-asetuksesi säilyvät, ja uusi oletus on Kirjasto."
-  keyboard_title: "Näppäimistö kaikkialla"
-  keyboard_body: "Selaa, hae, luo muistiinpanoja, vie ja poista irrottamatta käsiä näppäimistöltä."
-u11:
-  recording_started: "Tallennus aloitettu"
-  recording_stopped: "Tallennus lopetettu"
-  recording_processing: "Tallennus lopetettu. Litterointia käsitellään."
-  transcription_complete: "Litterointi valmis"
-  live_transcript: "Reaaliaikainen litterointi"
-  estimating_time: "Arvioidaan jäljellä olevaa aikaa…"
-  seconds_left: "noin %d s jäljellä"
-  minutes_left: "noin %d min jäljellä"
-  microphone_muted: "Mikrofoni mykistetty"
-u11b:
-  playback_position: "Toistokohta"
-  expired: "Vanhentunut"
-  expand: "Laajenna"
-  step_x_of_y: "Vaihe %d/%d"
-sessions_in: "%@ sessions in %@"
-0_m: "0 m"
-1_year: "1 year"
-90_days: "90 days"
-ai_enhanced: "AI-enhanced"
-active_days: "Active days"
-activity: "Activity"
-all_time: "All time"
-audio_duration: "Audio duration"
-average_session: "Average session"
-average_words_session: "Average words / session"
-by_weekday: "By weekday"
-destinations: "Destinations"
-dictation_words_min: "Dictation words / min"
-duration: "Duration"
-estimated_time_saved: "Estimated time saved"
-imported_file: "Imported file"
-longest_streak: "Longest streak"
-manual_capture: "Manual capture"
-metric: "Metric"
-no_activity_in_this_period: "No activity in this period"
-no_destination_data: "No destination data"
-other: "Other"
-overview: "Overview"
-sources: "Sources"
-stats: "Stats"
-time_of_day: "Time of day"
-time_range: "Time range"
-transcribed_words: "Transcribed words"
-unknown: "Unknown"
-voice: "Voice"
-web_link: "Web link"
-your_stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
