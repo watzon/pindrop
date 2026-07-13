@@ -143,6 +143,7 @@ by:
 cancel:
   _self: "İptal etmek"
   operation: "İşlemi İptal Et"
+  the_active_recording_transcription_or_enhanc: "Cancel the active recording, transcription, or enhancement."
 capture:
   directly_into_the_note_editor_with_a_hol: "Kaydı tutmak için tutma akışıyla doğrudan not düzenleyicide yakalayın."
 change:

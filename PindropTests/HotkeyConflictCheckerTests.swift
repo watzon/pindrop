@@ -52,6 +52,34 @@ struct HotkeyConflictCheckerTests {
         #expect(status == .pindropConflict(conflictingSlot: .toggleRecording))
     }
 
+    @Test("Cancel Operation conflicts with an existing Pindrop slot")
+    func cancelOperationConflictsWithToggle() {
+        let status = HotkeyConflictChecker.check(
+            keyCode: space,
+            modifiers: option,
+            slot: .cancelOperation,
+            assignments: defaultAssignments
+        )
+
+        #expect(status == .pindropConflict(conflictingSlot: .toggleRecording))
+    }
+
+    @Test("Cancel Operation self reassignment is clean")
+    func cancelOperationSelfReassignmentIsClean() {
+        let assignments = defaultAssignments + [
+            HotkeyAssignment(slot: .cancelOperation, keyCode: UInt32(kVK_ANSI_Period), modifiers: command)
+        ]
+
+        let status = HotkeyConflictChecker.check(
+            keyCode: UInt32(kVK_ANSI_Period),
+            modifiers: command,
+            slot: .cancelOperation,
+            assignments: assignments
+        )
+
+        #expect(status == .noConflict)
+    }
+
     @Test("System table hit returns soft system warning")
     func systemTableHit() {
         let status = HotkeyConflictChecker.check(

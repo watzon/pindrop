@@ -333,6 +333,10 @@ final class SettingsStore: ObservableObject {
          static let openLibraryHotkey = ""
          static let openLibraryHotkeyCode = 0
          static let openLibraryHotkeyModifiers = 0
+
+         static let cancelOperationHotkey = ""
+         static let cancelOperationHotkeyCode = 0
+         static let cancelOperationHotkeyModifiers = 0
       }
    }
 
@@ -376,6 +380,12 @@ final class SettingsStore: ObservableObject {
    var openLibraryHotkeyCode: Int = Defaults.Hotkeys.openLibraryHotkeyCode
    @AppStorage("openLibraryHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
    var openLibraryHotkeyModifiers: Int = Defaults.Hotkeys.openLibraryHotkeyModifiers
+   @AppStorage("cancelOperationHotkey", store: SettingsStoreRuntime.appStorageStore)
+   var cancelOperationHotkey: String = Defaults.Hotkeys.cancelOperationHotkey
+   @AppStorage("cancelOperationHotkeyCode", store: SettingsStoreRuntime.appStorageStore)
+   var cancelOperationHotkeyCode: Int = Defaults.Hotkeys.cancelOperationHotkeyCode
+   @AppStorage("cancelOperationHotkeyModifiers", store: SettingsStoreRuntime.appStorageStore)
+   var cancelOperationHotkeyModifiers: Int = Defaults.Hotkeys.cancelOperationHotkeyModifiers
     @AppStorage("outputMode", store: SettingsStoreRuntime.appStorageStore) var outputMode: String =
         Defaults.outputMode
      @AppStorage("selectedAppLocale", store: SettingsStoreRuntime.appStorageStore)
@@ -1061,6 +1071,9 @@ final class SettingsStore: ObservableObject {
       openLibraryHotkey = Defaults.Hotkeys.openLibraryHotkey
       openLibraryHotkeyCode = Defaults.Hotkeys.openLibraryHotkeyCode
       openLibraryHotkeyModifiers = Defaults.Hotkeys.openLibraryHotkeyModifiers
+      cancelOperationHotkey = Defaults.Hotkeys.cancelOperationHotkey
+      cancelOperationHotkeyCode = Defaults.Hotkeys.cancelOperationHotkeyCode
+      cancelOperationHotkeyModifiers = Defaults.Hotkeys.cancelOperationHotkeyModifiers
       outputMode = Defaults.outputMode
       programmaticFormattingEnabled = Defaults.programmaticFormattingEnabled
       selectedAppLocaleRawValue = Defaults.selectedAppLocale
@@ -1186,6 +1199,14 @@ final class SettingsStore: ObservableObject {
       }
    }
 
+   func updateCancelOperationHotkey(_ hotkey: String, keyCode: Int, modifiers: Int) {
+      performHotkeyUpdate {
+         cancelOperationHotkey = hotkey
+         cancelOperationHotkeyCode = keyCode
+         cancelOperationHotkeyModifiers = modifiers
+      }
+   }
+
    /// Configured hotkey assignments for conflict checking (empty slots omitted).
    func configuredHotkeyAssignments() -> [HotkeyAssignment] {
       var assignments: [HotkeyAssignment] = []
@@ -1218,6 +1239,11 @@ final class SettingsStore: ObservableObject {
          let keyCode = UInt32(exactly: openLibraryHotkeyCode),
          let modifiers = UInt32(exactly: openLibraryHotkeyModifiers) {
          assignments.append(HotkeyAssignment(slot: .openLibrary, keyCode: keyCode, modifiers: modifiers))
+      }
+      if !cancelOperationHotkey.isEmpty,
+         let keyCode = UInt32(exactly: cancelOperationHotkeyCode),
+         let modifiers = UInt32(exactly: cancelOperationHotkeyModifiers) {
+         assignments.append(HotkeyAssignment(slot: .cancelOperation, keyCode: keyCode, modifiers: modifiers))
       }
       return assignments
    }

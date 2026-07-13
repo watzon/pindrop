@@ -143,6 +143,7 @@ by:
 cancel:
   _self: "ยกเลิก"
   operation: "ยกเลิกการดำเนินการ"
+  the_active_recording_transcription_or_enhanc: "Cancel the active recording, transcription, or enhancement."
 capture:
   directly_into_the_note_editor_with_a_hol: "บันทึกลงในเครื่องมือแก้ไขบันทึกโดยตรงด้วยโฟลว์การระงับเพื่อบันทึก"
 change:

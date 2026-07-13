@@ -6,6 +6,7 @@
 //
 
 import AppKit
+import Carbon
 import Testing
 @testable import Pindrop
 
@@ -201,6 +202,35 @@ struct SettingsStoreTests {
 
         settingsStore.resetAllSettings()
         #expect(!settingsStore.launchWithoutShowingWindow)
+    }
+
+    @Test func testCancelOperationHotkeyPersistsAndAppearsInAssignments() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
+        #expect(settingsStore.cancelOperationHotkey == "")
+        #expect(settingsStore.cancelOperationHotkeyCode == 0)
+        #expect(settingsStore.cancelOperationHotkeyModifiers == 0)
+        #expect(settingsStore.configuredHotkeyAssignments().allSatisfy { $0.slot != .cancelOperation })
+
+        settingsStore.updateCancelOperationHotkey("⌘.", keyCode: Int(kVK_ANSI_Period), modifiers: Int(cmdKey))
+
+        #expect(settingsStore.cancelOperationHotkey == "⌘.")
+        #expect(settingsStore.cancelOperationHotkeyCode == Int(kVK_ANSI_Period))
+        #expect(settingsStore.cancelOperationHotkeyModifiers == Int(cmdKey))
+
+        let assignment = settingsStore.configuredHotkeyAssignments().first { $0.slot == .cancelOperation }
+        #expect(assignment?.keyCode == UInt32(kVK_ANSI_Period))
+        #expect(assignment?.modifiers == UInt32(cmdKey))
+
+        settingsStore.updateCancelOperationHotkey("", keyCode: 0, modifiers: 0)
+        #expect(settingsStore.configuredHotkeyAssignments().allSatisfy { $0.slot != .cancelOperation })
+
+        settingsStore.updateCancelOperationHotkey("⌘.", keyCode: Int(kVK_ANSI_Period), modifiers: Int(cmdKey))
+        settingsStore.resetAllSettings()
+        #expect(settingsStore.cancelOperationHotkey == SettingsStore.Defaults.Hotkeys.cancelOperationHotkey)
+        #expect(settingsStore.cancelOperationHotkeyCode == SettingsStore.Defaults.Hotkeys.cancelOperationHotkeyCode)
+        #expect(settingsStore.cancelOperationHotkeyModifiers == SettingsStore.Defaults.Hotkeys.cancelOperationHotkeyModifiers)
     }
 
     @Test func testThemeModeBridgesStoredValue() {

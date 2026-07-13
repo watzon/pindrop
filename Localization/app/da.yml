@@ -143,6 +143,7 @@ by:
 cancel:
   _self: "Ophæve"
   operation: "Annuller handling"
+  the_active_recording_transcription_or_enhanc: "Cancel the active recording, transcription, or enhancement."
 capture:
   directly_into_the_note_editor_with_a_hol: "Fang direkte ind i noteeditoren med et hold-til-optag flow."
 change:

@@ -781,14 +781,12 @@ final class FloatingIndicatorState: ObservableObject {
     /// Selected input device mute/volume state from `InputMuteMonitor`.
     /// UI (orb/pill) can render a Muted state from this without observing CoreAudio directly.
     @Published var isInputMuted = false
-    @Published var escapePrimed = false
     @Published var toggleRecordingHotkey = ""
     @Published var pushToTalkHotkey = ""
     @Published var recentCompletion: CompletionKind?
 
     private var recordingStartTime: Date?
     private var durationTimer: Timer?
-    private var escapePrimedResetTask: Task<Void, Never>?
     private var completionClearTask: Task<Void, Never>?
 
     /// Minimum absolute delta before a meter sample replaces the stored level.
@@ -819,7 +817,6 @@ final class FloatingIndicatorState: ObservableObject {
         recordingDuration = 0
         audioLevel = 0
         bandLevels = .zero
-        clearEscapePrimed()
         stopDurationTimer()
         if wasRecording {
             announce(localized("Recording stopped", locale: AppLocale.currentSelection().locale))
@@ -869,23 +866,6 @@ final class FloatingIndicatorState: ObservableObject {
     func updateHotkeys(toggleHotkey: String, pushToTalkHotkey: String) {
         self.toggleRecordingHotkey = normalize(hotkey: toggleHotkey)
         self.pushToTalkHotkey = normalize(hotkey: pushToTalkHotkey)
-    }
-
-    func showEscapePrimed() {
-        escapePrimedResetTask?.cancel()
-        escapePrimed = true
-
-        escapePrimedResetTask = Task {
-            try? await Task.sleep(for: .milliseconds(400))
-            if !Task.isCancelled {
-                escapePrimed = false
-            }
-        }
-    }
-
-    func clearEscapePrimed() {
-        escapePrimedResetTask?.cancel()
-        escapePrimed = false
     }
 
     /// Flash a completion badge in any hero/indicator that observes this

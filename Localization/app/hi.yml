@@ -143,6 +143,7 @@ by:
 cancel:
   _self: "रद्द करना"
   operation: "ऑपरेशन रद्द करें"
+  the_active_recording_transcription_or_enhanc: "Cancel the active recording, transcription, or enhancement."
 capture:
   directly_into_the_note_editor_with_a_hol: "होल्ड-टू-रिकॉर्ड प्रवाह के साथ सीधे नोट संपादक में कैप्चर करें।"
 change:

@@ -143,6 +143,7 @@ by:
 cancel:
   _self: "Membatalkan"
   operation: "Batalkan Operasi"
+  the_active_recording_transcription_or_enhanc: "Cancel the active recording, transcription, or enhancement."
 capture:
   directly_into_the_note_editor_with_a_hol: "Tangkap langsung ke editor catatan dengan alur tahan untuk merekam."
 change:

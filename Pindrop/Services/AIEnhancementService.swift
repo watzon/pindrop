@@ -1003,6 +1003,16 @@ final class AIEnhancementService {
         } catch let error as EnhancementError {
             throw error
         } catch {
+            if error is CancellationError {
+                throw error
+            }
+            if let urlError = error as? URLError, urlError.code == .cancelled {
+                throw CancellationError()
+            }
+            let nsError = error as NSError
+            if nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorCancelled {
+                throw CancellationError()
+            }
             throw EnhancementError.apiError(error.localizedDescription)
         }
     }
@@ -1117,6 +1127,16 @@ final class AIEnhancementService {
         } catch let error as EnhancementError {
             throw error
         } catch {
+            if error is CancellationError {
+                throw error
+            }
+            if let urlError = error as? URLError, urlError.code == .cancelled {
+                throw CancellationError()
+            }
+            let nsError = error as NSError
+            if nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorCancelled {
+                throw CancellationError()
+            }
             throw EnhancementError.apiError(error.localizedDescription)
         }
     }
@@ -1654,6 +1674,16 @@ final class AIEnhancementService {
         } catch let error as EnhancementError {
             throw error
         } catch {
+            if error is CancellationError {
+                throw error
+            }
+            if let urlError = error as? URLError, urlError.code == .cancelled {
+                throw CancellationError()
+            }
+            let nsError = error as NSError
+            if nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorCancelled {
+                throw CancellationError()
+            }
             throw EnhancementError.apiError(error.localizedDescription)
         }
     }
@@ -1741,6 +1771,16 @@ final class AIEnhancementService {
         } catch let error as EnhancementError {
             throw error
         } catch {
+            if error is CancellationError {
+                throw error
+            }
+            if let urlError = error as? URLError, urlError.code == .cancelled {
+                throw CancellationError()
+            }
+            let nsError = error as NSError
+            if nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorCancelled {
+                throw CancellationError()
+            }
             throw EnhancementError.apiError(error.localizedDescription)
         }
     }

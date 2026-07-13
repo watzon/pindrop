@@ -104,6 +104,7 @@ enum L10nKeys {
     static let byWeekday = "by_weekday"
     static let cancel = "cancel"
     static let cancelOperation = "cancel_operation"
+    static let cancelTheActiveRecordingTranscriptionOrEnhanc = "cancel_the_active_recording_transcription_or_enhanc"
     static let captureDirectlyIntoTheNoteEditorWithAHol = "capture_directly_into_the_note_editor_with_a_hol"
     static let cfbundledisplayname = "cfbundledisplayname"
     static let cfbundlename = "cfbundlename"
