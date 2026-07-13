@@ -153,6 +153,8 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		OVERLAYSINKTESTBUILD1A2B3 /* OverlayStreamingSinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OVERLAYSINKTESTFILE1A2B3C /* OverlayStreamingSinkTests.swift */; };
 		STABMETRICSBUILD01A2B3C4D /* StreamingStabilityMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = STABMETRICSFILE01A2B3C4D5 /* StreamingStabilityMetrics.swift */; };
 		DETCLEANBUILD01A2B3C4D5E /* DeterministicTranscriptCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = DETCLEANFILE01A2B3C4D5E6 /* DeterministicTranscriptCleaner.swift */; };
+		PROGFORMBUILD01A2B3C4D /* ProgrammaticTranscriptFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = PROGFORMFILE01A2B3C4D5 /* ProgrammaticTranscriptFormatter.swift */; };
+		PROGFORMTESTBUILD1A2B3 /* ProgrammaticTranscriptFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PROGFORMTESTFILE1A2B3 /* ProgrammaticTranscriptFormatterTests.swift */; };
 		SETTV2EXTBUILD01A2B3C4D5 /* SettingsStore+AIConfigV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = SETTV2EXTFILE01A2B3C4D5E /* SettingsStore+AIConfigV2.swift */; };
 		APPLEFMENHANCER02A2B3C4D /* AppleFoundationModelsEnhancer.swift in Sources */ = {isa = PBXBuildFile; fileRef = APPLEFMENHANCER01A2B3C4D /* AppleFoundationModelsEnhancer.swift */; };
 		APPLESPEECHENG02A2B3C4D5 /* AppleSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = APPLESPEECHENG01A2B3C4D5 /* AppleSpeechEngine.swift */; };
@@ -416,6 +418,8 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		OVERLAYSINKTESTFILE1A2B3C /* OverlayStreamingSinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayStreamingSinkTests.swift; sourceTree = "<group>"; };
 		STABMETRICSFILE01A2B3C4D5 /* StreamingStabilityMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamingStabilityMetrics.swift; sourceTree = "<group>"; };
 		DETCLEANFILE01A2B3C4D5E6 /* DeterministicTranscriptCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeterministicTranscriptCleaner.swift; sourceTree = "<group>"; };
+		PROGFORMFILE01A2B3C4D5 /* ProgrammaticTranscriptFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgrammaticTranscriptFormatter.swift; sourceTree = "<group>"; };
+		PROGFORMTESTFILE1A2B3 /* ProgrammaticTranscriptFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgrammaticTranscriptFormatterTests.swift; sourceTree = "<group>"; };
 		SETTV2EXTFILE01A2B3C4D5E /* SettingsStore+AIConfigV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsStore+AIConfigV2.swift"; sourceTree = "<group>"; };
 		APPLEFMENHANCER01A2B3C4D /* AppleFoundationModelsEnhancer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleFoundationModelsEnhancer.swift; sourceTree = "<group>"; };
 		APPLESPEECHENG01A2B3C4D5 /* AppleSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSpeechEngine.swift; sourceTree = "<group>"; };
@@ -699,6 +703,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				STREAMSESSFILE01A2B3C4D56 /* StreamingSessionController.swift */,
 				STABMETRICSFILE01A2B3C4D5 /* StreamingStabilityMetrics.swift */,
 				DETCLEANFILE01A2B3C4D5E6 /* DeterministicTranscriptCleaner.swift */,
+				PROGFORMFILE01A2B3C4D5 /* ProgrammaticTranscriptFormatter.swift */,
 				APPLEFMENHANCER01A2B3C4D /* AppleFoundationModelsEnhancer.swift */,
 				AIMODELSERVICEFILE01A2B3C4D5E6F /* AIModelService.swift */,
 				BD0F4D7C7ADA4236A1D28249 /* HotkeyManager.swift */,
@@ -820,6 +825,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				OVERLAYSINKTESTFILE1A2B3C /* OverlayStreamingSinkTests.swift */,
 				STABMETRICSTESTFILE1A2B3 /* StreamingStabilityMetricsTests.swift */,
 				DETCLEANTESTFILE1A2B3C4 /* DeterministicTranscriptCleanerTests.swift */,
+				PROGFORMTESTFILE1A2B3 /* ProgrammaticTranscriptFormatterTests.swift */,
 				TRBACKENDTESTFILE1A2B3C /* TranscriptionBackendTests.swift */,
 				SANITIZERTESTFILE1A2B3C /* AIEnhancementResponseSanitizerTests.swift */,
 				TREDITAPPLIERTESTFILE01 /* TranscriptEditApplierTests.swift */,
@@ -1231,6 +1237,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				OVERLAYSINKTESTBUILD1A2B3 /* OverlayStreamingSinkTests.swift in Sources */,
 				STABMETRICSTESTBUILD1A2B3 /* StreamingStabilityMetricsTests.swift in Sources */,
 				DETCLEANTESTBUILD1A2B3C4 /* DeterministicTranscriptCleanerTests.swift in Sources */,
+				PROGFORMTESTBUILD1A2B3 /* ProgrammaticTranscriptFormatterTests.swift in Sources */,
 				TRBACKENDTESTBUILD1A2B3C /* TranscriptionBackendTests.swift in Sources */,
 				SANITIZERTESTBUILD1A2B3C /* AIEnhancementResponseSanitizerTests.swift in Sources */,
 				TREDITAPPLIERTESTBUILD01 /* TranscriptEditApplierTests.swift in Sources */,
@@ -1331,6 +1338,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				LIVETRANSBUILD01A2B3C4D5E /* LiveTranscriptState.swift in Sources */,
 				STABMETRICSBUILD01A2B3C4D /* StreamingStabilityMetrics.swift in Sources */,
 				DETCLEANBUILD01A2B3C4D5E /* DeterministicTranscriptCleaner.swift in Sources */,
+				PROGFORMBUILD01A2B3C4D /* ProgrammaticTranscriptFormatter.swift in Sources */,
 				APPLEFMENHANCER02A2B3C4D /* AppleFoundationModelsEnhancer.swift in Sources */,
 				C75862009B5F6B105036E5B7 /* StatusBarController.swift in Sources */,
 				ORBINDBUILD001A2B3C4D5E6F70 /* OrbFloatingIndicator.swift in Sources */,

@@ -46,6 +46,7 @@ add:
   this_to_opencode_json_in_your_project_root_f: "프로젝트별 접근을 위해 프로젝트 루트의 opencode.json 에 추가하세요."
   to_existing: "기존에 추가"
   trailing_space: "뒤에 공백 추가"
+  blank_lines_between_sentence_groups_in_longe: "긴 받아쓰기에서 문장 그룹 사이에 빈 줄을 넣습니다. 완전 로컬이며 AI를 사용하지 않습니다."
   word_replacements_to_automatically_correct_c: "일반적인 전사 오류를 자동으로 수정하려면 단어 대체를 추가하세요."
   words_to_help_pindrop_recognize_them_properl: "Pindrop이 올바르게 인식할 수 있도록 단어를 추가하세요."
   words_you_manually_correct_into_your_vocabul: "향후 전사를 위해 수동으로 수정하는 단어를 어휘에 추가하세요."
@@ -518,6 +519,8 @@ input:
   device: "입력 장치"
 inserted:
   into_d_words: "Inserted into %@ · %d words"
+insert:
+  paragraph_breaks: "단락 나누기 삽입"
 interface:
   _self: "인터페이스"
   language: "인터페이스 언어"

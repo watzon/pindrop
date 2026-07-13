@@ -46,6 +46,7 @@ add:
   this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
   to_existing: "मौजूदा में जोड़ें"
   trailing_space: "अनुगामी स्थान जोड़ें"
+  blank_lines_between_sentence_groups_in_longe: "लंबे श्रुतलेख में वाक्य समूहों के बीच खाली पंक्तियाँ जोड़ता है। पूरी तरह स्थानीय, बिना AI।"
   word_replacements_to_automatically_correct_c: "सामान्य प्रतिलेखन त्रुटियों को स्वचालित रूप से ठीक करने के लिए शब्द प्रतिस्थापन जोड़ें।"
   words_to_help_pindrop_recognize_them_properl: "पिनड्रॉप को उन्हें ठीक से पहचानने में मदद करने के लिए शब्द जोड़ें"
   words_you_manually_correct_into_your_vocabul: "भविष्य के प्रतिलेखन के लिए अपनी शब्दावली में उन शब्दों को जोड़ें जिन्हें आप मैन्युअल रूप से सही करते हैं।"
@@ -518,6 +519,8 @@ input:
   device: "इनपुट डिवाइस"
 inserted:
   into_d_words: "Inserted into %@ · %d words"
+insert:
+  paragraph_breaks: "अनुच्छेद विराम डालें"
 interface:
   _self: "इंटरफ़ेस"
   language: "इंटरफ़ेस भाषा"

@@ -46,6 +46,7 @@ add:
   this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
   to_existing: "Hozzáadás a meglévőhöz"
   trailing_space: "Adjon hozzá záró szóközt"
+  blank_lines_between_sentence_groups_in_longe: "Üres sorokat ad mondatcsoportok közé hosszabb diktáláskor. Teljesen helyi, AI nélkül."
   word_replacements_to_automatically_correct_c: "Szóhelyettesítések hozzáadása a gyakori átírási hibák automatikus kijavításához."
   words_to_help_pindrop_recognize_them_properl: "Adjon hozzá szavakat, hogy segítsen Pindrop helyesen felismerni őket"
   words_you_manually_correct_into_your_vocabul: "Adjon hozzá kézzel javított szavakat szókincséhez a későbbi átírásokhoz."
@@ -518,6 +519,8 @@ input:
   device: "Bemeneti eszköz"
 inserted:
   into_d_words: "Inserted into %@ · %d words"
+insert:
+  paragraph_breaks: "Bekezdésválasztók beszúrása"
 interface:
   _self: "Felület"
   language: "Felület nyelve"

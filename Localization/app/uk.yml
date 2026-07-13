@@ -46,6 +46,7 @@ add:
   this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
   to_existing: "Додати до існуючих"
   trailing_space: "Додати кінцевий пробіл"
+  blank_lines_between_sentence_groups_in_longe: "Додає порожні рядки між групами речень у довгій диктовці. Повністю локально, без ШІ."
   word_replacements_to_automatically_correct_c: "Додайте заміни слів для автоматичного виправлення типових помилок транскрипції."
   words_to_help_pindrop_recognize_them_properl: "Додайте слова, щоб допомогти Pindrop правильно їх розпізнати"
   words_you_manually_correct_into_your_vocabul: "Додайте слова, які ви виправили вручну, у свій словник для майбутніх транскрипцій."
@@ -518,6 +519,8 @@ input:
   device: "Пристрій введення"
 inserted:
   into_d_words: "Inserted into %@ · %d words"
+insert:
+  paragraph_breaks: "Вставляти розриви абзаців"
 interface:
   _self: "Інтерфейс"
   language: "Мова інтерфейсу"

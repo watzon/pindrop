@@ -46,6 +46,7 @@ add:
   this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
   to_existing: "הוסף לקיים"
   trailing_space: "הוסף שטח נגרר"
+  blank_lines_between_sentence_groups_in_longe: "מוסיף שורות ריקות בין קבוצות משפטים בהכתבה ארוכה. מקומי לחלוטין, בלי AI."
   word_replacements_to_automatically_correct_c: "הוסף החלפות מילים כדי לתקן אוטומטית שגיאות תעתיק נפוצות."
   words_to_help_pindrop_recognize_them_properl: "הוסף מילים כדי לעזור לפינדרופ לזהות אותן כראוי"
   words_you_manually_correct_into_your_vocabul: "הוסף מילים שאתה מתקן באופן ידני לאוצר המילים שלך לתמלולים עתידיים."
@@ -518,6 +519,8 @@ input:
   device: "התקן קלט"
 inserted:
   into_d_words: "Inserted into %@ · %d words"
+insert:
+  paragraph_breaks: "הוספת מעברי פסקה"
 interface:
   _self: "מִמְשָׁק"
   language: "שפת ממשק"

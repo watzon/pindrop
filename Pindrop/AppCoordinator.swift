@@ -3532,7 +3532,10 @@ final class AppCoordinator {
         } else {
             Log.app.debug("AI enhancement skipped: no transcriptionEnhancement assignment resolves")
         }
-
+        finalText = ProgrammaticTranscriptFormatter.formatIfEnabled(
+            finalText,
+            enabled: settingsStore.programmaticFormattingEnabled
+        )
         finalText = normalizedTranscriptionText(finalText)
         guard !isTranscriptionEffectivelyEmpty(finalText) else {
             handleNoSpeechDetected(context: "recording")

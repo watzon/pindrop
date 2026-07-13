@@ -46,6 +46,7 @@ add:
   this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
   to_existing: "Tambahkan ke Yang Ada"
   trailing_space: "Tambahkan spasi tambahan"
+  blank_lines_between_sentence_groups_in_longe: "Menambahkan baris kosong di antara kelompok kalimat pada dikte yang lebih panjang. Sepenuhnya lokal, tanpa AI."
   word_replacements_to_automatically_correct_c: "Tambahkan pengganti kata untuk memperbaiki kesalahan transkripsi umum secara otomatis."
   words_to_help_pindrop_recognize_them_properl: "Tambahkan kata-kata untuk membantu Pindrop mengenalinya dengan benar"
   words_you_manually_correct_into_your_vocabul: "Tambahkan kata-kata yang Anda koreksi secara manual ke dalam kosakata Anda untuk transkripsi di masa mendatang."
@@ -518,6 +519,8 @@ input:
   device: "Perangkat masukan"
 inserted:
   into_d_words: "Inserted into %@ · %d words"
+insert:
+  paragraph_breaks: "Sisipkan putus paragraf"
 interface:
   _self: "Antarmuka"
   language: "Bahasa antarmuka"

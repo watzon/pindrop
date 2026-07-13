@@ -46,6 +46,7 @@ add:
   this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
   to_existing: "Tilføj til eksisterende"
   trailing_space: "Tilføj efterfølgende plads"
+  blank_lines_between_sentence_groups_in_longe: "Tilføjer tomme linjer mellem sætningsgrupper i længere diktat. Fuldt lokalt, ingen AI."
   word_replacements_to_automatically_correct_c: "Tilføj orderstatninger for automatisk at rette almindelige transskriptionsfejl."
   words_to_help_pindrop_recognize_them_properl: "Tilføj ord for at hjælpe Pindrop med at genkende dem korrekt"
   words_you_manually_correct_into_your_vocabul: "Tilføj ord, du manuelt retter, til dit ordforråd til fremtidige transskriptioner."
@@ -518,6 +519,8 @@ input:
   device: "Inputenhed"
 inserted:
   into_d_words: "Inserted into %@ · %d words"
+insert:
+  paragraph_breaks: "Indsæt afsnitsbrud"
 interface:
   _self: "Grænseflade"
   language: "Grænsefladesprog"

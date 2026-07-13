@@ -46,6 +46,7 @@ add:
   this_to_opencode_json_in_your_project_root_f: "Add this to opencode.json in your project root for project-specific access."
   to_existing: "Προσθήκη στο Υπάρχον"
   trailing_space: "Προσθέστε ελεύθερο χώρο"
+  blank_lines_between_sentence_groups_in_longe: "Προσθέτει κενές γραμμές ανάμεσα σε ομάδες προτάσεων σε μεγαλύτερη υπαγόρευση. Πλήρως τοπικά, χωρίς AI."
   word_replacements_to_automatically_correct_c: "Προσθέστε αντικαταστάσεις λέξεων για αυτόματη διόρθωση συνηθισμένων σφαλμάτων μεταγραφής."
   words_to_help_pindrop_recognize_them_properl: "Προσθέστε λέξεις για να βοηθήσετε τον Pindrop να τις αναγνωρίσει σωστά"
   words_you_manually_correct_into_your_vocabul: "Προσθέστε λέξεις που διορθώνετε χειροκίνητα στο λεξιλόγιό σας για μελλοντικές μεταγραφές."
@@ -518,6 +519,8 @@ input:
   device: "Συσκευή εισόδου"
 inserted:
   into_d_words: "Inserted into %@ · %d words"
+insert:
+  paragraph_breaks: "Εισαγωγή αλλαγών παραγράφου"
 interface:
   _self: "Διασύνδεση"
   language: "Γλώσσα διεπαφής"

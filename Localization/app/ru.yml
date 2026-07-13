@@ -46,6 +46,7 @@ add:
   this_to_opencode_json_in_your_project_root_f: "Добавьте это в opencode.json в корне проекта для доступа в рамках проекта."
   to_existing: "Добавить к существующим"
   trailing_space: "Добавить конечный пробел"
+  blank_lines_between_sentence_groups_in_longe: "Добавляет пустые строки между группами предложений в длинной диктовке. Полностью локально, без ИИ."
   word_replacements_to_automatically_correct_c: "Добавляйте замены слов, чтобы автоматически исправлять распространенные ошибки транскрипции."
   words_to_help_pindrop_recognize_them_properl: "Добавляйте слова, чтобы Pindrop правильно их распознавал."
   words_you_manually_correct_into_your_vocabul: "Добавляйте слова, которые вы исправляете вручную, в свой словарный запас для будущих транскрипций."
@@ -518,6 +519,8 @@ input:
   device: "Устройство ввода"
 inserted:
   into_d_words: "Inserted into %@ · %d words"
+insert:
+  paragraph_breaks: "Вставлять абзацы"
 interface:
   _self: "Интерфейс"
   language: "Язык интерфейса"

@@ -224,6 +224,22 @@ struct DictationSettingsView: View {
                         .accessibilityIdentifier("settings.toggle.addTrailingSpace")
                 }
 
+                SettingsRow(showSeparator: true) {
+                    SettingsRowLabel(
+                        title: localized("Insert paragraph breaks", locale: locale),
+                        subtitle: localized(
+                            "Add blank lines between sentence groups in longer dictation. Fully local, no AI.",
+                            locale: locale
+                        )
+                    )
+                } control: {
+                    SettingsToggle(
+                        isOn: $settings.programmaticFormattingEnabled,
+                        label: localized("Insert paragraph breaks", locale: locale)
+                    )
+                        .accessibilityIdentifier("settings.toggle.programmaticFormattingEnabled")
+                }
+
                 SettingsRow(showSeparator: false) {
                     SettingsRowLabel(title: localized("Learn corrected words automatically", locale: locale))
                 } control: {
