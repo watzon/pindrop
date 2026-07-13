@@ -111,6 +111,7 @@ public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
    case korean = "ko"
    case hindi = "hi"
    case malayalam = "ml"
+   case polish = "pl"
 
    public var id: String { rawValue }
 
@@ -139,6 +140,7 @@ public enum AppLanguage: String, CaseIterable, Sendable, Identifiable {
       case .korean:           return Metadata(displayKey: "Korean", whisperCode: "ko", localeIdentifier: "ko", selectable: true)
       case .hindi:            return Metadata(displayKey: "Hindi", whisperCode: "hi", localeIdentifier: "hi", selectable: true)
       case .malayalam:        return Metadata(displayKey: "Malayalam", whisperCode: "ml", localeIdentifier: "ml", selectable: true)
+      case .polish:           return Metadata(displayKey: "Polish", whisperCode: "pl", localeIdentifier: "pl", selectable: true)
       }
    }
 

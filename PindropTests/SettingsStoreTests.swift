@@ -266,6 +266,30 @@ struct SettingsStoreTests {
     @Test func testLocalizedResolvesSelectedLocaleStrings() {
         #expect(localized("Settings", locale: Locale(identifier: "de")) == "Einstellungen")
         #expect(localized("Settings", locale: Locale(identifier: "tr")) == "Ayarlar")
+        #expect(localized("Settings", locale: Locale(identifier: "pl")) == "Ustawienia")
+    }
+
+    @Test func testPolishIsShippedAsInterfaceLocaleAndDictationLanguage() {
+        #expect(AppLocale.allCases.contains(.polish))
+        #expect(AppLanguage.allCases.contains(.polish))
+        #expect(AppLanguage.polish.rawValue == "pl")
+        #expect(AppLanguage.polish.whisperLanguageCode == "pl")
+        #expect(AppLanguage.polish.isSelectable)
+        #expect(AppLocale.polish.layoutDirection == .leftToRight)
+        #expect(AppLocale.polish.rawValue == AppLanguage.polish.rawValue)
+    }
+
+    @Test func testSelectedAppLanguageSupportsPolish() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
+        settingsStore.selectedAppLanguage = .polish
+        settingsStore.selectedAppLocale = .polish
+
+        #expect(settingsStore.selectedLanguage == AppLanguage.polish.rawValue)
+        #expect(settingsStore.selectedAppLanguage == .polish)
+        #expect(settingsStore.selectedAppLocale == .polish)
+        #expect(settingsStore.selectedAppLocaleRawValue == AppLocale.polish.rawValue)
     }
 
     @Test func testThemeModeFallsBackToSystemForUnknownValue() {
