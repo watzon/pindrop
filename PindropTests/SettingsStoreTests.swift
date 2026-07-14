@@ -186,6 +186,8 @@ struct SettingsStoreTests {
         #expect(store.apiEndpoint == nil)
         #expect(store.apiKey == nil)
         #expect(!store.launchWithoutShowingWindow)
+        #expect(!store.telemetryEnabled)
+        #expect(store.telemetryConsentPromptVersion == 0)
     }
 
     @Test func testLaunchWithoutShowingWindowDefaultsOffAndPersists() {

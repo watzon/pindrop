@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "API anahtarı kaydedildi • Uç nokta: %@"
 app:
   info_acknowledgments_support_and_logs: "Uygulama bilgileri, teşekkür, destek ve günlükler"
+  version_macos_version_hardware_type_which_fe: "Uygulama sürümü, macOS sürümü, donanım türü, hangi özelliklerin kullanıldığı ve hata kategorileri."
 appearance:
   _self: "Görünüm"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "Mikrofonu Değiştir"
   microphone_ac9970f4: "Mikrofonu değiştir"
+  your_choice_anytime_in_settings_privacy: "Seçiminizi istediğiniz zaman Ayarlar → Gizlilik bölümünden değiştirin."
 changes:
   the_language_used_by_pindrop_s_interface: "Pindrop arayüzünün dilini değiştirir."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Pindrop'un dikte için hangi mikrofonu kullanması gerektiğini ve kayıt sırasında nasıl davranacağını seçin."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
   which_side_the_navigation_sidebar_appears: "Gezinme kenar çubuğunun hangi tarafta görüneceğini seçin."
+  where_to_save_the_training_data_file: "Eğitim verileri dosyasının kaydedileceği yeri seçin."
 clean:
   up_filler_words: "Dolgu sözcüklerini temizle"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "Ön Ayar Silinsin mi?"
   transcription: "Transkripsiyonu sil"
   transcription_f82187c4: "Çeviri yazı silinsin mi?"
+  all_contributions: "Tüm katkıları sil…"
+  all_stored_text_pairs: "Depolanan tüm metin çiftleri silinsin mi?"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "Dışa aktarma başarısız oldu: %@"
   last_transcript: "Son Transkripti Dışa Aktar..."
   presets: "Ön Ayarları Dışa Aktar"
+  jsonl: "JSONL dışa aktar…"
 failed:
   to_add_replacement: "Değiştirme eklenemedi: %@"
   to_add_word: "Kelime eklenemedi: %@"
@@ -485,6 +491,7 @@ great:
   _self: "Harika"
 help:
   _self: "Yardım"
+  improve_pindrop: "Pindrop’u geliştirmeye yardım edilsin mi?"
 hide:
   api_key: "API anahtarını gizle"
   this_for_1_hour: "Bunu 1 saatliğine gizle"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
   pindrop_current_automatically_or_trigger_a: "Pindrop'u otomatik olarak güncel tutun veya istediğiniz zaman manuel kontrolü tetikleyin."
+  before_and_after_text_pairs_when_ai_enhance: "AI geliştirmesi veya düzenlemeleriniz bir transkripsiyonu iyileştirdiğinde öncesi-sonrası metin çiftlerini saklayın. Yalnızca bu Mac’te depolanır — hiçbir şey yüklenmez."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "Düzen"
 learn:
   corrected_words_automatically: "Düzeltilen kelimeleri otomatik olarak öğren"
+  more: "Daha fazla bilgi"
 left:
   _self: "Sol"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "Hiçbir ayar bulunamadı"
   transcriptions_yet: "Henüz transkripsiyon yok"
   vocabulary_words: "Kelime Bilgisi Yok"
+  transcripts_audio_prompts_file_names_or_perso: "Hiçbir transkripsiyon, ses, istem, dosya adı veya kişisel içerik yok — asla."
+  contributions_yet_pairs_are_stored_when_ai_en: "Henüz katkı yok. AI geliştirmesi veya el ile düzenlemeler bir transkripsiyonu değiştirdiğinde çiftler depolanır."
 not:
   assigned: "Atanmadı"
   enough_voice_data_yet: "Not enough voice data yet"
@@ -722,6 +733,7 @@ not:
   selected: "Seçilmedi"
   set: "Ayarlanmadı"
   set_93039e60: "Ayarlanmadı"
+  now: "Şimdi değil"
 note:
   _self: "Not"
   capture_hold: "Note Capture — Hold"
@@ -824,6 +836,7 @@ pindrop:
   orb: "Pindrop Küresi"
   pill: "Pindrop Hapı"
   theme: "Pindrop Teması"
+  can_send_anonymous_privacy_preserving_si: "Pindrop, hataların daha hızlı düzeltilmesi için anonim, gizliliği koruyan sinyaller gönderebilir."
 pinned:
   _self: "Sabitlenmiş"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_the_transcript_and: "Bu, transkripti ve yönetilen medya dosyasını kalıcı olarak kaldıracaktır."
   will_permanently_remove_this_note: "Bu not kalıcı olarak silinecek."
+  permanently_deletes_all_stored_text_pairs_f: "Bu işlem, depolanan tüm metin çiftlerini bu Mac’ten kalıcı olarak siler."
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "Yenilikler…"
   s_new_in_pindrop: "Pindrop’ta Yenilikler"
+  does_pindrop_collect: "Pindrop neleri toplar?"
 while:
   recording: "Kayıt sırasında"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "Tamamen Hazırsınız!"
   re_all_set_058a8130: "Artık hazırsınız!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" API hızı sınırınızı veya kotanızı aştınız.                                  Bunu düzeltmek için: 1. Birkaç dakika bekleyin ve tekrar deneyin 2. API sağlayıcınızın kullanım sınırlarını kontrol edin 3. API planınızı yükseltmeyi düşünün Çeviri yazı, geliştirme yapılmadan kaydedildi.                 \"\""
+  re_in_control: "Kontrol sizde"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" API anahtarınız geçersiz veya süresi dolmuş görünüyor.                                  Bunu düzeltmek için: 1. Ayarlar → Yapay Zeka Geliştirme'yi açın 2. API anahtarınızın doğru olduğunu doğrulayın 3. API uç noktanızın doğru olduğunu kontrol edin Transkripsiyon, geliştirme yapılmadan kaydedildi.                 \"\""
   floating_indicator_is_now_a_living_audio_re: "Kayan göstergeniz artık sese tepki veren canlı bir orb. Boştayken nefes alır, konuştuğunuzda büyür ve dikte ederken kelimelerinizi canlı olarak aktarır."
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "Modeliniz kullanıma hazır."
   stats: "İstatistikleriniz"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "Sözleriniz sizin kalır"
 zoom:
   _self: "Yakınlaştır"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "SenseVoice transkripsiyonu"
   summary: "Yeni bir yerel motor, üç yeni dil ve her dikte üzerinde daha fazla kontrol."
   version_line: "Pindrop 1.21.0 · Temmuz 2026"
+privacy:
+  _self: "Gizlilik"
+share:
+  anonymous_usage_data: "Anonim kullanım verilerini paylaş"
+  anonymous_diagnostics: "Anonim tanılamayı paylaş"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "Anonim tanılama ve kullanım sinyalleri. Asla transkripsiyon metni, ses veya kişisel içerik değil."
+  usage_signals: "Anonim kullanım sinyalleri"
+contribute:
+  transcription_fixes: "Transkripsiyon düzeltmelerine katkıda bulun"
+stored:
+  text_pairs: "Depolanan metin çiftleri"
+review:
+  _self: "İncele…"
+training:
+  data: "Eğitim verileri"
+corrected:
+  _self: "Düzeltildi"
+edited:
+  _self: "Düzenlendi"

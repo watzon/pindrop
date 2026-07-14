@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "מפתח API נשמר • נקודת קצה: %@"
 app:
   info_acknowledgments_support_and_logs: "מידע על אפליקציה, תודות, תמיכה ויומנים"
+  version_macos_version_hardware_type_which_fe: "גרסת האפליקציה, גרסת macOS, סוג החומרה, אילו תכונות בשימוש וקטגוריות שגיאה."
 appearance:
   _self: "מראה"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "החלף מיקרופון"
   microphone_ac9970f4: "החלף מיקרופון"
+  your_choice_anytime_in_settings_privacy: "שנה את הבחירה שלך בכל עת בהגדרות → פרטיות."
 changes:
   the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "בחר באיזה מיקרופון Pindrop צריך להשתמש להכתבה וכיצד הוא מתנהג בזמן ההקלטה."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
   which_side_the_navigation_sidebar_appears: "בחר באיזה צד יופיע סרגל הניווט."
+  where_to_save_the_training_data_file: "בחר היכן לשמור את קובץ נתוני האימון."
 clean:
   up_filler_words: "נקה מילות מילוי"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "למחוק הגדרה מראש?"
   transcription: "מחק תמלול"
   transcription_f82187c4: "למחוק תמלול?"
+  all_contributions: "מחק את כל התרומות…"
+  all_stored_text_pairs: "למחוק את כל זוגות הטקסט השמורים?"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "הייצוא נכשל: %@"
   last_transcript: "ייצוא תמלול אחרון..."
   presets: "ייצא הגדרות קבועות מראש"
+  jsonl: "ייצוא JSONL…"
 failed:
   to_add_replacement: "הוספת החלפה נכשלה: %@"
   to_add_word: "הוספת המילה נכשלה: %@"
@@ -485,6 +491,7 @@ great:
   _self: "גָדוֹל"
 help:
   _self: "עזרה"
+  improve_pindrop: "לעזור לשפר את Pindrop?"
 hide:
   api_key: "הסתר מפתח API"
   this_for_1_hour: "הסתר את זה למשך שעה"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
   pindrop_current_automatically_or_trigger_a: "שמור על עדכניות של Pindrop באופן אוטומטי, או הפעל בדיקה ידנית מתי שתרצה."
+  before_and_after_text_pairs_when_ai_enhance: "שמור זוגות טקסט של לפני ואחרי כאשר שיפור באמצעות בינה מלאכותית או העריכות שלך משפרים תמלול. נשמרים רק ב-Mac הזה — שום דבר לא מועלה."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "מַעֲרָך"
 learn:
   corrected_words_automatically: "למד מילים מתוקנות באופן אוטומטי"
+  more: "מידע נוסף"
 left:
   _self: "שְׁמֹאל"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "לא נמצאו הגדרות"
   transcriptions_yet: "עדיין אין תעתיקים"
   vocabulary_words: "אין מילים אוצר מילים"
+  transcripts_audio_prompts_file_names_or_perso: "אין תמלולים, אודיו, הנחיות, שמות קבצים או תוכן אישי — לעולם."
+  contributions_yet_pairs_are_stored_when_ai_en: "אין תרומות עדיין. זוגות נשמרים כאשר שיפור באמצעות בינה מלאכותית או עריכות ידניות משנים תמלול."
 not:
   assigned: "לא מוקצה"
   enough_voice_data_yet: "Not enough voice data yet"
@@ -722,6 +733,7 @@ not:
   selected: "לא נבחר"
   set: "לא מוגדר"
   set_93039e60: "לא מוגדר"
+  now: "לא עכשיו"
 note:
   _self: "פֶּתֶק"
   capture_hold: "Note Capture — Hold"
@@ -824,6 +836,7 @@ pindrop:
   orb: "כדור Pindrop"
   pill: "גלולת פינדרופ"
   theme: "נושא Pindrop"
+  can_send_anonymous_privacy_preserving_si: "Pindrop יכול לשלוח אותות אנונימיים ששומרים על הפרטיות כדי שבאגים יתוקנו מהר יותר."
 pinned:
   _self: "נעוצות"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_the_transcript_and: "פעולה זו תסיר לצמיתות את התמליל ואת קובץ המדיה המנוהל שלו."
   will_permanently_remove_this_note: "פעולה זו תסיר את ההערה לצמיתות."
+  permanently_deletes_all_stored_text_pairs_f: "פעולה זו מוחקת לצמיתות את כל זוגות הטקסט השמורים מ-Mac זה."
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "מה חדש…"
   s_new_in_pindrop: "מה חדש ב-Pindrop"
+  does_pindrop_collect: "מה Pindrop אוסף?"
 while:
   recording: "בזמן הקלטה"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "אתה מוכן!"
   re_all_set_058a8130: "אתה מוכן!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" חרגת ממגבלת התעריף או ממכסת ה-API שלך.                                  כדי לתקן זאת: 1. המתן מספר דקות ונסה שוב 2. בדוק את מגבלות השימוש של ספק ה-API שלך 3. שקול לשדרג את תוכנית ה-API שלך התמלול נשמר ללא שיפור.                 \"\""
+  re_in_control: "השליטה בידיים שלך"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" נראה שמפתח ה-API שלך אינו חוקי או שפג תוקפו.                                  כדי לתקן זאת: 1. פתח את הגדרות ← שיפור AI 2. ודא שמפתח ה-API שלך נכון 3. בדוק שנקודת הקצה של ה-API שלך נכונה התמלול נשמר ללא שיפור.                 \"\""
   floating_indicator_is_now_a_living_audio_re: "המחוון הצף שלך הוא עכשיו orb חי שמגיב לאודיו. הוא נושם כשהוא לא פעיל, מתרחב כשמדברים, ומשדר את המילים שלך בזמן אמת בזמן ההכתבה."
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "הדגם שלך מוכן לשימוש."
   stats: "הסטטיסטיקה שלך"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "המילים שלך נשארות שלך"
 zoom:
   _self: "הגדל/הקטן"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "תמלול SenseVoice"
   summary: "מנוע מקומי חדש, שלוש שפות חדשות, ושליטה רבה יותר בכל הכתבה."
   version_line: "Pindrop 1.21.0 · יולי 2026"
+privacy:
+  _self: "פרטיות"
+share:
+  anonymous_usage_data: "שיתוף נתוני שימוש אנונימיים"
+  anonymous_diagnostics: "שיתוף אבחון אנונימי"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "אבחון ואותות שימוש אנונימיים. לעולם לא טקסט תמלול, אודיו או תוכן אישי."
+  usage_signals: "אותות שימוש אנונימיים"
+contribute:
+  transcription_fixes: "לתרום תיקוני תמלול"
+stored:
+  text_pairs: "זוגות טקסט שמורים"
+review:
+  _self: "סקירה…"
+training:
+  data: "נתוני אימון"
+corrected:
+  _self: "תוקן"
+edited:
+  _self: "נערך"

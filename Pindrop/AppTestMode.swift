@@ -6,6 +6,7 @@
 //
 
 import AppKit
+import SwiftData
 import SwiftUI
 
 enum AppTestMode {
@@ -79,10 +80,23 @@ private struct SettingsFixtureRootView: View {
 
     let initialTab: SettingsTab
 
+    /// Deterministic in-memory store so panes using @Query (e.g. Privacy) render
+    /// in the fixture without touching the real persistent store.
+    private static let modelContainer: ModelContainer = {
+        let schema = Schema(versionedSchema: TranscriptionRecordSchemaV11.self)
+        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        do {
+            return try ModelContainer(for: schema, configurations: [configuration])
+        } catch {
+            fatalError("Failed to create UI-test fixture model container: \(error)")
+        }
+    }()
+
     var body: some View {
         SettingsPaneContent(settings: settings, tab: initialTab)
             .frame(minWidth: 620, minHeight: 420)
             .environment(\.locale, settings.selectedAppLocale.locale)
             .environment(\.layoutDirection, settings.selectedAppLocale.layoutDirection)
+            .modelContainer(Self.modelContainer)
     }
 }

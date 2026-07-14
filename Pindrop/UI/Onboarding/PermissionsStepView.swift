@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PermissionsStepView: View {
+    @ObservedObject var settings: SettingsStore
     let permissionManager: PermissionManager
     let onContinue: () -> Void
 
@@ -21,6 +22,12 @@ struct PermissionsStepView: View {
         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     }
 
+    /// The consent toggle only makes sense when a TelemetryDeck app ID is
+    /// configured — forks without one have nothing to opt into.
+    private var showsTelemetryConsent: Bool {
+        !TelemetryService.telemetryDeckAppID.isEmpty
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             headerSection
@@ -28,6 +35,9 @@ struct PermissionsStepView: View {
             VStack(spacing: 10) {
                 microphoneCard
                 accessibilityCard
+                if showsTelemetryConsent {
+                    telemetryConsentCard
+                }
             }
             .frame(width: 480)
             .padding(.top, 26)
@@ -80,6 +90,55 @@ struct PermissionsStepView: View {
             isActionDisabled: accessibilityRequestInFlight,
             action: requestAccessibility
         )
+    }
+
+    /// Telemetry consent, presented in the permission-card visual language with a
+    /// toggle instead of a Grant button. Off by default; the choice is final for
+    /// this consent version once onboarding completes (changeable anytime in
+    /// Settings → Privacy).
+    private var telemetryConsentCard: some View {
+        HStack(spacing: 14) {
+            Image(systemName: "chart.bar")
+                .font(.system(size: 17, weight: .medium))
+                .foregroundStyle(settings.telemetryEnabled ? AppColors.accent : AppColors.textSecondary)
+                .frame(width: 38, height: 38)
+                .background(
+                    settings.telemetryEnabled ? AppColors.accentBackground : AppColors.windowBackground,
+                    in: .rect(cornerRadius: 10)
+                )
+                .overlay {
+                    if !settings.telemetryEnabled {
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .strokeBorder(AppColors.border, lineWidth: 1)
+                    }
+                }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(localized("Share anonymous usage data", locale: locale))
+                    .font(OnboardingType.primaryButton)
+                    .foregroundStyle(AppColors.textPrimary)
+
+                Text(localized("Anonymous diagnostics and usage signals. Never transcript text, audio, or personal content.", locale: locale))
+                    .font(AppTypography.captionLarge)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer()
+
+            SettingsToggle(
+                isOn: $settings.telemetryEnabled,
+                label: localized("Share anonymous usage data", locale: locale)
+            )
+            .accessibilityIdentifier("onboarding.toggle.telemetry")
+        }
+        .padding(.vertical, 16)
+        .padding(.horizontal, 18)
+        .background(AppColors.contentBackground, in: .rect(cornerRadius: 12))
+        .overlay {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(AppColors.border, lineWidth: 1)
+        }
     }
 
     private var continueSection: some View {
@@ -139,6 +198,7 @@ struct PermissionsStepView: View {
 struct PermissionsStepView_Previews: PreviewProvider {
     static var previews: some View {
         PermissionsStepView(
+            settings: SettingsStore(),
             permissionManager: PermissionManager(),
             onContinue: {}
         )

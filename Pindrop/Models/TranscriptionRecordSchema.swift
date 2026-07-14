@@ -1465,6 +1465,220 @@ enum TranscriptionRecordSchemaV10: VersionedSchema {
     }
 }
 
+enum TranscriptionRecordSchemaV11: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 10)
+
+    static var models: [any PersistentModel.Type] {
+        [
+            TranscriptionRecord.self,
+            MediaFolder.self,
+            ParticipantProfile.self,
+            ParticipantTrainingEvidence.self,
+            WordReplacement.self,
+            VocabularyWord.self,
+            Note.self,
+            PromptPreset.self,
+            TrainingContribution.self
+        ]
+    }
+
+    @Model
+    final class MediaFolder {
+        @Attribute(.unique) var id: UUID
+        var name: String
+        var createdAt: Date
+        var updatedAt: Date
+        var records: [TranscriptionRecord]
+
+        init(
+            id: UUID = UUID(),
+            name: String,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            records: [TranscriptionRecord] = []
+        ) {
+            self.id = id
+            self.name = name
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.records = records
+        }
+    }
+
+    @Model
+    final class ParticipantProfile {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var normalizedName: String
+        var displayName: String
+        var notes: String?
+        var isCurrentUser: Bool = false
+        var centroidEmbeddingData: Data?
+        var evidenceCount: Int
+        var totalEvidenceDuration: TimeInterval
+        var embeddingSpaceIdentifier: String?
+        var needsVoiceRetraining: Bool = false
+        var createdAt: Date
+        var updatedAt: Date
+        var evidence: [ParticipantTrainingEvidence]
+
+        init(
+            id: UUID = UUID(),
+            normalizedName: String,
+            displayName: String,
+            notes: String? = nil,
+            isCurrentUser: Bool = false,
+            centroidEmbeddingData: Data? = nil,
+            evidenceCount: Int = 0,
+            totalEvidenceDuration: TimeInterval = 0,
+            embeddingSpaceIdentifier: String? = nil,
+            needsVoiceRetraining: Bool = false,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            evidence: [ParticipantTrainingEvidence] = []
+        ) {
+            self.id = id
+            self.normalizedName = normalizedName
+            self.displayName = displayName
+            self.notes = notes
+            self.isCurrentUser = isCurrentUser
+            self.centroidEmbeddingData = centroidEmbeddingData
+            self.evidenceCount = evidenceCount
+            self.totalEvidenceDuration = totalEvidenceDuration
+            self.embeddingSpaceIdentifier = embeddingSpaceIdentifier
+            self.needsVoiceRetraining = needsVoiceRetraining
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.evidence = evidence
+        }
+    }
+
+    @Model
+    final class ParticipantTrainingEvidence {
+        @Attribute(.unique) var id: UUID
+        @Attribute(.unique) var evidenceKey: String
+        var sourceTypeRawValue: String
+        var recordID: UUID?
+        var sourceSpeakerID: String
+        var segmentStartTime: TimeInterval
+        var segmentEndTime: TimeInterval
+        var segmentDuration: TimeInterval
+        var confidence: Float
+        var embeddingData: Data
+        var embeddingSpaceIdentifier: String?
+        var createdAt: Date
+        var updatedAt: Date
+        var profile: ParticipantProfile?
+
+        init(
+            id: UUID = UUID(),
+            evidenceKey: String,
+            sourceTypeRawValue: String,
+            recordID: UUID? = nil,
+            sourceSpeakerID: String,
+            segmentStartTime: TimeInterval,
+            segmentEndTime: TimeInterval,
+            segmentDuration: TimeInterval,
+            confidence: Float,
+            embeddingData: Data,
+            embeddingSpaceIdentifier: String? = nil,
+            createdAt: Date = Date(),
+            updatedAt: Date = Date(),
+            profile: ParticipantProfile? = nil
+        ) {
+            self.id = id
+            self.evidenceKey = evidenceKey
+            self.sourceTypeRawValue = sourceTypeRawValue
+            self.recordID = recordID
+            self.sourceSpeakerID = sourceSpeakerID
+            self.segmentStartTime = segmentStartTime
+            self.segmentEndTime = segmentEndTime
+            self.segmentDuration = segmentDuration
+            self.confidence = confidence
+            self.embeddingData = embeddingData
+            self.embeddingSpaceIdentifier = embeddingSpaceIdentifier
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.profile = profile
+        }
+    }
+
+    @Model
+    final class TranscriptionRecord {
+        @Attribute(.unique) var id: UUID
+        var text: String
+        var originalText: String?
+        var timestamp: Date
+        var duration: TimeInterval
+        var modelUsed: String
+        var enhancedWith: String?
+        var diarizationSegmentsJSON: String?
+        var sourceKindRawValue: String?
+        var sourceDisplayName: String?
+        var generatedTitle: String?
+        var aiSummary: String?
+        var sourceTitleOriginRawValue: String?
+        var originalSourceURL: String?
+        var managedMediaPath: String?
+        var thumbnailPath: String?
+        var folder: MediaFolder?
+        var destinationAppName: String?
+        var destinationAppBundleID: String?
+        var wordCount: Int?
+        /// Set when the user manually edited the transcript text in the library.
+        var userEditedAt: Date?
+        @Transient var wasEnhanced: Bool = false
+        @Transient var sourceKind: MediaSourceKind = .voiceRecording
+
+        init(
+            id: UUID = UUID(),
+            text: String,
+            originalText: String? = nil,
+            timestamp: Date = Date(),
+            duration: TimeInterval,
+            modelUsed: String,
+            enhancedWith: String? = nil,
+            diarizationSegmentsJSON: String? = nil,
+            sourceKind: MediaSourceKind = .voiceRecording,
+            sourceDisplayName: String? = nil,
+            generatedTitle: String? = nil,
+            aiSummary: String? = nil,
+            sourceTitleOriginRawValue: String? = nil,
+            originalSourceURL: String? = nil,
+            managedMediaPath: String? = nil,
+            thumbnailPath: String? = nil,
+            folder: MediaFolder? = nil,
+            destinationAppName: String? = nil,
+            destinationAppBundleID: String? = nil,
+            wordCount: Int? = nil,
+            userEditedAt: Date? = nil
+        ) {
+            self.id = id
+            self.text = text
+            self.originalText = originalText
+            self.timestamp = timestamp
+            self.duration = duration
+            self.modelUsed = modelUsed
+            self.enhancedWith = enhancedWith
+            self.diarizationSegmentsJSON = diarizationSegmentsJSON
+            self.sourceKindRawValue = sourceKind.rawValue
+            self.sourceDisplayName = sourceDisplayName
+            self.generatedTitle = generatedTitle
+            self.aiSummary = aiSummary
+            self.sourceTitleOriginRawValue = sourceTitleOriginRawValue
+            self.originalSourceURL = originalSourceURL
+            self.managedMediaPath = managedMediaPath
+            self.thumbnailPath = thumbnailPath
+            self.folder = folder
+            self.destinationAppName = destinationAppName
+            self.destinationAppBundleID = destinationAppBundleID
+            self.wordCount = wordCount
+            self.userEditedAt = userEditedAt
+            self.wasEnhanced = originalText != nil && originalText != text
+            self.sourceKind = sourceKind
+        }
+    }
+}
+
 // Migration Plan
 enum TranscriptionRecordMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
@@ -1478,7 +1692,8 @@ enum TranscriptionRecordMigrationPlan: SchemaMigrationPlan {
             TranscriptionRecordSchemaV7.self,
             TranscriptionRecordSchemaV8.self,
             TranscriptionRecordSchemaV9.self,
-            TranscriptionRecordSchemaV10.self
+            TranscriptionRecordSchemaV10.self,
+            TranscriptionRecordSchemaV11.self
         ]
     }
 
@@ -1492,7 +1707,8 @@ enum TranscriptionRecordMigrationPlan: SchemaMigrationPlan {
             migrateV6toV7,
             migrateV7toV8,
             migrateV8toV9,
-            migrateV9toV10
+            migrateV9toV10,
+            migrateV10toV11
         ]
     }
 
@@ -1559,5 +1775,13 @@ enum TranscriptionRecordMigrationPlan: SchemaMigrationPlan {
     static let migrateV9toV10 = MigrationStage.lightweight(
         fromVersion: TranscriptionRecordSchemaV9.self,
         toVersion: TranscriptionRecordSchemaV10.self
+    )
+
+    // Lightweight migration from V10 to V11.
+    // Adds the opt-in training-contribution table and an optional manual-edit
+    // timestamp on transcription records.
+    static let migrateV10toV11 = MigrationStage.lightweight(
+        fromVersion: TranscriptionRecordSchemaV10.self,
+        toVersion: TranscriptionRecordSchemaV11.self
     )
 }

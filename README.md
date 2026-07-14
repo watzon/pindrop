@@ -293,6 +293,22 @@ Start with Tiny or Base for daily use. Switch to Medium or Large when you need m
 - Enter any OpenAI-compatible API endpoint
 - Your API key is stored securely in the macOS Keychain—not in UserDefaults
 
+## Privacy
+
+Pindrop processes audio locally by default and collects nothing unless you opt in.
+Two optional, off-by-default programs live in **Settings → Privacy**:
+
+- **Anonymous telemetry** — privacy-preserving usage and error signals via
+  [TelemetryDeck](https://telemetrydeck.com) so bugs get fixed faster. Never
+  transcript text, audio, prompts, file names, or personal content.
+- **Training-data contributions** — keeps before/after transcript text pairs
+  **on your Mac only** (nothing is uploaded; there is no upload backend) to
+  eventually train a fully on-device transcript-correction model. You can review,
+  export, and delete every stored pair.
+
+The complete list of every signal and stored field is in
+[docs/TELEMETRY.md](docs/TELEMETRY.md).
+
 ## Troubleshooting
 
 ### App doesn't appear in menu bar

@@ -21,9 +21,6 @@ struct WhatsNewView: View {
                 .ignoresSafeArea()
 
             VStack(alignment: .leading, spacing: 0) {
-                trafficLights
-                    .padding(.bottom, 20)
-
                 Text(localized(announcement.titleKey, locale: locale))
                     .font(FontLoader.font(family: .newsreader, size: 28, weight: .medium))
                     .tracking(-0.42)
@@ -63,41 +60,14 @@ struct WhatsNewView: View {
                 }
                 .padding(.top, 16)
             }
-            .padding(.top, 20)
+            .padding(.top, 12)
             .padding(.horizontal, 28)
             .padding(.bottom, 24)
         }
-        .frame(width: 460, height: 600)
+        .frame(width: 460, height: 560)
         .environment(\.locale, settings.selectedAppLocale.locale)
         .environment(\.layoutDirection, settings.selectedAppLocale.layoutDirection)
         .themeRefresh()
-    }
-
-    private var trafficLights: some View {
-        HStack(spacing: 8) {
-            Button(action: onDismiss) {
-                Color.clear
-                    .frame(width: 28, height: 28)
-                    .overlay {
-                        Circle()
-                            .fill(Color(nsColor: NSColor(pindropHex: "#FF5F57") ?? .systemRed))
-                            .frame(width: 12, height: 12)
-                    }
-                    .contentShape(Circle())
-            }
-            .padding(-8)
-            .buttonStyle(.plain)
-            .accessibilityLabel(localized("Close", locale: locale))
-
-            Circle()
-                .fill(Color(nsColor: NSColor(pindropHex: "#E9E5DA") ?? .lightGray))
-                .frame(width: 12, height: 12)
-                .accessibilityHidden(true)
-            Circle()
-                .fill(Color(nsColor: NSColor(pindropHex: "#E9E5DA") ?? .lightGray))
-                .frame(width: 12, height: 12)
-                .accessibilityHidden(true)
-        }
     }
 }
 

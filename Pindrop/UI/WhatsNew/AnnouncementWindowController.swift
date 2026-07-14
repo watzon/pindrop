@@ -52,11 +52,11 @@ final class AnnouncementWindowController: NSObject, AnnouncementPresenting, NSWi
         window.backgroundColor = .clear
         window.hasShadow = true
         window.level = .floating
-        window.standardWindowButton(.closeButton)?.isHidden = true
+        // Real close button (hover ✕, standard position); mini/zoom stay hidden.
         window.standardWindowButton(.miniaturizeButton)?.isHidden = true
         window.standardWindowButton(.zoomButton)?.isHidden = true
 
-        let contentSize = NSSize(width: 460, height: 600)
+        let contentSize = NSSize(width: 460, height: 560)
         window.setContentSize(contentSize)
         window.minSize = contentSize
         window.maxSize = contentSize

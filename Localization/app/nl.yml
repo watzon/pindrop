@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "API-sleutel opgeslagen • Eindpunt: %@"
 app:
   info_acknowledgments_support_and_logs: "App-info, bevestigingen, ondersteuning en logboeken"
+  version_macos_version_hardware_type_which_fe: "App-versie, macOS-versie, hardwaretype, welke functies worden gebruikt en foutcategorieën."
 appearance:
   _self: "Weergave"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "Microfoon wijzigen"
   microphone_ac9970f4: "Microfoon wisselen"
+  your_choice_anytime_in_settings_privacy: "Wijzig je keuze op elk moment in Instellingen → Privacy."
 changes:
   the_language_used_by_pindrop_s_interface: "Wijzigt de taal van de Pindrop-interface."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Kies welke microfoon Pindrop moet gebruiken voor dicteren en hoe deze zich gedraagt ​​tijdens het opnemen."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
   which_side_the_navigation_sidebar_appears: "Kies aan welke kant de navigatiebalk verschijnt."
+  where_to_save_the_training_data_file: "Kies waar het trainingsgegevensbestand moet worden opgeslagen."
 clean:
   up_filler_words: "Ruim opvulwoorden op"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "Voorinstelling verwijderen?"
   transcription: "Transcriptie verwijderen"
   transcription_f82187c4: "Transcriptie verwijderen?"
+  all_contributions: "Alle bijdragen verwijderen…"
+  all_stored_text_pairs: "Alle opgeslagen tekstparen verwijderen?"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "Exporteren mislukt: %@"
   last_transcript: "Laatste transcript exporteren..."
   presets: "Voorinstellingen exporteren"
+  jsonl: "JSONL exporteren…"
 failed:
   to_add_replacement: "Kan vervanging niet toevoegen: %@"
   to_add_word: "Kan woord niet toevoegen: %@"
@@ -485,6 +491,7 @@ great:
   _self: "Geweldig"
 help:
   _self: "Help"
+  improve_pindrop: "Helpen Pindrop te verbeteren?"
 hide:
   api_key: "API-sleutel verbergen"
   this_for_1_hour: "Verberg dit gedurende 1 uur"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
   pindrop_current_automatically_or_trigger_a: "Houd Pindrop automatisch actueel of activeer een handmatige controle wanneer u maar wilt."
+  before_and_after_text_pairs_when_ai_enhance: "Bewaar voor-en-na-tekstparen wanneer AI-verbetering of je bewerkingen een transcriptie verbeteren. Alleen op deze Mac opgeslagen — er wordt niets geüpload."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "Indeling"
 learn:
   corrected_words_automatically: "Leer automatisch gecorrigeerde woorden"
+  more: "Meer info"
 left:
   _self: "Links"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "Geen instellingen gevonden"
   transcriptions_yet: "Nog geen transcripties"
   vocabulary_words: "Geen woordenschatwoorden"
+  transcripts_audio_prompts_file_names_or_perso: "Geen transcripties, audio, prompts, bestandsnamen of persoonlijke inhoud — nooit."
+  contributions_yet_pairs_are_stored_when_ai_en: "Nog geen bijdragen. Paren worden opgeslagen wanneer AI-verbetering of handmatige bewerkingen een transcriptie wijzigen."
 not:
   assigned: "Niet toegewezen"
   enough_voice_data_yet: "Not enough voice data yet"
@@ -722,6 +733,7 @@ not:
   selected: "Niet geselecteerd"
   set: "Niet ingesteld"
   set_93039e60: "Niet ingesteld"
+  now: "Niet nu"
 note:
   _self: "Opmerking"
   capture_hold: "Note Capture — Hold"
@@ -824,6 +836,7 @@ pindrop:
   orb: "Pindrop-orb"
   pill: "Pindrop-pil"
   theme: "Pindrop-thema"
+  can_send_anonymous_privacy_preserving_si: "Pindrop kan anonieme, privacyvriendelijke signalen versturen zodat bugs sneller worden opgelost."
 pinned:
   _self: "Vastgezet"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_the_transcript_and: "Hierdoor worden het transcript en het beheerde mediabestand permanent verwijderd."
   will_permanently_remove_this_note: "Dit verwijdert deze notitie permanent."
+  permanently_deletes_all_stored_text_pairs_f: "Hiermee worden alle opgeslagen tekstparen permanent van deze Mac verwijderd."
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "Nieuw…"
   s_new_in_pindrop: "Nieuw in Pindrop"
+  does_pindrop_collect: "Wat verzamelt Pindrop?"
 while:
   recording: "Tijdens opname"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "Je bent helemaal klaar!"
   re_all_set_058a8130: "Je bent helemaal klaar!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" U heeft uw API-limiet of quotum overschreden.                                  Om dit op te lossen: 1. Wacht een paar minuten en probeer het opnieuw 2. Controleer de gebruikslimieten van uw API-provider 3. Overweeg een upgrade van uw API-abonnement De transcriptie is zonder verbeteringen opgeslagen.                 \"\""
+  re_in_control: "Jij hebt de controle"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" Uw API-sleutel lijkt ongeldig of verlopen te zijn.                                  Om dit op te lossen: 1. Open Instellingen → AI-verbetering 2. Controleer of uw API-sleutel correct is 3. Controleer of uw API-eindpunt correct is De transcriptie is zonder verbeteringen opgeslagen.                 \"\""
   floating_indicator_is_now_a_living_audio_re: "Je zwevende indicator is nu een levende, audio-reactieve orb. Hij ademt wanneer hij inactief is, zwelt op wanneer je spreekt en streamt je woorden live terwijl je dicteert."
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "Uw model is klaar voor gebruik."
   stats: "Jouw statistieken"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "Jouw woorden blijven van jou"
 zoom:
   _self: "Zoom"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "SenseVoice-transcriptie"
   summary: "Een nieuwe lokale engine, drie nieuwe talen en meer controle over elk dictaat."
   version_line: "Pindrop 1.21.0 · juli 2026"
+privacy:
+  _self: "Privacy"
+share:
+  anonymous_usage_data: "Anonieme gebruiksgegevens delen"
+  anonymous_diagnostics: "Anonieme diagnostiek delen"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "Anonieme diagnostiek en gebruikssignalen. Nooit transcriptietekst, audio of persoonlijke inhoud."
+  usage_signals: "Anonieme gebruikssignalen"
+contribute:
+  transcription_fixes: "Transcriptiecorrecties bijdragen"
+stored:
+  text_pairs: "Opgeslagen tekstparen"
+review:
+  _self: "Bekijken…"
+training:
+  data: "Trainingsgegevens"
+corrected:
+  _self: "Gecorrigeerd"
+edited:
+  _self: "Bewerkt"

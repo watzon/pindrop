@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "Kunci API disimpan • Titik akhir: %@"
 app:
   info_acknowledgments_support_and_logs: "Info aplikasi, ucapan terima kasih, dukungan, dan log"
+  version_macos_version_hardware_type_which_fe: "Versi aplikasi, versi macOS, jenis perangkat keras, fitur apa yang digunakan, dan kategori kesalahan."
 appearance:
   _self: "Tampilan"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "Ganti Mikrofon"
   microphone_ac9970f4: "Ganti mikrofon"
+  your_choice_anytime_in_settings_privacy: "Ubah pilihan Anda kapan saja di Pengaturan → Privasi."
 changes:
   the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Pilih mikrofon mana yang harus digunakan Pindrop untuk dikte dan bagaimana perilakunya saat merekam."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
   which_side_the_navigation_sidebar_appears: "Pilih di sisi mana bar samping navigasi muncul."
+  where_to_save_the_training_data_file: "Pilih tempat menyimpan file data pelatihan."
 clean:
   up_filler_words: "Bersihkan kata-kata pengisi"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "Hapus Prasetel?"
   transcription: "Hapus transkripsi"
   transcription_f82187c4: "Hapus transkripsi?"
+  all_contributions: "Hapus semua kontribusi…"
+  all_stored_text_pairs: "Hapus semua pasangan teks tersimpan?"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "Ekspor gagal: %@"
   last_transcript: "Ekspor Transkrip Terakhir..."
   presets: "Ekspor Preset"
+  jsonl: "Ekspor JSONL…"
 failed:
   to_add_replacement: "Gagal menambahkan pengganti: %@"
   to_add_word: "Gagal menambahkan kata: %@"
@@ -485,6 +491,7 @@ great:
   _self: "Besar"
 help:
   _self: "Bantuan"
+  improve_pindrop: "Bantu tingkatkan Pindrop?"
 hide:
   api_key: "Sembunyikan kunci API"
   this_for_1_hour: "Sembunyikan ini selama 1 jam"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
   pindrop_current_automatically_or_trigger_a: "Pertahankan Pindrop terkini secara otomatis, atau picu pemeriksaan manual kapan pun Anda mau."
+  before_and_after_text_pairs_when_ai_enhance: "Simpan pasangan teks sebelum-dan-sesudah saat penyempurnaan AI atau suntingan Anda meningkatkan transkripsi. Disimpan hanya di Mac ini — tidak ada yang diunggah."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "Tata Letak"
 learn:
   corrected_words_automatically: "Pelajari kata-kata yang dikoreksi secara otomatis"
+  more: "Pelajari lebih lanjut"
 left:
   _self: "Kiri"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "Tidak ada pengaturan yang ditemukan"
   transcriptions_yet: "Belum ada transkripsi"
   vocabulary_words: "Tidak Ada Kata Kosakata"
+  transcripts_audio_prompts_file_names_or_perso: "Tidak ada transkripsi, audio, prompt, nama file, atau konten pribadi — tidak pernah."
+  contributions_yet_pairs_are_stored_when_ai_en: "Belum ada kontribusi. Pasangan disimpan saat penyempurnaan AI atau suntingan manual mengubah transkripsi."
 not:
   assigned: "Tidak ditugaskan"
   enough_voice_data_yet: "Not enough voice data yet"
@@ -722,6 +733,7 @@ not:
   selected: "Tidak dipilih"
   set: "Tidak Ditetapkan"
   set_93039e60: "Tidak disetel"
+  now: "Nanti saja"
 note:
   _self: "Catatan"
   capture_hold: "Note Capture — Hold"
@@ -824,6 +836,7 @@ pindrop:
   orb: "Orb Pindrop"
   pill: "Pindrop Pil"
   theme: "Pindrop Tema"
+  can_send_anonymous_privacy_preserving_si: "Pindrop dapat mengirim sinyal anonim yang menjaga privasi agar bug diperbaiki lebih cepat."
 pinned:
   _self: "Disematkan"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_the_transcript_and: "Tindakan ini akan menghapus transkrip dan file media yang dikelolanya secara permanen."
   will_permanently_remove_this_note: "Ini akan menghapus catatan ini secara permanen."
+  permanently_deletes_all_stored_text_pairs_f: "Ini menghapus permanen semua pasangan teks tersimpan dari Mac ini."
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "Yang Baru…"
   s_new_in_pindrop: "Yang Baru di Pindrop"
+  does_pindrop_collect: "Apa yang dikumpulkan Pindrop?"
 while:
   recording: "Saat merekam"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "Anda sudah siap!"
   re_all_set_058a8130: "Anda sudah siap!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Anda telah melampaui batas laju atau kuota API Anda.                                  Untuk memperbaikinya: 1. Tunggu beberapa menit dan coba lagi 2. Periksa batas penggunaan penyedia API Anda 3. Pertimbangkan untuk meningkatkan paket API Anda Transkripsi disimpan tanpa penyempurnaan.                 \"\""
+  re_in_control: "Anda yang memegang kendali"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" Kunci API Anda tampaknya tidak valid atau kedaluwarsa.                                  Untuk memperbaikinya: 1. Buka Pengaturan → Peningkatan AI 2. Verifikasikan kunci API Anda sudah benar 3. Periksa apakah titik akhir API Anda sudah benar Transkrip disimpan tanpa peningkatan.                 \"\""
   floating_indicator_is_now_a_living_audio_re: "Indikator mengambang Anda kini menjadi orb hidup yang reaktif terhadap audio. Ia bernapas saat idle, membesar saat Anda berbicara, dan menayangkan kata-kata Anda secara langsung saat mendikte."
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "Model Anda siap digunakan."
   stats: "Statistik Anda"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "Kata-kata Anda tetap milik Anda"
 zoom:
   _self: "Zoom"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "Transkripsi SenseVoice"
   summary: "Mesin lokal baru, tiga bahasa baru, dan lebih banyak kontrol atas setiap dikte."
   version_line: "Pindrop 1.21.0 · Juli 2026"
+privacy:
+  _self: "Privasi"
+share:
+  anonymous_usage_data: "Bagikan data penggunaan anonim"
+  anonymous_diagnostics: "Bagikan diagnostik anonim"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "Diagnostik dan sinyal penggunaan anonim. Tidak pernah teks transkripsi, audio, atau konten pribadi."
+  usage_signals: "Sinyal penggunaan anonim"
+contribute:
+  transcription_fixes: "Kontribusikan perbaikan transkripsi"
+stored:
+  text_pairs: "Pasangan teks tersimpan"
+review:
+  _self: "Tinjau…"
+training:
+  data: "Data pelatihan"
+corrected:
+  _self: "Dikoreksi"
+edited:
+  _self: "Disunting"

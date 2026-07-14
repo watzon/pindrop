@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "Ключ API сохранен • Конечная точка: %@."
 app:
   info_acknowledgments_support_and_logs: "Информация о приложении, подтверждения, поддержка и журналы"
+  version_macos_version_hardware_type_which_fe: "Версия приложения, версия macOS, тип оборудования, какие функции используются и категории ошибок."
 appearance:
   _self: "Оформление"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "Сменить микрофон"
   microphone_ac9970f4: "Сменить микрофон"
+  your_choice_anytime_in_settings_privacy: "Измените свой выбор в любой момент в Настройки → Конфиденциальность."
 changes:
   the_language_used_by_pindrop_s_interface: "Меняет язык интерфейса Pindrop."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Выберите, какой микрофон Pindrop должен использовать для диктовки и как он будет вести себя во время записи."
   which_microphone_pindrop_uses_for_dictati: "Выберите микрофон, который Pindrop использует для диктовки."
   which_side_the_navigation_sidebar_appears: "Выберите, на какой стороне будет отображаться боковая панель навигации."
+  where_to_save_the_training_data_file: "Выберите, где сохранить файл данных для обучения."
 clean:
   up_filler_words: "Очистите слова-паразиты"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "Удалить предустановку?"
   transcription: "Удалить транскрипцию"
   transcription_f82187c4: "Удалить транскрипцию?"
+  all_contributions: "Удалить все материалы…"
+  all_stored_text_pairs: "Удалить все сохранённые текстовые пары?"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "Не удалось выполнить экспорт: %@."
   last_transcript: "Экспортировать последнюю стенограмму..."
   presets: "Экспорт пресетов"
+  jsonl: "Экспортировать JSONL…"
 failed:
   to_add_replacement: "Не удалось добавить замену: %@."
   to_add_word: "Не удалось добавить слово: %@."
@@ -485,6 +491,7 @@ great:
   _self: "Большой"
 help:
   _self: "Справка"
+  improve_pindrop: "Помочь улучшить Pindrop?"
 hide:
   api_key: "Скрыть API-ключ"
   this_for_1_hour: "Скрыть это на 1 час"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Обновляйте Pindrop автоматически или проверьте новую версию сейчас."
   pindrop_current_automatically_or_trigger_a: "Поддерживайте актуальность Pindrop автоматически или запускайте ручную проверку, когда захотите."
+  before_and_after_text_pairs_when_ai_enhance: "Сохраняйте пары текста «до и после», когда улучшение с помощью ИИ или ваши правки улучшают транскрипцию. Хранятся только на этом Mac — ничего не загружается."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "Макет"
 learn:
   corrected_words_automatically: "Выучите исправленные слова автоматически"
+  more: "Подробнее"
 left:
   _self: "Левый"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "Настройки не найдены"
   transcriptions_yet: "Транскрипций пока нет"
   vocabulary_words: "Нет словарных слов"
+  transcripts_audio_prompts_file_names_or_perso: "Никаких транскрипций, аудио, промптов, имён файлов или личного контента — никогда."
+  contributions_yet_pairs_are_stored_when_ai_en: "Пока нет материалов. Пары сохраняются, когда улучшение с помощью ИИ или ручные правки изменяют транскрипцию."
 not:
   assigned: "Не назначено"
   enough_voice_data_yet: "Пока недостаточно голосовых данных"
@@ -722,6 +733,7 @@ not:
   selected: "Не выбрано"
   set: "Не установлено"
   set_93039e60: "Не установлено"
+  now: "Не сейчас"
 note:
   _self: "Примечание"
   capture_hold: "Захват заметки — удержание"
@@ -824,6 +836,7 @@ pindrop:
   orb: "Сфера Pindrop"
   pill: "Таблетка Пиндроп"
   theme: "Тема Пиндроп"
+  can_send_anonymous_privacy_preserving_si: "Pindrop может отправлять анонимные сигналы, не раскрывающие личные данные, чтобы ошибки исправлялись быстрее."
 pinned:
   _self: "Закреплённые"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "Это сбросит все настройки, включая API-ключи, и перезапустит онбординг"
   will_permanently_remove_the_transcript_and: "Это приведет к безвозвратному удалению расшифровки и ее управляемого медиафайла."
   will_permanently_remove_this_note: "Это навсегда удалит эту заметку."
+  permanently_deletes_all_stored_text_pairs_f: "Это навсегда удалит все сохранённые текстовые пары с этого Mac."
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "Что нового…"
   s_new_in_pindrop: "Что нового в Pindrop"
+  does_pindrop_collect: "Какие данные собирает Pindrop?"
 while:
   recording: "Во время записи"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "Все готово!"
   re_all_set_058a8130: "Все готово!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "«» Вы превысили лимит скорости или квоту API.                                  Чтобы это исправить: 1. Подождите несколько минут и повторите попытку. 2. Проверьте ограничения на использование вашего провайдера API. 3. Рассмотрите возможность обновления вашего плана API. Транскрипция была сохранена без улучшений.                 \"\""
+  re_in_control: "Вы всё контролируете"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "«» Ваш ключ API недействителен или срок его действия истек.                                  Чтобы это исправить: 1. Откройте «Настройки» → «Расширение AI». 2. Убедитесь, что ваш ключ API верен. 3. Убедитесь, что ваша конечная точка API верна. Транскрипция была сохранена без улучшения.                 \"\""
   floating_indicator_is_now_a_living_audio_re: "Плавающий индикатор теперь стал живым orb, реагирующим на звук. Он дышит в простое, увеличивается, когда вы говорите, и показывает ваши слова в реальном времени во время диктовки."
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "Ваша модель готова к использованию."
   stats: "Ваша статистика"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "Ваши слова остаются вашими"
 zoom:
   _self: "Изменить масштаб"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "Транскрипция SenseVoice"
   summary: "Новый локальный движок, три новых языка и больше контроля над каждой диктовкой."
   version_line: "Pindrop 1.21.0 · июль 2026 г."
+privacy:
+  _self: "Конфиденциальность"
+share:
+  anonymous_usage_data: "Делиться анонимными данными об использовании"
+  anonymous_diagnostics: "Делиться анонимной диагностикой"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "Анонимная диагностика и сигналы об использовании. Никогда — текст транскрипций, аудио или личный контент."
+  usage_signals: "Анонимные сигналы об использовании"
+contribute:
+  transcription_fixes: "Вносить исправления транскрипции"
+stored:
+  text_pairs: "Сохранённые текстовые пары"
+review:
+  _self: "Просмотреть…"
+training:
+  data: "Данные для обучения"
+corrected:
+  _self: "Исправлено"
+edited:
+  _self: "Отредактировано"

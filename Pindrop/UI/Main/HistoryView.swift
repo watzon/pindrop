@@ -93,7 +93,10 @@ struct HistoryView: View {
     private var historyStore: HistoryStore {
         HistoryStore(
             modelContext: modelContext,
-            speakerIdentityService: SpeakerIdentityService(modelContext: modelContext)
+            speakerIdentityService: SpeakerIdentityService(modelContext: modelContext),
+            contributionService: settingsStore.map {
+                ContributionService(modelContext: modelContext, settingsStore: $0)
+            }
         )
     }
 
@@ -675,7 +678,8 @@ struct HistoryView: View {
                     retention: retention,
                     onCopy: { copyRecord(record) },
                     onExport: { format in exportRecord(record, format: format) },
-                    onDelete: { pendingDeletionRecord = record }
+                    onDelete: { pendingDeletionRecord = record },
+                    onSaveEdit: { newText in saveTranscriptEdit(record, newText: newText) }
                 )
                 .padding(.horizontal, 24)
                 .padding(.vertical, 8)
@@ -790,6 +794,15 @@ struct HistoryView: View {
         transaction.disablesAnimations = true
         withTransaction(transaction) {
             detailRecord = record
+        }
+    }
+
+    private func saveTranscriptEdit(_ record: TranscriptionRecord, newText: String) {
+        do {
+            try historyStore.updateText(record, to: newText)
+        } catch {
+            Log.ui.error("Failed to save transcript edit: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
         }
     }
 

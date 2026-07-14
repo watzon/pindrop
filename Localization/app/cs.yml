@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "Klíč API uložen • Koncový bod: %@"
 app:
   info_acknowledgments_support_and_logs: "Informace o aplikaci, potvrzení, podpora a protokoly"
+  version_macos_version_hardware_type_which_fe: "Verze aplikace, verze macOS, typ hardwaru, které funkce se používají a kategorie chyb."
 appearance:
   _self: "Vzhled"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "Vyměňte mikrofon"
   microphone_ac9970f4: "Vyměňte mikrofon"
+  your_choice_anytime_in_settings_privacy: "Svou volbu můžete kdykoli změnit v Nastavení → Soukromí."
 changes:
   the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Vyberte, který mikrofon má Pindrop používat pro diktování a jak se chová při nahrávání."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
   which_side_the_navigation_sidebar_appears: "Vyberte, na které straně se zobrazí postranní navigační panel."
+  where_to_save_the_training_data_file: "Zvolte, kam uložit soubor s trénovacími daty."
 clean:
   up_filler_words: "Vyčistěte výplňová slova"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "Smazat předvolbu?"
   transcription: "Smazat přepis"
   transcription_f82187c4: "Smazat přepis?"
+  all_contributions: "Smazat všechny příspěvky…"
+  all_stored_text_pairs: "Smazat všechny uložené textové páry?"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "Export se nezdařil: %@"
   last_transcript: "Exportovat poslední přepis..."
   presets: "Exportovat předvolby"
+  jsonl: "Exportovat JSONL…"
 failed:
   to_add_replacement: "Nepodařilo se přidat náhradu: %@"
   to_add_word: "Nepodařilo se přidat slovo: %@"
@@ -485,6 +491,7 @@ great:
   _self: "Velký"
 help:
   _self: "Nápověda"
+  improve_pindrop: "Pomoct vylepšit Pindrop?"
 hide:
   api_key: "Skrýt API klíč"
   this_for_1_hour: "Skryjte to na 1 hodinu"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
   pindrop_current_automatically_or_trigger_a: "Udržujte Pindrop aktuální automaticky nebo spusťte ruční kontrolu, kdykoli budete chtít."
+  before_and_after_text_pairs_when_ai_enhance: "Uchovávejte textové páry před a po, když vylepšení pomocí AI nebo vaše úpravy zlepší přepis. Uloženo pouze v tomto Macu — nic se nenahrává."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "Rozložení"
 learn:
   corrected_words_automatically: "Naučte se opravená slova automaticky"
+  more: "Další informace"
 left:
   _self: "Vlevo"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "Nebylo nalezeno žádné nastavení"
   transcriptions_yet: "Zatím žádné přepisy"
   vocabulary_words: "Žádná slova slovní zásoby"
+  transcripts_audio_prompts_file_names_or_perso: "Žádné přepisy, zvuk, prompty, názvy souborů ani osobní obsah — nikdy."
+  contributions_yet_pairs_are_stored_when_ai_en: "Zatím žádné příspěvky. Páry se ukládají, když vylepšení pomocí AI nebo ruční úpravy změní přepis."
 not:
   assigned: "Nezařazeno"
   enough_voice_data_yet: "Not enough voice data yet"
@@ -722,6 +733,7 @@ not:
   selected: "Nevybráno"
   set: "Nenastaveno"
   set_93039e60: "Nenastaveno"
+  now: "Teď ne"
 note:
   _self: "Poznámka"
   capture_hold: "Note Capture — Hold"
@@ -824,6 +836,7 @@ pindrop:
   orb: "Pindrop Koule"
   pill: "Pindrop pilulka"
   theme: "Pindrop téma"
+  can_send_anonymous_privacy_preserving_si: "Pindrop může odesílat anonymní signály chránící soukromí, aby se chyby opravovaly rychleji."
 pinned:
   _self: "Připnuté"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_the_transcript_and: "Tím trvale odstraníte přepis a jeho spravovaný mediální soubor."
   will_permanently_remove_this_note: "Tímto trvale odstraníte tuto poznámku."
+  permanently_deletes_all_stored_text_pairs_f: "Tímto se trvale smažou všechny uložené textové páry z tohoto Macu."
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "Co je nového…"
   s_new_in_pindrop: "Co je nového v Pindropu"
+  does_pindrop_collect: "Co Pindrop shromažďuje?"
 while:
   recording: "Během nahrávání"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "Vše je připraveno!"
   re_all_set_058a8130: "Vše je připraveno!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Překročili jste limit nebo kvótu rychlosti API.                                  Chcete-li tento problém vyřešit: 1. Počkejte několik minut a zkuste to znovu. 2. Zkontrolujte limity využití poskytovatele rozhraní API. 3. Zvažte upgrade plánu rozhraní API Přepis byl uložen bez vylepšení.                 \"\""
+  re_in_control: "Máte to pod kontrolou"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" Váš klíč API je zřejmě neplatný nebo vypršela jeho platnost.                                  Chcete-li tento problém vyřešit: 1. Otevřete Nastavení → Vylepšení AI 2. Ověřte správnost klíče API 3. Zkontrolujte, zda je koncový bod rozhraní API správný Přepis byl uložen bez vylepšení.                 \"\""
   floating_indicator_is_now_a_living_audio_re: "Váš plovoucí indikátor je teď živý, zvukově reaktivní orb. V klidu dýchá, při řeči se zvětšuje a během diktování živě streamuje vaše slova."
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "Váš model je připraven k použití."
   stats: "Vaše statistiky"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "Vaše slova zůstávají vaše"
 zoom:
   _self: "Přiblížit"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "Přepis SenseVoice"
   summary: "Nový lokální model, tři nové jazyky a větší kontrola nad každým diktátem."
   version_line: "Pindrop 1.21.0 · červenec 2026"
+privacy:
+  _self: "Soukromí"
+share:
+  anonymous_usage_data: "Sdílet anonymní data o používání"
+  anonymous_diagnostics: "Sdílet anonymní diagnostiku"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "Anonymní diagnostika a signály o používání. Nikdy text přepisů, zvuk ani osobní obsah."
+  usage_signals: "Anonymní signály o používání"
+contribute:
+  transcription_fixes: "Přispět opravami přepisů"
+stored:
+  text_pairs: "Uložené textové páry"
+review:
+  _self: "Zkontrolovat…"
+training:
+  data: "Trénovací data"
+corrected:
+  _self: "Opraveno"
+edited:
+  _self: "Upraveno"

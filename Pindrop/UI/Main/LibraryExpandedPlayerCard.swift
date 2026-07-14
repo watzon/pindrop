@@ -16,12 +16,15 @@ struct LibraryExpandedPlayerCard: View {
     let onCopy: () -> Void
     let onExport: (TranscriptExportFormat) -> Void
     let onDelete: () -> Void
+    var onSaveEdit: ((String) -> Void)? = nil
 
     @Environment(\.locale) private var locale
 
     @State private var playbackController = MediaPlaybackController()
     @State private var playbackRate: Float = 1.0
     @State private var peaks: [Float] = []
+    @State private var isEditing = false
+    @State private var editingText = ""
 
     private var hasAudio: Bool {
         TranscriptionDetailAccess.shouldShowPlayback(for: record)
@@ -37,6 +40,32 @@ struct LibraryExpandedPlayerCard: View {
     }()
 
     var body: some View {
+        Group {
+            if isEditing {
+                editCard
+            } else {
+                playerCard
+            }
+        }
+        .task(id: record.id) {
+            guard let mediaURL = record.managedMediaURL else {
+                peaks = []
+                playbackController.teardownPlayback()
+                return
+            }
+            playbackController.load(url: mediaURL)
+            // Peak extraction can decode large files — never on the main actor.
+            let loaded = await Task.detached(priority: .userInitiated) {
+                (try? WaveformPeaksLoader.load(for: mediaURL)) ?? []
+            }.value
+            peaks = loaded
+        }
+        .onDisappear {
+            playbackController.teardownPlayback()
+        }
+    }
+
+    private var playerCard: some View {
         PlayerCardChrome(
             transcript: record.text,
             showsPlayer: hasAudio
@@ -55,22 +84,64 @@ struct LibraryExpandedPlayerCard: View {
         } actions: {
             actionsRow
         }
-        .task(id: record.id) {
-            guard let mediaURL = record.managedMediaURL else {
-                peaks = []
-                playbackController.teardownPlayback()
-                return
+    }
+
+    /// Inline transcript editing — mirrors PlayerCardChrome's container styling
+    /// with the transcript body swapped for a TextEditor.
+    private var editCard: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            metaRow
+
+            TextEditor(text: $editingText)
+                .font(AppTypography.transcriptBody)
+                .lineSpacing(AppTypography.transcriptBodyLineSpacing)
+                .foregroundStyle(AppColors.textPrimary)
+                .scrollContentBackground(.hidden)
+                .padding(8)
+                .frame(minHeight: 96)
+                .background(
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(AppColors.contentBackground)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .strokeBorder(AppColors.border, lineWidth: 1)
+                )
+                .accessibilityIdentifier("library.editor.transcript")
+
+            HStack(spacing: 8) {
+                SecondaryButton(
+                    title: localized("Cancel", locale: locale),
+                    systemImage: "xmark",
+                    action: { isEditing = false }
+                )
+                .accessibilityIdentifier("library.button.cancelEdit")
+
+                Spacer(minLength: 8)
+
+                SecondaryButton(
+                    title: localized("Save", locale: locale),
+                    systemImage: "checkmark",
+                    action: {
+                        isEditing = false
+                        onSaveEdit?(editingText)
+                    }
+                )
+                .accessibilityIdentifier("library.button.saveTranscript")
             }
-            playbackController.load(url: mediaURL)
-            // Peak extraction can decode large files — never on the main actor.
-            let loaded = await Task.detached(priority: .userInitiated) {
-                (try? WaveformPeaksLoader.load(for: mediaURL)) ?? []
-            }.value
-            peaks = loaded
+            .padding(.top, 2)
         }
-        .onDisappear {
-            playbackController.teardownPlayback()
-        }
+        .padding(.vertical, 20)
+        .padding(.horizontal, 24)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(AppColors.windowBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .strokeBorder(AppColors.border, lineWidth: 1)
+        )
     }
 
     // MARK: - Meta
@@ -95,6 +166,13 @@ struct LibraryExpandedPlayerCard: View {
                 Text(inserted)
                     .font(AppTypography.label)
                     .foregroundStyle(AppColors.textSecondary)
+                    .lineLimit(1)
+            }
+
+            if record.userEditedAt != nil {
+                Text(localized("Edited", locale: locale))
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textTertiary)
                     .lineLimit(1)
             }
 
@@ -124,6 +202,17 @@ struct LibraryExpandedPlayerCard: View {
                 systemImage: "doc.on.doc",
                 action: onCopy
             )
+            if onSaveEdit != nil {
+                SecondaryButton(
+                    title: localized("Edit", locale: locale),
+                    systemImage: "pencil",
+                    action: {
+                        editingText = record.text
+                        isEditing = true
+                    }
+                )
+                .accessibilityIdentifier("library.button.editTranscript")
+            }
             ExportMenuButton(
                 title: localized("Export", locale: locale),
                 formats: TranscriptExportService.availableFormats(for: record),

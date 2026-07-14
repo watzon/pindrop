@@ -508,6 +508,9 @@ final class AppCoordinator {
     let mediaIngestionService: MediaIngestionService
     let mediaPreparationService: MediaPreparationService
     let announcementService: AnnouncementService
+    let telemetryService: TelemetryService
+    let telemetryConsentService: TelemetryConsentService
+    let contributionService: ContributionService
     let dictationAudioRetentionService: DictationAudioRetentionService
     let recordingState: RecordingFeatureState
     let mediaTranscriptionState: MediaTranscriptionFeatureState
@@ -532,6 +535,7 @@ final class AppCoordinator {
     let floatingIndicatorFocusTracker: FloatingIndicatorFocusTracker
     let onboardingController: OnboardingWindowController
     let announcementController: AnnouncementWindowController
+    let telemetryConsentController: TelemetryConsentWindowController
     let splashController: SplashWindowController
     let settingsWindowController: SettingsWindowController
     let mainWindowController: MainWindowController
@@ -678,7 +682,15 @@ final class AppCoordinator {
         
         let initialOutputMode: OutputMode = settingsStore.outputMode == "directInsert" ? .directInsert : .clipboard
         self.outputManager = OutputManager(outputMode: initialOutputMode)
-        self.historyStore = HistoryStore(modelContext: modelContext, speakerIdentityService: speakerIdentityService)
+        self.contributionService = ContributionService(
+            modelContext: modelContext,
+            settingsStore: settingsStore
+        )
+        self.historyStore = HistoryStore(
+            modelContext: modelContext,
+            speakerIdentityService: speakerIdentityService,
+            contributionService: contributionService
+        )
         self.dictionaryStore = DictionaryStore(modelContext: modelContext)
         self.notesStore = NotesStore(modelContext: modelContext, aiEnhancementService: aiEnhancementService, settingsStore: settingsStore)
         self.contextCaptureService = ContextCaptureService()
@@ -752,6 +764,12 @@ final class AppCoordinator {
             settingsStore: settingsStore,
             presenter: announcementController
         )
+        self.telemetryService = TelemetryService(settingsStore: settingsStore)
+        self.telemetryConsentController = TelemetryConsentWindowController()
+        self.telemetryConsentService = TelemetryConsentService(
+            settingsStore: settingsStore,
+            presenter: telemetryConsentController
+        )
         let splashState = SplashScreenState()
         self.splashController = SplashWindowController(state: splashState)
         self.settingsWindowController = SettingsWindowController(
@@ -761,6 +779,7 @@ final class AppCoordinator {
             updateService: updateService
         )
         self.mainWindowController = MainWindowController()
+        self.modelManager.telemetryService = telemetryService
         self.mainWindowController.setModelContainer(modelContainer)
         self.noteEditorWindowController = NoteEditorWindowController()
         self.noteEditorWindowController.setModelContainer(modelContainer)
@@ -1024,6 +1043,14 @@ final class AppCoordinator {
     
     func start(launchSemantics: StartupLaunchSemantics = .normal) async {
         Log.boot.info("AppCoordinator.start() entered hasCompletedOnboarding=\(settingsStore.hasCompletedOnboarding) selectedModel=\(settingsStore.selectedModel)")
+        telemetryService.send(
+            .appLaunched,
+            parameters: [
+                TelemetryParameter.backend: settingsStore.resolvedTranscriptionBackend.rawValue,
+                TelemetryParameter.model: settingsStore.selectedModel,
+                TelemetryParameter.locale: settingsStore.selectedAppLocale.locale.identifier
+            ]
+        )
         if !settingsStore.hasCompletedOnboarding {
             Log.boot.info("Taking onboarding path (skipping splash and normal operation until complete)")
             showOnboarding()
@@ -1079,6 +1106,14 @@ final class AppCoordinator {
                     await self?.finishPostOnboardingSetup()
                     self?.mainWindowController.show()
                     self?.showWelcomePopoverAfterDelay()
+                    // Consent was answered via the onboarding permissions step;
+                    // this sends only if the user opted in there.
+                    self?.telemetryService.send(
+                        .onboardingCompleted,
+                        parameters: [
+                            TelemetryParameter.model: self?.settingsStore.selectedModel ?? ""
+                        ]
+                    )
                 }
             }
         )
@@ -1090,10 +1125,19 @@ final class AppCoordinator {
             return
         }
 
+        // Telemetry consent takes priority; when it presents, defer What's New to
+        // the next launch so the two windows never stack.
+        if telemetryConsentService.presentConsentIfNeeded(
+            hasCompletedOnboarding: settingsStore.hasCompletedOnboarding
+        ) {
+            return
+        }
+
         announcementService.presentCurrentAnnouncementIfNeeded(
             hasCompletedOnboarding: settingsStore.hasCompletedOnboarding
         )
     }
+
 
     private func handleShowWhatsNew() {
         guard !AppTestMode.isRunningAnyTests else {
@@ -1268,12 +1312,23 @@ final class AppCoordinator {
         named modelName: String,
         provider: ModelManager.ModelProvider
     ) async throws {
-        if provider == .whisperKit,
-           let localModelPath = modelManager.existingLocalModelPath(for: modelName) {
-            Log.model.info("Loading WhisperKit model \(modelName) from local folder: \(localModelPath.path)")
-            try await transcriptionService.loadModel(modelPath: localModelPath.path)
-        } else {
-            try await transcriptionService.loadModel(modelName: modelName, provider: provider)
+        do {
+            if provider == .whisperKit,
+               let localModelPath = modelManager.existingLocalModelPath(for: modelName) {
+                Log.model.info("Loading WhisperKit model \(modelName) from local folder: \(localModelPath.path)")
+                try await transcriptionService.loadModel(modelPath: localModelPath.path)
+            } else {
+                try await transcriptionService.loadModel(modelName: modelName, provider: provider)
+            }
+        } catch {
+            telemetryService.send(
+                .modelLoadFailed,
+                parameters: [
+                    TelemetryParameter.model: modelName,
+                    TelemetryParameter.errorCase: TelemetryService.errorCaseName(error)
+                ]
+            )
+            throw error
         }
         setActiveModel(modelName)
     }
@@ -2882,6 +2937,7 @@ final class AppCoordinator {
                 throw CancellationError()
             }
             Log.app.error("Note-append transcription failed: \(error)")
+            reportTranscriptionFailureSignal(error, stage: "transcribe")
             resetProcessingState()
             didResetProcessingState = true
             let message = if case .modelNotLoaded = error {
@@ -2896,6 +2952,7 @@ final class AppCoordinator {
                 throw CancellationError()
             }
             Log.app.error("Note-append transcription failed: \(error)")
+            reportTranscriptionFailureSignal(error, stage: "transcribe")
             resetProcessingState()
             didResetProcessingState = true
             toastService.show(
@@ -2982,6 +3039,7 @@ final class AppCoordinator {
                 throw CancellationError()
             }
             Log.app.error("Transcription failed: \(error)")
+            reportTranscriptionFailureSignal(error, stage: "transcribe")
             resetProcessingState()
             didResetProcessingState = true
             let message = if case .modelNotLoaded = error {
@@ -2998,6 +3056,7 @@ final class AppCoordinator {
                 throw CancellationError()
             }
             Log.app.error("Transcription failed: \(error)")
+            reportTranscriptionFailureSignal(error, stage: "transcribe")
             resetProcessingState()
             didResetProcessingState = true
             toastService.show(
@@ -3367,10 +3426,31 @@ final class AppCoordinator {
 
     private func handleNoSpeechDetected(context: String) {
         Log.app.info("No speech detected for \(context); skipping output")
+        telemetryService.send(
+            .transcriptionEmptyResult,
+            parameters: [
+                TelemetryParameter.stage: context,
+                TelemetryParameter.backend: settingsStore.resolvedTranscriptionBackend.rawValue
+            ]
+        )
         toastService.show(
             ToastPayload(
                 message: "No speech detected. Try speaking closer to your microphone."
             )
+        )
+    }
+
+    /// Reports a transcription failure as a telemetry signal. Only the bare error
+    /// case label and pipeline stage are sent — never messages or paths.
+    private func reportTranscriptionFailureSignal(_ error: Error, stage: String) {
+        telemetryService.send(
+            .transcriptionFailed,
+            parameters: [
+                TelemetryParameter.errorCase: TelemetryService.errorCaseName(error),
+                TelemetryParameter.stage: stage,
+                TelemetryParameter.backend: settingsStore.resolvedTranscriptionBackend.rawValue,
+                TelemetryParameter.model: settingsStore.selectedModel
+            ]
         )
     }
 
@@ -3670,6 +3750,7 @@ final class AppCoordinator {
                 throw CancellationError()
             }
             Log.app.error("Transcription failed: \(error)")
+            reportTranscriptionFailureSignal(error, stage: "transcribe")
             resetProcessingState()
             didResetProcessingState = true
             let message = if case .modelNotLoaded = error {
@@ -3686,6 +3767,7 @@ final class AppCoordinator {
                 throw CancellationError()
             }
             Log.app.error("Transcription failed: \(error)")
+            reportTranscriptionFailureSignal(error, stage: "transcribe")
             resetProcessingState()
             didResetProcessingState = true
             toastService.show(
@@ -3930,6 +4012,13 @@ final class AppCoordinator {
                     throw CancellationError()
                 }
                 Log.app.error("AI enhancement failed: \(error)")
+                telemetryService.send(
+                    .enhancementFailed,
+                    parameters: [
+                        TelemetryParameter.providerKind: transcriptionAssignment.kind.rawValue,
+                        TelemetryParameter.errorCase: TelemetryService.errorCaseName(error)
+                    ]
+                )
                 toastService.show(
                     ToastPayload(
                         message: "AI enhancement failed. Transcription inserted without enhancement.",
@@ -3999,6 +4088,18 @@ final class AppCoordinator {
                 destinationAppName: outputResult?.destinationAppName,
                 destinationAppBundleID: outputResult?.destinationAppBundleID,
                 speakerTrainingSegments: speakerTrainingSegments
+            )
+            telemetryService.send(
+                .transcriptionSucceeded,
+                parameters: [
+                    TelemetryParameter.backend: settingsStore.resolvedTranscriptionBackend.rawValue,
+                    TelemetryParameter.model: settingsStore.selectedModel,
+                    TelemetryParameter.durationBucket: TelemetryService.durationBucket(duration),
+                    TelemetryParameter.wordCountBucket: TelemetryService.wordCountBucket(finalText.wordCount),
+                    TelemetryParameter.enhanced: String(enhancedWithModel != nil),
+                    TelemetryParameter.diarized: String(diarizationSegmentsJSON != nil)
+                ],
+                sampleRate: TelemetryService.successSampleRate
             )
             if let nativeAudio = audioRecorder.takeLastNativeAudio(),
                let nativePCMURL = nativeAudio.takeFileURL() {

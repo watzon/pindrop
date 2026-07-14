@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "API 金鑰已儲存 • 端點：%@"
 app:
   info_acknowledgments_support_and_logs: "應用資訊、致謝、支援和日誌"
+  version_macos_version_hardware_type_which_fe: "App 版本、macOS 版本、硬體類型、使用了哪些功能以及錯誤類別。"
 appearance:
   _self: "外觀"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "更改麥克風"
   microphone_ac9970f4: "更改麥克風"
+  your_choice_anytime_in_settings_privacy: "隨時可在設定 → 隱私權中更改你的選擇。"
 changes:
   the_language_used_by_pindrop_s_interface: "變更 Pindrop 介面使用的語言。"
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "選擇 Pindrop 用於聽寫的麥克風以及錄製時的行為。"
   which_microphone_pindrop_uses_for_dictati: "選擇 Pindrop 用於聽寫的麥克風。"
   which_side_the_navigation_sidebar_appears: "選擇導航側邊欄顯示在哪一側。"
+  where_to_save_the_training_data_file: "選擇訓練資料檔案的儲存位置。"
 clean:
   up_filler_words: "清理填充詞"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "刪除預設？"
   transcription: "刪除轉錄"
   transcription_f82187c4: "刪除轉錄？"
+  all_contributions: "刪除所有貢獻…"
+  all_stored_text_pairs: "刪除所有已儲存的文字配對？"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "匯出失敗：%@"
   last_transcript: "匯出上次轉錄..."
   presets: "匯出預設"
+  jsonl: "匯出 JSONL…"
 failed:
   to_add_replacement: "新增替換失敗：%@"
   to_add_word: "新增詞彙失敗：%@"
@@ -485,6 +491,7 @@ great:
   _self: "很好"
 help:
   _self: "說明"
+  improve_pindrop: "協助改進 Pindrop？"
 hide:
   api_key: "隱藏 API 金鑰"
   this_for_1_hour: "隱藏 1 小時"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "自動保持 Pindrop 最新，或立即檢查新版本。"
   pindrop_current_automatically_or_trigger_a: "自動保持 Pindrop 最新，或隨時觸發手動檢查。"
+  before_and_after_text_pairs_when_ai_enhance: "當 AI 增強或你的編輯改進轉錄時，保留修改前後的文字配對。僅儲存在此 Mac 上 — 不會上傳任何內容。"
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "佈局"
 learn:
   corrected_words_automatically: "自動學習更正的詞彙"
+  more: "瞭解更多"
 left:
   _self: "左側"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "未找到設定"
   transcriptions_yet: "尚無轉錄"
   vocabulary_words: "無詞彙詞"
+  transcripts_audio_prompts_file_names_or_perso: "絕無轉錄、音訊、提示詞、檔案名稱或個人內容 — 永不。"
+  contributions_yet_pairs_are_stored_when_ai_en: "尚無貢獻。當 AI 增強或手動編輯更改轉錄時，將儲存文字配對。"
 not:
   assigned: "未分配"
   enough_voice_data_yet: "語音資料尚不足"
@@ -722,6 +733,7 @@ not:
   selected: "未選擇"
   set: "未設定"
   set_93039e60: "未設定"
+  now: "暫不"
 note:
   _self: "筆記"
   capture_hold: "筆記擷取 — 按住"
@@ -824,6 +836,7 @@ pindrop:
   orb: "Pindrop 光球"
   pill: "Pindrop 膠囊"
   theme: "Pindrop 主題"
+  can_send_anonymous_privacy_preserving_si: "Pindrop 可傳送匿名且保護隱私的訊號，以便更快修正錯誤。"
 pinned:
   _self: "已釘選"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "這會清除包含 API 金鑰在內的所有設定，並重新開始導覽"
   will_permanently_remove_the_transcript_and: "這將永久刪除轉錄及其託管的媒體檔案。"
   will_permanently_remove_this_note: "這將永久移除此筆記。"
+  permanently_deletes_all_stored_text_pairs_f: "此操作將從此 Mac 永久刪除所有已儲存的文字配對。"
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "新功能…"
   s_new_in_pindrop: "Pindrop 的新功能"
+  does_pindrop_collect: "Pindrop 收集哪些資料？"
 while:
   recording: "錄音時"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "一切就緒！"
   re_all_set_058a8130: "一切就緒！"
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\"                 您已超出 API 速率限制或配額。                                  解決方法：                 1. 等待幾分鐘後重試                 2. 檢查您的 API 提供商的使用限制                 3. 考慮升級您的 API 計劃                                  轉錄已儲存，未進行增強。                 \"\""
+  re_in_control: "你掌握控制權"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\"                 您的 API 金鑰似乎無效或已過期。                                  解決方法：                 1. 開啟設定 → AI 增強                 2. 驗證您的 API 金鑰是否正確                 3. 檢查您的 API 端點是否正確                                  轉錄已儲存，未進行增強。                 \"\""
   floating_indicator_is_now_a_living_audio_re: "你的浮動指示器現在是會對音訊反應的活體 orb。閒置時會呼吸，說話時會膨脹，並在你聽寫時即時串流顯示文字。"
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "您的模型已準備好使用。"
   stats: "您的統計"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "你的文字始終屬於你"
 zoom:
   _self: "縮放"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "SenseVoice 轉錄"
   summary: "全新本地引擎、三種新語言，以及對每次聽寫更強的控制力。"
   version_line: "Pindrop 1.21.0 · 2026 年 7 月"
+privacy:
+  _self: "隱私權"
+share:
+  anonymous_usage_data: "共享匿名使用資料"
+  anonymous_diagnostics: "共享匿名診斷"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "匿名診斷與使用訊號。絕不包含轉錄文字、音訊或個人內容。"
+  usage_signals: "匿名使用訊號"
+contribute:
+  transcription_fixes: "貢獻轉錄修正"
+stored:
+  text_pairs: "已儲存的文字配對"
+review:
+  _self: "檢視…"
+training:
+  data: "訓練資料"
+corrected:
+  _self: "已更正"
+edited:
+  _self: "已編輯"

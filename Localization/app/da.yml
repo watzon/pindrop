@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "API-nøgle gemt • Slutpunkt: %@"
 app:
   info_acknowledgments_support_and_logs: "Appinfo, anerkendelser, support og logfiler"
+  version_macos_version_hardware_type_which_fe: "Appversion, macOS-version, hardwaretype, hvilke funktioner der bruges, og fejlkategorier."
 appearance:
   _self: "Udseende"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "Skift mikrofon"
   microphone_ac9970f4: "Skift mikrofon"
+  your_choice_anytime_in_settings_privacy: "Skift dit valg når som helst i Indstillinger → Anonymitet."
 changes:
   the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Vælg hvilken mikrofon Pindrop skal bruge til diktering, og hvordan den opfører sig under optagelse."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
   which_side_the_navigation_sidebar_appears: "Vælg, hvilken side navigationssidebjælken skal vises på."
+  where_to_save_the_training_data_file: "Vælg, hvor træningsdatafilen skal gemmes."
 clean:
   up_filler_words: "Ryd op i fyldord"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "Slet forudindstilling?"
   transcription: "Slet transskription"
   transcription_f82187c4: "Vil du slette transskription?"
+  all_contributions: "Slet alle bidrag…"
+  all_stored_text_pairs: "Slet alle gemte tekstpar?"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "Eksport mislykkedes: %@"
   last_transcript: "Eksporter sidste transskription..."
   presets: "Eksporter forudindstillinger"
+  jsonl: "Eksportér JSONL…"
 failed:
   to_add_replacement: "Kunne ikke tilføje erstatning: %@"
   to_add_word: "Kunne ikke tilføje ord: %@"
@@ -485,6 +491,7 @@ great:
   _self: "Stor"
 help:
   _self: "Hjælp"
+  improve_pindrop: "Vil du hjælpe med at forbedre Pindrop?"
 hide:
   api_key: "Skjul API-nøgle"
   this_for_1_hour: "Skjul dette i 1 time"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
   pindrop_current_automatically_or_trigger_a: "Hold Pindrop aktuel automatisk, eller udløs en manuel kontrol, når du vil."
+  before_and_after_text_pairs_when_ai_enhance: "Behold tekstpar før og efter, når AI-forbedring eller dine redigeringer forbedrer en transskription. Gemmes kun på denne Mac — intet uploades."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "Layout"
 learn:
   corrected_words_automatically: "Lær rettede ord automatisk"
+  more: "Læs mere"
 left:
   _self: "Venstre"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "Ingen indstillinger fundet"
   transcriptions_yet: "Ingen transskriptioner endnu"
   vocabulary_words: "Ingen ordforråd"
+  transcripts_audio_prompts_file_names_or_perso: "Ingen transskriptioner, lyd, prompter, filnavne eller personligt indhold — aldrig."
+  contributions_yet_pairs_are_stored_when_ai_en: "Ingen bidrag endnu. Par gemmes, når AI-forbedring eller manuelle redigeringer ændrer en transskription."
 not:
   assigned: "Ikke tildelt"
   enough_voice_data_yet: "Not enough voice data yet"
@@ -722,6 +733,7 @@ not:
   selected: "Ikke valgt"
   set: "Ikke indstillet"
   set_93039e60: "Ikke indstillet"
+  now: "Ikke nu"
 note:
   _self: "Note"
   capture_hold: "Note Capture — Hold"
@@ -824,6 +836,7 @@ pindrop:
   orb: "Pindrop-kugle"
   pill: "Pindrop pille"
   theme: "Pindrop-tema"
+  can_send_anonymous_privacy_preserving_si: "Pindrop kan sende anonyme, privatlivsbevarende signaler, så fejl rettes hurtigere."
 pinned:
   _self: "Fastgjort"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_the_transcript_and: "Dette vil permanent fjerne transskriptionen og dens administrerede mediefil."
   will_permanently_remove_this_note: "Dette fjerner permanent denne note."
+  permanently_deletes_all_stored_text_pairs_f: "Dette sletter permanent alle gemte tekstpar fra denne Mac."
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "Nyheder…"
   s_new_in_pindrop: "Nyheder i Pindrop"
+  does_pindrop_collect: "Hvad indsamler Pindrop?"
 while:
   recording: "Under optagelse"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "Du er klar!"
   re_all_set_058a8130: "Du er klar!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "\\\"\\\" Du har overskredet din API-hastighedsgrænse eller -kvote.                                  Sådan rettes dette: 1. Vent et par minutter, og prøv igen 2. Tjek din API-udbyders brugsgrænser 3. Overvej at opgradere din API-plan. Transskriptionen blev gemt uden forbedring.                 \\\"\\\""
+  re_in_control: "Du har kontrollen"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\\\"\\\" Din API-nøgle ser ud til at være ugyldig eller udløbet.                                  For at rette dette: 1. Åbn Indstillinger → AI-forbedring 2. Bekræft, at din API-nøgle er korrekt 3. Kontroller, at dit API-slutpunkt er korrekt. Transskriptionen blev gemt uden forbedring.                 \\\"\\\""
   floating_indicator_is_now_a_living_audio_re: "Din flydende indikator er nu en levende, lydreaktiv orb. Den ånder i tomgang, vokser når du taler, og streamer dine ord live mens du dikterer."
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "Din model er klar til brug."
   stats: "Dine statistikker"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "Dine ord forbliver dine"
 zoom:
   _self: "Zoom"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "SenseVoice-transskription"
   summary: "En ny lokal motor, tre nye sprog og mere kontrol over hver diktering."
   version_line: "Pindrop 1.21.0 · juli 2026"
+privacy:
+  _self: "Anonymitet"
+share:
+  anonymous_usage_data: "Del anonyme brugsdata"
+  anonymous_diagnostics: "Del anonym diagnostik"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "Anonym diagnostik og brugssignaler. Aldrig transskriptionstekst, lyd eller personligt indhold."
+  usage_signals: "Anonyme brugssignaler"
+contribute:
+  transcription_fixes: "Bidrag med transskriptionsrettelser"
+stored:
+  text_pairs: "Gemte tekstpar"
+review:
+  _self: "Gennemse…"
+training:
+  data: "Træningsdata"
+corrected:
+  _self: "Rettet"
+edited:
+  _self: "Redigeret"

@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "Đã lưu khóa API • Điểm cuối: %@"
 app:
   info_acknowledgments_support_and_logs: "Thông tin ứng dụng, xác nhận, hỗ trợ và nhật ký"
+  version_macos_version_hardware_type_which_fe: "Phiên bản ứng dụng, phiên bản macOS, loại phần cứng, những tính năng nào được dùng, và danh mục lỗi."
 appearance:
   _self: "Giao diện"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "Thay đổi micrô"
   microphone_ac9970f4: "Thay đổi micrô"
+  your_choice_anytime_in_settings_privacy: "Thay đổi lựa chọn của bạn bất cứ lúc nào trong Cài đặt → Quyền riêng tư."
 changes:
   the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Chọn micrô mà Pindrop sẽ sử dụng để đọc chính tả và cách micrô hoạt động trong khi ghi âm."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
   which_side_the_navigation_sidebar_appears: "Chọn bên nào thanh bên điều hướng sẽ xuất hiện."
+  where_to_save_the_training_data_file: "Chọn nơi lưu tệp dữ liệu huấn luyện."
 clean:
   up_filler_words: "Làm sạch các từ đệm"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "Xóa cài đặt trước?"
   transcription: "Xóa bản chép lời"
   transcription_f82187c4: "Xóa bản chép lời?"
+  all_contributions: "Xóa tất cả đóng góp…"
+  all_stored_text_pairs: "Xóa tất cả cặp văn bản đã lưu?"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "Xuất không thành công: %@"
   last_transcript: "Xuất bản ghi cuối cùng..."
   presets: "Xuất cài đặt trước"
+  jsonl: "Xuất JSONL…"
 failed:
   to_add_replacement: "Không thể thêm thay thế: %@"
   to_add_word: "Không thêm được từ: %@"
@@ -485,6 +491,7 @@ great:
   _self: "Tuyệt"
 help:
   _self: "Trợ giúp"
+  improve_pindrop: "Giúp cải thiện Pindrop?"
 hide:
   api_key: "Ẩn khóa API"
   this_for_1_hour: "Ẩn cái này trong 1 giờ"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
   pindrop_current_automatically_or_trigger_a: "Tự động cập nhật Pindrop hoặc kích hoạt kiểm tra thủ công bất cứ khi nào bạn muốn."
+  before_and_after_text_pairs_when_ai_enhance: "Giữ lại các cặp văn bản trước-và-sau khi cải thiện bằng AI hoặc chỉnh sửa của bạn cải thiện một bản phiên âm. Chỉ lưu trên máy Mac này — không có gì được tải lên."
 key:
   _self: "#%@"
   a979ef10: "null"
@@ -562,6 +570,7 @@ layout:
   _self: "Cách trình bày"
 learn:
   corrected_words_automatically: "Tự động học các từ đã sửa"
+  more: "Tìm hiểu thêm"
 left:
   _self: "Bên trái"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "Không tìm thấy cài đặt nào"
   transcriptions_yet: "Chưa có phiên âm"
   vocabulary_words: "Không có từ vựng"
+  transcripts_audio_prompts_file_names_or_perso: "Không có bản phiên âm, âm thanh, lời nhắc, tên tệp hay nội dung cá nhân — không bao giờ."
+  contributions_yet_pairs_are_stored_when_ai_en: "Chưa có đóng góp nào. Các cặp được lưu khi cải thiện bằng AI hoặc chỉnh sửa thủ công thay đổi một bản phiên âm."
 not:
   assigned: "Chưa được chỉ định"
   enough_voice_data_yet: "Not enough voice data yet"
@@ -722,6 +733,7 @@ not:
   selected: "Không được chọn"
   set: "Chưa đặt"
   set_93039e60: "Chưa đặt"
+  now: "Để sau"
 note:
   _self: "Ghi chú"
   capture_hold: "Note Capture — Hold"
@@ -824,6 +836,7 @@ pindrop:
   orb: "Quả cầu Pindrop"
   pill: "Thuốc nhỏ giọt"
   theme: "Chủ đề ghim"
+  can_send_anonymous_privacy_preserving_si: "Pindrop có thể gửi các tín hiệu ẩn danh, bảo vệ quyền riêng tư để lỗi được sửa nhanh hơn."
 pinned:
   _self: "Đã ghim"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_the_transcript_and: "Thao tác này sẽ xóa vĩnh viễn bản ghi và tệp phương tiện được quản lý của nó."
   will_permanently_remove_this_note: "Thao tác này sẽ xóa vĩnh viễn ghi chú này."
+  permanently_deletes_all_stored_text_pairs_f: "Thao tác này sẽ xóa vĩnh viễn tất cả cặp văn bản đã lưu khỏi máy Mac này."
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "Có gì mới…"
   s_new_in_pindrop: "Có gì mới trong Pindrop"
+  does_pindrop_collect: "Pindrop thu thập những gì?"
 while:
   recording: "Khi ghi âm"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "Bạn đã hoàn tất!"
   re_all_set_058a8130: "Bạn đã hoàn tất!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Bạn đã vượt quá giới hạn hoặc hạn ngạch tốc độ API của mình.                                  Để khắc phục điều này: 1. Đợi vài phút và thử lại 2. Kiểm tra giới hạn sử dụng của nhà cung cấp API của bạn 3. Cân nhắc nâng cấp gói API của bạn Bản ghi đã được lưu mà không cần cải tiến.                 \"\""
+  re_in_control: "Bạn nắm quyền kiểm soát"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" Khóa API của bạn có vẻ không hợp lệ hoặc đã hết hạn.                                  Để khắc phục điều này: 1. Mở Cài đặt → Cải tiến AI 2. Xác minh khóa API của bạn là chính xác 3. Kiểm tra xem điểm cuối API của bạn có đúng không. Bản chép lời đã được lưu mà không cần cải tiến.                 \"\""
   floating_indicator_is_now_a_living_audio_re: "Chỉ báo nổi của bạn giờ là một orb sống động, phản ứng với âm thanh. Nó thở khi rảnh, phồng lên khi bạn nói và truyền trực tiếp lời của bạn khi bạn đọc chính tả."
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "Mô hình của bạn đã sẵn sàng để sử dụng."
   stats: "Số liệu thống kê của bạn"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "Lời của bạn vẫn là của bạn"
 zoom:
   _self: "Phóng to"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "Phiên âm SenseVoice"
   summary: "Một công cụ cục bộ mới, ba ngôn ngữ mới và nhiều quyền kiểm soát hơn đối với mỗi lượt đọc chính tả."
   version_line: "Pindrop 1.21.0 · tháng 7 năm 2026"
+privacy:
+  _self: "Quyền riêng tư"
+share:
+  anonymous_usage_data: "Chia sẻ dữ liệu sử dụng ẩn danh"
+  anonymous_diagnostics: "Chia sẻ chẩn đoán ẩn danh"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "Chẩn đoán và tín hiệu sử dụng ẩn danh. Không bao giờ có văn bản phiên âm, âm thanh hay nội dung cá nhân."
+  usage_signals: "Tín hiệu sử dụng ẩn danh"
+contribute:
+  transcription_fixes: "Đóng góp bản sửa phiên âm"
+stored:
+  text_pairs: "Cặp văn bản đã lưu"
+review:
+  _self: "Xem lại…"
+training:
+  data: "Dữ liệu huấn luyện"
+corrected:
+  _self: "Đã sửa"
+edited:
+  _self: "Đã chỉnh sửa"

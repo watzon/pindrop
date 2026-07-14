@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "บันทึกคีย์ API แล้ว • จุดสิ้นสุด: %@"
 app:
   info_acknowledgments_support_and_logs: "ข้อมูลแอป การรับทราบ การสนับสนุน และบันทึก"
+  version_macos_version_hardware_type_which_fe: "เวอร์ชันแอป เวอร์ชัน macOS ประเภทฮาร์ดแวร์ ฟีเจอร์ที่ใช้ และหมวดหมู่ข้อผิดพลาด"
 appearance:
   _self: "รูปลักษณ์"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "เปลี่ยนไมโครโฟน"
   microphone_ac9970f4: "เปลี่ยนไมโครโฟน"
+  your_choice_anytime_in_settings_privacy: "เปลี่ยนตัวเลือกของคุณได้ทุกเมื่อใน การตั้งค่า → ความเป็นส่วนตัว"
 changes:
   the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "เลือกไมโครโฟน Pindrop ที่ควรใช้สำหรับการเขียนตามคำบอกและวิธีการทำงานของไมโครโฟนขณะบันทึก"
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
   which_side_the_navigation_sidebar_appears: "เลือกด้านที่แถบนำทางด้านข้างจะปรากฏ"
+  where_to_save_the_training_data_file: "เลือกตำแหน่งที่จะบันทึกไฟล์ข้อมูลการฝึก"
 clean:
   up_filler_words: "ทำความสะอาดคำเติม"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "ลบค่าที่ตั้งไว้ล่วงหน้าใช่ไหม"
   transcription: "ลบการถอดเสียงเป็นคำ"
   transcription_f82187c4: "ลบการถอดเสียงเป็นคำใช่ไหม"
+  all_contributions: "ลบการมีส่วนร่วมทั้งหมด…"
+  all_stored_text_pairs: "ลบคู่ข้อความที่จัดเก็บไว้ทั้งหมดหรือไม่"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "การส่งออกล้มเหลว: %@"
   last_transcript: "ส่งออกข้อความถอดเสียงล่าสุด..."
   presets: "ส่งออกค่าที่ตั้งล่วงหน้า"
+  jsonl: "ส่งออก JSONL…"
 failed:
   to_add_replacement: "ไม่สามารถเพิ่มการแทนที่: %@"
   to_add_word: "ไม่สามารถเพิ่มคำ: %@"
@@ -485,6 +491,7 @@ great:
   _self: "ยอดเยี่ยม"
 help:
   _self: "ช่วยเหลือ"
+  improve_pindrop: "ช่วยปรับปรุง Pindrop ไหม"
 hide:
   api_key: "ซ่อนคีย์ API"
   this_for_1_hour: "ซ่อนสิ่งนี้เป็นเวลา 1 ชั่วโมง"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
   pindrop_current_automatically_or_trigger_a: "รักษา Pindrop ให้เป็นปัจจุบันโดยอัตโนมัติ หรือเรียกใช้การตรวจสอบด้วยตนเองทุกครั้งที่คุณต้องการ"
+  before_and_after_text_pairs_when_ai_enhance: "เก็บคู่ข้อความก่อนและหลังเมื่อการปรับปรุงด้วย AI หรือการแก้ไขของคุณทำให้การถอดเสียงดีขึ้น จัดเก็บไว้บน Mac เครื่องนี้เท่านั้น — ไม่มีการอัปโหลดสิ่งใด"
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "เค้าโครง"
 learn:
   corrected_words_automatically: "เรียนรู้คำศัพท์ที่ถูกแก้ไขโดยอัตโนมัติ"
+  more: "เรียนรู้เพิ่มเติม"
 left:
   _self: "ซ้าย"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "ไม่พบการตั้งค่า"
   transcriptions_yet: "ยังไม่มีการถอดเสียงเป็นคำ"
   vocabulary_words: "ไม่มีคำศัพท์"
+  transcripts_audio_prompts_file_names_or_perso: "ไม่มีการถอดเสียง เสียง พรอมต์ ชื่อไฟล์ หรือเนื้อหาส่วนบุคคล — ไม่มีเลย"
+  contributions_yet_pairs_are_stored_when_ai_en: "ยังไม่มีการมีส่วนร่วม คู่ข้อความจะถูกจัดเก็บเมื่อการปรับปรุงด้วย AI หรือการแก้ไขด้วยตนเองเปลี่ยนแปลงการถอดเสียง"
 not:
   assigned: "ไม่ได้รับมอบหมาย"
   enough_voice_data_yet: "Not enough voice data yet"
@@ -722,6 +733,7 @@ not:
   selected: "ไม่ได้เลือก"
   set: "ไม่ได้ตั้งค่า"
   set_93039e60: "ไม่ได้ตั้งค่า"
+  now: "ไว้ก่อน"
 note:
   _self: "บันทึก"
   capture_hold: "Note Capture — Hold"
@@ -824,6 +836,7 @@ pindrop:
   orb: "ออร์บ Pindrop"
   pill: "ยาพินดรอป"
   theme: "ธีมพินดรอป"
+  can_send_anonymous_privacy_preserving_si: "Pindrop สามารถส่งสัญญาณแบบไม่ระบุตัวตนที่ปกป้องความเป็นส่วนตัว เพื่อให้แก้ไขข้อบกพร่องได้เร็วขึ้น"
 pinned:
   _self: "ปักหมุด"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_the_transcript_and: "การดำเนินการนี้จะลบข้อความถอดเสียงและไฟล์สื่อที่มีการจัดการออกอย่างถาวร"
   will_permanently_remove_this_note: "การดำเนินการนี้จะลบบันทึกนี้อย่างถาวร"
+  permanently_deletes_all_stored_text_pairs_f: "การดำเนินการนี้จะลบคู่ข้อความที่จัดเก็บไว้ทั้งหมดออกจาก Mac เครื่องนี้อย่างถาวร"
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "มีอะไรใหม่…"
   s_new_in_pindrop: "มีอะไรใหม่ใน Pindrop"
+  does_pindrop_collect: "Pindrop เก็บข้อมูลอะไรบ้าง"
 while:
   recording: "ขณะบันทึก"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "คุณพร้อมแล้ว!"
   re_all_set_058a8130: "คุณพร้อมแล้ว!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" คุณใช้งานเกินขีดจำกัดอัตรา API หรือโควต้าของคุณ                                  วิธีแก้ไขปัญหานี้: 1. รอสักครู่แล้วลองอีกครั้ง 2. ตรวจสอบขีดจำกัดการใช้งานของผู้ให้บริการ API ของคุณ 3. พิจารณาอัปเกรดแผน API ของคุณ การถอดเสียงได้รับการบันทึกโดยไม่มีการปรับปรุง                 \"\""
+  re_in_control: "คุณเป็นผู้ควบคุม"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" รหัส API ของคุณดูเหมือนจะไม่ถูกต้องหรือหมดอายุแล้ว                                  วิธีแก้ไขปัญหานี้: 1. เปิดการตั้งค่า → การเพิ่มประสิทธิภาพ AI 2. ตรวจสอบคีย์ API ของคุณถูกต้อง 3. ตรวจสอบว่าจุดสิ้นสุด API ของคุณถูกต้อง การถอดเสียงได้รับการบันทึกโดยไม่มีการปรับปรุง                 \"\""
   floating_indicator_is_now_a_living_audio_re: "ตัวบ่งชี้แบบลอยของคุณตอนนี้เป็น orb ที่มีชีวิตและตอบสนองต่อเสียง หายใจเมื่ออยู่นิ่ง ขยายเมื่อคุณพูด และสตรีมคำของคุณแบบสดขณะป้อนตามคำบอก"
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "โมเดลของคุณพร้อมใช้งานแล้ว"
   stats: "สถิติของคุณ"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "คำพูดของคุณยังเป็นของคุณ"
 zoom:
   _self: "ซูม"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "การถอดเสียงด้วย SenseVoice"
   summary: "เครื่องมือประมวลผลในเครื่องใหม่ สามภาษาใหม่ และการควบคุมที่มากขึ้นในทุกการเขียนตามคำบอก"
   version_line: "Pindrop 1.21.0 · กรกฎาคม 2026"
+privacy:
+  _self: "ความเป็นส่วนตัว"
+share:
+  anonymous_usage_data: "แชร์ข้อมูลการใช้งานแบบไม่ระบุตัวตน"
+  anonymous_diagnostics: "แชร์การวินิจฉัยแบบไม่ระบุตัวตน"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "การวินิจฉัยและสัญญาณการใช้งานแบบไม่ระบุตัวตน ไม่มีข้อความถอดเสียง เสียง หรือเนื้อหาส่วนบุคคลเลย"
+  usage_signals: "สัญญาณการใช้งานแบบไม่ระบุตัวตน"
+contribute:
+  transcription_fixes: "มีส่วนร่วมในการแก้ไขการถอดเสียง"
+stored:
+  text_pairs: "คู่ข้อความที่จัดเก็บไว้"
+review:
+  _self: "ตรวจดู…"
+training:
+  data: "ข้อมูลการฝึก"
+corrected:
+  _self: "ปรับแก้แล้ว"
+edited:
+  _self: "แก้ไขแล้ว"

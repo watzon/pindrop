@@ -105,6 +105,30 @@ struct HistoryStoreTests {
     private func requireSQLiteSupport() throws {
     }
 
+    @Test func updateTextAppliesManualEditAndStampsUserEditedAt() throws {
+        let fixture = try makeFixture()
+        let record = try fixture.historyStore.save(text: "helo world", duration: 1.0, modelUsed: "test")
+        #expect(record.userEditedAt == nil)
+
+        try fixture.historyStore.updateText(record, to: "hello world")
+
+        #expect(record.text == "hello world")
+        #expect(record.wordCount == 2)
+        #expect(record.userEditedAt != nil)
+    }
+
+    @Test func updateTextIgnoresUnchangedAndEmptyEdits() throws {
+        let fixture = try makeFixture()
+        let record = try fixture.historyStore.save(text: "hello world", duration: 1.0, modelUsed: "test")
+
+        try fixture.historyStore.updateText(record, to: "hello world")
+        #expect(record.userEditedAt == nil)
+
+        try fixture.historyStore.updateText(record, to: "   ")
+        #expect(record.text == "hello world")
+        #expect(record.userEditedAt == nil)
+    }
+
     @Test func diskBackedMigrationFromV3PreservesExistingTranscriptions() throws {
         try requireSQLiteSupport()
         let directoryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)

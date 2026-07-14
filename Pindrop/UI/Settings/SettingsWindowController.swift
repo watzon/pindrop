@@ -16,6 +16,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     case appearance
     case shortcuts
     case ai
+    case privacy
     case advanced
     case about
 
@@ -28,6 +29,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         case .appearance: return localized("Appearance", locale: locale)
         case .shortcuts: return localized("Shortcuts", locale: locale)
         case .ai: return localized("AI", locale: locale)
+        case .privacy: return localized("Privacy", locale: locale)
         case .advanced: return localized("Advanced", locale: locale)
         case .about: return localized("About", locale: locale)
         }
@@ -40,6 +42,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         case .appearance: return "paintbrush"
         case .shortcuts: return "keyboard"
         case .ai: return "sparkles"
+        case .privacy: return "hand.raised"
         case .advanced: return "wrench.and.screwdriver"
         case .about: return "info.circle"
         }
@@ -96,6 +99,8 @@ struct SettingsPaneContent: View {
             HotkeysSettingsView(settings: settings)
         case .ai:
             AIEnhancementSettingsView(settings: settings)
+        case .privacy:
+            PrivacySettingsView(settings: settings)
         case .advanced:
             MCPSettingsView(settings: settings)
         case .about:

@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "Το κλειδί API αποθηκεύτηκε • Τελικό σημείο: %@"
 app:
   info_acknowledgments_support_and_logs: "Πληροφορίες εφαρμογής, επιβεβαιώσεις, υποστήριξη και αρχεία καταγραφής"
+  version_macos_version_hardware_type_which_fe: "Έκδοση εφαρμογής, έκδοση macOS, τύπος υλικού, ποιες λειτουργίες χρησιμοποιούνται και κατηγορίες σφαλμάτων."
 appearance:
   _self: "Εμφάνιση"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "Αλλαγή μικροφώνου"
   microphone_ac9970f4: "Αλλαγή μικροφώνου"
+  your_choice_anytime_in_settings_privacy: "Αλλάξτε την επιλογή σας ανά πάσα στιγμή στις Ρυθμίσεις → Απόρρητο."
 changes:
   the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Επιλέξτε ποιο μικρόφωνο θα χρησιμοποιεί το Pindrop για υπαγόρευση και πώς θα συμπεριφέρεται κατά την εγγραφή."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
   which_side_the_navigation_sidebar_appears: "Επιλέξτε σε ποια πλευρά θα εμφανίζεται η πλαϊνή γραμμή πλοήγησης."
+  where_to_save_the_training_data_file: "Επιλέξτε πού θα αποθηκευτεί το αρχείο δεδομένων εκπαίδευσης."
 clean:
   up_filler_words: "Καθαρίστε τις λέξεις πλήρωσης"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "Διαγραφή προεπιλογής;"
   transcription: "Διαγραφή μεταγραφής"
   transcription_f82187c4: "Διαγραφή μεταγραφής;"
+  all_contributions: "Διαγραφή όλων των συνεισφορών…"
+  all_stored_text_pairs: "Διαγραφή όλων των αποθηκευμένων ζευγών κειμένου;"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "Η εξαγωγή απέτυχε: %@"
   last_transcript: "Εξαγωγή τελευταίας μεταγραφής..."
   presets: "Εξαγωγή προεπιλογών"
+  jsonl: "Εξαγωγή JSONL…"
 failed:
   to_add_replacement: "Αποτυχία προσθήκης αντικατάστασης: %@"
   to_add_word: "Αποτυχία προσθήκης λέξης: %@"
@@ -485,6 +491,7 @@ great:
   _self: "Μεγάλος"
 help:
   _self: "Βοήθεια"
+  improve_pindrop: "Θέλετε να βοηθήσετε να βελτιωθεί το Pindrop;"
 hide:
   api_key: "Απόκρυψη κλειδιού API"
   this_for_1_hour: "Κρύψτε το για 1 ώρα"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
   pindrop_current_automatically_or_trigger_a: "Διατηρήστε το Pindrop τρέχον αυτόματα ή ενεργοποιήστε έναν μη αυτόματο έλεγχο όποτε θέλετε."
+  before_and_after_text_pairs_when_ai_enhance: "Διατηρήστε ζεύγη κειμένου πριν και μετά όταν η βελτίωση με AI ή οι επεξεργασίες σας βελτιώνουν μια μεταγραφή. Αποθηκεύονται μόνο σε αυτόν τον Mac — τίποτα δεν μεταφορτώνεται."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "Σχέδιο"
 learn:
   corrected_words_automatically: "Μάθετε τις διορθωμένες λέξεις αυτόματα"
+  more: "Μάθετε περισσότερα"
 left:
   _self: "Αριστερά"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "Δεν βρέθηκαν ρυθμίσεις"
   transcriptions_yet: "Δεν υπάρχουν ακόμη μεταγραφές"
   vocabulary_words: "Χωρίς λεξιλογικές λέξεις"
+  transcripts_audio_prompts_file_names_or_perso: "Καμία μεταγραφή, ήχος, προτροπή, όνομα αρχείου ή προσωπικό περιεχόμενο — ποτέ."
+  contributions_yet_pairs_are_stored_when_ai_en: "Δεν υπάρχουν συνεισφορές ακόμη. Τα ζεύγη αποθηκεύονται όταν η βελτίωση με AI ή οι μη αυτόματες επεξεργασίες αλλάζουν μια μεταγραφή."
 not:
   assigned: "Δεν έχει ανατεθεί"
   enough_voice_data_yet: "Not enough voice data yet"
@@ -722,6 +733,7 @@ not:
   selected: "Δεν έχει επιλεγεί"
   set: "Δεν έχει οριστεί"
   set_93039e60: "Δεν έχει οριστεί"
+  now: "Όχι τώρα"
 note:
   _self: "Σημείωμα"
   capture_hold: "Note Capture — Hold"
@@ -824,6 +836,7 @@ pindrop:
   orb: "Σφαίρα Pindrop"
   pill: "Χάπι Pindrop"
   theme: "Θέμα Pindrop"
+  can_send_anonymous_privacy_preserving_si: "Το Pindrop μπορεί να στέλνει ανώνυμα σήματα που προστατεύουν το απόρρητο, ώστε τα σφάλματα να διορθώνονται πιο γρήγορα."
 pinned:
   _self: "Καρφιτσωμένα"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_the_transcript_and: "Αυτό θα καταργήσει οριστικά τη μεταγραφή και το διαχειριζόμενο αρχείο πολυμέσων."
   will_permanently_remove_this_note: "Αυτό θα αφαιρέσει οριστικά αυτή τη σημείωση."
+  permanently_deletes_all_stored_text_pairs_f: "Αυτό διαγράφει οριστικά όλα τα αποθηκευμένα ζεύγη κειμένου από αυτόν τον Mac."
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "Τι νέο υπάρχει…"
   s_new_in_pindrop: "Τι νέο υπάρχει στο Pindrop"
+  does_pindrop_collect: "Τι συλλέγει το Pindrop;"
 while:
   recording: "Κατά την εγγραφή"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "Είστε έτοιμοι!"
   re_all_set_058a8130: "Είστε έτοιμοι!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Έχετε υπερβεί το όριο ή το όριο του ποσοστού API.                                  Για να το διορθώσετε: 1. Περιμένετε λίγα λεπτά και δοκιμάστε ξανά 2. Ελέγξτε τα όρια χρήσης του παρόχου API σας 3. Εξετάστε το ενδεχόμενο να αναβαθμίσετε το σχέδιο API Η μεταγραφή αποθηκεύτηκε χωρίς βελτίωση.                 \"\""
+  re_in_control: "Εσείς έχετε τον έλεγχο"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" Το κλειδί API φαίνεται ότι δεν είναι έγκυρο ή έχει λήξει.                                  Για να το διορθώσετε: 1. Ανοίξτε τις Ρυθμίσεις → Βελτίωση AI 2. Βεβαιωθείτε ότι το κλειδί API είναι σωστό 3. Ελέγξτε ότι το τελικό σημείο του API είναι σωστό Η μεταγραφή αποθηκεύτηκε χωρίς βελτίωση.                 \"\""
   floating_indicator_is_now_a_living_audio_re: "Η αιωρούμενη ένδειξή σας είναι πλέον ένα ζωντανό orb που αντιδρά στον ήχο. Αναπνέει όταν είναι ανενεργό, μεγαλώνει όταν μιλάτε και μεταδίδει ζωντανά τις λέξεις σας καθώς υπαγορεύετε."
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "Το μοντέλο σας είναι έτοιμο για χρήση."
   stats: "Τα στατιστικά σας"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "Τα λόγια σας παραμένουν δικά σας"
 zoom:
   _self: "Ζουμ"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "Μεταγραφή SenseVoice"
   summary: "Μια νέα τοπική μηχανή, τρεις νέες γλώσσες και περισσότερος έλεγχος σε κάθε υπαγόρευση."
   version_line: "Pindrop 1.21.0 · Ιούλιος 2026"
+privacy:
+  _self: "Απόρρητο"
+share:
+  anonymous_usage_data: "Κοινή χρήση ανώνυμων δεδομένων χρήσης"
+  anonymous_diagnostics: "Κοινή χρήση ανώνυμων διαγνωστικών"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "Ανώνυμα διαγνωστικά και σήματα χρήσης. Ποτέ κείμενο μεταγραφής, ήχος ή προσωπικό περιεχόμενο."
+  usage_signals: "Ανώνυμα σήματα χρήσης"
+contribute:
+  transcription_fixes: "Συνεισφορά διορθώσεων μεταγραφής"
+stored:
+  text_pairs: "Αποθηκευμένα ζεύγη κειμένου"
+review:
+  _self: "Επισκόπηση…"
+training:
+  data: "Δεδομένα εκπαίδευσης"
+corrected:
+  _self: "Διορθώθηκε"
+edited:
+  _self: "Επεξεργάστηκε"

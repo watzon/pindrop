@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "API 키가 저장되었습니다. • 엔드포인트: %@"
 app:
   info_acknowledgments_support_and_logs: "앱 정보, 승인, 지원 및 로그"
+  version_macos_version_hardware_type_which_fe: "앱 버전, macOS 버전, 하드웨어 유형, 사용된 기능, 오류 범주."
 appearance:
   _self: "모양"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "마이크 변경"
   microphone_ac9970f4: "마이크 변경"
+  your_choice_anytime_in_settings_privacy: "설정 → 개인정보 보호에서 언제든지 선택을 변경할 수 있습니다."
 changes:
   the_language_used_by_pindrop_s_interface: "Pindrop 인터페이스 언어를 변경합니다."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "받아쓰기에 Pindrop이 사용할 마이크와 녹음하는 동안 마이크가 어떻게 작동하는지 선택하세요."
   which_microphone_pindrop_uses_for_dictati: "받아쓰기에 사용할 마이크를 선택합니다."
   which_side_the_navigation_sidebar_appears: "탐색 사이드바가 표시될 위치를 선택하세요."
+  where_to_save_the_training_data_file: "학습 데이터 파일을 저장할 위치를 선택하세요."
 clean:
   up_filler_words: "필러 단어 정리"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "사전 설정을 삭제하시겠습니까?"
   transcription: "전사 삭제"
   transcription_f82187c4: "스크립트를 삭제하시겠습니까?"
+  all_contributions: "모든 기여 삭제…"
+  all_stored_text_pairs: "저장된 텍스트 쌍을 모두 삭제하시겠어요?"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "내보내기 실패: %@"
   last_transcript: "마지막 기록 내보내기..."
   presets: "사전 설정 내보내기"
+  jsonl: "JSONL 내보내기…"
 failed:
   to_add_replacement: "교체를 추가하지 못했습니다: %@"
   to_add_word: "단어를 추가하지 못했습니다: %@"
@@ -485,6 +491,7 @@ great:
   _self: "엄청난"
 help:
   _self: "도움말"
+  improve_pindrop: "Pindrop 개선을 도우시겠어요?"
 hide:
   api_key: "API 키 숨기기"
   this_for_1_hour: "이것을 1시간 동안 숨기세요"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Pindrop을 자동으로 최신 상태로 유지하거나 지금 새 버전을 확인합니다."
   pindrop_current_automatically_or_trigger_a: "Pindrop을 자동으로 최신 상태로 유지하거나 원할 때마다 수동 검사를 실행하세요."
+  before_and_after_text_pairs_when_ai_enhance: "AI 향상 또는 편집으로 전사가 개선될 때 변경 전후 텍스트 쌍을 보관합니다. 이 Mac에만 저장되며 — 아무것도 업로드되지 않습니다."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "레이아웃"
 learn:
   corrected_words_automatically: "자동으로 수정된 단어를 학습하세요"
+  more: "더 알아보기"
 left:
   _self: "왼쪽"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "설정을 찾을 수 없습니다."
   transcriptions_yet: "아직 스크립트가 없습니다."
   vocabulary_words: "어휘 없음"
+  transcripts_audio_prompts_file_names_or_perso: "전사, 오디오, 프롬프트, 파일 이름, 개인 콘텐츠는 결코 포함되지 않습니다."
+  contributions_yet_pairs_are_stored_when_ai_en: "아직 기여가 없습니다. AI 향상 또는 수동 편집이 전사를 변경하면 쌍이 저장됩니다."
 not:
   assigned: "할당되지 않음"
   enough_voice_data_yet: "아직 음성 데이터가 부족합니다"
@@ -722,6 +733,7 @@ not:
   selected: "선택되지 않음"
   set: "설정되지 않음"
   set_93039e60: "설정되지 않음"
+  now: "나중에"
 note:
   _self: "메모"
   capture_hold: "메모 캡처 — 길게 누르기"
@@ -824,6 +836,7 @@ pindrop:
   orb: "Pindrop 오브"
   pill: "핀드롭 알약"
   theme: "핀드롭 테마"
+  can_send_anonymous_privacy_preserving_si: "Pindrop은 버그를 더 빨리 고칠 수 있도록 익명의 개인정보 보호 신호를 보낼 수 있습니다."
 pinned:
   _self: "고정됨"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "API 키를 포함한 모든 설정을 지우고 온보딩을 다시 시작합니다"
   will_permanently_remove_the_transcript_and: "이렇게 하면 스크립트와 관리되는 미디어 파일이 영구적으로 제거됩니다."
   will_permanently_remove_this_note: "이 메모가 영구적으로 삭제됩니다."
+  permanently_deletes_all_stored_text_pairs_f: "이 작업은 이 Mac에서 저장된 모든 텍스트 쌍을 영구적으로 삭제합니다."
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "새로운 기능…"
   s_new_in_pindrop: "Pindrop의 새로운 기능"
+  does_pindrop_collect: "Pindrop은 무엇을 수집하나요?"
 while:
   recording: "녹음 중"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "모든 준비가 완료되었습니다!"
   re_all_set_058a8130: "모든 준비가 완료되었습니다."
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" API 속도 제한 또는 할당량을 초과했습니다.                                  이 문제를 해결하려면: 1. 몇 분 정도 기다렸다가 다시 시도하십시오. 2. API 공급자의 사용 제한을 확인하십시오. 3. API 계획 업그레이드를 고려하십시오. 스크립트가 향상되지 않고 저장되었습니다.                 \"\""
+  re_in_control: "당신이 제어합니다"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" 귀하의 API 키가 유효하지 않거나 만료된 것 같습니다.                                  이 문제를 해결하려면: 1. 설정 → AI 향상을 엽니다. 2. API 키가 올바른지 확인합니다. 3. API 엔드포인트가 올바른지 확인합니다. 전사가 향상 없이 저장되었습니다.                 \"\""
   floating_indicator_is_now_a_living_audio_re: "이제 플로팅 표시기는 소리에 반응하는 살아 있는 orb입니다. 대기 중에는 숨 쉬고, 말하면 부풀어 오르며, 받아쓰는 동안 단어를 실시간으로 보여줍니다."
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "모델을 사용할 준비가 되었습니다."
   stats: "귀하의 통계"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "당신의 말은 당신의 것입니다"
 zoom:
   _self: "확대/축소"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "SenseVoice 전사"
   summary: "새로운 로컬 엔진, 새로운 언어 3개, 그리고 모든 받아쓰기에 대한 더 강력한 제어 기능."
   version_line: "Pindrop 1.21.0 · 2026년 7월"
+privacy:
+  _self: "개인정보 보호"
+share:
+  anonymous_usage_data: "익명 사용 데이터 공유"
+  anonymous_diagnostics: "익명 진단 공유"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "익명 진단 및 사용 신호. 전사 텍스트, 오디오, 개인 콘텐츠는 절대 포함하지 않습니다."
+  usage_signals: "익명 사용 신호"
+contribute:
+  transcription_fixes: "전사 수정 사항 기여"
+stored:
+  text_pairs: "저장된 텍스트 쌍"
+review:
+  _self: "검토…"
+training:
+  data: "학습 데이터"
+corrected:
+  _self: "수정됨"
+edited:
+  _self: "편집됨"

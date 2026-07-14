@@ -438,6 +438,48 @@ struct SettingsPaneStack<Content: View>: View {
     }
 }
 
+// MARK: - Shared log export flow
+
+extension SettingsLogExport {
+    /// Shared "Export Logs…" flow: prompts for a destination folder, copies all
+    /// log files into a timestamped subfolder, and reveals it in Finder. Used by
+    /// both the Advanced (MCP) and Privacy panes.
+    @MainActor
+    static func presentExportPanel(
+        locale: Locale,
+        onError: @escaping (String) -> Void
+    ) {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
+        panel.prompt = localized("Export", locale: locale)
+        panel.message = localized("Choose a folder to copy Pindrop log files into.", locale: locale)
+        panel.begin { response in
+            guard response == .OK, let destination = panel.url else { return }
+            let logs = logFileURLs(in: Log.logsDirectoryURL)
+            let stamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "-")
+            let folder = destination.appendingPathComponent("Pindrop-Logs-\(stamp)", isDirectory: true)
+            do {
+                try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+                for file in logs {
+                    let target = folder.appendingPathComponent(file.lastPathComponent)
+                    if FileManager.default.fileExists(atPath: target.path) {
+                        try FileManager.default.removeItem(at: target)
+                    }
+                    try FileManager.default.copyItem(at: file, to: target)
+                }
+                NSWorkspace.shared.activateFileViewerSelecting([folder])
+            } catch {
+                Log.ui.error("Failed to export logs: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    onError(error.localizedDescription)
+                }
+            }
+        }
+    }
+}
+
 // MARK: - Window model
 
 @MainActor

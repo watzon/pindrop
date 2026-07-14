@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "Cheia API salvată • Punct final: %@"
 app:
   info_acknowledgments_support_and_logs: "Informații despre aplicație, mulțumiri, asistență și jurnalele"
+  version_macos_version_hardware_type_which_fe: "Versiunea aplicației, versiunea macOS, tipul de hardware, ce funcții sunt utilizate și categoriile de erori."
 appearance:
   _self: "Aspect"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "Schimbați microfonul"
   microphone_ac9970f4: "Schimbați microfonul"
+  your_choice_anytime_in_settings_privacy: "Schimbă-ți alegerea oricând în Setări → Confidențialitate."
 changes:
   the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Alegeți ce microfon ar trebui să folosească Pindrop pentru dictare și cum se comportă în timpul înregistrării."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
   which_side_the_navigation_sidebar_appears: "Alegeți pe ce parte apare bara laterală de navigare."
+  where_to_save_the_training_data_file: "Alege unde să salvezi fișierul cu date de antrenament."
 clean:
   up_filler_words: "Curățați cuvintele de completare"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "Ștergeți presetarea?"
   transcription: "Ștergeți transcrierea"
   transcription_f82187c4: "Ștergeți transcrierea?"
+  all_contributions: "Șterge toate contribuțiile…"
+  all_stored_text_pairs: "Ștergi toate perechile de text stocate?"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "Export eșuat: %@"
   last_transcript: "Exportați ultima transcriere..."
   presets: "Exportați presetări"
+  jsonl: "Exportă JSONL…"
 failed:
   to_add_replacement: "Nu s-a putut adăuga înlocuitorul: %@"
   to_add_word: "Nu s-a putut adăuga cuvântul: %@"
@@ -485,6 +491,7 @@ great:
   _self: "Mare"
 help:
   _self: "Ajutor"
+  improve_pindrop: "Vrei să ajuți la îmbunătățirea Pindrop?"
 hide:
   api_key: "Ascunde cheia API"
   this_for_1_hour: "Ascunde asta timp de 1 oră"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
   pindrop_current_automatically_or_trigger_a: "Păstrați curentul Pindrop în mod automat sau declanșați o verificare manuală oricând doriți."
+  before_and_after_text_pairs_when_ai_enhance: "Păstrează perechile de text înainte și după, când îmbunătățirea prin AI sau modificările tale îmbunătățesc o transcriere. Stocate doar pe acest Mac — nu se încarcă nimic."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "Aspect"
 learn:
   corrected_words_automatically: "Învață cuvintele corectate automat"
+  more: "Află mai multe"
 left:
   _self: "Stânga"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "Nu s-au găsit setări"
   transcriptions_yet: "Nicio transcriere încă"
   vocabulary_words: "Fără cuvinte de vocabular"
+  transcripts_audio_prompts_file_names_or_perso: "Nicio transcriere, audio, prompt, nume de fișier sau conținut personal — niciodată."
+  contributions_yet_pairs_are_stored_when_ai_en: "Nicio contribuție încă. Perechile sunt stocate când îmbunătățirea prin AI sau modificările manuale schimbă o transcriere."
 not:
   assigned: "Nu este atribuit"
   enough_voice_data_yet: "Not enough voice data yet"
@@ -722,6 +733,7 @@ not:
   selected: "Neselectat"
   set: "Nu setat"
   set_93039e60: "Nu setat"
+  now: "Nu acum"
 note:
   _self: "Nota"
   capture_hold: "Note Capture — Hold"
@@ -824,6 +836,7 @@ pindrop:
   orb: "Sfera Pindrop"
   pill: "Pilula Pindrop"
   theme: "Tema Pindrop"
+  can_send_anonymous_privacy_preserving_si: "Pindrop poate trimite semnale anonime, care protejează confidențialitatea, pentru ca erorile să fie remediate mai rapid."
 pinned:
   _self: "Fixate"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_the_transcript_and: "Aceasta va elimina definitiv transcrierea și fișierul media gestionat."
   will_permanently_remove_this_note: "Aceasta va elimina permanent această notă."
+  permanently_deletes_all_stored_text_pairs_f: "Aceasta șterge definitiv toate perechile de text stocate de pe acest Mac."
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "Noutăți…"
   s_new_in_pindrop: "Noutăți în Pindrop"
+  does_pindrop_collect: "Ce colectează Pindrop?"
 while:
   recording: "În timpul înregistrării"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "Ești gata!"
   re_all_set_058a8130: "Sunteți gata!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "„” Ați depășit limita sau cota de rată API.                                  Pentru a remedia acest lucru: 1. Așteptați câteva minute și încercați din nou 2. Verificați limitele de utilizare ale furnizorului dvs. API 3. Luați în considerare actualizarea planului API Transcrierea a fost salvată fără îmbunătățiri.                 \"\""
+  re_in_control: "Tu deții controlul"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "„” Cheia dvs. API pare a fi nevalidă sau a expirat.                                  Pentru a remedia acest lucru: 1. Deschideți Setări → Îmbunătățire AI 2. Verificați cheia dvs. API este corectă 3. Verificați dacă punctul final API este corect Transcrierea a fost salvată fără îmbunătățire.                 \"\""
   floating_indicator_is_now_a_living_audio_re: "Indicatorul tău plutitor este acum un orb viu, reactiv la audio. Respiră când este inactiv, se umflă când vorbești și transmite cuvintele în direct în timp ce dictezi."
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "Modelul dvs. este gata de utilizare."
   stats: "Statisticile tale"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "Cuvintele tale rămân ale tale"
 zoom:
   _self: "Zoom"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "Transcriere SenseVoice"
   summary: "Un motor local nou, trei limbi noi și mai mult control asupra fiecărei dictări."
   version_line: "Pindrop 1.21.0 · iulie 2026"
+privacy:
+  _self: "Confidențialitate"
+share:
+  anonymous_usage_data: "Partajează date de utilizare anonime"
+  anonymous_diagnostics: "Partajează diagnosticări anonime"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "Diagnosticare și semnale de utilizare anonime. Niciodată textul transcrierilor, audio sau conținut personal."
+  usage_signals: "Semnale de utilizare anonime"
+contribute:
+  transcription_fixes: "Contribuie cu corecturi de transcriere"
+stored:
+  text_pairs: "Perechi de text stocate"
+review:
+  _self: "Examinează…"
+training:
+  data: "Date de antrenament"
+corrected:
+  _self: "Corectat"
+edited:
+  _self: "Editat"

@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "تم حفظ مفتاح واجهة برمجة التطبيقات • نقطة النهاية: %@"
 app:
   info_acknowledgments_support_and_logs: "معلومات التطبيق والإقرارات والدعم والسجلات"
+  version_macos_version_hardware_type_which_fe: "إصدار التطبيق وإصدار macOS ونوع الجهاز والميزات المستخدمة وفئات الأخطاء."
 appearance:
   _self: "المظهر"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "تغيير الميكروفون"
   microphone_ac9970f4: "تغيير الميكروفون"
+  your_choice_anytime_in_settings_privacy: "غيّر اختيارك في أي وقت من الإعدادات → الخصوصية."
 changes:
   the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "اختر الميكروفون الذي يجب أن يستخدمه Pindrop للإملاء وكيف يتصرف أثناء التسجيل."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
   which_side_the_navigation_sidebar_appears: "اختر الجانب الذي يظهر عليه شريط التنقل الجانبي."
+  where_to_save_the_training_data_file: "اختر مكان حفظ ملف بيانات التدريب."
 clean:
   up_filler_words: "تنظيف الكلمات الحشو"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "هل تريد حذف الإعداد المسبق؟"
   transcription: "حذف النسخ"
   transcription_f82187c4: "هل تريد حذف تحويل الصوت إلى نص؟"
+  all_contributions: "حذف كل المساهمات…"
+  all_stored_text_pairs: "حذف كل أزواج النصوص المخزَّنة؟"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "فشل التصدير: %@"
   last_transcript: "تصدير النص الأخير..."
   presets: "تصدير الإعدادات المسبقة"
+  jsonl: "تصدير JSONL…"
 failed:
   to_add_replacement: "فشلت إضافة البديل: %@"
   to_add_word: "فشلت إضافة الكلمة: %@"
@@ -485,6 +491,7 @@ great:
   _self: "عظيم"
 help:
   _self: "مساعدة"
+  improve_pindrop: "هل تريد المساعدة في تحسين Pindrop؟"
 hide:
   api_key: "إخفاء مفتاح API"
   this_for_1_hour: "إخفاء هذا لمدة 1 ساعة"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
   pindrop_current_automatically_or_trigger_a: "حافظ على تحديث Pindrop تلقائيًا، أو قم بإجراء فحص يدوي وقتما تشاء."
+  before_and_after_text_pairs_when_ai_enhance: "احتفظ بأزواج النصوص قبل وبعد عندما يحسّن التحسين بالذكاء الاصطناعي أو تعديلاتك نسخًا. تُخزَّن على هذا الـ Mac فقط — لا يتم رفع أي شيء."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "تَخطِيط"
 learn:
   corrected_words_automatically: "تعلم الكلمات المصححة تلقائيا"
+  more: "معرفة المزيد"
 left:
   _self: "غادر"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "لم يتم العثور على إعدادات"
   transcriptions_yet: "لا يوجد نسخ بعد"
   vocabulary_words: "لا توجد كلمات المفردات"
+  transcripts_audio_prompts_file_names_or_perso: "لا نسخ ولا صوت ولا مطالبات ولا أسماء ملفات ولا محتوى شخصي — أبدًا."
+  contributions_yet_pairs_are_stored_when_ai_en: "لا مساهمات بعد. تُخزَّن الأزواج عندما يغيّر التحسين بالذكاء الاصطناعي أو التعديلات اليدوية نسخًا."
 not:
   assigned: "لم يتم تعيينه"
   enough_voice_data_yet: "Not enough voice data yet"
@@ -722,6 +733,7 @@ not:
   selected: "لم يتم التحديد"
   set: "غير محدد"
   set_93039e60: "لم يتم ضبطه"
+  now: "ليس الآن"
 note:
   _self: "ملحوظة"
   capture_hold: "Note Capture — Hold"
@@ -824,6 +836,7 @@ pindrop:
   orb: "كرة Pindrop"
   pill: "حبة بيندروب"
   theme: "موضوع بيندروب"
+  can_send_anonymous_privacy_preserving_si: "يمكن لـ Pindrop إرسال إشارات مجهولة تحافظ على الخصوصية حتى تُصلَح الأخطاء بشكل أسرع."
 pinned:
   _self: "مثبّتة"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_the_transcript_and: "سيؤدي هذا إلى إزالة النص وملف الوسائط المُدار الخاص به نهائيًا."
   will_permanently_remove_this_note: "سيؤدي هذا إلى إزالة هذه الملاحظة نهائيًا."
+  permanently_deletes_all_stored_text_pairs_f: "يؤدي هذا إلى حذف كل أزواج النصوص المخزَّنة نهائيًا من هذا الـ Mac."
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "ما الجديد…"
   s_new_in_pindrop: "ما الجديد في Pindrop"
+  does_pindrop_collect: "ما الذي يجمعه Pindrop؟"
 while:
   recording: "أثناء التسجيل"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "أنت جاهز تمامًا!"
   re_all_set_058a8130: "أنت جاهز تمامًا!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" لقد تجاوزت حد معدل واجهة برمجة التطبيقات (API) أو حصتها.                                  لحل هذه المشكلة: 1. انتظر بضع دقائق وحاول مرة أخرى 2. تحقق من حدود استخدام موفر واجهة برمجة التطبيقات (API) 3. فكر في ترقية خطة واجهة برمجة التطبيقات (API) الخاصة بك تم حفظ النسخ بدون تحسين.                 \"\""
+  re_in_control: "أنت المتحكم"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\" \"يبدو أن مفتاح API الخاص بك غير صالح أو منتهي الصلاحية.                                  لإصلاح ذلك: 1. افتح الإعدادات → تحسين الذكاء الاصطناعي 2. تحقق من صحة مفتاح واجهة برمجة التطبيقات (API) الخاص بك 3. تأكد من صحة نقطة نهاية واجهة برمجة التطبيقات (API) الخاصة بك تم حفظ النسخ بدون تحسين.                 \"\""
   floating_indicator_is_now_a_living_audio_re: "أصبح المؤشر العائم الآن كرة حية تتفاعل مع الصوت. يتنفس أثناء الخمول، ويتمدد عندما تتحدث، ويبث كلماتك مباشرة أثناء الإملاء."
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "النموذج الخاص بك جاهز للاستخدام."
   stats: "احصائياتك"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "كلماتك تبقى ملكك"
 zoom:
   _self: "تكبير/تصغير"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "نسخ SenseVoice"
   summary: "محرك محلي جديد، وثلاث لغات جديدة، والمزيد من التحكم في كل إملاء."
   version_line: "Pindrop 1.21.0 · يوليو 2026"
+privacy:
+  _self: "الخصوصية"
+share:
+  anonymous_usage_data: "مشاركة بيانات الاستخدام المجهولة"
+  anonymous_diagnostics: "مشاركة التشخيصات المجهولة"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "تشخيصات وإشارات استخدام مجهولة. لا يتضمن أبدًا نص النسخ أو الصوت أو المحتوى الشخصي."
+  usage_signals: "إشارات استخدام مجهولة"
+contribute:
+  transcription_fixes: "المساهمة بتصحيحات النسخ"
+stored:
+  text_pairs: "أزواج النصوص المخزَّنة"
+review:
+  _self: "مراجعة…"
+training:
+  data: "بيانات التدريب"
+corrected:
+  _self: "مُصحَّح"
+edited:
+  _self: "مُعدَّل"

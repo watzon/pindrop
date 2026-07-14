@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "API-Schlüssel gespeichert • Endpunkt: %@"
 app:
   info_acknowledgments_support_and_logs: "App-Info, Danksagungen, Support und Protokolle"
+  version_macos_version_hardware_type_which_fe: "App-Version, macOS-Version, Hardwaretyp, welche Funktionen genutzt werden und Fehlerkategorien."
 appearance:
   _self: "Erscheinungsbild"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "Mikrofon wechseln"
   microphone_ac9970f4: "Mikrofon wechseln"
+  your_choice_anytime_in_settings_privacy: "Ändere deine Wahl jederzeit unter Einstellungen → Datenschutz."
 changes:
   the_language_used_by_pindrop_s_interface: "Ändert die Sprache der Pindrop-Oberfläche."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Wählen Sie, welches Mikrofon Pindrop für die Diktierung verwenden soll und wie es sich während der Aufnahme verhält."
   which_microphone_pindrop_uses_for_dictati: "Wähle das Mikrofon, das Pindrop für Diktat verwendet."
   which_side_the_navigation_sidebar_appears: "Wähle, auf welcher Seite die Navigationsleiste angezeigt wird."
+  where_to_save_the_training_data_file: "Wähle, wo die Trainingsdaten-Datei gespeichert werden soll."
 clean:
   up_filler_words: "Füllwörter bereinigen"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "Voreinstellung löschen?"
   transcription: "Transkription löschen"
   transcription_f82187c4: "Transkription löschen?"
+  all_contributions: "Alle Beiträge löschen…"
+  all_stored_text_pairs: "Alle gespeicherten Textpaare löschen?"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "Export fehlgeschlagen: %@"
   last_transcript: "Letzte Transkription exportieren..."
   presets: "Voreinstellungen exportieren"
+  jsonl: "JSONL exportieren…"
 failed:
   to_add_replacement: "Ersatz konnte nicht hinzugefügt werden: %@"
   to_add_word: "Wort konnte nicht hinzugefügt werden: %@"
@@ -485,6 +491,7 @@ great:
   _self: "Großartig"
 help:
   _self: "Hilfe"
+  improve_pindrop: "Pindrop verbessern helfen?"
 hide:
   api_key: "API-Schlüssel ausblenden"
   this_for_1_hour: "Für 1 Stunde ausblenden"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Halte Pindrop automatisch aktuell oder prüfe jetzt auf eine neue Version."
   pindrop_current_automatically_or_trigger_a: "Halten Sie Pindrop automatisch aktuell oder lösen Sie eine manuelle Prüfung aus, wann immer Sie möchten."
+  before_and_after_text_pairs_when_ai_enhance: "Behalte Vorher-Nachher-Textpaare, wenn KI-Verbesserung oder deine Bearbeitungen ein Transkript verbessern. Nur auf diesem Mac gespeichert – nichts wird hochgeladen."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "Layout"
 learn:
   corrected_words_automatically: "Korrigierte Wörter automatisch lernen"
+  more: "Mehr erfahren"
 left:
   _self: "Links"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "Keine Einstellungen gefunden"
   transcriptions_yet: "Noch keine Transkriptionen"
   vocabulary_words: "Keine Vokabelwörter"
+  transcripts_audio_prompts_file_names_or_perso: "Keine Transkripte, kein Audio, keine Prompts, keine Dateinamen und keine persönlichen Inhalte – niemals."
+  contributions_yet_pairs_are_stored_when_ai_en: "Noch keine Beiträge. Paare werden gespeichert, wenn KI-Verbesserung oder manuelle Bearbeitungen ein Transkript ändern."
 not:
   assigned: "Nicht zugewiesen"
   enough_voice_data_yet: "Noch nicht genug Sprachdaten"
@@ -722,6 +733,7 @@ not:
   selected: "Nicht ausgewählt"
   set: "Nicht festgelegt"
   set_93039e60: "Nicht festgelegt"
+  now: "Jetzt nicht"
 note:
   _self: "Notiz"
   capture_hold: "Notizaufnahme — Halten"
@@ -824,6 +836,7 @@ pindrop:
   orb: "Pindrop-Orb"
   pill: "Pindrop-Pille"
   theme: "Pindrop-Thema"
+  can_send_anonymous_privacy_preserving_si: "Pindrop kann anonyme, datenschutzfreundliche Signale senden, damit Fehler schneller behoben werden."
 pinned:
   _self: "Angeheftet"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "Dadurch werden alle Einstellungen inklusive API-Schlüssel gelöscht und die Einführung neu gestartet"
   will_permanently_remove_the_transcript_and: "Dies entfernt die Transkription und ihre verwaltete Mediendatei dauerhaft."
   will_permanently_remove_this_note: "Dies entfernt diese Notiz dauerhaft."
+  permanently_deletes_all_stored_text_pairs_f: "Dadurch werden alle gespeicherten Textpaare dauerhaft von diesem Mac gelöscht."
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "Neuigkeiten…"
   s_new_in_pindrop: "Neu in Pindrop"
+  does_pindrop_collect: "Was erfasst Pindrop?"
 while:
   recording: "Während der Aufnahme"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "Alles bereit!"
   re_all_set_058a8130: "Alles bereit!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\"                 Sie haben Ihr API-Ratenlimit oder Kontingent überschritten.                                  So beheben Sie das:                 1. Warten Sie einige Minuten und versuchen Sie es erneut                 2. Prüfen Sie die Nutzungslimits Ihres API-Anbieters                 3. Erwägen Sie ein Upgrade Ihres API-Plans                                  Die Transkription wurde ohne Verbesserung gespeichert.                 \"\""
+  re_in_control: "Du hast die Kontrolle"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\"                 Ihr API-Schlüssel scheint ungültig oder abgelaufen zu sein.                                  So beheben Sie das:                 1. Öffnen Sie Einstellungen → KI-Verbesserung                 2. Überprüfen Sie, ob Ihr API-Schlüssel korrekt ist                 3. Prüfen Sie, ob Ihr API-Endpunkt korrekt ist                                  Die Transkription wurde ohne Verbesserung gespeichert.                 \"\""
   floating_indicator_is_now_a_living_audio_re: "Deine schwebende Anzeige ist jetzt ein lebendiger, audioreaktiver Orb. Sie atmet im Leerlauf, schwillt an, wenn du sprichst, und streamt deine Wörter live beim Diktieren."
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "Ihr Modell ist bereit zur Verwendung."
   stats: "Ihre Statistiken"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "Deine Worte bleiben deine"
 zoom:
   _self: "Zoomen"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "SenseVoice-Transkription"
   summary: "Eine neue lokale Engine, drei neue Sprachen und mehr Kontrolle über jedes Diktat."
   version_line: "Pindrop 1.21.0 · Juli 2026"
+privacy:
+  _self: "Datenschutz"
+share:
+  anonymous_usage_data: "Anonyme Nutzungsdaten teilen"
+  anonymous_diagnostics: "Anonyme Diagnose teilen"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "Anonyme Diagnose- und Nutzungssignale. Niemals Transkripttext, Audio oder persönliche Inhalte."
+  usage_signals: "Anonyme Nutzungssignale"
+contribute:
+  transcription_fixes: "Transkriptionskorrekturen beitragen"
+stored:
+  text_pairs: "Gespeicherte Textpaare"
+review:
+  _self: "Überprüfen…"
+training:
+  data: "Trainingsdaten"
+corrected:
+  _self: "Korrigiert"
+edited:
+  _self: "Bearbeitet"

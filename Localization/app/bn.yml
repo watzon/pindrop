@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "API কী সংরক্ষিত • শেষবিন্দু: %@"
 app:
   info_acknowledgments_support_and_logs: "অ্যাপের তথ্য, স্বীকৃতি, সমর্থন এবং লগ"
+  version_macos_version_hardware_type_which_fe: "অ্যাপ সংস্করণ, macOS সংস্করণ, হার্ডওয়্যারের ধরন, কোন বৈশিষ্ট্যগুলি ব্যবহৃত হয় এবং ত্রুটির শ্রেণি।"
 appearance:
   _self: "চেহারা"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "মাইক্রোফোন পরিবর্তন করুন"
   microphone_ac9970f4: "মাইক্রোফোন পরিবর্তন করুন"
+  your_choice_anytime_in_settings_privacy: "সেটিংস → গোপনীয়তা-তে যেকোনো সময় আপনার পছন্দ পরিবর্তন করুন।"
 changes:
   the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "ডিক্টেশনের জন্য কোন মাইক্রোফোন Pindrop ব্যবহার করা উচিত এবং রেকর্ডিংয়ের সময় এটি কীভাবে আচরণ করবে তা চয়ন করুন৷"
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
   which_side_the_navigation_sidebar_appears: "নেভিগেশন সাইডবার কোন দিকে প্রদর্শিত হবে তা চয়ন করুন৷"
+  where_to_save_the_training_data_file: "প্রশিক্ষণ ডেটা ফাইলটি কোথায় সংরক্ষণ করবেন তা বেছে নিন।"
 clean:
   up_filler_words: "ফিলার শব্দ পরিষ্কার করুন"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "প্রিসেট মুছবেন?"
   transcription: "ট্রান্সক্রিপশন মুছুন"
   transcription_f82187c4: "ট্রান্সক্রিপশন মুছবেন?"
+  all_contributions: "সব অবদান মুছুন…"
+  all_stored_text_pairs: "সব সংরক্ষিত টেক্সট জোড়া মুছবেন?"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "রপ্তানি ব্যর্থ হয়েছে: %@"
   last_transcript: "শেষ প্রতিলিপি রপ্তানি করুন..."
   presets: "প্রিসেট রপ্তানি করুন"
+  jsonl: "JSONL এক্সপোর্ট করুন…"
 failed:
   to_add_replacement: "প্রতিস্থাপন যোগ করতে ব্যর্থ হয়েছে: %@"
   to_add_word: "শব্দ যোগ করতে ব্যর্থ হয়েছে: %@"
@@ -485,6 +491,7 @@ great:
   _self: "দারুণ"
 help:
   _self: "সহায়তা"
+  improve_pindrop: "Pindrop উন্নত করতে সাহায্য করবেন?"
 hide:
   api_key: "API কী লুকান"
   this_for_1_hour: "এটি 1 ঘন্টার জন্য লুকিয়ে রাখুন"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
   pindrop_current_automatically_or_trigger_a: "Pindrop কে স্বয়ংক্রিয়ভাবে বর্তমান রাখুন, অথবা আপনি যখনই চান একটি ম্যানুয়াল চেক ট্রিগার করুন।"
+  before_and_after_text_pairs_when_ai_enhance: "AI উন্নতি বা আপনার সম্পাদনা কোনো প্রতিলিপি উন্নত করলে আগে-ও-পরের টেক্সট জোড়া রাখুন। শুধুমাত্র এই Mac-এ সংরক্ষিত — কিছুই আপলোড করা হয় না।"
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "লেআউট"
 learn:
   corrected_words_automatically: "স্বয়ংক্রিয়ভাবে সংশোধন করা শব্দ শিখুন"
+  more: "আরও জানুন"
 left:
   _self: "বাম"
 legacy:
@@ -715,6 +724,8 @@ no:
   settings_found: "কোনো সেটিংস পাওয়া যায়নি"
   transcriptions_yet: "এখনও কোন প্রতিলিপি"
   vocabulary_words: "কোন ভোকাবুলারি শব্দ নেই"
+  transcripts_audio_prompts_file_names_or_perso: "কোনো প্রতিলিপি, অডিও, প্রম্পট, ফাইলের নাম বা ব্যক্তিগত কনটেন্ট নয় — কখনও নয়।"
+  contributions_yet_pairs_are_stored_when_ai_en: "এখনও কোনো অবদান নেই। AI উন্নতি বা ম্যানুয়াল সম্পাদনা কোনো প্রতিলিপি পরিবর্তন করলে জোড়া সংরক্ষিত হয়।"
 not:
   assigned: "বরাদ্দ করা হয়নি"
   enough_voice_data_yet: "Not enough voice data yet"
@@ -723,6 +734,7 @@ not:
   selected: "নির্বাচিত হয়নি"
   set: "সেট নয়"
   set_93039e60: "সেট করা হয়নি"
+  now: "এখন নয়"
 note:
   _self: "দ্রষ্টব্য"
   capture_hold: "Note Capture — Hold"
@@ -827,6 +839,7 @@ pindrop:
   orb: "Pindrop অর্ব"
   pill: "পিনড্রপ পিল"
   theme: "পিনড্রপ থিম"
+  can_send_anonymous_privacy_preserving_si: "Pindrop বেনামী, গোপনীয়তা-রক্ষাকারী সিগন্যাল পাঠাতে পারে যাতে বাগ দ্রুত ঠিক হয়।"
 pinned:
   _self: "পিন করা"
 plain:
@@ -1172,6 +1185,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_the_transcript_and: "এটি স্থায়ীভাবে ট্রান্সক্রিপ্ট এবং এর পরিচালিত মিডিয়া ফাইল সরিয়ে দেবে।"
   will_permanently_remove_this_note: "এতে এই নোট স্থায়ীভাবে মুছে যাবে।"
+  permanently_deletes_all_stored_text_pairs_f: "এটি এই Mac থেকে সব সংরক্ষিত টেক্সট জোড়া স্থায়ীভাবে মুছে ফেলে।"
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1468,6 +1482,7 @@ welcome:
 what:
   s_new: "নতুন কী…"
   s_new_in_pindrop: "Pindrop-এ নতুন কী"
+  does_pindrop_collect: "Pindrop কী সংগ্রহ করে?"
 while:
   recording: "রেকর্ডিংয়ের সময়"
 whisperkit:
@@ -1493,6 +1508,7 @@ you:
   re_all_set: "আপনি সম্পূর্ণ প্রস্তুত!"
   re_all_set_058a8130: "আপনি সব প্রস্তুত!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "\" আপনি আপনার API রেট সীমা বা কোটা অতিক্রম করেছেন৷                                  এটি ঠিক করতে: 1. কয়েক মিনিট অপেক্ষা করুন এবং আবার চেষ্টা করুন 2. আপনার API প্রদানকারীর ব্যবহারের সীমা পরীক্ষা করুন 3. আপনার API প্ল্যান আপগ্রেড করার কথা বিবেচনা করুন ট্রান্সক্রিপশনটি বর্ধিতকরণ ছাড়াই সংরক্ষণ করা হয়েছিল৷                 \""
+  re_in_control: "নিয়ন্ত্রণ আপনার হাতে"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\" আপনার API কী অবৈধ বা মেয়াদোত্তীর্ণ বলে মনে হচ্ছে৷                                  এটি ঠিক করতে: 1. সেটিংস খুলুন → AI এনহ্যান্সমেন্ট 2. আপনার API কী সঠিক কিনা যাচাই করুন 3. পরীক্ষা করুন যে আপনার API এন্ডপয়েন্ট সঠিক কিনা ট্রান্সক্রিপশনটি বর্ধিতকরণ ছাড়াই সংরক্ষিত হয়েছে৷                 \""
   floating_indicator_is_now_a_living_audio_re: "আপনার ভাসমান সূচকটি এখন একটি জীবন্ত, অডিও-প্রতিক্রিয়াশীল orb। নিষ্ক্রিয় থাকলে এটি শ্বাস নেয়, আপনি কথা বললে ফুলে ওঠে, এবং ডিক্টেট করার সময় আপনার শব্দ সরাসরি দেখায়।"
@@ -1504,6 +1520,7 @@ your:
   model_is_ready_to_use: "আপনার মডেল ব্যবহারের জন্য প্রস্তুত."
   stats: "আপনার পরিসংখ্যান"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "আপনার কথা আপনারই থাকে"
 zoom:
   _self: "জুম"
 polish:
@@ -1524,3 +1541,23 @@ whatsnew:
   sensevoice_title: "SenseVoice ট্রান্সক্রিপশন"
   summary: "একটি নতুন স্থানীয় ইঞ্জিন, তিনটি নতুন ভাষা, এবং প্রতিটি ডিক্টেশনের উপর আরও নিয়ন্ত্রণ।"
   version_line: "Pindrop 1.21.0 · জুলাই 2026"
+privacy:
+  _self: "গোপনীয়তা"
+share:
+  anonymous_usage_data: "বেনামী ব্যবহারের ডেটা শেয়ার করুন"
+  anonymous_diagnostics: "বেনামী ডায়াগনস্টিকস শেয়ার করুন"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "বেনামী ডায়াগনস্টিকস এবং ব্যবহারের সিগন্যাল। প্রতিলিপির টেক্সট, অডিও বা ব্যক্তিগত কনটেন্ট কখনও নয়।"
+  usage_signals: "বেনামী ব্যবহারের সিগন্যাল"
+contribute:
+  transcription_fixes: "প্রতিলিপির সংশোধন অবদান রাখুন"
+stored:
+  text_pairs: "সংরক্ষিত টেক্সট জোড়া"
+review:
+  _self: "পর্যালোচনা…"
+training:
+  data: "প্রশিক্ষণ ডেটা"
+corrected:
+  _self: "সংশোধিত"
+edited:
+  _self: "সম্পাদিত"

@@ -536,6 +536,22 @@ final class SettingsStore: ObservableObject {
    @AppStorage("lastSeenAnnouncementID", store: SettingsStoreRuntime.appStorageStore)
    var lastSeenAnnouncementID: String = ""
 
+   // MARK: - Privacy & Telemetry
+
+   /// Opt-in anonymous telemetry (Settings → Privacy). Off by default; nothing is
+   /// ever sent until the user explicitly enables it.
+   @AppStorage("telemetryEnabled", store: SettingsStoreRuntime.appStorageStore)
+   var telemetryEnabled: Bool = false
+   /// Highest telemetry consent prompt version the user has answered. Compared to
+   /// `TelemetryConsentService.currentConsentVersion` so a scope change can re-ask.
+   @AppStorage("telemetryConsentPromptVersion", store: SettingsStoreRuntime.appStorageStore)
+   var telemetryConsentPromptVersion: Int = 0
+   /// Opt-in local collection of before/after transcript pairs for future model
+   /// training (Settings → Privacy). Off by default; rows never leave this Mac
+   /// (see ContributionUploader).
+   @AppStorage("trainingDataContributionEnabled", store: SettingsStoreRuntime.appStorageStore)
+   var trainingDataContributionEnabled: Bool = false
+
    // MARK: - MCP Server
 
    @AppStorage("mcpServerEnabled", store: SettingsStoreRuntime.appStorageStore)
@@ -1119,6 +1135,9 @@ final class SettingsStore: ObservableObject {
       hasCompletedOnboarding = false
       currentOnboardingStep = 0
       lastSeenAnnouncementID = ""
+      telemetryEnabled = false
+      telemetryConsentPromptVersion = 0
+      trainingDataContributionEnabled = false
 
       try? deleteAPIEndpoint()
       for provider in AIProvider.allCases {

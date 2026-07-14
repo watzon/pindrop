@@ -21,12 +21,12 @@ struct SchemaV9MigrationTests {
 
         let fetched = try context.fetch(FetchDescriptor<ParticipantProfile>())
         #expect(fetched.first?.embeddingSpaceIdentifier == nil)
-        #expect(TranscriptionRecordSchemaV10.models.contains { $0 == ParticipantProfile.self })
+        #expect(TranscriptionRecordSchemaV11.models.contains { $0 == ParticipantProfile.self })
     }
 
     @Test func migrationPlanIncludesV9ToV10LightweightStage() {
-        #expect(TranscriptionRecordMigrationPlan.schemas.count == 10)
-        #expect(TranscriptionRecordMigrationPlan.stages.count == 9)
+        #expect(TranscriptionRecordMigrationPlan.schemas.contains { $0 == TranscriptionRecordSchemaV9.self })
+        #expect(TranscriptionRecordMigrationPlan.schemas.contains { $0 == TranscriptionRecordSchemaV10.self })
     }
 
     @Test func v9IdentityDataTypesRemainRepresentableInV10() throws {

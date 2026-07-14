@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "API キーが保存されました • エンドポイント: %@"
 app:
   info_acknowledgments_support_and_logs: "アプリ情報、承認、サポート、ログ"
+  version_macos_version_hardware_type_which_fe: "アプリのバージョン、macOS のバージョン、ハードウェアの種類、使用された機能、エラーの分類。"
 appearance:
   _self: "外観"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "マイクを変更する"
   microphone_ac9970f4: "マイクを変更する"
+  your_choice_anytime_in_settings_privacy: "設定 → プライバシー でいつでも選択を変更できます。"
 changes:
   the_language_used_by_pindrop_s_interface: "Pindrop のインターフェース言語を変更します。"
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Pindrop がディクテーションに使用するマイクと、録音中のマイクの動作を選択します。"
   which_microphone_pindrop_uses_for_dictati: "音声入力に使うマイクを選びます。"
   which_side_the_navigation_sidebar_appears: "ナビゲーションサイドバーを表示する側を選択してください。"
+  where_to_save_the_training_data_file: "トレーニングデータファイルの保存先を選択してください。"
 clean:
   up_filler_words: "つなぎ言葉をクリーンアップする"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "プリセットを削除しますか?"
   transcription: "文字起こしの削除"
   transcription_f82187c4: "転写を削除しますか?"
+  all_contributions: "すべての提供データを削除…"
+  all_stored_text_pairs: "保存されたテキストペアをすべて削除しますか？"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "エクスポートに失敗しました: %@"
   last_transcript: "最新のトランスクリプトをエクスポート..."
   presets: "プリセットのエクスポート"
+  jsonl: "JSONL を書き出す…"
 failed:
   to_add_replacement: "置換の追加に失敗しました: %@"
   to_add_word: "単語の追加に失敗しました: %@"
@@ -485,6 +491,7 @@ great:
   _self: "素晴らしい"
 help:
   _self: "ヘルプ"
+  improve_pindrop: "Pindrop の改善に協力しますか？"
 hide:
   api_key: "API キーを隠す"
   this_for_1_hour: "これを1時間非表示にします"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Pindrop を自動更新するか、今すぐ新しいバージョンを確認します。"
   pindrop_current_automatically_or_trigger_a: "Pindrop を自動的に最新の状態に保つことも、必要に応じていつでも手動チェックをトリガーすることもできます。"
+  before_and_after_text_pairs_when_ai_enhance: "AI 強化やあなたの編集で文字起こしが改善されたとき、変更前後のテキストペアを保存します。この Mac にのみ保存され — 何もアップロードされません。"
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "レイアウト"
 learn:
   corrected_words_automatically: "修正された単語を自動的に学習します"
+  more: "詳しく見る"
 left:
   _self: "左"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "設定が見つかりません"
   transcriptions_yet: "転写はまだありません"
   vocabulary_words: "語彙がありません"
+  transcripts_audio_prompts_file_names_or_perso: "文字起こし、音声、プロンプト、ファイル名、個人的な内容は一切ありません — 決して。"
+  contributions_yet_pairs_are_stored_when_ai_en: "まだ提供データはありません。AI 強化または手動編集で文字起こしが変更されると、ペアが保存されます。"
 not:
   assigned: "割り当てられていません"
   enough_voice_data_yet: "音声データがまだ不足しています"
@@ -722,6 +733,7 @@ not:
   selected: "未選択"
   set: "未設定"
   set_93039e60: "未設定"
+  now: "あとで"
 note:
   _self: "注記"
   capture_hold: "ノート録音 — 押し続け"
@@ -824,6 +836,7 @@ pindrop:
   orb: "Pindrop オーブ"
   pill: "ピンドロップピル"
   theme: "ピンドロップのテーマ"
+  can_send_anonymous_privacy_preserving_si: "Pindrop は、バグをより早く修正できるよう、匿名かつプライバシーを保護するシグナルを送信できます。"
 pinned:
   _self: "ピン留め"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "API キーを含むすべての設定を消去し、オンボーディングを再開します"
   will_permanently_remove_the_transcript_and: "これにより、トランスクリプトとその管理対象メディア ファイルが完全に削除されます。"
   will_permanently_remove_this_note: "このメモは完全に削除されます。"
+  permanently_deletes_all_stored_text_pairs_f: "この操作により、保存されたすべてのテキストペアがこの Mac から完全に削除されます。"
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "新機能…"
   s_new_in_pindrop: "Pindrop の新機能"
+  does_pindrop_collect: "Pindrop は何を収集しますか？"
 while:
   recording: "録音中"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "準備は完了です!"
   re_all_set_058a8130: "準備は完了です!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" API レート制限または割り当てを超過しました。                                  これを修正するには: 1. 数分待ってから再試行します。 2. API プロバイダーの使用制限を確認します。 3. API プランのアップグレードを検討してください。 文字起こしは拡張せずに保存されました。                 「」"
+  re_in_control: "あなたがコントロールできます"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" API キーが無効か期限切れのようです。                                  これを修正するには: 1. [設定] → [AI 拡張] を開きます。 2. API キーが正しいことを確認します。 3. API エンドポイントが正しいことを確認します。 文字起こしは拡張なしで保存されました。                 「」"
   floating_indicator_is_now_a_living_audio_re: "フローティングインジケーターは、音声に反応する生きた Orb になりました。待機中は呼吸し、話すとふくらみ、ディクテーション中は言葉をライブで表示します。"
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "モデルを使用する準備ができました。"
   stats: "あなたの統計"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "あなたの言葉はあなたのもの"
 zoom:
   _self: "拡大／縮小"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "SenseVoice文字起こし"
   summary: "新しいローカルエンジン、3つの新しい言語、そして各ディクテーションへのさらなる制御。"
   version_line: "Pindrop 1.21.0 · 2026年7月"
+privacy:
+  _self: "プライバシー"
+share:
+  anonymous_usage_data: "匿名の使用状況データを共有"
+  anonymous_diagnostics: "匿名の診断を共有"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "匿名の診断および使用状況シグナル。文字起こしのテキスト、音声、個人的な内容は一切含みません。"
+  usage_signals: "匿名の使用状況シグナル"
+contribute:
+  transcription_fixes: "文字起こしの修正を提供"
+stored:
+  text_pairs: "保存されたテキストペア"
+review:
+  _self: "確認…"
+training:
+  data: "トレーニングデータ"
+corrected:
+  _self: "修正済み"
+edited:
+  _self: "編集済み"

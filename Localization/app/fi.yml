@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "API-avain tallennettu • Päätepiste: %@"
 app:
   info_acknowledgments_support_and_logs: "Sovellustiedot, kuittaukset, tuki ja lokit"
+  version_macos_version_hardware_type_which_fe: "Sovelluksen versio, macOS-versio, laitteistotyyppi, mitä ominaisuuksia käytetään ja virhekategoriat."
 appearance:
   _self: "Ulkoasu"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "Vaihda mikrofoni"
   microphone_ac9970f4: "Vaihda mikrofoni"
+  your_choice_anytime_in_settings_privacy: "Muuta valintasi milloin tahansa kohdassa Asetukset → Tietosuoja."
 changes:
   the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Valitse, mitä mikrofonia Pindropin tulee käyttää sanelussa ja miten se käyttäytyy tallennuksen aikana."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
   which_side_the_navigation_sidebar_appears: "Valitse, millä puolella navigoinnin sivupalkki näkyy."
+  where_to_save_the_training_data_file: "Valitse, mihin koulutusdatatiedosto tallennetaan."
 clean:
   up_filler_words: "Puhdista täytesanat"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "Poistetaanko esiasetus?"
   transcription: "Poista transkriptio"
   transcription_f82187c4: "Poistetaanko transkriptio?"
+  all_contributions: "Poista kaikki osallistumiset…"
+  all_stored_text_pairs: "Poistetaanko kaikki tallennetut tekstiparit?"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "Vienti epäonnistui: %@"
   last_transcript: "Vie viimeinen transkriptio..."
   presets: "Vie esiasetukset"
+  jsonl: "Vie JSONL…"
 failed:
   to_add_replacement: "Korvaavan tuotteen lisääminen epäonnistui: %@"
   to_add_word: "Sanan lisääminen epäonnistui: %@"
@@ -485,6 +491,7 @@ great:
   _self: "Hienoa"
 help:
   _self: "Ohje"
+  improve_pindrop: "Haluatko auttaa parantamaan Pindropia?"
 hide:
   api_key: "Piilota API-avain"
   this_for_1_hour: "Piilota tämä 1 tunnin ajaksi"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
   pindrop_current_automatically_or_trigger_a: "Pidä Pindrop ajan tasalla automaattisesti tai käynnistä manuaalinen tarkistus milloin haluat."
+  before_and_after_text_pairs_when_ai_enhance: "Säilytä ennen ja jälkeen -tekstiparit, kun tekoälyparannus tai muokkauksesi parantavat transkriptiota. Tallennetaan vain tähän Maciin — mitään ei ladata."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "Layout"
 learn:
   corrected_words_automatically: "Opi korjatut sanat automaattisesti"
+  more: "Lue lisää"
 left:
   _self: "Vasen"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "Asetuksia ei löytynyt"
   transcriptions_yet: "Ei vielä transkriptioita"
   vocabulary_words: "Ei sanastoa"
+  transcripts_audio_prompts_file_names_or_perso: "Ei transkriptioita, ääntä, kehotteita, tiedostonimiä tai henkilökohtaista sisältöä — ei koskaan."
+  contributions_yet_pairs_are_stored_when_ai_en: "Ei vielä osallistumisia. Parit tallennetaan, kun tekoälyparannus tai manuaaliset muokkaukset muuttavat transkriptiota."
 not:
   assigned: "Ei määrätty"
   enough_voice_data_yet: "Not enough voice data yet"
@@ -722,6 +733,7 @@ not:
   selected: "Ei valittu"
   set: "Ei asetettu"
   set_93039e60: "Ei asetettu"
+  now: "Ei nyt"
 note:
   _self: "Huom"
   capture_hold: "Note Capture — Hold"
@@ -824,6 +836,7 @@ pindrop:
   orb: "Pindrop-pallo"
   pill: "Pindrop-pilleri"
   theme: "Pindrop-teema"
+  can_send_anonymous_privacy_preserving_si: "Pindrop voi lähettää anonyymejä, yksityisyyttä suojaavia signaaleja, jotta virheet korjataan nopeammin."
 pinned:
   _self: "Kiinnitetyt"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_the_transcript_and: "Tämä poistaa pysyvästi transkription ja sen hallitun mediatiedoston."
   will_permanently_remove_this_note: "Tämä poistaa muistiinpanon pysyvästi."
+  permanently_deletes_all_stored_text_pairs_f: "Tämä poistaa pysyvästi kaikki tallennetut tekstiparit tästä Macista."
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "Uutta…"
   s_new_in_pindrop: "Uutta Pindropissa"
+  does_pindrop_collect: "Mitä Pindrop kerää?"
 while:
   recording: "Tallennuksen aikana"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "Kaikki on valmista!"
   re_all_set_058a8130: "Kaikki on valmista!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Olet ylittänyt API-nopeusrajoituksen tai -kiintiön.                                  Korjaa tämä seuraavasti: 1. Odota muutama minuutti ja yritä uudelleen 2. Tarkista API-palveluntarjoajasi käyttörajoitukset 3. Harkitse API-suunnitelmasi päivittämistä. Transkriptio tallennettiin ilman parannuksia.                 \"\""
+  re_in_control: "Sinä hallitset"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" API-avaimesi näyttää olevan virheellinen tai vanhentunut.                                  Korjaa tämä seuraavasti: 1. Avaa Asetukset → AI Enhancement 2. Varmista, että API-avaimesi on oikea 3. Tarkista, että API-päätepiste on oikea. Transkriptio tallennettiin ilman parannuksia.                 \"\""
   floating_indicator_is_now_a_living_audio_re: "Kelluva ilmaisimesi on nyt elävä, ääneen reagoiva orb. Se hengittää levossa, kasvaa kun puhut ja näyttää sanasi suorana sanelun aikana."
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "Mallisi on käyttövalmis."
   stats: "Omat tilastot"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "Sanasi pysyvät sinun"
 zoom:
   _self: "Zoomaa"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "SenseVoice-transkriptio"
   summary: "Uusi paikallinen moottori, kolme uutta kieltä ja enemmän hallintaa jokaiseen saneluun."
   version_line: "Pindrop 1.21.0 · heinäkuu 2026"
+privacy:
+  _self: "Tietosuoja"
+share:
+  anonymous_usage_data: "Jaa anonyymit käyttötiedot"
+  anonymous_diagnostics: "Jaa anonyymi diagnostiikka"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "Anonyymit diagnostiikka- ja käyttösignaalit. Ei koskaan transkriptiotekstiä, ääntä tai henkilökohtaista sisältöä."
+  usage_signals: "Anonyymit käyttösignaalit"
+contribute:
+  transcription_fixes: "Osallistu transkription korjauksiin"
+stored:
+  text_pairs: "Tallennetut tekstiparit"
+review:
+  _self: "Tarkista…"
+training:
+  data: "Koulutusdata"
+corrected:
+  _self: "Korjattu"
+edited:
+  _self: "Muokattu"

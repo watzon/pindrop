@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "API-kulcs mentve • Végpont: %@"
 app:
   info_acknowledgments_support_and_logs: "Alkalmazásinformációk, visszaigazolások, támogatás és naplók"
+  version_macos_version_hardware_type_which_fe: "Alkalmazásverzió, macOS-verzió, hardvertípus, mely funkciókat használják, és hibakategóriák."
 appearance:
   _self: "Megjelenés"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "Mikrofon váltás"
   microphone_ac9970f4: "Mikrofon csere"
+  your_choice_anytime_in_settings_privacy: "Módosítsd a döntésed bármikor itt: Beállítások → Adatvédelem."
 changes:
   the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Válassza ki, hogy a Pindrop melyik mikrofont használja a diktáláshoz, és hogyan viselkedjen felvétel közben."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
   which_side_the_navigation_sidebar_appears: "Válassza ki, hogy a navigációs oldalsáv melyik oldalon jelenjen meg."
+  where_to_save_the_training_data_file: "Válaszd ki, hová mentsük a betanítási adatfájlt."
 clean:
   up_filler_words: "Tisztítsa meg a töltelékszavakat"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "Törli az előbeállítást?"
   transcription: "Az átírás törlése"
   transcription_f82187c4: "Törli az átírást?"
+  all_contributions: "Összes hozzájárulás törlése…"
+  all_stored_text_pairs: "Törlöd az összes tárolt szövegpárt?"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "Az exportálás sikertelen: %@"
   last_transcript: "Utolsó átirat exportálása..."
   presets: "Előbeállítások exportálása"
+  jsonl: "JSONL exportálása…"
 failed:
   to_add_replacement: "Csere hozzáadása sikertelen: %@"
   to_add_word: "Nem sikerült hozzáadni a szót: %@"
@@ -485,6 +491,7 @@ great:
   _self: "Nagy"
 help:
   _self: "Súgó"
+  improve_pindrop: "Segít jobbá tenni a Pindropot?"
 hide:
   api_key: "API-kulcs elrejtése"
   this_for_1_hour: "Rejtse el ezt 1 órán keresztül"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
   pindrop_current_automatically_or_trigger_a: "Tartsa Pindrop automatikusan aktuális, vagy indítson el egy kézi ellenőrzést, amikor csak akarja."
+  before_and_after_text_pairs_when_ai_enhance: "Őrizd meg az előtte-utána szövegpárokat, amikor az AI-fejlesztés vagy a szerkesztéseid javítanak egy átiraton. Csak ezen a Mac gépen tárolva — semmi sem kerül feltöltésre."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "Elrendezés"
 learn:
   corrected_words_automatically: "Tanulja meg automatikusan a javított szavakat"
+  more: "További információ"
 left:
   _self: "Balra"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "Nem találhatók beállítások"
   transcriptions_yet: "Még nincsenek átiratok"
   vocabulary_words: "Nincs szótár"
+  transcripts_audio_prompts_file_names_or_perso: "Se átiratok, se hang, se promptok, se fájlnevek, se személyes tartalom — soha."
+  contributions_yet_pairs_are_stored_when_ai_en: "Még nincsenek hozzájárulások. A párok akkor tárolódnak, amikor az AI-fejlesztés vagy kézi szerkesztések megváltoztatnak egy átiratot."
 not:
   assigned: "Nincs hozzárendelve"
   enough_voice_data_yet: "Not enough voice data yet"
@@ -722,6 +733,7 @@ not:
   selected: "Nincs kiválasztva"
   set: "Nincs beállítva"
   set_93039e60: "Nincs beállítva"
+  now: "Most nem"
 note:
   _self: "Jegyzet"
   capture_hold: "Note Capture — Hold"
@@ -824,6 +836,7 @@ pindrop:
   orb: "Pindrop-gömb"
   pill: "Pindrop Tabletta"
   theme: "Pindrop téma"
+  can_send_anonymous_privacy_preserving_si: "A Pindrop névtelen, adatvédelmet tiszteletben tartó jelzéseket küldhet, hogy a hibák gyorsabban elháruljanak."
 pinned:
   _self: "Kitűzött"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_the_transcript_and: "Ezzel véglegesen eltávolítja az átiratot és a kezelt médiafájlt."
   will_permanently_remove_this_note: "Ezzel véglegesen törli a jegyzetet."
+  permanently_deletes_all_stored_text_pairs_f: "Ezzel véglegesen törlődik az összes tárolt szövegpár erről a Mac gépről."
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "Újdonságok…"
   s_new_in_pindrop: "Újdonságok a Pindropban"
+  does_pindrop_collect: "Mit gyűjt a Pindrop?"
 while:
   recording: "Felvétel közben"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "Minden készen áll!"
   re_all_set_058a8130: "Minden készen áll!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Túllépte az API-rátakorlátot vagy -kvótát.                                  A probléma megoldása: 1. Várjon néhány percet, majd próbálja újra 2. Ellenőrizze API-szolgáltatója használati korlátait. 3. Fontolja meg API-tervének frissítését. Az átírást javítás nélkül mentettük.                 \"\""
+  re_in_control: "Tiéd az irányítás"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" Úgy tűnik, hogy az API-kulcs érvénytelen vagy lejárt.                                  A hiba javítása: 1. Nyissa meg a Beállítások → AI-bővítés menüpontot. 2. Ellenőrizze, hogy az API-kulcs helyes-e.                 \"\""
   floating_indicator_is_now_a_living_audio_re: "A lebegő jelző mostantól élő, hangra reagáló orb. Tétlenül lélegzik, beszéd közben megduzzad, és diktálás közben élőben közvetíti a szavaidat."
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "A modell használatra kész."
   stats: "Az Ön statisztikái"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "A szavaid a tieid maradnak"
 zoom:
   _self: "Nagyítás"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "SenseVoice átírás"
   summary: "Egy új helyi motor, három új nyelv, és nagyobb kontroll minden diktálás felett."
   version_line: "Pindrop 1.21.0 · 2026. július"
+privacy:
+  _self: "Adatvédelem"
+share:
+  anonymous_usage_data: "Névtelen használati adatok megosztása"
+  anonymous_diagnostics: "Névtelen diagnosztika megosztása"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "Névtelen diagnosztikai és használati jelzések. Soha nem átirat szövege, hang vagy személyes tartalom."
+  usage_signals: "Névtelen használati jelzések"
+contribute:
+  transcription_fixes: "Átirat-javítások beküldése"
+stored:
+  text_pairs: "Tárolt szövegpárok"
+review:
+  _self: "Áttekintés…"
+training:
+  data: "Betanítási adatok"
+corrected:
+  _self: "Javítva"
+edited:
+  _self: "Szerkesztve"

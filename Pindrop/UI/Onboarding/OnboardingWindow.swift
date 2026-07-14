@@ -243,6 +243,7 @@ struct OnboardingWindow: View {
                 
             case .permissions:
                 PermissionsStepView(
+                    settings: settings,
                     permissionManager: permissionManager,
                     onContinue: { goToStep(.hotkeySetup) }
                 )
@@ -311,6 +312,9 @@ struct OnboardingWindow: View {
         settings.selectedModel = selectedModelName
         settings.hasCompletedOnboarding = true
         settings.currentOnboardingStep = 0
+        // The permissions step presented the telemetry toggle, so fresh installs
+        // never also get the standalone consent prompt.
+        TelemetryConsentService.markConsentHandledDuringOnboarding(settings: settings)
         onComplete()
     }
 }

@@ -12,6 +12,10 @@ import FluidAudio
 @MainActor
 @Observable
 class ModelManager {
+    /// Optional telemetry peer, injected by AppCoordinator after construction.
+    /// Download start/failure signals are dropped entirely when nil or opted out.
+    @ObservationIgnored var telemetryService: TelemetryService?
+
     nonisolated static let englishRecommendedModelNames = [
         "apple_speech_on_device",
         "openai_whisper-base.en",
@@ -849,22 +853,37 @@ class ModelManager {
         
         Log.boot.info("ModelManager.downloadModel begin name=\(modelName) provider=\(model.provider.rawValue)")
         let downloadWallClock = CFAbsoluteTimeGetCurrent()
-        
+
         isDownloading = true
         currentDownloadModel = modelName
         clearDownloadState(resetProgress: true)
-        
+
         defer {
             isDownloading = false
             currentDownloadModel = nil
         }
-        
-        if model.provider == .parakeet {
-            try await downloadParakeetModel(named: modelName, onProgress: onProgress)
-        } else if model.provider == .senseVoice {
-            try await downloadSenseVoiceModel(named: modelName, onProgress: onProgress)
-        } else {
-            try await downloadWhisperKitModel(named: modelName, onProgress: onProgress)
+
+        telemetryService?.send(
+            .modelDownloadStarted,
+            parameters: [TelemetryParameter.model: modelName]
+        )
+        do {
+            if model.provider == .parakeet {
+                try await downloadParakeetModel(named: modelName, onProgress: onProgress)
+            } else if model.provider == .senseVoice {
+                try await downloadSenseVoiceModel(named: modelName, onProgress: onProgress)
+            } else {
+                try await downloadWhisperKitModel(named: modelName, onProgress: onProgress)
+            }
+        } catch {
+            telemetryService?.send(
+                .modelDownloadFailed,
+                parameters: [
+                    TelemetryParameter.model: modelName,
+                    TelemetryParameter.errorCase: TelemetryService.errorCaseName(error)
+                ]
+            )
+            throw error
         }
         Log.boot.info("ModelManager.downloadModel finished OK name=\(modelName) wallClock=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - downloadWallClock))")
     }

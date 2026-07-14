@@ -86,6 +86,7 @@ api:
   key_saved_endpoint: "API-nyckel sparad • Slutpunkt: %@"
 app:
   info_acknowledgments_support_and_logs: "Appinformation, bekräftelser, support och loggar"
+  version_macos_version_hardware_type_which_fe: "Appversion, macOS-version, hårdvarutyp, vilka funktioner som används och felkategorier."
 appearance:
   _self: "Utseende"
 append:
@@ -149,6 +150,7 @@ capture:
 change:
   microphone: "Byt mikrofon"
   microphone_ac9970f4: "Byt mikrofon"
+  your_choice_anytime_in_settings_privacy: "Ändra ditt val när som helst i Inställningar → Integritet."
 changes:
   the_language_used_by_pindrop_s_interface: "Changes the language used by Pindrop's interface."
 check:
@@ -181,6 +183,7 @@ choose:
   which_microphone_pindrop_should_use_for_d: "Välj vilken mikrofon Pindrop ska använda för diktering och hur den beter sig under inspelning."
   which_microphone_pindrop_uses_for_dictati: "Choose which microphone Pindrop uses for dictation."
   which_side_the_navigation_sidebar_appears: "Välj vilken sida navigeringssidofältet ska visas på."
+  where_to_save_the_training_data_file: "Välj var träningsdatafilen ska sparas."
 clean:
   up_filler_words: "Rensa upp utfyllnadsord"
 clear:
@@ -303,6 +306,8 @@ delete:
   preset_4f6cfe36: "Ta bort förinställning?"
   transcription: "Ta bort transkription"
   transcription_f82187c4: "Ta bort transkription?"
+  all_contributions: "Radera alla bidrag…"
+  all_stored_text_pairs: "Radera alla lagrade textpar?"
 destinations:
   _self: "Destinations"
 diarization:
@@ -408,6 +413,7 @@ export:
   failed: "Export misslyckades: %@"
   last_transcript: "Exportera senaste transkription..."
   presets: "Exportera förinställningar"
+  jsonl: "Exportera JSONL…"
 failed:
   to_add_replacement: "Det gick inte att lägga till ersättning: %@"
   to_add_word: "Det gick inte att lägga till ordet: %@"
@@ -485,6 +491,7 @@ great:
   _self: "Stor"
 help:
   _self: "Hjälp"
+  improve_pindrop: "Vill du hjälpa till att förbättra Pindrop?"
 hide:
   api_key: "Dölj API-nyckel"
   this_for_1_hour: "Göm detta i 1 timme"
@@ -540,6 +547,7 @@ japanese:
 keep:
   pindrop_current_automatically_or_check_for: "Keep Pindrop current automatically, or check for a new version now."
   pindrop_current_automatically_or_trigger_a: "Håll Pindrop aktuell automatiskt eller utlös en manuell kontroll när du vill."
+  before_and_after_text_pairs_when_ai_enhance: "Behåll textpar före och efter när AI-förbättring eller dina redigeringar förbättrar en transkription. Lagras endast på den här Mac-datorn — inget laddas upp."
 key:
   _self: "#%@"
   a979ef10: "+"
@@ -562,6 +570,7 @@ layout:
   _self: "Layout"
 learn:
   corrected_words_automatically: "Lär dig korrigerade ord automatiskt"
+  more: "Läs mer"
 left:
   _self: "Vänster"
 legacy:
@@ -714,6 +723,8 @@ no:
   settings_found: "Inga inställningar hittades"
   transcriptions_yet: "Inga transkriptioner ännu"
   vocabulary_words: "Inga ordförråd"
+  transcripts_audio_prompts_file_names_or_perso: "Inga transkriptioner, ljud, prompter, filnamn eller personligt innehåll — aldrig."
+  contributions_yet_pairs_are_stored_when_ai_en: "Inga bidrag ännu. Par lagras när AI-förbättring eller manuella redigeringar ändrar en transkription."
 not:
   assigned: "Ej tilldelad"
   enough_voice_data_yet: "Not enough voice data yet"
@@ -722,6 +733,7 @@ not:
   selected: "Ej vald"
   set: "Ej inställd"
   set_93039e60: "Inte inställt"
+  now: "Inte nu"
 note:
   _self: "Notera"
   capture_hold: "Note Capture — Hold"
@@ -824,6 +836,7 @@ pindrop:
   orb: "Pindrop-kula"
   pill: "Pindrop piller"
   theme: "Pindrop-tema"
+  can_send_anonymous_privacy_preserving_si: "Pindrop kan skicka anonyma, integritetsbevarande signaler så att buggar åtgärdas snabbare."
 pinned:
   _self: "Fästa"
 plain:
@@ -1165,6 +1178,7 @@ this:
   will_clear_all_your_settings_including_api_8cd9a6fb: "This will clear all your settings including API keys and restart onboarding"
   will_permanently_remove_the_transcript_and: "Detta tar permanent bort transkriptionen och dess hanterade mediefil."
   will_permanently_remove_this_note: "Detta tar bort anteckningen permanent."
+  permanently_deletes_all_stored_text_pairs_f: "Detta raderar permanent alla lagrade textpar från den här Mac-datorn."
 time:
   of_day: "Time of day"
   range: "Time range"
@@ -1461,6 +1475,7 @@ welcome:
 what:
   s_new: "Nyheter…"
   s_new_in_pindrop: "Nyheter i Pindrop"
+  does_pindrop_collect: "Vad samlar Pindrop in?"
 while:
   recording: "Under inspelning"
 whisperkit:
@@ -1486,6 +1501,7 @@ you:
   re_all_set: "Du är klar!"
   re_all_set_058a8130: "Du är redo!"
   ve_exceeded_your_api_rate_limit_or_quota_to: "\"\" Du har överskridit din API-hastighetsgräns eller -kvot.                                  För att åtgärda detta: 1. Vänta några minuter och försök igen 2. Kontrollera din API-leverantörs användningsgränser 3. Överväg att uppgradera din API-plan. Transkriptionen sparades utan förbättring.                 \"\""
+  re_in_control: "Du har kontrollen"
 your:
   api_key_appears_to_be_invalid_or_expired_to: "\"\" Din API-nyckel verkar vara ogiltig eller har upphört att gälla.                                  För att åtgärda detta: 1. Öppna Inställningar → AI Enhancement 2. Kontrollera att din API-nyckel är korrekt 3. Kontrollera att din API-slutpunkt är korrekt. Transkriptionen sparades utan förbättring.                 \"\""
   floating_indicator_is_now_a_living_audio_re: "Din flytande indikator är nu en levande, ljudreaktiv orb. Den andas i vila, växer när du pratar och strömmar dina ord live medan du dikterar."
@@ -1496,6 +1512,7 @@ your:
   model_is_ready_to_use: "Din modell är redo att användas."
   stats: "Din statistik"
   stats_will_appear_after_you_create_transcri: "Your stats will appear after you create transcriptions."
+  words_stay_yours: "Dina ord förblir dina"
 zoom:
   _self: "Zooma"
 polish:
@@ -1516,3 +1533,23 @@ whatsnew:
   sensevoice_title: "SenseVoice-transkription"
   summary: "En ny lokal motor, tre nya språk och mer kontroll över varje diktering."
   version_line: "Pindrop 1.21.0 · juli 2026"
+privacy:
+  _self: "Integritet"
+share:
+  anonymous_usage_data: "Dela anonyma användningsdata"
+  anonymous_diagnostics: "Dela anonym diagnostik"
+anonymous:
+  diagnostics_and_usage_signals_never_tr: "Anonym diagnostik och användningssignaler. Aldrig transkriptionstext, ljud eller personligt innehåll."
+  usage_signals: "Anonyma användningssignaler"
+contribute:
+  transcription_fixes: "Bidra med transkriptionsrättelser"
+stored:
+  text_pairs: "Lagrade textpar"
+review:
+  _self: "Granska…"
+training:
+  data: "Träningsdata"
+corrected:
+  _self: "Rättad"
+edited:
+  _self: "Redigerad"

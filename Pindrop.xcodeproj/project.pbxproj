@@ -84,6 +84,22 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		AIMODELSERVICEBUILD01A2B3C4D5E6F /* AIModelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIMODELSERVICEFILE01A2B3C4D5E6F /* AIModelService.swift */; };
 		ANNOUNCEBUILD01A2B3C4D5E6F /* Announcement.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANNOUNCEFILE01A2B3C4D5E6F /* Announcement.swift */; };
 		ANNSVCBUILD01A2B3C4D5E6F /* AnnouncementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ANNSVCFILE01A2B3C4D5E6F /* AnnouncementService.swift */; };
+		TELEMEVTBUILD01A2B3C4D5E6F /* TelemetryEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = TELEMEVTFILE01A2B3C4D5E6F /* TelemetryEvents.swift */; };
+		TELEMSVCBUILD01A2B3C4D5E6F /* TelemetryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = TELEMSVCFILE01A2B3C4D5E6F /* TelemetryService.swift */; };
+		TELEMCONSVCBUILD01A2B3C4D5E6F /* TelemetryConsentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = TELEMCONSVCFILE01A2B3C4D5E6F /* TelemetryConsentService.swift */; };
+		TELEMCONVIEWBUILD01A2B3C4D5E6F /* TelemetryConsentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = TELEMCONVIEWFILE01A2B3C4D5E6F /* TelemetryConsentView.swift */; };
+		TELEMCONWINBUILD01A2B3C4D5E6F /* TelemetryConsentWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = TELEMCONWINFILE01A2B3C4D5E6F /* TelemetryConsentWindowController.swift */; };
+		PRIVSETVIEWBUILD01A2B3C4D5E6F /* PrivacySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = PRIVSETVIEWFILE01A2B3C4D5E6F /* PrivacySettingsView.swift */; };
+		TELEMSVCTESTBUILD01A2B3C4D5E6F /* TelemetryServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TELEMSVCTESTFILE01A2B3C4D5E6F /* TelemetryServiceTests.swift */; };
+		TELEMCONTESTBUILD01A2B3C4D5E6F /* TelemetryConsentServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TELEMCONTESTFILE01A2B3C4D5E6F /* TelemetryConsentServiceTests.swift */; };
+		TRAINCONTRIBBUILD01A2B3C4D5E6F /* TrainingContribution.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRAINCONTRIBFILE01A2B3C4D5E6F /* TrainingContribution.swift */; };
+		TRAINREDACTBUILD01A2B3C4D5E6F /* TrainingTextRedactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRAINREDACTFILE01A2B3C4D5E6F /* TrainingTextRedactor.swift */; };
+		CONTRIBSVCBUILD01A2B3C4D5E6F /* ContributionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CONTRIBSVCFILE01A2B3C4D5E6F /* ContributionService.swift */; };
+		CONTRIBUPLDBUILD01A2B3C4D5E6F /* ContributionUploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CONTRIBUPLDFILE01A2B3C4D5E6F /* ContributionUploader.swift */; };
+		SCHEMAV11TESTBUILD01A2B3C4D5E6F /* SchemaV11MigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHEMAV11TESTFILE01A2B3C4D5E6F /* SchemaV11MigrationTests.swift */; };
+		TRAINREDACTTESTBUILD01A2B3C4D5F /* TrainingTextRedactorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRAINREDACTTESTFILE01A2B3C4D5EF /* TrainingTextRedactorTests.swift */; };
+		CONTRIBSVCTESTBUILD01A2B3C4D5EF /* ContributionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CONTRIBSVCTESTFILE01A2B3C4D5E6F /* ContributionServiceTests.swift */; };
+		TELEMETRYDECKBUILD01A2B3C4D5EF /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = TELEMETRYDECKDEP01A2B3C4D5E6F /* TelemetryDeck */; };
 		MUTEMONBUILD01A2B3C4D5E6F /* InputMuteMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = MUTEMONFILE01A2B3C4D5E6F /* InputMuteMonitor.swift */; };
 		AIADAPTEXTBUILD01A2B3C4D5E /* SettingsStore+AIEnhancementAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIADAPTEXTFILE01A2B3C4D5E /* SettingsStore+AIEnhancementAdapter.swift */; };
 		AIADAPTTESTBUILD01A2B3C4D5 /* AIEnhancementAdapterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AIADAPTTESTFILE01A2B3C4D5 /* AIEnhancementAdapterTests.swift */; };
@@ -367,6 +383,21 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		AIMODELSERVICEFILE01A2B3C4D5E6F /* AIModelService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIModelService.swift; sourceTree = "<group>"; };
 		ANNOUNCEFILE01A2B3C4D5E6F /* Announcement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Announcement.swift; sourceTree = "<group>"; };
 		ANNSVCFILE01A2B3C4D5E6F /* AnnouncementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnouncementService.swift; sourceTree = "<group>"; };
+		TELEMEVTFILE01A2B3C4D5E6F /* TelemetryEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryEvents.swift; sourceTree = "<group>"; };
+		TELEMSVCFILE01A2B3C4D5E6F /* TelemetryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryService.swift; sourceTree = "<group>"; };
+		TELEMCONSVCFILE01A2B3C4D5E6F /* TelemetryConsentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryConsentService.swift; sourceTree = "<group>"; };
+		TELEMCONVIEWFILE01A2B3C4D5E6F /* TelemetryConsentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryConsentView.swift; sourceTree = "<group>"; };
+		TELEMCONWINFILE01A2B3C4D5E6F /* TelemetryConsentWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryConsentWindowController.swift; sourceTree = "<group>"; };
+		PRIVSETVIEWFILE01A2B3C4D5E6F /* PrivacySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacySettingsView.swift; sourceTree = "<group>"; };
+		TELEMSVCTESTFILE01A2B3C4D5E6F /* TelemetryServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryServiceTests.swift; sourceTree = "<group>"; };
+		TELEMCONTESTFILE01A2B3C4D5E6F /* TelemetryConsentServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryConsentServiceTests.swift; sourceTree = "<group>"; };
+		TRAINCONTRIBFILE01A2B3C4D5E6F /* TrainingContribution.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingContribution.swift; sourceTree = "<group>"; };
+		TRAINREDACTFILE01A2B3C4D5E6F /* TrainingTextRedactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingTextRedactor.swift; sourceTree = "<group>"; };
+		CONTRIBSVCFILE01A2B3C4D5E6F /* ContributionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributionService.swift; sourceTree = "<group>"; };
+		CONTRIBUPLDFILE01A2B3C4D5E6F /* ContributionUploader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributionUploader.swift; sourceTree = "<group>"; };
+		SCHEMAV11TESTFILE01A2B3C4D5E6F /* SchemaV11MigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaV11MigrationTests.swift; sourceTree = "<group>"; };
+		TRAINREDACTTESTFILE01A2B3C4D5EF /* TrainingTextRedactorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingTextRedactorTests.swift; sourceTree = "<group>"; };
+		CONTRIBSVCTESTFILE01A2B3C4D5E6F /* ContributionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributionServiceTests.swift; sourceTree = "<group>"; };
 		MUTEMONFILE01A2B3C4D5E6F /* InputMuteMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMuteMonitor.swift; sourceTree = "<group>"; };
 		AIADAPTEXTFILE01A2B3C4D5E /* SettingsStore+AIEnhancementAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsStore+AIEnhancementAdapter.swift"; sourceTree = "<group>"; };
 		AIADAPTTESTFILE01A2B3C4D5 /* AIEnhancementAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIEnhancementAdapterTests.swift; sourceTree = "<group>"; };
@@ -579,6 +610,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				E30EF5B5D83B494BB7B98568 /* WhisperKit in Frameworks */,
 				FLUIDAUDIOBUILD01A2B3C4D5E6F /* FluidAudio in Frameworks */,
 				SPARKLEBUILD01A2B3C4D5E6F /* Sparkle in Frameworks */,
+				TELEMETRYDECKBUILD01A2B3C4D5EF /* TelemetryDeck in Frameworks */,
 			);
 		};
 		CBC1B6398AC040CF9417EDEC /* Frameworks */ = {
@@ -628,6 +660,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				MEDIASOURCEKINDFILE01 /* MediaSourceKind.swift */,
 				MEDIATRANSTYPESFILE01 /* MediaTranscriptionTypes.swift */,
 				WORDRPLACEA1B2C3D4E5 /* WordReplacement.swift */,
+				TRAINCONTRIBFILE01A2B3C4D5E6F /* TrainingContribution.swift */,
 				VOCABWORDA1B2C3D4E5 /* VocabularyWord.swift */,
 				REPLMATCHMODEFILE01 /* ReplacementMatchMode.swift */,
 				FLOATTYP001A2B3C4D5E6F71 /* FloatingIndicatorType.swift */,
@@ -657,6 +690,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				TOASTUIFILE01A2B3C4D5E6F /* ToastWindowController.swift */,
 				SPLASH01A2B3C4D5E6F71 /* SplashScreen.swift */,
 				WHATNEWGRP01A2B3C4D5E6F /* WhatsNew */,
+				CONSENTGRP01A2B3C4D5E6F /* Consent */,
 				AC5569DC7FCD55BB91774AB2 /* Onboarding */,
 				BFA9046303E3874827C62B25 /* Components */,
 			);
@@ -699,6 +733,11 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				FLOATFSTRKFILE01A2B3C4D5E6F /* FloatingIndicatorFocusTracker.swift */,
 				TOASTSVCFILE01A2B3C4D5E6F /* ToastService.swift */,
 				ANNSVCFILE01A2B3C4D5E6F /* AnnouncementService.swift */,
+				TELEMEVTFILE01A2B3C4D5E6F /* TelemetryEvents.swift */,
+				TELEMSVCFILE01A2B3C4D5E6F /* TelemetryService.swift */,
+				TELEMCONSVCFILE01A2B3C4D5E6F /* TelemetryConsentService.swift */,
+				CONTRIBSVCFILE01A2B3C4D5E6F /* ContributionService.swift */,
+				CONTRIBUPLDFILE01A2B3C4D5E6F /* ContributionUploader.swift */,
 				MUTEMONFILE01A2B3C4D5E6F /* InputMuteMonitor.swift */,
 				AIADAPTEXTFILE01A2B3C4D5E /* SettingsStore+AIEnhancementAdapter.swift */,
 				DASHSTATSFILE01A2B3C4D5E6F /* DashboardStatsService.swift */,
@@ -788,6 +827,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				MODELPICKERSHEETFILE01A2B3C4D5 /* ModelPickerSheet.swift */,
 				83556707A5B946DA8E8D1F06 /* AboutSettingsView.swift */,
 				MCPSETTVIEWFILE01A2B3C4D5E6F /* MCPSettingsView.swift */,
+				PRIVSETVIEWFILE01A2B3C4D5E6F /* PrivacySettingsView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -842,6 +882,11 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				HKCONFLICTTESTFILE01A2B3C4D5 /* HotkeyConflictCheckerTests.swift */,
 				PERMMGRTESTFILE1A2B3C4D5E6F71 /* PermissionManagerTests.swift */,
 				SETTINGSSTORETESTFILE1A2B3C4D5E6F71 /* SettingsStoreTests.swift */,
+				TELEMSVCTESTFILE01A2B3C4D5E6F /* TelemetryServiceTests.swift */,
+				TELEMCONTESTFILE01A2B3C4D5E6F /* TelemetryConsentServiceTests.swift */,
+				SCHEMAV11TESTFILE01A2B3C4D5E6F /* SchemaV11MigrationTests.swift */,
+				TRAINREDACTTESTFILE01A2B3C4D5EF /* TrainingTextRedactorTests.swift */,
+				CONTRIBSVCTESTFILE01A2B3C4D5E6F /* ContributionServiceTests.swift */,
 				AICFGV2TESTFILE1A2B3C4D5E6F /* SettingsStoreAIConfigTests.swift */,
 				PRESETSEEDFILE1A2B3C4D5E6 /* PromptPresetStoreSeedingTests.swift */,
 				STREAMREFTESTFILE1A2B3C4 /* StreamingRefinementCoordinatorTests.swift */,
@@ -939,6 +984,15 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				WHATVIEWFILE01A2B3C4D5E6F /* WhatsNewView.swift */,
 			);
 			path = WhatsNew;
+			sourceTree = "<group>";
+		};
+		CONSENTGRP01A2B3C4D5E6F /* Consent */ = {
+			isa = PBXGroup;
+			children = (
+				TELEMCONWINFILE01A2B3C4D5E6F /* TelemetryConsentWindowController.swift */,
+				TELEMCONVIEWFILE01A2B3C4D5E6F /* TelemetryConsentView.swift */,
+			);
+			path = Consent;
 			sourceTree = "<group>";
 		};
 		SCORCHEDGRP01A2B3C4D5E6F /* Scorched */ = {
@@ -1070,6 +1124,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 			isa = PBXGroup;
 			children = (
 				LOGGER001A2B3C4D5E6F71 /* Logger.swift */,
+				TRAINREDACTFILE01A2B3C4D5E6F /* TrainingTextRedactor.swift */,
 				ALERT001A2B3C4D5E6F71 /* AlertManager.swift */,
 				F0DC71BCB19DB51FA606C373 /* Icons.swift */,
 				IMGRESIZER1A2B3C4D5E6F71 /* ImageResizer.swift */,
@@ -1104,6 +1159,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				563D563B8CE142449E7030FB /* WhisperKit */,
 				FLUIDAUDIODEP01A2B3C4D5E6F /* FluidAudio */,
 				SPARKLEDEP01A2B3C4D5E6F /* Sparkle */,
+				TELEMETRYDECKDEP01A2B3C4D5E6F /* TelemetryDeck */,
 			);
 			productName = Pindrop;
 			productReference = 05406A418EF343BAA525028E /* Pindrop.app */;
@@ -1190,6 +1246,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				CFD28D45C1FE4DF09ED8A269 /* XCRemoteSwiftPackageReference "WhisperKit" */,
 				FLUIDAUDIOREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "FluidAudio" */,
 				SPARKLEREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "Sparkle" */,
+				TELEMETRYDECKREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "SwiftSDK" */,
 			);
 			preferredProjectObjectVersion = 90;
 			productRefGroup = 34D7D79B92CD42AA8CBA1057 /* Products */;
@@ -1262,6 +1319,11 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				UPDATESVC01A2B3C4D5E6F70 /* UpdateServiceTests.swift in Sources */,
 				PERMMGRTESTBUILD1A2B3C4D5E6F70 /* PermissionManagerTests.swift in Sources */,
 				SETTINGSSTORETESTBUILD1A2B3C4D5E6F70 /* SettingsStoreTests.swift in Sources */,
+				TELEMSVCTESTBUILD01A2B3C4D5E6F /* TelemetryServiceTests.swift in Sources */,
+				TELEMCONTESTBUILD01A2B3C4D5E6F /* TelemetryConsentServiceTests.swift in Sources */,
+				SCHEMAV11TESTBUILD01A2B3C4D5E6F /* SchemaV11MigrationTests.swift in Sources */,
+				TRAINREDACTTESTBUILD01A2B3C4D5F /* TrainingTextRedactorTests.swift in Sources */,
+				CONTRIBSVCTESTBUILD01A2B3C4D5EF /* ContributionServiceTests.swift in Sources */,
 				AICFGV2TESTBUILD1A2B3C4D5E6F /* SettingsStoreAIConfigTests.swift in Sources */,
 				PRESETSEEDBUILD1A2B3C4D5E /* PromptPresetStoreSeedingTests.swift in Sources */,
 				STREAMREFTESTBUILD1A2B3C4 /* StreamingRefinementCoordinatorTests.swift in Sources */,
@@ -1474,6 +1536,16 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				FLOATFSTRKBUILD01A2B3C4D5E6F /* FloatingIndicatorFocusTracker.swift in Sources */,
 				TOASTSVCBUILD01A2B3C4D5E6F /* ToastService.swift in Sources */,
 				ANNSVCBUILD01A2B3C4D5E6F /* AnnouncementService.swift in Sources */,
+				TELEMEVTBUILD01A2B3C4D5E6F /* TelemetryEvents.swift in Sources */,
+				TELEMSVCBUILD01A2B3C4D5E6F /* TelemetryService.swift in Sources */,
+				TELEMCONSVCBUILD01A2B3C4D5E6F /* TelemetryConsentService.swift in Sources */,
+				TELEMCONVIEWBUILD01A2B3C4D5E6F /* TelemetryConsentView.swift in Sources */,
+				TELEMCONWINBUILD01A2B3C4D5E6F /* TelemetryConsentWindowController.swift in Sources */,
+				PRIVSETVIEWBUILD01A2B3C4D5E6F /* PrivacySettingsView.swift in Sources */,
+				TRAINCONTRIBBUILD01A2B3C4D5E6F /* TrainingContribution.swift in Sources */,
+				TRAINREDACTBUILD01A2B3C4D5E6F /* TrainingTextRedactor.swift in Sources */,
+				CONTRIBSVCBUILD01A2B3C4D5E6F /* ContributionService.swift in Sources */,
+				CONTRIBUPLDBUILD01A2B3C4D5E6F /* ContributionUploader.swift in Sources */,
 				MUTEMONBUILD01A2B3C4D5E6F /* InputMuteMonitor.swift in Sources */,
 				AIADAPTEXTBUILD01A2B3C4D5E /* SettingsStore+AIEnhancementAdapter.swift in Sources */,
 				DASHSTATSBUILD01A2B3C4D5E6F /* DashboardStatsService.swift in Sources */,
@@ -1853,6 +1925,14 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 				minimumVersion = 2.6.0;
 			};
 		};
+		TELEMETRYDECKREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "SwiftSDK" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/TelemetryDeck/SwiftSDK";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1870,6 +1950,11 @@ MODELSPRESENTBUILD01A2B3C4 /* ModelsPresentation.swift in Sources */,
 			isa = XCSwiftPackageProductDependency;
 			package = SPARKLEREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
+		};
+		TELEMETRYDECKDEP01A2B3C4D5E6F /* TelemetryDeck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = TELEMETRYDECKREF01A2B3C4D5E6F /* XCRemoteSwiftPackageReference "SwiftSDK" */;
+			productName = TelemetryDeck;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
