@@ -120,6 +120,9 @@ available:
 average:
   session: "Average session"
   words_session: "Average words / session"
+  time_to_paste: "Keskimääräinen aika liittämiseen"
+  transcription_time: "Keskimääräinen transkriptioaika"
+  ai_enhancement: "Keskimääräinen AI-parannus"
 avg:
   speed: "Keskinopeus"
 back:
@@ -1553,3 +1556,8 @@ corrected:
   _self: "Korjattu"
 edited:
   _self: "Muokattu"
+total:
+  _self: "Yhteensä"
+tokens:
+  in_out: "%@ syöte- / %@ tulostokenia"
+  in_out_thinking: "%@ syöte- / %@ tulos- / %@ ajattelutokenia"

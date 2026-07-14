@@ -913,6 +913,31 @@ final class AIEnhancementService {
         }
     }
 
+    /// Token accounting reported by the provider for one enhancement request.
+    /// Field availability varies: OpenAI-compatible endpoints report prompt/completion
+    /// (and reasoning for thinking models), Anthropic reports input/output, and
+    /// on-device Apple models report nothing.
+    struct EnhancementUsage: Sendable, Equatable, Codable {
+        var promptTokens: Int?
+        var completionTokens: Int?
+        var reasoningTokens: Int?
+        var totalTokens: Int?
+
+        var isEmpty: Bool {
+            promptTokens == nil && completionTokens == nil
+                && reasoningTokens == nil && totalTokens == nil
+        }
+    }
+
+    /// Enhancement text plus the observability data callers persist for the
+    /// per-dictation latency breakdown.
+    struct EnhancementResult: Sendable {
+        let text: String
+        let usage: EnhancementUsage?
+        /// Wall-clock seconds spent in the HTTP round-trip (or on-device inference).
+        let requestSeconds: Double
+    }
+
     private let session: URLSessionProtocol
     private let keychainService = "com.pindrop.ai-enhancement"
 
@@ -952,8 +977,26 @@ final class AIEnhancementService {
         customPrompt: String = AIEnhancementService.defaultSystemPrompt,
         provider: AIProvider = .openai
     ) async throws -> String {
+        try await enhanceWithMetrics(
+            text: text,
+            apiEndpoint: apiEndpoint,
+            apiKey: apiKey,
+            model: model,
+            customPrompt: customPrompt,
+            provider: provider
+        ).text
+    }
+
+    func enhanceWithMetrics(
+        text: String,
+        apiEndpoint: String,
+        apiKey: String?,
+        model: String = "gpt-4o-mini",
+        customPrompt: String = AIEnhancementService.defaultSystemPrompt,
+        provider: AIProvider = .openai
+    ) async throws -> EnhancementResult {
         guard !text.isEmpty else {
-            return text
+            return EnhancementResult(text: text, usage: nil, requestSeconds: 0)
         }
 
         // Apple Foundation Models: on-device, no network request needed.
@@ -962,7 +1005,14 @@ final class AIEnhancementService {
             guard #available(macOS 26, *) else {
                 throw EnhancementError.apiError("Apple Intelligence requires macOS 26 or later.")
             }
-            return try await appleEnhancer.enhance(text: text, systemPrompt: customPrompt)
+            let clock = ContinuousClock()
+            let start = clock.now
+            let enhanced = try await appleEnhancer.enhance(text: text, systemPrompt: customPrompt)
+            return EnhancementResult(
+                text: enhanced,
+                usage: nil,
+                requestSeconds: start.duration(to: clock.now).pipelineSeconds
+            )
 #else
             throw EnhancementError.apiError("Apple Intelligence is not supported on this device.")
 #endif
@@ -982,7 +1032,10 @@ final class AIEnhancementService {
                 provider: provider
             )
 
+            let clock = ContinuousClock()
+            let requestStart = clock.now
             let (data, response) = try await session.data(for: request)
+            let requestSeconds = requestStart.duration(to: clock.now).pipelineSeconds
 
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw EnhancementError.invalidResponse
@@ -999,7 +1052,8 @@ final class AIEnhancementService {
                 throw EnhancementError.apiError("HTTP \(httpResponse.statusCode)")
             }
 
-            return try parseAPIResponse(data: data, provider: provider)
+            let (parsedText, usage) = try parseAPIResponseWithUsage(data: data, provider: provider)
+            return EnhancementResult(text: parsedText, usage: usage, requestSeconds: requestSeconds)
         } catch let error as EnhancementError {
             throw error
         } catch {
@@ -1027,8 +1081,30 @@ final class AIEnhancementService {
         context: ContextMetadata = .none,
         provider: AIProvider = .openai
     ) async throws -> String {
+        try await enhanceWithMetrics(
+            text: text,
+            apiEndpoint: apiEndpoint,
+            apiKey: apiKey,
+            model: model,
+            customPrompt: customPrompt,
+            imageBase64: imageBase64,
+            context: context,
+            provider: provider
+        ).text
+    }
+
+    func enhanceWithMetrics(
+        text: String,
+        apiEndpoint: String,
+        apiKey: String?,
+        model: String = "gpt-4o-mini",
+        customPrompt: String = AIEnhancementService.defaultSystemPrompt,
+        imageBase64: String?,
+        context: ContextMetadata = .none,
+        provider: AIProvider = .openai
+    ) async throws -> EnhancementResult {
         guard !text.isEmpty else {
-            return text
+            return EnhancementResult(text: text, usage: nil, requestSeconds: 0)
         }
 
         // Apple Foundation Models: on-device, no network request needed.
@@ -1045,7 +1121,14 @@ final class AIEnhancementService {
                 clipboardText: context.clipboardText,
                 context: context
             )
-            return try await appleEnhancer.enhance(text: userPayload, systemPrompt: contextAwarePrompt)
+            let clock = ContinuousClock()
+            let start = clock.now
+            let enhanced = try await appleEnhancer.enhance(text: userPayload, systemPrompt: contextAwarePrompt)
+            return EnhancementResult(
+                text: enhanced,
+                usage: nil,
+                requestSeconds: start.duration(to: clock.now).pipelineSeconds
+            )
 #else
             throw EnhancementError.apiError("Apple Intelligence is not supported on this device.")
 #endif
@@ -1106,7 +1189,10 @@ final class AIEnhancementService {
                 Log.aiEnhancement.debug("Prepared enhancement request payload (redactedLines=\(logLines.count))")
             }
 
+            let clock = ContinuousClock()
+            let requestStart = clock.now
             let (data, response) = try await session.data(for: request)
+            let requestSeconds = requestStart.duration(to: clock.now).pipelineSeconds
 
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw EnhancementError.invalidResponse
@@ -1123,7 +1209,8 @@ final class AIEnhancementService {
                 throw EnhancementError.apiError("HTTP \(httpResponse.statusCode)")
             }
 
-            return try parseAPIResponse(data: data, provider: provider)
+            let (parsedText, usage) = try parseAPIResponseWithUsage(data: data, provider: provider)
+            return EnhancementResult(text: parsedText, usage: usage, requestSeconds: requestSeconds)
         } catch let error as EnhancementError {
             throw error
         } catch {
@@ -1229,9 +1316,18 @@ final class AIEnhancementService {
     }
 
     private func parseAPIResponse(data: Data, provider: AIProvider) throws -> String {
+        try parseAPIResponseWithUsage(data: data, provider: provider).text
+    }
+
+    private func parseAPIResponseWithUsage(
+        data: Data,
+        provider: AIProvider
+    ) throws -> (text: String, usage: EnhancementUsage?) {
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             throw EnhancementError.invalidResponse
         }
+
+        let usage = Self.parseUsage(fromResponseJSON: json, provider: provider)
 
         if provider == .anthropic {
             guard let content = json["content"] as? [[String: Any]],
@@ -1245,7 +1341,7 @@ final class AIEnhancementService {
                 sanitizedText: sanitized,
                 provider: provider
             )
-            return sanitized
+            return (sanitized, usage)
         } else {
             guard let choices = json["choices"] as? [[String: Any]],
                   let firstChoice = choices.first,
@@ -1259,8 +1355,43 @@ final class AIEnhancementService {
                 sanitizedText: sanitized,
                 provider: provider
             )
-            return sanitized
+            return (sanitized, usage)
         }
+    }
+
+    /// Extracts token accounting from a provider response body. Anthropic reports
+    /// `usage.input_tokens`/`usage.output_tokens`; every OpenAI-compatible endpoint
+    /// (OpenAI, OpenRouter, Ollama, LM Studio, …) reports `usage.prompt_tokens`/
+    /// `usage.completion_tokens`, with thinking models adding
+    /// `completion_tokens_details.reasoning_tokens`. Returns nil when the endpoint
+    /// omits usage entirely.
+    static func parseUsage(
+        fromResponseJSON json: [String: Any],
+        provider: AIProvider
+    ) -> EnhancementUsage? {
+        guard let usageJSON = json["usage"] as? [String: Any] else { return nil }
+
+        func intValue(_ key: String, in dict: [String: Any]) -> Int? {
+            (dict[key] as? NSNumber)?.intValue
+        }
+
+        var usage = EnhancementUsage()
+        if provider == .anthropic {
+            usage.promptTokens = intValue("input_tokens", in: usageJSON)
+            usage.completionTokens = intValue("output_tokens", in: usageJSON)
+            if let prompt = usage.promptTokens, let completion = usage.completionTokens {
+                usage.totalTokens = prompt + completion
+            }
+        } else {
+            usage.promptTokens = intValue("prompt_tokens", in: usageJSON)
+            usage.completionTokens = intValue("completion_tokens", in: usageJSON)
+            usage.totalTokens = intValue("total_tokens", in: usageJSON)
+            if let details = usageJSON["completion_tokens_details"] as? [String: Any] {
+                usage.reasoningTokens = intValue("reasoning_tokens", in: details)
+            }
+        }
+
+        return usage.isEmpty ? nil : usage
     }
 
     static func buildMessages(

@@ -120,6 +120,9 @@ available:
 average:
   session: "Average session"
   words_session: "Average words / session"
+  time_to_paste: "पेस्ट होने तक औसत समय"
+  transcription_time: "औसत प्रतिलेखन समय"
+  ai_enhancement: "औसत एआई संवर्धन"
 avg:
   speed: "औसत गति"
 back:
@@ -1553,3 +1556,8 @@ corrected:
   _self: "सुधारा गया"
 edited:
   _self: "संपादित"
+total:
+  _self: "कुल"
+tokens:
+  in_out: "%@ इनपुट / %@ आउटपुट टोकन"
+  in_out_thinking: "%@ इनपुट / %@ आउटपुट / %@ चिंतन टोकन"

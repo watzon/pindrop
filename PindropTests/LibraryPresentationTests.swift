@@ -252,4 +252,55 @@ struct LibraryPresentationTests {
         #expect(widthInLargerWindow > widthAtPreviousCap)
     }
 
+    // MARK: - Pipeline timing captions
+
+    @Test func pipelineStagesCaptionListsCapturedStagesInOrder() {
+        var metrics = PipelineMetrics(kind: .batch)
+        metrics.transcriptionSeconds = 1.42
+        metrics.enhancementSeconds = 2.6
+        metrics.outputSeconds = 0.05
+        metrics.totalSeconds = 4.3
+
+        let caption = PipelineTimingPresentation.stagesCaption(metrics, locale: Locale(identifier: "en_US"))
+
+        let text = caption ?? ""
+        #expect(text.contains("Total"))
+        #expect(text.contains("Transcription"))
+        #expect(text.contains("AI Enhancement"))
+        #expect(text.contains("Paste"))
+        // Sub-second stages render as milliseconds, not "0 s".
+        #expect(text.contains("50"))
+        let totalIndex = text.range(of: "Total")!.lowerBound
+        let pasteIndex = text.range(of: "Paste")!.lowerBound
+        #expect(totalIndex < pasteIndex)
+    }
+
+    @Test func pipelineStagesCaptionSkipsMissingStagesAndIsNilWhenEmpty() {
+        var metrics = PipelineMetrics(kind: .streaming)
+        #expect(PipelineTimingPresentation.stagesCaption(metrics, locale: Locale(identifier: "en_US")) == nil)
+
+        metrics.transcriptionSeconds = 1.0
+        let caption = PipelineTimingPresentation.stagesCaption(metrics, locale: Locale(identifier: "en_US")) ?? ""
+        #expect(caption.contains("Transcription"))
+        #expect(!caption.contains("Paste"))
+        #expect(!caption.contains("Total"))
+    }
+
+    @Test func pipelineTokensCaptionIncludesThinkingOnlyWhenReported() {
+        var metrics = PipelineMetrics(kind: .batch)
+        #expect(PipelineTimingPresentation.tokensCaption(metrics, locale: Locale(identifier: "en_US")) == nil)
+
+        metrics.enhancementPromptTokens = 812
+        metrics.enhancementCompletionTokens = 96
+        let plain = PipelineTimingPresentation.tokensCaption(metrics, locale: Locale(identifier: "en_US")) ?? ""
+        #expect(plain.contains("812"))
+        #expect(plain.contains("96"))
+        #expect(!plain.contains("thinking"))
+
+        metrics.enhancementReasoningTokens = 64
+        let thinking = PipelineTimingPresentation.tokensCaption(metrics, locale: Locale(identifier: "en_US")) ?? ""
+        #expect(thinking.contains("64"))
+        #expect(thinking.contains("thinking"))
+    }
+
 }

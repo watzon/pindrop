@@ -47,4 +47,10 @@ enum TelemetryParameter {
     static let providerKind = "providerKind"
     /// Interface locale identifier (e.g. `en`, `pt-BR`).
     static let locale = "locale"
+    /// Bucketed wall-clock seconds spent in local ASR inference — raw latencies never leave the device.
+    static let transcribeLatencyBucket = "transcribeLatencyBucket"
+    /// Bucketed wall-clock seconds spent in the AI-enhancement stage (prompt build + request + post-processing).
+    static let enhanceLatencyBucket = "enhanceLatencyBucket"
+    /// Bucketed wall-clock seconds from stop hotkey to output landed.
+    static let totalLatencyBucket = "totalLatencyBucket"
 }

@@ -120,6 +120,9 @@ available:
 average:
   session: "Average session"
   words_session: "Average words / session"
+  time_to_paste: "Průměrný čas do vložení"
+  transcription_time: "Průměrná doba transkripce"
+  ai_enhancement: "Průměrné vylepšení AI"
 avg:
   speed: "Prům. rychlost"
 back:
@@ -1553,3 +1556,8 @@ corrected:
   _self: "Opraveno"
 edited:
   _self: "Upraveno"
+total:
+  _self: "Celkem"
+tokens:
+  in_out: "%@ vstupních / %@ výstupních tokenů"
+  in_out_thinking: "%@ vstupních / %@ výstupních / %@ uvažovacích tokenů"

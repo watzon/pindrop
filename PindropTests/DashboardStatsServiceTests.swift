@@ -506,6 +506,51 @@ struct StatsPageAnalyticsTests {
         #expect(snapshot.sources.count == 2)
     }
 
+    @Test func averagesPipelineLatenciesOverRecordsThatCapturedThem() {
+        let snapshot = StatsService.compute(
+            records: [
+                StatsRecord(
+                    timestamp: date(10),
+                    words: 100, duration: 60,
+                    sourceKind: .voiceRecording, destinationApp: nil, isEnhanced: true,
+                    transcriptionSeconds: 1.0,
+                    enhancementSeconds: 2.0,
+                    totalPipelineSeconds: 4.0
+                ),
+                StatsRecord(
+                    timestamp: date(11),
+                    words: 100, duration: 60,
+                    sourceKind: .voiceRecording, destinationApp: nil, isEnhanced: false,
+                    transcriptionSeconds: 3.0,
+                    enhancementSeconds: nil,
+                    totalPipelineSeconds: 6.0
+                ),
+                // Pre-metrics record: must not drag averages toward zero.
+                record(day: 11, words: 100)
+            ],
+            range: .sevenDays,
+            calendar: calendar,
+            now: date(11, hour: 18)
+        )
+
+        #expect(snapshot.averageTranscriptionSeconds == 2.0)
+        #expect(snapshot.averageEnhancementSeconds == 2.0)
+        #expect(snapshot.averageTotalPipelineSeconds == 5.0)
+    }
+
+    @Test func pipelineLatencyAveragesAreZeroWithoutInstrumentedRecords() {
+        let snapshot = StatsService.compute(
+            records: [record(day: 10, words: 100)],
+            range: .sevenDays,
+            calendar: calendar,
+            now: date(11, hour: 18)
+        )
+
+        #expect(snapshot.averageTranscriptionSeconds == 0)
+        #expect(snapshot.averageEnhancementSeconds == 0)
+        #expect(snapshot.averageTotalPipelineSeconds == 0)
+    }
+
     @Test func rangeAndFutureRecordsAreExcluded() {
         let snapshot = StatsService.compute(
             records: [

@@ -83,7 +83,7 @@ private struct SettingsFixtureRootView: View {
     /// Deterministic in-memory store so panes using @Query (e.g. Privacy) render
     /// in the fixture without touching the real persistent store.
     private static let modelContainer: ModelContainer = {
-        let schema = Schema(versionedSchema: TranscriptionRecordSchemaV11.self)
+        let schema = Schema(versionedSchema: TranscriptionRecordSchemaV12.self)
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         do {
             return try ModelContainer(for: schema, configurations: [configuration])

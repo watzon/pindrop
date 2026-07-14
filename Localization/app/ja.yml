@@ -120,6 +120,9 @@ available:
 average:
   session: "Average session"
   words_session: "Average words / session"
+  time_to_paste: "貼り付けまでの平均時間"
+  transcription_time: "文字起こしの平均時間"
+  ai_enhancement: "AI強化の平均時間"
 avg:
   speed: "平均速度"
 back:
@@ -1553,3 +1556,8 @@ corrected:
   _self: "修正済み"
 edited:
   _self: "編集済み"
+total:
+  _self: "合計"
+tokens:
+  in_out: "入力 %@ / 出力 %@ トークン"
+  in_out_thinking: "入力 %@ / 出力 %@ / 思考 %@ トークン"

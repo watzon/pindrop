@@ -167,6 +167,24 @@ struct StatsView: View {
                     value: StatsPresentation.formatDuration(snapshot.estimatedTimeSaved, locale: locale),
                     label: localized("Estimated time saved", locale: locale)
                 )
+                if snapshot.averageTotalPipelineSeconds > 0 {
+                    metric(
+                        value: StatsPresentation.formatLatency(snapshot.averageTotalPipelineSeconds, locale: locale),
+                        label: localized("Average time to paste", locale: locale)
+                    )
+                }
+                if snapshot.averageTranscriptionSeconds > 0 {
+                    metric(
+                        value: StatsPresentation.formatLatency(snapshot.averageTranscriptionSeconds, locale: locale),
+                        label: localized("Average transcription time", locale: locale)
+                    )
+                }
+                if snapshot.averageEnhancementSeconds > 0 {
+                    metric(
+                        value: StatsPresentation.formatLatency(snapshot.averageEnhancementSeconds, locale: locale),
+                        label: localized("Average AI enhancement", locale: locale)
+                    )
+                }
             }
         }
     }

@@ -120,6 +120,9 @@ available:
 average:
   session: "Average session"
   words_session: "Average words / session"
+  time_to_paste: "Gemiddelde tijd tot plakken"
+  transcription_time: "Gemiddelde transcriptietijd"
+  ai_enhancement: "Gemiddelde AI-verbetering"
 avg:
   speed: "Gem. snelheid"
 back:
@@ -1553,3 +1556,8 @@ corrected:
   _self: "Gecorrigeerd"
 edited:
   _self: "Bewerkt"
+total:
+  _self: "Totaal"
+tokens:
+  in_out: "%@ invoer- / %@ uitvoertokens"
+  in_out_thinking: "%@ invoer- / %@ uitvoer- / %@ denktokens"

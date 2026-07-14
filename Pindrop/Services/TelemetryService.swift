@@ -123,6 +123,19 @@ final class TelemetryService {
         }
     }
 
+    /// Buckets pipeline stage latencies. Finer-grained than `durationBucket`
+    /// because the interesting range for stop→paste latency is seconds, not minutes.
+    nonisolated static func latencyBucket(_ seconds: Double) -> String {
+        switch seconds {
+        case ..<0.5: return "<0.5s"
+        case ..<1: return "0.5-1s"
+        case ..<2: return "1-2s"
+        case ..<5: return "2-5s"
+        case ..<10: return "5-10s"
+        default: return ">10s"
+        }
+    }
+
     nonisolated static func wordCountBucket(_ count: Int) -> String {
         switch count {
         case ..<1: return "0"

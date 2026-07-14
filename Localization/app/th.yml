@@ -120,6 +120,9 @@ available:
 average:
   session: "Average session"
   words_session: "Average words / session"
+  time_to_paste: "เวลาเฉลี่ยจนถึงการวาง"
+  transcription_time: "เวลาถอดเสียงเฉลี่ย"
+  ai_enhancement: "การเพิ่มประสิทธิภาพ AI เฉลี่ย"
 avg:
   speed: "ความเร็วเฉลี่ย"
 back:
@@ -1553,3 +1556,8 @@ corrected:
   _self: "ปรับแก้แล้ว"
 edited:
   _self: "แก้ไขแล้ว"
+total:
+  _self: "รวม"
+tokens:
+  in_out: "โทเค็นเข้า %@ / ออก %@"
+  in_out_thinking: "โทเค็นเข้า %@ / ออก %@ / คิด %@"

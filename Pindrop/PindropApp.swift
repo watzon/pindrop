@@ -542,7 +542,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     private func makeModelContainer() throws -> ModelContainer {
         let configuration = ModelConfiguration(url: storeRepairService.storeURL())
-        let schema = Schema(versionedSchema: TranscriptionRecordSchemaV11.self)
+        let schema = Schema(versionedSchema: TranscriptionRecordSchemaV12.self)
         return try ModelContainer(
             for: schema,
             migrationPlan: TranscriptionRecordMigrationPlan.self,

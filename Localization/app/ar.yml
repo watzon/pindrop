@@ -120,6 +120,9 @@ available:
 average:
   session: "Average session"
   words_session: "Average words / session"
+  time_to_paste: "متوسط الوقت حتى اللصق"
+  transcription_time: "متوسط وقت النسخ"
+  ai_enhancement: "متوسط تعزيز الذكاء الاصطناعي"
 avg:
   speed: "متوسط ​​السرعة"
 back:
@@ -1553,3 +1556,8 @@ corrected:
   _self: "مُصحَّح"
 edited:
   _self: "مُعدَّل"
+total:
+  _self: "الإجمالي"
+tokens:
+  in_out: "%@ إدخال / %@ إخراج من الرموز"
+  in_out_thinking: "%@ إدخال / %@ إخراج / %@ تفكير من الرموز"

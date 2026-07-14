@@ -120,6 +120,9 @@ available:
 average:
   session: "Average session"
   words_session: "Average words / session"
+  time_to_paste: "זמן ממוצע עד ההדבקה"
+  transcription_time: "זמן תמלול ממוצע"
+  ai_enhancement: "שיפור AI ממוצע"
 avg:
   speed: "מהירות ממוצעת"
 back:
@@ -1553,3 +1556,8 @@ corrected:
   _self: "תוקן"
 edited:
   _self: "נערך"
+total:
+  _self: "סך הכול"
+tokens:
+  in_out: "%@ קלט / %@ פלט אסימונים"
+  in_out_thinking: "%@ קלט / %@ פלט / %@ חשיבה אסימונים"

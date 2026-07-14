@@ -40,8 +40,21 @@ final class StreamingSessionController {
         let destinationAppBundleID: String?
         /// True when the paste keystroke landed (not clipboard-only fallback).
         let didPaste: Bool
+        /// Stage latencies + enhancement usage collected during finalize. The
+        /// coordinator adds the stages it owns (audio stop, total) before persisting.
+        var pipelineMetrics: PipelineMetrics = PipelineMetrics(kind: .streaming)
 
         var isEffectivelyEmpty: Bool { finalText.isEmpty }
+    }
+
+    /// Result of the coordinator's post-stop LLM pass, including the observability
+    /// data recorded on the transcription's pipeline metrics.
+    struct PostStopEnhanceOutcome {
+        let enhancedText: String
+        let modelID: String
+        let providerKind: String?
+        let usage: AIEnhancementService.EnhancementUsage?
+        let requestSeconds: Double?
     }
 
     // MARK: - Timeouts
@@ -85,7 +98,7 @@ final class StreamingSessionController {
     /// The coordinator's post-stop LLM pass (it needs prompt presets and the
     /// enhancement service, which stay app-level). Wired via `configure` after
     /// AppCoordinator finishes initializing; nil means "no enhancement".
-    private var postStopEnhance: (@MainActor (String) async -> (enhancedText: String, modelID: String)?)?
+    private var postStopEnhance: (@MainActor (String) async -> PostStopEnhanceOutcome?)?
 
     // MARK: - Session state
 
@@ -125,7 +138,7 @@ final class StreamingSessionController {
     }
 
     func configure(
-        postStopEnhance: @escaping @MainActor (String) async -> (enhancedText: String, modelID: String)?
+        postStopEnhance: @escaping @MainActor (String) async -> PostStopEnhanceOutcome?
     ) {
         self.postStopEnhance = postStopEnhance
     }
@@ -234,6 +247,8 @@ final class StreamingSessionController {
     /// single atomic paste via the overlay sink.
     /// Throws when the engine fails to stop (after cancelling the session).
     func finalize(recordedAudioData: Data, recordingDuration: TimeInterval) async throws -> FinalizeOutcome {
+        let pipelineClock = ContinuousClock()
+        var pipelineMetrics = PipelineMetrics(kind: .streaming)
         await flushPendingAudioWork()
         try ensureNotCancelled()
         transcriptionService.setStreamingCallbacks(onPartial: nil, onFinalUtterance: nil)
@@ -310,6 +325,7 @@ final class StreamingSessionController {
                 let language = settingsStore.selectedAppLanguage
                 let vocabularyBias = (try? dictionaryStore.vocabularyBiasWords()) ?? []
                 let timeout = Self.offlineRetranscriptionTimeout(recordingDuration: recordingDuration)
+                let transcriptionStart = pipelineClock.now
                 let refinedText = try await Self.withFinalizeTimeout(
                     nanoseconds: UInt64(timeout * 1_000_000_000)
                 ) { [transcriptionService] in
@@ -322,6 +338,7 @@ final class StreamingSessionController {
                         )
                     ).text
                 }
+                pipelineMetrics.transcriptionSeconds = transcriptionStart.duration(to: pipelineClock.now).pipelineSeconds
                 try ensureNotCancelled()
                 let normalizedRefined = normalizeText(refinedText)
                 if !isEffectivelyEmptyText(normalizedRefined) {
@@ -379,7 +396,8 @@ final class StreamingSessionController {
             // with an "Enhancing…" affordance until the rewritten text is pasted.
             liveTranscriptState.beginEnhancing()
             let textForEnhance = textAfterReplacements
-            var enhanceOutcome: (enhancedText: String, modelID: String)?
+            var enhanceOutcome: PostStopEnhanceOutcome?
+            let enhancementStart = pipelineClock.now
             do {
                 enhanceOutcome = try await Self.withFinalizeTimeout(
                     nanoseconds: Self.postStopEnhanceTimeoutNanoseconds
@@ -399,6 +417,16 @@ final class StreamingSessionController {
                 originalStreamedText = textAfterReplacements
                 textAfterReplacements = result.enhancedText
                 enhancedWithModel = result.modelID
+                pipelineMetrics.enhancementSeconds = enhancementStart.duration(to: pipelineClock.now).pipelineSeconds
+                pipelineMetrics.enhancementRequestSeconds = result.requestSeconds
+                pipelineMetrics.enhancementProvider = result.providerKind
+                pipelineMetrics.enhancementModel = result.modelID
+                if let usage = result.usage {
+                    pipelineMetrics.enhancementPromptTokens = usage.promptTokens
+                    pipelineMetrics.enhancementCompletionTokens = usage.completionTokens
+                    pipelineMetrics.enhancementReasoningTokens = usage.reasoningTokens
+                    pipelineMetrics.enhancementTotalTokens = usage.totalTokens
+                }
                 Log.transcription.info(
                     "Streaming post-stop enhancement applied: \(originalStreamedText?.count ?? 0) → \(result.enhancedText.count) chars (model=\(result.modelID))"
                 )
@@ -414,7 +442,9 @@ final class StreamingSessionController {
         textAfterReplacements = normalizeText(textAfterReplacements)
 
         try ensureNotCancelled()
+        let outputStart = pipelineClock.now
         let insertion = try await performFinalStreamingInsertion(finalText: textAfterReplacements)
+        pipelineMetrics.outputSeconds = outputStart.duration(to: pipelineClock.now).pipelineSeconds
         if insertion.outputSucceeded {
             Log.transcription.debug("Applied final streaming transcription output")
         }
@@ -431,7 +461,8 @@ final class StreamingSessionController {
             outputSucceeded: insertion.outputSucceeded,
             destinationAppName: insertion.outputResult?.destinationAppName,
             destinationAppBundleID: insertion.outputResult?.destinationAppBundleID,
-            didPaste: insertion.outputResult?.didPaste == true
+            didPaste: insertion.outputResult?.didPaste == true,
+            pipelineMetrics: pipelineMetrics
         )
     }
 

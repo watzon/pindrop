@@ -120,6 +120,9 @@ available:
 average:
   session: "Average session"
   words_session: "Average words / session"
+  time_to_paste: "Gjennomsnittlig tid til innliming"
+  transcription_time: "Gjennomsnittlig transkripsjonstid"
+  ai_enhancement: "Gjennomsnittlig AI-forbedring"
 avg:
   speed: "Gj.sn. hastighet"
 back:
@@ -1553,3 +1556,8 @@ corrected:
   _self: "Rettet"
 edited:
   _self: "Redigert"
+total:
+  _self: "Totalt"
+tokens:
+  in_out: "%@ inn / %@ ut tokens"
+  in_out_thinking: "%@ inn / %@ ut / %@ tenke-tokens"

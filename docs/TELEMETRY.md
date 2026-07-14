@@ -28,7 +28,7 @@ connection is available.
 |---|---|---|
 | `app.launched` | `backend`, `model`, `locale` | App start |
 | `app.onboardingCompleted` | `model` | A fresh install finishes onboarding **and** opts in |
-| `transcription.succeeded` | `backend`, `model`, `durationBucket`, `wordCountBucket`, `enhanced`, `diarized` | A dictation is saved (may be sampled) |
+| `transcription.succeeded` | `backend`, `model`, `durationBucket`, `wordCountBucket`, `enhanced`, `diarized`, `transcribeLatencyBucket`, `enhanceLatencyBucket`, `totalLatencyBucket` | A dictation is saved (may be sampled) |
 | `transcription.failed` | `errorCase`, `stage`, `backend`, `model` | A dictation fails |
 | `transcription.emptyResult` | `stage`, `backend` | No speech was detected |
 | `model.downloadStarted` | `model` | A model download begins |
@@ -45,6 +45,9 @@ connection is available.
   paths or provider responses, are **stripped before sending**.
 - `durationBucket` / `wordCountBucket` — coarse ranges (e.g. `5-15s`, `11-50`), never
   exact values.
+- `transcribeLatencyBucket` / `enhanceLatencyBucket` / `totalLatencyBucket` — coarse
+  ranges of pipeline stage wall-clock time (e.g. `1-2s`, `>10s`), never exact values.
+  Absent when the stage did not run (e.g. no AI enhancement configured).
 - `enhanced` / `diarized` — `true`/`false`.
 - `stage` / `locale` — a pipeline stage name (`transcribe`, `recording`, …) and the
   interface locale (`en`, `pt-BR`, …).

@@ -120,6 +120,9 @@ available:
 average:
   session: "Average session"
   words_session: "Average words / session"
+  time_to_paste: "붙여넣기까지 평균 시간"
+  transcription_time: "평균 전사 시간"
+  ai_enhancement: "평균 AI 향상 시간"
 avg:
   speed: "평균 속도"
 back:
@@ -1553,3 +1556,8 @@ corrected:
   _self: "수정됨"
 edited:
   _self: "편집됨"
+total:
+  _self: "합계"
+tokens:
+  in_out: "입력 %@ / 출력 %@ 토큰"
+  in_out_thinking: "입력 %@ / 출력 %@ / 추론 %@ 토큰"

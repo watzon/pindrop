@@ -120,6 +120,9 @@ available:
 average:
   session: "Average session"
   words_session: "Average words / session"
+  time_to_paste: "Purata masa hingga tampal"
+  transcription_time: "Purata masa transkripsi"
+  ai_enhancement: "Purata peningkatan AI"
 avg:
   speed: "Purata Kelajuan"
 back:
@@ -1553,3 +1556,8 @@ corrected:
   _self: "Dibetulkan"
 edited:
   _self: "Disunting"
+total:
+  _self: "Jumlah"
+tokens:
+  in_out: "%@ token masuk / %@ keluar"
+  in_out_thinking: "%@ token masuk / %@ keluar / %@ pemikiran"

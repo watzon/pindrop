@@ -3535,7 +3535,7 @@ final class AppCoordinator {
     /// Returns nil when no assignment resolves, the text is empty, or the call fails.
     private func runBasicPostStopEnhance(
         text: String
-    ) async -> (enhancedText: String, modelID: String)? {
+    ) async -> StreamingSessionController.PostStopEnhanceOutcome? {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
         guard let assignment = settingsStore.resolveAssignment(for: .transcriptionEnhancement)
@@ -3557,7 +3557,7 @@ final class AppCoordinator {
             // `<output_contract>` block that forbids preamble ("Here is…"), conversational
             // replies, and meta commentary. Context is intentionally empty — streaming
             // dictation doesn't need clipboard/UI snapshots piped in.
-            let enhanced = try await aiEnhancementService.enhance(
+            let result = try await aiEnhancementService.enhanceWithMetrics(
                 text: text,
                 apiEndpoint: assignment.endpoint ?? "",
                 apiKey: assignment.apiKey,
@@ -3567,8 +3567,14 @@ final class AppCoordinator {
                 context: .none,
                 provider: assignment.kind
             )
-            let sanitized = AIEnhancementService.stripResponsePreamble(enhanced)
-            return (sanitized, assignment.modelID)
+            let sanitized = AIEnhancementService.stripResponsePreamble(result.text)
+            return StreamingSessionController.PostStopEnhanceOutcome(
+                enhancedText: sanitized,
+                modelID: assignment.modelID,
+                providerKind: assignment.kind.rawValue,
+                usage: result.usage,
+                requestSeconds: result.requestSeconds
+            )
         } catch {
             if Self.isTaskCancellation(error) {
                 Log.aiEnhancement.info("Streaming post-stop enhance cancelled")
@@ -3613,9 +3619,14 @@ final class AppCoordinator {
 
         // Keep the recorded audio: the finalize path re-transcribes it offline so the
         // pasted text gets full-context (pause-aware) punctuation.
+        let pipelineClock = ContinuousClock()
+        let pipelineStart = pipelineClock.now
         let recordedAudioData: Data
+        let audioStopSeconds: Double
         do {
+            let audioStopStart = pipelineClock.now
             recordedAudioData = try await audioRecorder.stopRecording()
+            audioStopSeconds = audioStopStart.duration(to: pipelineClock.now).pipelineSeconds
             try ensureOperationCurrent(token)
         } catch {
             if Self.isTaskCancellation(error) { throw CancellationError() }
@@ -3624,10 +3635,13 @@ final class AppCoordinator {
             throw error
         }
 
-        let outcome = try await streamingSession.finalize(
+        var outcome = try await streamingSession.finalize(
             recordedAudioData: recordedAudioData,
             recordingDuration: Date().timeIntervalSince(startTime)
         )
+        outcome.pipelineMetrics.audioStopSeconds = audioStopSeconds
+        outcome.pipelineMetrics.totalSeconds = pipelineStart.duration(to: pipelineClock.now).pipelineSeconds
+        Log.app.info("Pipeline timing: \(outcome.pipelineMetrics.logSummary)")
         try ensureOperationCurrent(token)
         lastAppliedReplacements = outcome.appliedReplacements
 
@@ -3657,7 +3671,10 @@ final class AppCoordinator {
                 diarizationSegmentsJSON: nil,
                 destinationAppName: outcome.destinationAppName,
                 destinationAppBundleID: outcome.destinationAppBundleID,
-                speakerTrainingSegments: speakerTrainingSegments
+                speakerTrainingSegments: speakerTrainingSegments,
+                pipelineMetricsJSON: outcome.pipelineMetrics.hasAnyStage
+                    ? outcome.pipelineMetrics.jsonString()
+                    : nil
             )
             if let nativeAudio = audioRecorder.takeLastNativeAudio(),
                let nativePCMURL = nativeAudio.takeFileURL() {
@@ -3696,6 +3713,10 @@ final class AppCoordinator {
             return
         }
 
+        let pipelineClock = ContinuousClock()
+        let pipelineStart = pipelineClock.now
+        var pipelineMetrics = PipelineMetrics(kind: .batch)
+
         isRecording = false
         mediaPauseService.endRecordingSession()
         suspendLiveContextSessionUpdates()
@@ -3717,14 +3738,16 @@ final class AppCoordinator {
 
         let audioData: Data
         do {
+            let audioStopStart = pipelineClock.now
             audioData = try await audioRecorder.stopRecording()
+            pipelineMetrics.audioStopSeconds = audioStopStart.duration(to: pipelineClock.now).pipelineSeconds
             try ensureOperationCurrent(token)
         } catch {
             if Self.isTaskCancellation(error) { throw CancellationError() }
             Log.app.error("Failed to stop recording: \(error)")
             throw error
         }
-        
+
         guard !audioData.isEmpty else {
             Log.app.warning("No audio data recorded")
             handleNoSpeechDetected(context: "recording")
@@ -3737,6 +3760,7 @@ final class AppCoordinator {
 
         let transcriptionOutput: TranscriptionOutput
         do {
+            let transcriptionStart = pipelineClock.now
             transcriptionOutput = try await transcriptionService.transcribe(
                 audioData: audioData,
                 diarizationEnabled: diarizationEnabled,
@@ -3744,6 +3768,7 @@ final class AppCoordinator {
                 diarizationOptions: .init(),
                 diarizationFailurePolicy: .bestEffort
             )
+            pipelineMetrics.transcriptionSeconds = transcriptionStart.duration(to: pipelineClock.now).pipelineSeconds
             try ensureOperationCurrent(token)
         } catch let error as TranscriptionService.TranscriptionError {
             guard operationController.isCurrent(token), !Self.isTaskCancellation(error) else {
@@ -3788,6 +3813,7 @@ final class AppCoordinator {
         let diarizationSegmentsJSON = encodeDiarizationSegmentsJSON(transcriptionOutput.diarizedSegments)
         let transcribedText = transcriptionOutput.text
 
+        let textProcessingStart = pipelineClock.now
         var (textAfterReplacements, appliedReplacements) = try dictionaryStore.applyReplacements(to: transcribedText)
         textAfterReplacements = normalizedTranscriptionText(textAfterReplacements)
 
@@ -3860,6 +3886,8 @@ final class AppCoordinator {
             }
         }
         
+        pipelineMetrics.textProcessingSeconds = textProcessingStart.duration(to: pipelineClock.now).pipelineSeconds
+
         var finalText = normalizedTranscriptionText(textAfterMentions)
         var originalText: String? = nil
         var enhancedWithModel: String? = nil
@@ -3867,6 +3895,7 @@ final class AppCoordinator {
         if let transcriptionAssignment = settingsStore.resolveAssignment(
             for: .transcriptionEnhancement)
         {
+            let enhancementStart = pipelineClock.now
             do {
                 originalText = textAfterMentions
                 Log.app.info("AI enhancement enabled, saving original text before enhancement")
@@ -3964,7 +3993,7 @@ final class AppCoordinator {
                     )
                 }
 
-                finalText = try await aiEnhancementService.enhance(
+                let enhancementResult = try await aiEnhancementService.enhanceWithMetrics(
                     text: textAfterMentions,
                     apiEndpoint: transcriptionAssignment.endpoint ?? "",
                     apiKey: transcriptionAssignment.apiKey,
@@ -3974,6 +4003,16 @@ final class AppCoordinator {
                     context: contextMetadata,
                     provider: transcriptionAssignment.kind
                 )
+                finalText = enhancementResult.text
+                pipelineMetrics.enhancementRequestSeconds = enhancementResult.requestSeconds
+                pipelineMetrics.enhancementProvider = transcriptionAssignment.kind.rawValue
+                pipelineMetrics.enhancementModel = transcriptionAssignment.modelID
+                if let usage = enhancementResult.usage {
+                    pipelineMetrics.enhancementPromptTokens = usage.promptTokens
+                    pipelineMetrics.enhancementCompletionTokens = usage.completionTokens
+                    pipelineMetrics.enhancementReasoningTokens = usage.reasoningTokens
+                    pipelineMetrics.enhancementTotalTokens = usage.totalTokens
+                }
                 try ensureOperationCurrent(token)
                 if let capabilities = mentionFormattingCapabilities,
                    capabilities.supportsFileMentions,
@@ -4005,6 +4044,7 @@ final class AppCoordinator {
                 capturedRoutingSignal = nil
                 stopLiveContextSession()
                 enhancedWithModel = transcriptionAssignment.modelID
+                pipelineMetrics.enhancementSeconds = enhancementStart.duration(to: pipelineClock.now).pipelineSeconds
                 Log.app.info("AI enhancement completed, original: \(textAfterMentions.count) chars, enhanced: \(finalText.count) chars")
             } catch {
                 // Cancelled/stale generation must not toast; abort the operation entirely.
@@ -4053,7 +4093,9 @@ final class AppCoordinator {
                 ensureAccessibilityPermissionForDirectInsert(trigger: "output", showFallbackAlert: true)
             }
             let outputText = settingsStore.addTrailingSpace ? finalText + " " : finalText
+            let outputStart = pipelineClock.now
             outputResult = try await outputManager.output(outputText)
+            pipelineMetrics.outputSeconds = outputStart.duration(to: pipelineClock.now).pipelineSeconds
             outputSucceeded = true
             if outputManager.outputMode == .directInsert,
                settingsStore.automaticDictionaryLearningEnabled {
@@ -4068,6 +4110,9 @@ final class AppCoordinator {
             if Self.isTaskCancellation(error) { throw CancellationError() }
             Log.app.error("Output failed: \(error)")
         }
+
+        pipelineMetrics.totalSeconds = pipelineStart.duration(to: pipelineClock.now).pipelineSeconds
+        Log.app.info("Pipeline timing: \(pipelineMetrics.logSummary)")
 
         try ensureOperationCurrent(token)
         guard Self.shouldPersistHistory(outputSucceeded: outputSucceeded, text: finalText) else { return }
@@ -4087,18 +4132,29 @@ final class AppCoordinator {
                 diarizationSegmentsJSON: diarizationSegmentsJSON,
                 destinationAppName: outputResult?.destinationAppName,
                 destinationAppBundleID: outputResult?.destinationAppBundleID,
-                speakerTrainingSegments: speakerTrainingSegments
+                speakerTrainingSegments: speakerTrainingSegments,
+                pipelineMetricsJSON: pipelineMetrics.hasAnyStage ? pipelineMetrics.jsonString() : nil
             )
+            var successParameters: [String: String] = [
+                TelemetryParameter.backend: settingsStore.resolvedTranscriptionBackend.rawValue,
+                TelemetryParameter.model: settingsStore.selectedModel,
+                TelemetryParameter.durationBucket: TelemetryService.durationBucket(duration),
+                TelemetryParameter.wordCountBucket: TelemetryService.wordCountBucket(finalText.wordCount),
+                TelemetryParameter.enhanced: String(enhancedWithModel != nil),
+                TelemetryParameter.diarized: String(diarizationSegmentsJSON != nil)
+            ]
+            if let seconds = pipelineMetrics.transcriptionSeconds {
+                successParameters[TelemetryParameter.transcribeLatencyBucket] = TelemetryService.latencyBucket(seconds)
+            }
+            if let seconds = pipelineMetrics.enhancementSeconds {
+                successParameters[TelemetryParameter.enhanceLatencyBucket] = TelemetryService.latencyBucket(seconds)
+            }
+            if let seconds = pipelineMetrics.totalSeconds {
+                successParameters[TelemetryParameter.totalLatencyBucket] = TelemetryService.latencyBucket(seconds)
+            }
             telemetryService.send(
                 .transcriptionSucceeded,
-                parameters: [
-                    TelemetryParameter.backend: settingsStore.resolvedTranscriptionBackend.rawValue,
-                    TelemetryParameter.model: settingsStore.selectedModel,
-                    TelemetryParameter.durationBucket: TelemetryService.durationBucket(duration),
-                    TelemetryParameter.wordCountBucket: TelemetryService.wordCountBucket(finalText.wordCount),
-                    TelemetryParameter.enhanced: String(enhancedWithModel != nil),
-                    TelemetryParameter.diarized: String(diarizationSegmentsJSON != nil)
-                ],
+                parameters: successParameters,
                 sampleRate: TelemetryService.successSampleRate
             )
             if let nativeAudio = audioRecorder.takeLastNativeAudio(),

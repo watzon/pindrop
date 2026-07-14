@@ -120,6 +120,9 @@ available:
 average:
   session: "Average session"
   words_session: "Average words / session"
+  time_to_paste: "Timp mediu până la lipire"
+  transcription_time: "Timp mediu de transcriere"
+  ai_enhancement: "Îmbunătățire AI medie"
 avg:
   speed: "Viteza medie"
 back:
@@ -1553,3 +1556,8 @@ corrected:
   _self: "Corectat"
 edited:
   _self: "Editat"
+total:
+  _self: "Total"
+tokens:
+  in_out: "%@ tokenuri de intrare / %@ de ieșire"
+  in_out_thinking: "%@ tokenuri de intrare / %@ de ieșire / %@ de gândire"

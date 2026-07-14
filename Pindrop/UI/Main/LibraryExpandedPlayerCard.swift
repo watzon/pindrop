@@ -70,7 +70,10 @@ struct LibraryExpandedPlayerCard: View {
             transcript: record.text,
             showsPlayer: hasAudio
         ) {
-            metaRow
+            VStack(alignment: .leading, spacing: 6) {
+                metaRow
+                timingRow
+            }
         } player: {
             // Clock-dependent UI only — static chrome/meta/actions stay outside
             // the 0.25s playback observation graph.
@@ -191,6 +194,28 @@ struct LibraryExpandedPlayerCard: View {
             }
         }
         .frame(minHeight: 20)
+    }
+
+    // MARK: - Timing
+
+    /// One caption line of pipeline stage latencies (and enhancement token usage)
+    /// for instrumented dictations. Absent for pre-metrics records and media imports.
+    @ViewBuilder
+    private var timingRow: some View {
+        if let metrics = record.pipelineMetrics, metrics.hasAnyStage {
+            let captions = [
+                PipelineTimingPresentation.stagesCaption(metrics, locale: locale),
+                PipelineTimingPresentation.tokensCaption(metrics, locale: locale)
+            ].compactMap { $0 }
+            if !captions.isEmpty {
+                Text(captions.joined(separator: " · "))
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.textTertiary)
+                    .monospacedDigit()
+                    .lineLimit(2)
+                    .accessibilityIdentifier("library.caption.pipelineTiming")
+            }
+        }
     }
 
     // MARK: - Actions

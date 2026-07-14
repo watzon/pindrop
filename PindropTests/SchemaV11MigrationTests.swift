@@ -13,16 +13,15 @@ import Testing
 @MainActor
 @Suite(.serialized)
 struct SchemaV11MigrationTests {
-    @Test func currentSchemaIsV11WithTrainingContributionTable() throws {
+    @Test func schemaV11AddsTrainingContributionTable() throws {
         #expect(TranscriptionRecordSchemaV11.versionIdentifier == .init(1, 0, 10))
         #expect(TranscriptionRecordSchemaV11.models.contains { $0 == TrainingContribution.self })
-        #expect(TranscriptionRecordSchemaV11.models.contains { $0 == TranscriptionRecord.self })
+        #expect(TranscriptionRecordSchemaV11.models.contains { $0 == TranscriptionRecordSchemaV11.TranscriptionRecord.self })
     }
 
-    @Test func migrationPlanEndsWithV10ToV11LightweightStage() {
-        #expect(TranscriptionRecordMigrationPlan.schemas.count == 11)
-        #expect(TranscriptionRecordMigrationPlan.stages.count == 10)
-        #expect(TranscriptionRecordMigrationPlan.schemas.last == TranscriptionRecordSchemaV11.self)
+    @Test func migrationPlanContainsV10ToV11Stage() {
+        #expect(TranscriptionRecordMigrationPlan.schemas.contains { $0 == TranscriptionRecordSchemaV10.self })
+        #expect(TranscriptionRecordMigrationPlan.schemas.contains { $0 == TranscriptionRecordSchemaV11.self })
     }
 
     @Test func userEditedAtStartsNilAndTrainingContributionRoundTrips() throws {
@@ -79,7 +78,7 @@ struct SchemaV11MigrationTests {
             try legacyContext.save()
         }
 
-        let migratedSchema = Schema(versionedSchema: TranscriptionRecordSchemaV11.self)
+        let migratedSchema = Schema(versionedSchema: TranscriptionRecordSchemaV12.self)
         let migratedContainer = try ModelContainer(
             for: migratedSchema,
             migrationPlan: TranscriptionRecordMigrationPlan.self,

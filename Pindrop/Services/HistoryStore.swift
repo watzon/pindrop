@@ -989,7 +989,8 @@ final class HistoryStore {
         destinationAppName: String? = nil,
         destinationAppBundleID: String? = nil,
         wordCount: Int? = nil,
-        speakerTrainingSegments: [DiarizedTranscriptSegment]? = nil
+        speakerTrainingSegments: [DiarizedTranscriptSegment]? = nil,
+        pipelineMetricsJSON: String? = nil
     ) throws -> TranscriptionRecord {
         // Always persist a word count for the final text; callers may pass an
         // explicit value (e.g. pre-computed) but we default to String.wordCount.
@@ -1011,7 +1012,8 @@ final class HistoryStore {
             thumbnailPath: thumbnailPath,
             destinationAppName: destinationAppName,
             destinationAppBundleID: destinationAppBundleID,
-            wordCount: resolvedWordCount
+            wordCount: resolvedWordCount,
+            pipelineMetricsJSON: pipelineMetricsJSON
         )
 
         if let folderID,

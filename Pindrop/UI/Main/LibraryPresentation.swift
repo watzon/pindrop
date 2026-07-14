@@ -328,3 +328,49 @@ enum LibraryPlaybackRate {
         return String(format: "%.2g×", rounded)
     }
 }
+
+// MARK: - Pipeline timing captions
+
+/// Formats a record's `PipelineMetrics` into the caption line shown on the
+/// expanded Library player card.
+enum PipelineTimingPresentation {
+    /// "Total 4.3 s · Transcription 1.4 s · AI Enhancement 2.6 s · Paste 50 ms".
+    /// Nil when no stage duration was captured.
+    static func stagesCaption(_ metrics: PipelineMetrics, locale: Locale) -> String? {
+        var parts: [String] = []
+        func append(_ label: String, _ seconds: Double?) {
+            guard let seconds else { return }
+            parts.append("\(label) \(StatsPresentation.formatLatency(seconds, locale: locale))")
+        }
+        append(localized("Total", locale: locale), metrics.totalSeconds)
+        append(localized("Transcription", locale: locale), metrics.transcriptionSeconds)
+        append(localized("AI Enhancement", locale: locale), metrics.enhancementSeconds)
+        append(localized("Paste", locale: locale), metrics.outputSeconds)
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+
+    /// "812 in / 96 out tokens", with a thinking-token segment when the provider
+    /// reported reasoning usage. Nil when the enhancement response carried no usage.
+    static func tokensCaption(_ metrics: PipelineMetrics, locale: Locale) -> String? {
+        guard let prompt = metrics.enhancementPromptTokens,
+              let completion = metrics.enhancementCompletionTokens else {
+            return nil
+        }
+        let formatter = NumberFormatter()
+        formatter.locale = locale
+        formatter.numberStyle = .decimal
+        func format(_ value: Int) -> String {
+            formatter.string(from: NSNumber(value: value)) ?? String(value)
+        }
+        if let reasoning = metrics.enhancementReasoningTokens, reasoning > 0 {
+            return String(
+                format: localized("%@ in / %@ out / %@ thinking tokens", locale: locale),
+                format(prompt), format(completion), format(reasoning)
+            )
+        }
+        return String(
+            format: localized("%@ in / %@ out tokens", locale: locale),
+            format(prompt), format(completion)
+        )
+    }
+}

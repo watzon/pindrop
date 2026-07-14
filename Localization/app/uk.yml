@@ -120,6 +120,9 @@ available:
 average:
   session: "Average session"
   words_session: "Average words / session"
+  time_to_paste: "Середній час до вставлення"
+  transcription_time: "Середній час транскрипції"
+  ai_enhancement: "Середнє покращення AI"
 avg:
   speed: "Середня швидкість"
 back:
@@ -1553,3 +1556,8 @@ corrected:
   _self: "Виправлено"
 edited:
   _self: "Відредаговано"
+total:
+  _self: "Разом"
+tokens:
+  in_out: "%@ вхідних / %@ вихідних токенів"
+  in_out_thinking: "%@ вхідних / %@ вихідних / %@ токенів міркування"

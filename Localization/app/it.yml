@@ -120,6 +120,9 @@ available:
 average:
   session: "Average session"
   words_session: "Average words / session"
+  time_to_paste: "Tempo medio fino all'incollaggio"
+  transcription_time: "Tempo medio di trascrizione"
+  ai_enhancement: "Miglioramento IA medio"
 avg:
   speed: "Velocità media"
 back:
@@ -1553,3 +1556,8 @@ corrected:
   _self: "Corretto"
 edited:
   _self: "Modificato"
+total:
+  _self: "Totale"
+tokens:
+  in_out: "%@ token in ingresso / %@ in uscita"
+  in_out_thinking: "%@ token in ingresso / %@ in uscita / %@ di ragionamento"

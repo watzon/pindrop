@@ -97,6 +97,7 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		CONTRIBSVCBUILD01A2B3C4D5E6F /* ContributionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CONTRIBSVCFILE01A2B3C4D5E6F /* ContributionService.swift */; };
 		CONTRIBUPLDBUILD01A2B3C4D5E6F /* ContributionUploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CONTRIBUPLDFILE01A2B3C4D5E6F /* ContributionUploader.swift */; };
 		SCHEMAV11TESTBUILD01A2B3C4D5E6F /* SchemaV11MigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHEMAV11TESTFILE01A2B3C4D5E6F /* SchemaV11MigrationTests.swift */; };
+		SCHEMAV12TESTBUILD01A2B3C4D5E6F /* SchemaV12MigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCHEMAV12TESTFILE01A2B3C4D5E6F /* SchemaV12MigrationTests.swift */; };
 		TRAINREDACTTESTBUILD01A2B3C4D5F /* TrainingTextRedactorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRAINREDACTTESTFILE01A2B3C4D5EF /* TrainingTextRedactorTests.swift */; };
 		CONTRIBSVCTESTBUILD01A2B3C4D5EF /* ContributionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CONTRIBSVCTESTFILE01A2B3C4D5E6F /* ContributionServiceTests.swift */; };
 		TELEMETRYDECKBUILD01A2B3C4D5EF /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = TELEMETRYDECKDEP01A2B3C4D5E6F /* TelemetryDeck */; };
@@ -210,6 +211,7 @@ MODELSPRESENTTESTBUILD01A2 /* ModelsPresentationTests.swift in Sources */ = {isa
 		MEDIAPAUSEBUILD01A2B3C4D5E6F /* MediaPauseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIAPAUSEFILE01A2B3C4D5E6F /* MediaPauseService.swift */; };
 		MEDIAPREPBUILD01A2B3C4D5E6F /* MediaPreparationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIAPREPFILE01A2B3C4D5E6F /* MediaPreparationService.swift */; };
 		MEDIASOURCEKINDBUILD01 /* MediaSourceKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = MEDIASOURCEKINDFILE01 /* MediaSourceKind.swift */; };
+		PIPEMETRICSBUILD01A2B3 /* PipelineMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = PIPEMETRICSFILE01A2B3 /* PipelineMetrics.swift */; };
 		REPLMATCHMODEBUILD01 /* ReplacementMatchMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = REPLMATCHMODEFILE01 /* ReplacementMatchMode.swift */; };
 		VOCABBIASPROMPBUILD01 /* VocabularyBiasPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = VOCABBIASPROMPFILE01 /* VocabularyBiasPrompt.swift */; };
 		VOCABBIASPROMPTESTBUILD01 /* VocabularyBiasPromptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = VOCABBIASPROMPTESTFILE01 /* VocabularyBiasPromptTests.swift */; };
@@ -396,6 +398,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		CONTRIBSVCFILE01A2B3C4D5E6F /* ContributionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributionService.swift; sourceTree = "<group>"; };
 		CONTRIBUPLDFILE01A2B3C4D5E6F /* ContributionUploader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributionUploader.swift; sourceTree = "<group>"; };
 		SCHEMAV11TESTFILE01A2B3C4D5E6F /* SchemaV11MigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaV11MigrationTests.swift; sourceTree = "<group>"; };
+		SCHEMAV12TESTFILE01A2B3C4D5E6F /* SchemaV12MigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaV12MigrationTests.swift; sourceTree = "<group>"; };
 		TRAINREDACTTESTFILE01A2B3C4D5EF /* TrainingTextRedactorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingTextRedactorTests.swift; sourceTree = "<group>"; };
 		CONTRIBSVCTESTFILE01A2B3C4D5E6F /* ContributionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContributionServiceTests.swift; sourceTree = "<group>"; };
 		MUTEMONFILE01A2B3C4D5E6F /* InputMuteMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMuteMonitor.swift; sourceTree = "<group>"; };
@@ -516,6 +519,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 		MEDIAPAUSEFILE01A2B3C4D5E6F /* MediaPauseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPauseService.swift; sourceTree = "<group>"; };
 		MEDIAPREPFILE01A2B3C4D5E6F /* MediaPreparationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPreparationService.swift; sourceTree = "<group>"; };
 		MEDIASOURCEKINDFILE01 /* MediaSourceKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaSourceKind.swift; sourceTree = "<group>"; };
+		PIPEMETRICSFILE01A2B3 /* PipelineMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineMetrics.swift; sourceTree = "<group>"; };
 		REPLMATCHMODEFILE01 /* ReplacementMatchMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplacementMatchMode.swift; sourceTree = "<group>"; };
 		VOCABBIASPROMPFILE01 /* VocabularyBiasPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyBiasPrompt.swift; sourceTree = "<group>"; };
 		VOCABBIASPROMPTESTFILE01 /* VocabularyBiasPromptTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyBiasPromptTests.swift; sourceTree = "<group>"; };
@@ -657,6 +661,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				TRXDTLACCESSFILE01A2B3 /* TranscriptionDetailAccess.swift */,
 				31399FF62DAD4C98BBC616B3 /* TranscriptionRecord.swift */,
 				ACF3959F652E3628353F8CBC /* TranscriptionRecordSchema.swift */,
+				PIPEMETRICSFILE01A2B3 /* PipelineMetrics.swift */,
 				MEDIASOURCEKINDFILE01 /* MediaSourceKind.swift */,
 				MEDIATRANSTYPESFILE01 /* MediaTranscriptionTypes.swift */,
 				WORDRPLACEA1B2C3D4E5 /* WordReplacement.swift */,
@@ -885,6 +890,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				TELEMSVCTESTFILE01A2B3C4D5E6F /* TelemetryServiceTests.swift */,
 				TELEMCONTESTFILE01A2B3C4D5E6F /* TelemetryConsentServiceTests.swift */,
 				SCHEMAV11TESTFILE01A2B3C4D5E6F /* SchemaV11MigrationTests.swift */,
+				SCHEMAV12TESTFILE01A2B3C4D5E6F /* SchemaV12MigrationTests.swift */,
 				TRAINREDACTTESTFILE01A2B3C4D5EF /* TrainingTextRedactorTests.swift */,
 				CONTRIBSVCTESTFILE01A2B3C4D5E6F /* ContributionServiceTests.swift */,
 				AICFGV2TESTFILE1A2B3C4D5E6F /* SettingsStoreAIConfigTests.swift */,
@@ -1322,6 +1328,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				TELEMSVCTESTBUILD01A2B3C4D5E6F /* TelemetryServiceTests.swift in Sources */,
 				TELEMCONTESTBUILD01A2B3C4D5E6F /* TelemetryConsentServiceTests.swift in Sources */,
 				SCHEMAV11TESTBUILD01A2B3C4D5E6F /* SchemaV11MigrationTests.swift in Sources */,
+				SCHEMAV12TESTBUILD01A2B3C4D5E6F /* SchemaV12MigrationTests.swift in Sources */,
 				TRAINREDACTTESTBUILD01A2B3C4D5F /* TrainingTextRedactorTests.swift in Sources */,
 				CONTRIBSVCTESTBUILD01A2B3C4D5EF /* ContributionServiceTests.swift in Sources */,
 				AICFGV2TESTBUILD1A2B3C4D5E6F /* SettingsStoreAIConfigTests.swift in Sources */,
@@ -1395,6 +1402,7 @@ MODELSPRESENTTESTFILE01A2 /* ModelsPresentationTests.swift */ = {isa = PBXFileRe
 				14FDF042180B47FFAD78DA68 /* OutputManager.swift in Sources */,
 				E165F5F47804463DB0238E36 /* TranscriptionRecord.swift in Sources */,
 				862E74C35C4D46713D5A1B80 /* TranscriptionRecordSchema.swift in Sources */,
+				PIPEMETRICSBUILD01A2B3 /* PipelineMetrics.swift in Sources */,
 				MEDIASOURCEKINDBUILD01 /* MediaSourceKind.swift in Sources */,
 				MEDIATRANSTYPESBUILD01 /* MediaTranscriptionTypes.swift in Sources */,
 				ANNOUNCEBUILD01A2B3C4D5E6F /* Announcement.swift in Sources */,

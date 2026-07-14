@@ -120,6 +120,9 @@ available:
 average:
   session: "Average session"
   words_session: "Average words / session"
+  time_to_paste: "到貼上的平均時間"
+  transcription_time: "平均轉錄時間"
+  ai_enhancement: "平均 AI 增強時間"
 avg:
   speed: "平均速度"
 back:
@@ -1553,3 +1556,8 @@ corrected:
   _self: "已更正"
 edited:
   _self: "已編輯"
+total:
+  _self: "總計"
+tokens:
+  in_out: "輸入 %@ / 輸出 %@ 個 Token"
+  in_out_thinking: "輸入 %@ / 輸出 %@ / 思考 %@ 個 Token"

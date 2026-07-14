@@ -126,6 +126,9 @@ available:
 average:
   session: "Średnia sesja"
   words_session: "Średnia liczba słów na sesję"
+  time_to_paste: "Średni czas do wklejenia"
+  transcription_time: "Średni czas transkrypcji"
+  ai_enhancement: "Średnie ulepszanie AI"
 avg:
   speed: "Średnia prędkość"
 back:
@@ -1650,3 +1653,8 @@ corrected:
   _self: "Poprawiono"
 edited:
   _self: "Edytowano"
+total:
+  _self: "Łącznie"
+tokens:
+  in_out: "%@ tokenów wejściowych / %@ wyjściowych"
+  in_out_thinking: "%@ tokenów wejściowych / %@ wyjściowych / %@ myślenia"

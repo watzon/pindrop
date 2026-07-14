@@ -120,6 +120,9 @@ available:
 average:
   session: "Average session"
   words_session: "Average words / session"
+  time_to_paste: "Thời gian trung bình đến khi dán"
+  transcription_time: "Thời gian phiên âm trung bình"
+  ai_enhancement: "Cải tiến AI trung bình"
 avg:
   speed: "Tốc độ trung bình"
 back:
@@ -1553,3 +1556,8 @@ corrected:
   _self: "Đã sửa"
 edited:
   _self: "Đã chỉnh sửa"
+total:
+  _self: "Tổng"
+tokens:
+  in_out: "%@ token vào / %@ ra"
+  in_out_thinking: "%@ token vào / %@ ra / %@ suy nghĩ"

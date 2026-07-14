@@ -1,10 +1,10 @@
 import Foundation
 import SwiftData
 
-typealias TranscriptionRecord = TranscriptionRecordSchemaV11.TranscriptionRecord
-typealias MediaFolder = TranscriptionRecordSchemaV11.MediaFolder
-typealias ParticipantProfile = TranscriptionRecordSchemaV11.ParticipantProfile
-typealias ParticipantTrainingEvidence = TranscriptionRecordSchemaV11.ParticipantTrainingEvidence
+typealias TranscriptionRecord = TranscriptionRecordSchemaV12.TranscriptionRecord
+typealias MediaFolder = TranscriptionRecordSchemaV12.MediaFolder
+typealias ParticipantProfile = TranscriptionRecordSchemaV12.ParticipantProfile
+typealias ParticipantTrainingEvidence = TranscriptionRecordSchemaV12.ParticipantTrainingEvidence
 
 enum TranscriptionTitleOrigin: String {
     case sourceMetadata
@@ -60,6 +60,13 @@ extension TranscriptionRecord {
     var thumbnailURL: URL? {
         guard let thumbnailPath, !thumbnailPath.isEmpty else { return nil }
         return URL(fileURLWithPath: thumbnailPath)
+    }
+
+    /// Decoded pipeline latency breakdown, when this record was produced by an
+    /// instrumented dictation path.
+    var pipelineMetrics: PipelineMetrics? {
+        guard let pipelineMetricsJSON else { return nil }
+        return PipelineMetrics(jsonString: pipelineMetricsJSON)
     }
 
     var diarizedSegments: [DiarizedTranscriptSegment] {

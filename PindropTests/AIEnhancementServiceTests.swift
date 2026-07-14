@@ -1551,6 +1551,107 @@ struct AIEnhancementServiceTests {
         #expect(!(ModelCapabilities.supportsVision(modelId: "openai/gpt-4")))
         #expect(!(ModelCapabilities.supportsVision(modelId: "anthropic/claude-2")))
     }
+
+    // MARK: - Token usage metrics
+
+    @Test func enhanceWithMetricsParsesOpenAIUsageIncludingReasoningTokens() async throws {
+        let (service, mockSession) = makeSUT()
+
+        mockSession.mockData = """
+        {
+            "choices": [{
+                "message": { "content": "Enhanced text" }
+            }],
+            "usage": {
+                "prompt_tokens": 812,
+                "completion_tokens": 96,
+                "total_tokens": 908,
+                "completion_tokens_details": { "reasoning_tokens": 64 }
+            }
+        }
+        """.data(using: .utf8)
+        mockSession.mockResponse = HTTPURLResponse(
+            url: URL(string: "https://api.openai.com/v1/chat/completions")!,
+            statusCode: 200,
+            httpVersion: nil,
+            headerFields: nil
+        )
+
+        let result = try await service.enhanceWithMetrics(
+            text: "test",
+            apiEndpoint: "https://api.openai.com/v1/chat/completions",
+            apiKey: "test-api-key",
+            imageBase64: nil
+        )
+
+        #expect(result.text == "Enhanced text")
+        let usage = try #require(result.usage)
+        #expect(usage.promptTokens == 812)
+        #expect(usage.completionTokens == 96)
+        #expect(usage.totalTokens == 908)
+        #expect(usage.reasoningTokens == 64)
+        #expect(result.requestSeconds >= 0)
+    }
+
+    @Test func enhanceWithMetricsParsesAnthropicUsage() async throws {
+        let (service, mockSession) = makeSUT()
+
+        mockSession.mockData = """
+        {
+            "content": [{ "type": "text", "text": "Enhanced text" }],
+            "usage": { "input_tokens": 500, "output_tokens": 42 }
+        }
+        """.data(using: .utf8)
+        mockSession.mockResponse = HTTPURLResponse(
+            url: URL(string: "https://api.anthropic.com/v1/messages")!,
+            statusCode: 200,
+            httpVersion: nil,
+            headerFields: nil
+        )
+
+        let result = try await service.enhanceWithMetrics(
+            text: "test",
+            apiEndpoint: "https://api.anthropic.com/v1/messages",
+            apiKey: "test-api-key",
+            imageBase64: nil,
+            provider: .anthropic
+        )
+
+        #expect(result.text == "Enhanced text")
+        let usage = try #require(result.usage)
+        #expect(usage.promptTokens == 500)
+        #expect(usage.completionTokens == 42)
+        #expect(usage.totalTokens == 542)
+        #expect(usage.reasoningTokens == nil)
+    }
+
+    @Test func enhanceWithMetricsReturnsNilUsageWhenResponseOmitsUsage() async throws {
+        let (service, mockSession) = makeSUT()
+        configureSuccessfulChatResponse(mockSession)
+
+        let result = try await service.enhanceWithMetrics(
+            text: "test",
+            apiEndpoint: "https://api.openai.com/v1/chat/completions",
+            apiKey: "test-api-key",
+            imageBase64: nil
+        )
+
+        #expect(result.text == "Enhanced text")
+        #expect(result.usage == nil)
+    }
+
+    @Test func enhanceStringOverloadStillReturnsPlainText() async throws {
+        let (service, mockSession) = makeSUT()
+        configureSuccessfulChatResponse(mockSession, content: "Plain result")
+
+        let result = try await service.enhance(
+            text: "test",
+            apiEndpoint: "https://api.openai.com/v1/chat/completions",
+            apiKey: "test-api-key"
+        )
+
+        #expect(result == "Plain result")
+    }
 }
 
 // MARK: - Mock URLSession
