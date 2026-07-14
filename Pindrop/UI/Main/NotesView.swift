@@ -18,12 +18,16 @@ struct NotesView: View {
 
     @Query(sort: \NoteSchema.Note.updatedAt, order: .reverse) private var allNotes: [NoteSchema.Note]
 
-    @State private var searchText = ""
     /// Applied search query driving the derived list snapshot.
     /// Empty clears immediately; non-empty queries debounce before applying.
     @State private var appliedSearchQuery = ""
-    @State private var searchDebounceTask: Task<Void, Never>?
+    /// Draft empty/nonempty intent for empty-state wording only. Updates on
+    /// whitespace-empty transitions so presentation is immediate while the
+    /// expensive filter query remains debounced.
+    @State private var hasDraftSearchIntent = false
     @State private var snapshotCache = NotesListSnapshotCache()
+    /// Focus stays on the list owner so keyboard selection can exclude the field;
+    /// draft text/debounce live in `NotesSearchChrome`.
     @FocusState private var isSearchFieldFocused: Bool
     @State private var selectedNoteID: PersistentIdentifier?
     @State private var pendingDeletionNote: NoteSchema.Note?
@@ -34,28 +38,22 @@ struct NotesView: View {
         NotesStore(modelContext: modelContext)
     }
 
-    private var trimmedSearchText: String {
-        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
     /// Single derived snapshot for body + keyboard selection (one derivation per input change).
-    private var listSnapshot: NotesListSnapshot {
+    private func listSnapshot() -> NotesListSnapshot {
         snapshotCache.snapshot(notes: allNotes, query: appliedSearchQuery)
     }
 
-    private var headerMetaText: String {
-        NotesHeaderMeta.text(noteCount: listSnapshot.filteredCount, locale: locale)
-    }
-
     var body: some View {
+        // Exactly one snapshot/fingerprint evaluation per owner body.
+        let snapshot = listSnapshot()
         VStack(spacing: 0) {
-            headerSection
+            headerSection(filteredCount: snapshot.filteredCount)
                 .padding(.horizontal, 40)
                 .padding(.top, 40)
                 .padding(.bottom, 18)
                 .background(AppColors.contentBackground)
 
-            contentArea
+            contentArea(snapshot: snapshot)
                 .background(AppColors.contentBackground)
         }
         .background(AppColors.contentBackground)
@@ -83,15 +81,9 @@ struct NotesView: View {
         }
         .onAppear {
             installKeyMonitorIfNeeded()
-            applySearchQueryImmediately(trimmedSearchText)
         }
         .onDisappear {
             removeKeyMonitor()
-            searchDebounceTask?.cancel()
-            searchDebounceTask = nil
-        }
-        .onChange(of: searchText) { _, _ in
-            handleSearchTextChange()
         }
         .background {
             // ⌘N new note (hidden button for keyboard shortcut)
@@ -105,14 +97,21 @@ struct NotesView: View {
 
     // MARK: - Header
 
-    private var headerSection: some View {
-        PageHeader(title: localized("Notes", locale: locale), meta: headerMetaText) {
+    private func headerSection(filteredCount: Int) -> some View {
+        PageHeader(
+            title: localized("Notes", locale: locale),
+            meta: NotesHeaderMeta.text(noteCount: filteredCount, locale: locale)
+        ) {
             HStack(spacing: 10) {
-                SearchFieldChrome(
-                    text: $searchText,
+                NotesSearchChrome(
                     placeholder: localized("Search notes...", locale: locale),
-                    showsKeyboardHint: true,
-                    isFocused: $isSearchFieldFocused
+                    isFocused: $isSearchFieldFocused,
+                    onAppliedQueryChange: { query in
+                        appliedSearchQuery = query
+                    },
+                    onDraftSearchIntentChange: { hasIntent in
+                        hasDraftSearchIntent = hasIntent
+                    }
                 )
                 .frame(width: 200)
 
@@ -129,13 +128,13 @@ struct NotesView: View {
     // MARK: - Content
 
     @ViewBuilder
-    private var contentArea: some View {
+    private func contentArea(snapshot: NotesListSnapshot) -> some View {
         if let errorMessage {
             errorView(errorMessage)
-        } else if listSnapshot.filteredCount == 0 {
-            emptyStateView
+        } else if snapshot.filteredCount == 0 {
+            emptyStateView(isSearching: hasDraftSearchIntent)
         } else {
-            notesList
+            notesList(snapshot: snapshot)
         }
     }
 
@@ -161,25 +160,25 @@ struct NotesView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    private var emptyStateView: some View {
+    private func emptyStateView(isSearching: Bool) -> some View {
         VStack(spacing: 12) {
-            Image(systemName: searchText.isEmpty ? "note.text" : "magnifyingglass")
+            Image(systemName: isSearching ? "magnifyingglass" : "note.text")
                 .font(.system(size: 28, weight: .light))
                 .foregroundStyle(AppColors.textTertiary)
 
-            Text(searchText.isEmpty
-                 ? localized("No notes yet", locale: locale)
-                 : localized("No results found", locale: locale))
+            Text(isSearching
+                 ? localized("No results found", locale: locale)
+                 : localized("No notes yet", locale: locale))
                 .font(AppTypography.labelStrong)
                 .foregroundStyle(AppColors.textPrimary)
 
-            Text(searchText.isEmpty
-                 ? localized("Create your first note to get started", locale: locale)
-                 : localized("Try a different search term", locale: locale))
+            Text(isSearching
+                 ? localized("Try a different search term", locale: locale)
+                 : localized("Create your first note to get started", locale: locale))
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.textSecondary)
 
-            if searchText.isEmpty {
+            if !isSearching {
                 PrimaryButton(
                     title: localized("New note", locale: locale),
                     systemImage: "plus",
@@ -191,9 +190,8 @@ struct NotesView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    private var notesList: some View {
-        let snapshot = listSnapshot
-        return ScrollView(.vertical, showsIndicators: true) {
+    private func notesList(snapshot: NotesListSnapshot) -> some View {
+        ScrollView(.vertical, showsIndicators: true) {
             LazyVStack(alignment: .leading, spacing: 0) {
                 ForEach(Array(snapshot.sections.enumerated()), id: \.element.key) { index, group in
                     SectionHeader(
@@ -385,35 +383,6 @@ struct NotesView: View {
         localized(key.localizationKey, locale: locale)
     }
 
-    // MARK: - Search
-
-    private func handleSearchTextChange() {
-        let query = trimmedSearchText
-        if query.isEmpty {
-            // Empty query must clear results immediately (no debounce lag).
-            applySearchQueryImmediately("")
-            return
-        }
-        searchDebounceTask?.cancel()
-        searchDebounceTask = Task { @MainActor in
-            do {
-                try await Task.sleep(for: .milliseconds(250))
-            } catch {
-                return
-            }
-            guard !Task.isCancelled else { return }
-            // Re-read current field so a superseded keystroke is ignored.
-            let latest = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-            appliedSearchQuery = latest
-        }
-    }
-
-    private func applySearchQueryImmediately(_ query: String) {
-        searchDebounceTask?.cancel()
-        searchDebounceTask = nil
-        appliedSearchQuery = query
-    }
-
     // MARK: - Actions
 
     private func createNewNote() {
@@ -494,7 +463,7 @@ struct NotesView: View {
     }
 
     private func handleListKeyEvent(_ event: NSEvent) -> NSEvent? {
-        let selectable = listSnapshot.flatSelectableNotes
+        let selectable = listSnapshot().flatSelectableNotes
         switch event.keyCode {
         case 126:
             moveListSelection(delta: -1, notes: selectable)
@@ -539,6 +508,104 @@ struct NotesView: View {
         guard selectedNoteID != nil else { return false }
         selectedNoteID = nil
         return true
+    }
+}
+
+// MARK: - Search draft intent
+
+/// Pure helpers for notes search draft intent (empty-state wording).
+/// Filtering still uses the debounced applied query; only the empty/nonempty
+/// boundary is published upward for immediate empty-state presentation.
+enum NotesSearchPresentation {
+    /// True when the draft has any non-whitespace content.
+    static func hasDraftSearchIntent(_ draft: String) -> Bool {
+        !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    /// Returns the new intent only when the empty/nonempty boundary is crossed;
+    /// `nil` means the owner should not be notified (no keystroke fan-out).
+    static func draftSearchIntentTransition(
+        previousHasIntent: Bool,
+        draft: String
+    ) -> Bool? {
+        let next = hasDraftSearchIntent(draft)
+        return next == previousHasIntent ? nil : next
+    }
+}
+
+// MARK: - Search chrome (draft state isolated)
+
+/// Owns draft search text and the 250 ms debounce so keystrokes do not
+/// invalidate the list-owning `NotesView` body. Empty clears apply immediately;
+/// non-empty queries settle after 250 ms. Draft empty/nonempty intent is
+/// published immediately (boolean only) for empty-state presentation.
+private struct NotesSearchChrome: View {
+    let placeholder: String
+    var isFocused: FocusState<Bool>.Binding
+    let onAppliedQueryChange: (String) -> Void
+    let onDraftSearchIntentChange: (Bool) -> Void
+
+    @State private var searchText = ""
+    @State private var searchDebounceTask: Task<Void, Never>?
+    @State private var lastPublishedDraftIntent = false
+
+    var body: some View {
+        SearchFieldChrome(
+            text: $searchText,
+            placeholder: placeholder,
+            showsKeyboardHint: true,
+            isFocused: isFocused
+        )
+        .onChange(of: searchText) { _, _ in
+            handleSearchTextChange()
+        }
+        .onDisappear {
+            searchDebounceTask?.cancel()
+            searchDebounceTask = nil
+        }
+    }
+
+    private var trimmedSearchText: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func handleSearchTextChange() {
+        let query = trimmedSearchText
+        publishDraftSearchIntentIfNeeded(for: searchText)
+        if query.isEmpty {
+            // Empty query must clear results immediately (no debounce lag).
+            applySearchQueryImmediately("")
+            return
+        }
+        searchDebounceTask?.cancel()
+        searchDebounceTask = Task { @MainActor in
+            do {
+                try await Task.sleep(for: .milliseconds(250))
+            } catch {
+                return
+            }
+            guard !Task.isCancelled else { return }
+            // Re-read current field so a superseded keystroke is ignored.
+            let latest = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+            onAppliedQueryChange(latest)
+        }
+    }
+
+    private func applySearchQueryImmediately(_ query: String) {
+        searchDebounceTask?.cancel()
+        searchDebounceTask = nil
+        onAppliedQueryChange(query)
+    }
+
+    private func publishDraftSearchIntentIfNeeded(for draft: String) {
+        guard let next = NotesSearchPresentation.draftSearchIntentTransition(
+            previousHasIntent: lastPublishedDraftIntent,
+            draft: draft
+        ) else {
+            return
+        }
+        lastPublishedDraftIntent = next
+        onDraftSearchIntentChange(next)
     }
 }
 

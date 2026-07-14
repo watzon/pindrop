@@ -86,9 +86,16 @@ private final class FloatingIndicatorTrackerTestClock {
 @MainActor
 private final class MutableMouseDisplayState {
     var displayNumber: UInt32
+    private(set) var lookupCount = 0
 
     init(displayNumber: UInt32) {
         self.displayNumber = displayNumber
+    }
+
+    /// Countable seam for mouse-display provider lookups.
+    func currentDisplayNumber() -> UInt32 {
+        lookupCount += 1
+        return displayNumber
     }
 }
 
@@ -159,7 +166,7 @@ struct FloatingIndicatorFocusTrackerTests {
             workspaceNotificationCenter: workspaceNotificationCenter,
             now: clock.now,
             axObservationService: axObserver,
-            mouseDisplayNumberProvider: { mouseDisplayState.displayNumber },
+            mouseDisplayNumberProvider: { mouseDisplayState.currentDisplayNumber() },
             displayNumberForRect: rectDisplayResolver.displayNumber(for:),
             screenResolver: { _ in nil },
             mousePollingScheduler: { handler in
@@ -394,6 +401,76 @@ struct FloatingIndicatorFocusTrackerTests {
         let placement = try #require(fixture.tracker.placementContext)
         #expect(placement.displayNumber == 15)
         #expect(placement.source == .mouse)
+        // Fresh active seed without AX placement uses the single mouse fallback path.
+        #expect(fixture.mouseDisplayState.lookupCount == 1)
+    }
+
+    @Test func activeSessionWithAXPlacementDoesNotLookupMouseDisplay() throws {
+        let fixture = makeFixture(mouseDisplayNumber: 2)
+        let windowRect = CGRect(x: 400, y: 200, width: 800, height: 600)
+
+        fixture.axProvider.setElementAttribute(kAXFocusedWindowAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedWindow)
+        fixture.axProvider.setPointAttribute(kAXPositionAttribute, of: fixture.fakeFocusedWindow, value: windowRect.origin)
+        fixture.axProvider.setSizeAttribute(kAXSizeAttribute, of: fixture.fakeFocusedWindow, value: windowRect.size)
+        fixture.rectDisplayResolver.setDisplayNumber(7, for: windowRect)
+
+        fixture.tracker.start(mode: .activeSession)
+        defer { fixture.tracker.stop() }
+
+        let placement = try #require(fixture.tracker.placementContext)
+        #expect(placement.displayNumber == 7)
+        #expect(placement.source == .focusedWindow)
+        // Successful AX placement must not query mouse display at all.
+        #expect(fixture.mouseDisplayState.lookupCount == 0)
+        #expect(fixture.mouseSessionFactory.createCallCount == 0)
+    }
+
+    @Test func activeSessionWithFocusedElementDoesNotLookupMouseDisplay() throws {
+        let fixture = makeFixture(mouseDisplayNumber: 2)
+        let anchorRect = CGRect(x: 1600, y: 900, width: 8, height: 24)
+
+        fixture.axProvider.setElementAttribute(kAXFocusedWindowAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedWindow)
+        fixture.axProvider.setElementAttribute(kAXFocusedUIElementAttribute, of: fixture.fakeAppElement, value: fixture.fakeFocusedElement)
+        fixture.axProvider.setPointAttribute(kAXPositionAttribute, of: fixture.fakeFocusedElement, value: anchorRect.origin)
+        fixture.axProvider.setSizeAttribute(kAXSizeAttribute, of: fixture.fakeFocusedElement, value: anchorRect.size)
+        fixture.rectDisplayResolver.setDisplayNumber(9, for: anchorRect)
+
+        fixture.tracker.start(mode: .activeSession)
+        defer { fixture.tracker.stop() }
+
+        let placement = try #require(fixture.tracker.placementContext)
+        #expect(placement.displayNumber == 9)
+        #expect(placement.source == .focusedElement)
+        #expect(fixture.mouseDisplayState.lookupCount == 0)
+    }
+
+    @Test func activeSessionFallbackPerformsAtMostOneMouseDisplayLookup() throws {
+        let fixture = makeFixture(mouseDisplayNumber: 15)
+        fixture.axProvider.isTrusted = false
+
+        fixture.tracker.start(mode: .activeSession)
+        defer { fixture.tracker.stop() }
+
+        let placement = try #require(fixture.tracker.placementContext)
+        #expect(placement.displayNumber == 15)
+        #expect(placement.source == .mouse)
+        #expect(fixture.mouseDisplayState.lookupCount == 1)
+    }
+
+    @Test func idlePillStillPerformsMouseDisplayLookupForSeed() throws {
+        let fixture = makeFixture(mouseDisplayNumber: 12)
+
+        fixture.tracker.start(mode: .idlePill)
+        defer { fixture.tracker.stop() }
+
+        let placement = try #require(fixture.tracker.placementContext)
+        #expect(placement.displayNumber == 12)
+        #expect(placement.source == .mouse)
+        // Idle start may record last-observed mouse display and seed from mouse;
+        // require a real lookup without mandating a fixed internal read count.
+        #expect(fixture.mouseDisplayState.lookupCount >= 1)
+        #expect(fixture.mouseDisplayState.lookupCount <= 2)
+        #expect(fixture.mouseSessionFactory.createCallCount == 1)
     }
 
     // MARK: - Pointer session lifecycle (performance regressions)

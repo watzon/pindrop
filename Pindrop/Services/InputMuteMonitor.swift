@@ -361,7 +361,8 @@ final class InputMuteMonitor: InputMuteObserving {
         preferredDeviceUID: String? = nil,
         reader: (any InputDeviceMuteReading)? = nil
     ) {
-        self.preferredDeviceUID = preferredDeviceUID
+        self.preferredDeviceUID =
+            (preferredDeviceUID?.isEmpty == true) ? nil : preferredDeviceUID
         let resolvedReader = reader ?? CoreAudioInputDeviceMuteReader()
         self.reader = resolvedReader
         // Pass the reader only when it's a test double (non-CoreAudio) so mock remove
@@ -401,6 +402,7 @@ final class InputMuteMonitor: InputMuteObserving {
 
     func setPreferredDeviceUID(_ uid: String?) {
         let normalized = (uid?.isEmpty == true) ? nil : uid
+        guard preferredDeviceUID != normalized else { return }
         preferredDeviceUID = normalized
         guard isRunning else { return }
         rebindToPreferredDevice()

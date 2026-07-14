@@ -14,7 +14,9 @@ struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.locale) private var locale
     @Query(sort: \TranscriptionRecord.timestamp, order: .reverse) private var transcriptions: [TranscriptionRecord]
-    @ObservedObject private var settingsStore: SettingsStore
+    /// Shared settings reference — not observed at the root so unrelated
+    /// SettingsStore publications do not invalidate the whole Home page.
+    private let settingsStore: SettingsStore
     /// Aggregation cache keyed by record projection + calendar day. Hover/selection
     /// live in chart children so pointer movement cannot invalidate this work.
     @State private var statsCache = DashboardStatsCache()
@@ -38,7 +40,7 @@ struct DashboardView: View {
 
     init(
         floatingIndicatorState: FloatingIndicatorState? = nil,
-        settingsStore: SettingsStore? = nil,
+        settingsStore: SettingsStore,
         recordingState: RecordingFeatureState? = nil,
         onOpenHotkeys: (() -> Void)? = nil,
         onViewAllHistory: (() -> Void)? = nil,
@@ -52,7 +54,7 @@ struct DashboardView: View {
     ) {
         // Indicator state is owned by the shell chrome; Home must not observe it.
         _ = floatingIndicatorState
-        self._settingsStore = ObservedObject(wrappedValue: settingsStore ?? SettingsStore())
+        self.settingsStore = settingsStore
         self.recordingState = recordingState
         self.onOpenHotkeys = onOpenHotkeys
         self.onViewAllHistory = onViewAllHistory
@@ -203,7 +205,7 @@ struct DashboardView: View {
                 .tracking(HomeLayoutMetrics.kickerTrackingEm * HomeLayoutMetrics.kickerSize)
 
             if isFirstRun {
-                firstRunWelcome
+                DashboardFirstRunWelcome(settingsStore: settingsStore)
                     .padding(.top, 8)
                     .padding(.bottom, HomeLayoutMetrics.heroBottomPadding)
             } else {
@@ -227,22 +229,6 @@ struct DashboardView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private var firstRunWelcome: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(localized("Speak. It's written.", locale: locale))
-                .font(FontLoader.font(family: .newsreader, size: HomeLayoutMetrics.heroFontSize, weight: .regular))
-                .foregroundStyle(AppColors.textPrimary)
-                .tracking(HomeLayoutMetrics.heroTrackingEm * HomeLayoutMetrics.heroFontSize)
-                .lineSpacing(HomeLayoutMetrics.heroLineHeight - HomeLayoutMetrics.heroFontSize)
-
-            let hotkey = settingsStore.toggleHotkey.isEmpty
-                ? localized("⌥Space", locale: locale)
-                : settingsStore.toggleHotkey
-            Text(String(format: localized("Press %@ anywhere to start dictating.", locale: locale), hotkey))
-                .font(AppTypography.bodyMeta)
-                .foregroundStyle(AppColors.textSecondary)
-        }
-    }
 
     private func heroSentence(stats: DashboardStats) -> some View {
         let parts = HomePresentation.heroSentenceParts(
@@ -661,7 +647,9 @@ private struct DashboardWeeklyBarsChart: View {
 
 // MARK: - Activity heatmap (hover isolated)
 
-/// Owns 53×7 heatmap hover so pointer movement invalidates only this subtree.
+/// Owns the 53×7 activity grid structure. Hover invalidation is confined to
+/// individual cells for scale/tooltip chrome; only the hovered week column is
+/// promoted in the outer HStack so tooltips stack above later weeks.
 private struct DashboardActivityHeatmap: View {
     let buckets: [Int]
     let streakDays: Int
@@ -672,7 +660,9 @@ private struct DashboardActivityHeatmap: View {
     let availableWidth: CGFloat
     var onShowMoreStats: (() -> Void)?
 
-    @State private var hoveredActivityIndex: Int?
+    /// Outer-week stacking only — not per-cell grid state. Invalidates the
+    /// heatmap when the pointer crosses week boundaries, not every day cell.
+    @State private var elevatedWeekIndex: Int?
 
     var body: some View {
         let maxWords = buckets.max() ?? 0
@@ -738,43 +728,27 @@ private struct DashboardActivityHeatmap: View {
                                             to: startDate
                                         ) ?? startDate
                                         let isToday = calendar.isDate(date, inSameDayAs: now)
-                                        let isHovered = hoveredActivityIndex == bucketIndex
+                                        let intensity = HomePresentation.activityIntensity(
+                                            words: words,
+                                            maxWords: maxWords
+                                        )
+                                        let cellX = CGFloat(weekIndex) * (cellSize + cellGap)
+                                        // Month-label row (~18 pt) + day offset.
+                                        let cellY = 18 + CGFloat(dayIndex) * (cellSize + cellGap)
 
-                                        RoundedRectangle(cornerRadius: min(3, cellSize / 4), style: .continuous)
-                                            .fill(activityColor(intensity: HomePresentation.activityIntensity(
-                                                words: words,
-                                                maxWords: maxWords
-                                            )))
-                                            .frame(width: cellSize, height: cellSize)
-                                            .overlay {
-                                                if isToday || isHovered {
-                                                    RoundedRectangle(
-                                                        cornerRadius: min(3, cellSize / 4),
-                                                        style: .continuous
-                                                    )
-                                                    .strokeBorder(
-                                                        isHovered ? AppColors.textPrimary : AppColors.accent,
-                                                        lineWidth: isHovered ? 1.5 : 1
-                                                    )
-                                                }
-                                            }
-                                            .scaleEffect(isHovered ? 1.35 : 1)
-                                            .zIndex(isHovered ? 1 : 0)
-                                            .contentShape(Rectangle())
-                                            .onHover { hovering in
-                                                if hovering {
-                                                    hoveredActivityIndex = bucketIndex
-                                                } else if hoveredActivityIndex == bucketIndex {
-                                                    hoveredActivityIndex = nil
-                                                }
-                                            }
-                                            .appAnimation(.fast, value: isHovered)
-                                            .accessibilityLabel(HomePresentation.activityAccessibilityLabel(
-                                                date: date,
-                                                words: words,
-                                                calendar: calendar,
-                                                locale: locale
-                                            ))
+                                        DashboardActivityHeatmapCell(
+                                            date: date,
+                                            words: words,
+                                            intensity: intensity,
+                                            isToday: isToday,
+                                            cellSize: cellSize,
+                                            dayIndex: dayIndex,
+                                            cellX: cellX,
+                                            cellY: cellY,
+                                            availableWidth: availableWidth,
+                                            locale: locale,
+                                            calendar: calendar
+                                        )
                                     } else {
                                         Color.clear
                                             .frame(width: cellSize, height: cellSize)
@@ -782,6 +756,17 @@ private struct DashboardActivityHeatmap: View {
                                     }
                                 }
                             }
+                            // Elevate the whole week column while the pointer is
+                            // inside it so a cell tooltip can paint above later
+                            // weeks. Cell-local hover still owns the tooltip.
+                            .onHover { hovering in
+                                if hovering {
+                                    elevatedWeekIndex = weekIndex
+                                } else if elevatedWeekIndex == weekIndex {
+                                    elevatedWeekIndex = nil
+                                }
+                            }
+                            .zIndex(elevatedWeekIndex == weekIndex ? 1 : 0)
                         }
                     }
                 }
@@ -791,36 +776,6 @@ private struct DashboardActivityHeatmap: View {
                         + HomePresentation.chartRowGrowth(cellMetrics: cellMetrics),
                     alignment: .top
                 )
-                .overlay(alignment: .topLeading) {
-                    if let hoveredActivityIndex,
-                       buckets.indices.contains(hoveredActivityIndex),
-                       let date = calendar.date(
-                           byAdding: .day,
-                           value: hoveredActivityIndex,
-                           to: startDate
-                       ) {
-                        let gridIndex = hoveredActivityIndex + leadingBlankCount
-                        let weekIndex = gridIndex / 7
-                        let dayIndex = gridIndex % 7
-                        let cellX = CGFloat(weekIndex) * (cellSize + cellGap)
-                        let cellY = 18 + CGFloat(dayIndex) * (cellSize + cellGap)
-                        let tooltipX = min(
-                            max(0, cellX - 76),
-                            max(0, availableWidth - 160)
-                        )
-                        let tooltipY = dayIndex < 4
-                            ? cellY + cellSize + 6
-                            : max(0, cellY - 48)
-
-                        activityTooltip(
-                            date: date,
-                            words: buckets[hoveredActivityIndex]
-                        )
-                        .offset(x: tooltipX, y: tooltipY)
-                        .zIndex(10)
-                        .allowsHitTesting(false)
-                    }
-                }
 
                 HStack(spacing: 4) {
                     Text(localized("Streak", locale: locale).uppercased(with: locale))
@@ -831,7 +786,7 @@ private struct DashboardActivityHeatmap: View {
 
                     ForEach(0...4, id: \.self) { intensity in
                         RoundedRectangle(cornerRadius: 1.5, style: .continuous)
-                            .fill(activityColor(intensity: intensity))
+                            .fill(DashboardActivityHeatmapCell.activityColor(intensity: intensity))
                             .frame(width: 7, height: 7)
                     }
                 }
@@ -840,8 +795,77 @@ private struct DashboardActivityHeatmap: View {
             }
         }
     }
+}
 
-    private func activityTooltip(date: Date, words: Int) -> some View {
+/// One activity cell owns its own hover state so enter/exit invalidates only
+/// that cell (plus its local tooltip) rather than the full 371-cell grid.
+/// Week-column stacking is promoted by `DashboardActivityHeatmap`.
+private struct DashboardActivityHeatmapCell: View {
+    let date: Date
+    let words: Int
+    let intensity: Int
+    let isToday: Bool
+    let cellSize: CGFloat
+    let dayIndex: Int
+    let cellX: CGFloat
+    let cellY: CGFloat
+    let availableWidth: CGFloat
+    let locale: Locale
+    let calendar: Calendar
+
+    @State private var isHovered = false
+
+    var body: some View {
+        let corner = min(3, cellSize / 4)
+        // Tooltip positions match the previous grid-level overlay math so
+        // edge clamping near left/right and top/bottom stays identical.
+        let tooltipX = min(
+            max(0, cellX - 76),
+            max(0, availableWidth - 160)
+        )
+        let tooltipY = dayIndex < 4
+            ? cellY + cellSize + 6
+            : max(0, cellY - 48)
+
+        RoundedRectangle(cornerRadius: corner, style: .continuous)
+            .fill(Self.activityColor(intensity: intensity))
+            .frame(width: cellSize, height: cellSize)
+            .overlay {
+                if isToday || isHovered {
+                    RoundedRectangle(cornerRadius: corner, style: .continuous)
+                        .strokeBorder(
+                            isHovered ? AppColors.textPrimary : AppColors.accent,
+                            lineWidth: isHovered ? 1.5 : 1
+                        )
+                }
+            }
+            .scaleEffect(isHovered ? 1.35 : 1)
+            .contentShape(Rectangle())
+            .onHover { hovering in
+                isHovered = hovering
+            }
+            .appAnimation(.fast, value: isHovered)
+            .accessibilityLabel(HomePresentation.activityAccessibilityLabel(
+                date: date,
+                words: words,
+                calendar: calendar,
+                locale: locale
+            ))
+            // Tooltip is drawn as an unconstrained overlay so it is not clipped
+            // by the cell's layout size; only this cell invalidates on hover.
+            // Intra-week day stacking uses local zIndex; cross-week stacking is
+            // handled by the parent week column.
+            .overlay(alignment: .topLeading) {
+                if isHovered {
+                    activityTooltip
+                        .offset(x: tooltipX - cellX, y: tooltipY - cellY)
+                        .allowsHitTesting(false)
+                }
+            }
+            .zIndex(isHovered ? 1 : 0)
+    }
+
+    private var activityTooltip: some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(HomePresentation.activityDateLabel(
                 date: date,
@@ -869,13 +893,39 @@ private struct DashboardActivityHeatmap: View {
         .shadow(color: AppColors.shadowColor.opacity(0.18), radius: 8, y: 4)
     }
 
-    private func activityColor(intensity: Int) -> Color {
+    static func activityColor(intensity: Int) -> Color {
         switch intensity {
         case 1: AppColors.accent.opacity(0.24)
         case 2: AppColors.accent.opacity(0.44)
         case 3: AppColors.accent.opacity(0.68)
         case 4: AppColors.accent
         default: AppColors.border.opacity(0.55)
+        }
+    }
+}
+
+// MARK: - First-run welcome (settings observation isolated)
+
+/// Only this child observes SettingsStore so unrelated settings changes do not
+/// invalidate the rest of the Dashboard.
+private struct DashboardFirstRunWelcome: View {
+    @ObservedObject var settingsStore: SettingsStore
+    @Environment(\.locale) private var locale
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(localized("Speak. It's written.", locale: locale))
+                .font(FontLoader.font(family: .newsreader, size: HomeLayoutMetrics.heroFontSize, weight: .regular))
+                .foregroundStyle(AppColors.textPrimary)
+                .tracking(HomeLayoutMetrics.heroTrackingEm * HomeLayoutMetrics.heroFontSize)
+                .lineSpacing(HomeLayoutMetrics.heroLineHeight - HomeLayoutMetrics.heroFontSize)
+
+            let hotkey = settingsStore.toggleHotkey.isEmpty
+                ? localized("⌥Space", locale: locale)
+                : settingsStore.toggleHotkey
+            Text(String(format: localized("Press %@ anywhere to start dictating.", locale: locale), hotkey))
+                .font(AppTypography.bodyMeta)
+                .foregroundStyle(AppColors.textSecondary)
         }
     }
 }
@@ -941,21 +991,21 @@ private struct HomeDayBoundarySchedule: TimelineSchedule {
 }
 
 #Preview("Dashboard - With Data") {
-    DashboardView()
+    DashboardView(settingsStore: SettingsStore())
         .modelContainer(PreviewContainer.withSampleData)
         .frame(width: 800, height: 700)
         .preferredColorScheme(.light)
 }
 
 #Preview("Dashboard - Empty") {
-    DashboardView()
+    DashboardView(settingsStore: SettingsStore())
         .modelContainer(PreviewContainer.empty)
         .frame(width: 800, height: 700)
         .preferredColorScheme(.light)
 }
 
 #Preview("Dashboard - Dark") {
-    DashboardView()
+    DashboardView(settingsStore: SettingsStore())
         .modelContainer(PreviewContainer.withSampleData)
         .frame(width: 800, height: 700)
         .preferredColorScheme(.dark)

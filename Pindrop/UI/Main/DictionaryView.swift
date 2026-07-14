@@ -10,46 +10,219 @@ import SwiftData
 import Foundation
 import AppKit
 
+// MARK: - Async lifecycle (pure seams)
+
+/// Pure commit/selection rules for Dictionary import, export, and load.
+/// Detached file I/O is not cooperatively cancelled; callers must re-check
+/// generation after `Task.detached` returns before mutating view state.
+enum DictionaryAsyncLifecycle {
+    /// `true` only when this request is still the active generation and not cancelled.
+    static func canCommit(
+        generation: UInt,
+        activeGeneration: UInt,
+        isCancelled: Bool
+    ) -> Bool {
+        !isCancelled && generation == activeGeneration
+    }
+
+    /// Derive keyboard-selection IDs and reconcile the current selection against them.
+    /// Call only after both collections have been fetched/sorted into locals so a
+    /// partial failure cannot leave arrays and IDs divergent.
+    static func makeLoadCommit(
+        replacementIDs: [UUID],
+        vocabularyIDs: [UUID],
+        selectedRowID: UUID?
+    ) -> (selectableIDs: [UUID], selectedRowID: UUID?) {
+        let selectableIDs = replacementIDs + vocabularyIDs
+        let reconciled: UUID?
+        if let selectedRowID, selectableIDs.contains(selectedRowID) {
+            reconciled = selectedRowID
+        } else {
+            reconciled = nil
+        }
+        return (selectableIDs, reconciled)
+    }
+
+    /// After a durable export finishes: deliver immediately when a Dictionary page
+    /// is live; otherwise retain until a sink is next installed. Unrelated success
+    /// must not discard retained failures.
+    enum ExportFailureDisposition: Equatable {
+        case deliverImmediately
+        case retainPending
+    }
+
+    static func exportFailureDisposition(hasLiveSink: Bool) -> ExportFailureDisposition {
+        hasLiveSink ? .deliverImmediately : .retainPending
+    }
+
+    /// Success only clears retained failures that targeted the same destination URL.
+    static func retainedFailuresAfterSuccess(
+        pendingDestinations: [URL],
+        succeededDestination: URL
+    ) -> [URL] {
+        pendingDestinations.filter { $0 != succeededDestination }
+    }
+
+    /// Local CRUD/import errors and durable export failures share no identity.
+    /// Only dismissing an export surface advances the export failure queue.
+    enum ErrorSurface: Equatable {
+        case local
+        case export
+    }
+
+    static func shouldAdvanceExportQueue(dismissedSurface: ErrorSurface) -> Bool {
+        dismissedSurface == .export
+    }
+}
+
+/// Owns serialized dictionary exports outside the view lifetime so a user-chosen
+/// save continues after page navigation. Failures that finish while no Dictionary
+/// page is live are retained and delivered when a sink is next installed.
+/// Unrelated successful exports never discard retained failures for other destinations.
+@MainActor
+private final class DictionaryExportWorkOwner {
+    static let shared = DictionaryExportWorkOwner()
+
+    private struct PendingFailure {
+        let destination: URL
+        let error: Error
+    }
+
+    private var generation: UInt = 0
+    private var task: Task<Void, Never>?
+    private var errorSink: ((Error) -> Void)?
+    private var pendingFailures: [PendingFailure] = []
+    private var presentedFailure: PendingFailure?
+
+    /// Install (or replace) the live Dictionary page's error presenter.
+    /// Immediately delivers any failures that completed while no sink was live.
+    func installErrorSink(_ sink: @escaping (Error) -> Void) {
+        errorSink = sink
+        flushPendingFailures()
+    }
+
+    /// Drop presentation for the departing page without cancelling writes or
+    /// discarding failures that still need to be shown.
+    func clearErrorSink() {
+        errorSink = nil
+        if let presentedFailure {
+            pendingFailures.removeAll { $0.destination == presentedFailure.destination }
+            pendingFailures.insert(presentedFailure, at: 0)
+            self.presentedFailure = nil
+        }
+    }
+
+    /// Marks the currently presented failure as dismissed. Does **not** flush the
+    /// next item synchronously — the view must allow `isPresented` to go false for
+    /// a render turn, then call `deliverNextPendingFailureIfNeeded()`.
+    func acknowledgePresentedFailure() {
+        presentedFailure = nil
+    }
+
+    /// Deliver the next retained failure after the previous alert fully dismissed.
+    func deliverNextPendingFailureIfNeeded() {
+        flushPendingFailures()
+    }
+
+    /// Enqueue an atomic export. Prior work always finishes first; this request's
+    /// write is never cancelled by view disappearance.
+    func enqueue(
+        data: Data,
+        url: URL,
+        didStartAccess: Bool
+    ) {
+        generation &+= 1
+        let generation = self.generation
+        let previous = task
+
+        task = Task { @MainActor in
+            defer {
+                if didStartAccess {
+                    url.stopAccessingSecurityScopedResource()
+                }
+                if generation == self.generation {
+                    self.task = nil
+                }
+            }
+
+            // Drain prior exports so same-destination writes cannot reorder.
+            await previous?.value
+
+            do {
+                try await Task.detached(priority: .userInitiated) {
+                    try data.write(to: url, options: [.atomic])
+                }.value
+                // Only supersede retained failures for this same destination.
+                // Unrelated destinations stay queued until delivered.
+                pendingFailures.removeAll { $0.destination == url }
+            } catch is CancellationError {
+                // Export is intentionally non-cancellable from view lifecycle.
+                return
+            } catch {
+                presentOrRetain(error, destination: url)
+            }
+        }
+    }
+
+    private func presentOrRetain(_ error: Error, destination: URL) {
+        let failure = PendingFailure(destination: destination, error: error)
+        pendingFailures.removeAll { $0.destination == destination }
+
+        guard let errorSink, presentedFailure == nil else {
+            pendingFailures.append(failure)
+            return
+        }
+
+        presentedFailure = failure
+        errorSink(error)
+    }
+
+    private func flushPendingFailures() {
+        guard
+            let errorSink,
+            presentedFailure == nil,
+            !pendingFailures.isEmpty
+        else {
+            return
+        }
+
+        let failure = pendingFailures.removeFirst()
+        presentedFailure = failure
+        errorSink(failure.error)
+    }
+}
+
 struct DictionaryView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.locale) private var locale
     @State private var dictionaryStore: DictionaryStore?
+    /// Ordered display arrays established only when data mutates (load/add/edit/delete/reorder/import).
     @State private var replacements: [WordReplacement] = []
     @State private var vocabularyWords: [VocabularyWord] = []
+    @State private var selectableIDs: [UUID] = []
 
-    // Add / edit sheets
+    // Presentation-only sheet identity (draft fields live in sheet children).
     @State private var showAddWordSheet = false
     @State private var showAddReplacementSheet = false
-    @State private var primaryInput: String = ""
-    @State private var secondaryInput: String = ""
-    @State private var addMatchMode: ReplacementMatchMode = .caseInsensitive
-
     @State private var editingReplacement: WordReplacement?
     @State private var editingVocabulary: VocabularyWord?
-    @State private var editPrimaryInput: String = ""
-    @State private var editSecondaryInput: String = ""
-    @State private var editMatchMode: ReplacementMatchMode = .caseInsensitive
 
     @State private var errorMessage: String?
+    /// Separate from local CRUD/import errors so export-queue advancement never
+    /// fires for non-export alerts, and so successive export alerts can re-present.
+    @State private var exportErrorMessage: String = ""
+    @State private var isExportErrorPresented = false
+    /// Bumped each time an export failure is presented; late dismissals for an
+    /// older presentation cannot acknowledge or clear a newer one.
+    @State private var exportAlertPresentationGeneration: UInt = 0
     @State private var showingImportStrategyDialog = false
     @State private var importDataCache: Data?
+    @State private var importTask: Task<Void, Never>?
+    @State private var importGeneration: UInt = 0
+    // Export write ownership lives on DictionaryExportWorkOwner; no view-local export task.
 
     @State private var selectedRowID: UUID?
     @State private var keyMonitor: Any?
-
-    private var orderedVocabulary: [VocabularyWord] {
-        // Sort models directly — never uniquing by lowercased key (duplicates trap).
-        DictionaryVocabularyOrdering.sortedModels(vocabularyWords)
-    }
-
-    private var orderedReplacements: [WordReplacement] {
-        replacements.sorted(by: { $0.sortOrder < $1.sortOrder })
-    }
-
-    private var orderedSelectableIDs: [UUID] {
-        orderedReplacements.map(\.id) + orderedVocabulary.map(\.id)
-    }
-
     private var isCompletelyEmpty: Bool {
         replacements.isEmpty && vocabularyWords.isEmpty
     }
@@ -62,23 +235,69 @@ struct DictionaryView: View {
                 .padding(.bottom, 18)
                 .background(AppColors.contentBackground)
 
-            ScrollView(.vertical, showsIndicators: true) {
-                VStack(alignment: .leading, spacing: 0) {
-                    if isCompletelyEmpty {
-                        emptyStateView
-                            .frame(maxWidth: .infinity)
-                            .padding(.top, 48)
-                    } else {
-                        vocabularySection
-                        replacementsSection
-                        footnote
-                            .padding(.top, 20)
+            // One List is the sole vertical scroller so replacement rows
+            // virtualize instead of expanding to full content height.
+            List {
+                if isCompletelyEmpty {
+                    emptyStateView
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 48)
+                        .listRowInsets(EdgeInsets())
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                } else {
+                    vocabularySection
+                        .listRowInsets(EdgeInsets())
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+
+                    SectionHeader(
+                        title: localized("Replacements", locale: locale),
+                        trailing: localized("Applied after transcription, before insert", locale: locale),
+                        isFirst: false
+                    )
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 4)
+                    .listRowInsets(EdgeInsets())
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+
+                    if replacements.isEmpty {
+                        Text(localized("No Replacements", locale: locale))
+                            .font(AppTypography.body)
+                            .foregroundStyle(AppColors.textTertiary)
                             .padding(.horizontal, 20)
+                            .padding(.vertical, 16)
+                            .listRowInsets(EdgeInsets())
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                    } else {
+                        ForEach(replacements) { replacement in
+                            replacementRow(replacement)
+                                .listRowInsets(EdgeInsets())
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
+                        }
+                        .onMove(perform: moveReplacements)
                     }
-                    Color.clear.frame(height: 32)
+
+                    footnote
+                        .padding(.top, 20)
+                        .padding(.horizontal, 20)
+                        .listRowInsets(EdgeInsets())
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
                 }
-                .padding(.bottom, 24)
+
+                Color.clear
+                    .frame(height: 32)
+                    .listRowInsets(EdgeInsets())
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .environment(\.defaultMinListRowHeight, 44)
             .background(AppColors.contentBackground)
         }
         .background(AppColors.contentBackground)
@@ -86,11 +305,27 @@ struct DictionaryView: View {
             dictionaryStore = DictionaryStore(modelContext: modelContext)
             loadData()
             installKeyMonitorIfNeeded()
+            DictionaryExportWorkOwner.shared.installErrorSink { [locale] error in
+                presentExportError(
+                    localized("Failed to export dictionary: %@", locale: locale)
+                        .replacingOccurrences(of: "%@", with: error.localizedDescription)
+                )
+            }
         }
         .onDisappear {
             removeKeyMonitor()
+            cancelManagedImportWork()
+            DictionaryExportWorkOwner.shared.clearErrorSink()
+            isExportErrorPresented = false
+            exportErrorMessage = ""
         }
-        .alert(localized("Import Error", locale: locale), isPresented: .constant(errorMessage != nil)) {
+        .alert(
+            localized("Import Error", locale: locale),
+            isPresented: Binding(
+                get: { errorMessage != nil },
+                set: { if !$0 { errorMessage = nil } }
+            )
+        ) {
             Button(localized("OK", locale: locale)) {
                 errorMessage = nil
             }
@@ -98,6 +333,22 @@ struct DictionaryView: View {
             if let errorMessage {
                 Text(errorMessage)
             }
+        }
+        .alert(
+            localized("Import Error", locale: locale),
+            isPresented: $isExportErrorPresented
+        ) {
+            Button(localized("OK", locale: locale)) {
+                // Only flip presentation. Queue advancement runs exclusively from
+                // the confirmed isPresented true→false transition below.
+                isExportErrorPresented = false
+            }
+        } message: {
+            Text(exportErrorMessage)
+        }
+        .onChange(of: isExportErrorPresented) { wasPresented, isPresented in
+            guard wasPresented, !isPresented else { return }
+            handleConfirmedExportAlertDismissal()
         }
         .confirmationDialog(localized("Import Strategy", locale: locale), isPresented: $showingImportStrategyDialog) {
             Button(localized("Add to Existing", locale: locale)) {
@@ -111,17 +362,32 @@ struct DictionaryView: View {
             Text(localized("Choose how to import the dictionary data", locale: locale))
         }
         .sheet(isPresented: $showAddWordSheet) {
-            addWordSheet
+            DictionaryAddWordSheet(locale: locale) { word in
+                handleAddWord(word)
+            }
         }
         .sheet(isPresented: $showAddReplacementSheet) {
-            addReplacementSheet
+            DictionaryAddReplacementSheet(locale: locale) { originals, replacement, matchMode in
+                handleAddReplacement(
+                    originals: originals,
+                    replacement: replacement,
+                    matchMode: matchMode
+                )
+            }
         }
         .sheet(isPresented: Binding(
             get: { editingVocabulary != nil },
             set: { if !$0 { editingVocabulary = nil } }
         )) {
             if let word = editingVocabulary {
-                editVocabularySheet(word)
+                DictionaryEditVocabularySheet(
+                    locale: locale,
+                    initialWord: word.word
+                ) { updated in
+                    saveVocabularyEdit(word, newWord: updated)
+                } onCancel: {
+                    editingVocabulary = nil
+                }
             }
         }
         .sheet(isPresented: Binding(
@@ -129,7 +395,21 @@ struct DictionaryView: View {
             set: { if !$0 { editingReplacement = nil } }
         )) {
             if let replacement = editingReplacement {
-                editReplacementSheet(replacement)
+                DictionaryEditReplacementSheet(
+                    locale: locale,
+                    initialOriginals: replacement.originals.joined(separator: ", "),
+                    initialReplacement: replacement.replacement,
+                    initialMatchMode: replacement.matchMode
+                ) { originals, value, matchMode in
+                    saveReplacementEdit(
+                        replacement,
+                        originals: originals,
+                        replacement: value,
+                        matchMode: matchMode
+                    )
+                } onCancel: {
+                    editingReplacement = nil
+                }
             }
         }
     }
@@ -151,9 +431,6 @@ struct DictionaryView: View {
                     }
                     Divider()
                     Button {
-                        primaryInput = ""
-                        secondaryInput = ""
-                        addMatchMode = .caseInsensitive
                         showAddReplacementSheet = true
                     } label: {
                         Label(localized("Add replacement", locale: locale), systemImage: "arrow.left.arrow.right")
@@ -174,7 +451,6 @@ struct DictionaryView: View {
                     title: localized("Add word", locale: locale),
                     systemImage: "plus",
                     action: {
-                        primaryInput = ""
                         showAddWordSheet = true
                     }
                 )
@@ -194,7 +470,7 @@ struct DictionaryView: View {
             .padding(.horizontal, 20)
 
             FlowLayout(spacing: 8) {
-                ForEach(orderedVocabulary) { word in
+                ForEach(vocabularyWords) { word in
                     vocabularyChip(word)
                 }
                 addVocabularyChip
@@ -252,7 +528,6 @@ struct DictionaryView: View {
 
     private var addVocabularyChip: some View {
         Button {
-            primaryInput = ""
             showAddWordSheet = true
         } label: {
             HStack(spacing: 7) {
@@ -277,42 +552,7 @@ struct DictionaryView: View {
         .keyboardFocusRing(Capsule(style: .continuous))
     }
 
-    // MARK: - Replacements section
-
-    private var replacementsSection: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            SectionHeader(
-                title: localized("Replacements", locale: locale),
-                trailing: localized("Applied after transcription, before insert", locale: locale),
-                isFirst: false
-            )
-            .padding(.horizontal, 20)
-            .padding(.bottom, 4)
-
-            if orderedReplacements.isEmpty {
-                Text(localized("No Replacements", locale: locale))
-                    .font(AppTypography.body)
-                    .foregroundStyle(AppColors.textTertiary)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
-            } else {
-                // List enables drag-to-reorder (onMove) wired to DictionaryStore.reorder.
-                List {
-                    ForEach(orderedReplacements) { replacement in
-                        replacementRow(replacement)
-                            .listRowInsets(EdgeInsets())
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
-                    }
-                    .onMove(perform: moveReplacements)
-                }
-                .listStyle(.plain)
-                .scrollContentBackground(.hidden)
-                .frame(minHeight: CGFloat(orderedReplacements.count) * 48)
-                .environment(\.defaultMinListRowHeight, 44)
-            }
-        }
-    }
+    // MARK: - Replacement rows
 
     private func replacementRow(_ replacement: WordReplacement) -> some View {
         let isSelected = selectedRowID == replacement.id
@@ -425,7 +665,6 @@ struct DictionaryView: View {
                 title: localized("Add word", locale: locale),
                 systemImage: "plus",
                 action: {
-                    primaryInput = ""
                     showAddWordSheet = true
                 }
             )
@@ -433,178 +672,16 @@ struct DictionaryView: View {
         }
     }
 
-    // MARK: - Sheets
-
-    private var addWordSheet: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(localized("Add word", locale: locale))
-                .font(AppTypography.headline)
-                .foregroundStyle(AppColors.textPrimary)
-
-            TextField(localized("Enter word to add", locale: locale), text: $primaryInput)
-                .textFieldStyle(.roundedBorder)
-                .font(AppTypography.body)
-
-            HStack {
-                Spacer()
-                SecondaryButton(title: localized("Cancel", locale: locale)) {
-                    showAddWordSheet = false
-                }
-                PrimaryButton(
-                    title: localized("Add", locale: locale),
-                    isEnabled: !primaryInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                    action: {
-                        handleAddWord()
-                        showAddWordSheet = false
-                    }
-                )
-            }
-        }
-        .padding(24)
-        .frame(width: 360)
-        .background(AppColors.contentBackground)
-    }
-
-    private var addReplacementSheet: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(localized("Add replacement", locale: locale))
-                .font(AppTypography.headline)
-                .foregroundStyle(AppColors.textPrimary)
-
-            TextField(localized("Original text (use commas for multiple)", locale: locale), text: $primaryInput)
-                .textFieldStyle(.roundedBorder)
-                .font(AppTypography.body)
-
-            TextField(localized("Replacement text", locale: locale), text: $secondaryInput)
-                .textFieldStyle(.roundedBorder)
-                .font(AppTypography.body)
-
-            Picker(localized("Match mode", locale: locale), selection: $addMatchMode) {
-                Text(DictionaryMatchModeLabel.label(for: .caseInsensitive, locale: locale))
-                    .tag(ReplacementMatchMode.caseInsensitive)
-                Text(DictionaryMatchModeLabel.label(for: .exact, locale: locale))
-                    .tag(ReplacementMatchMode.exact)
-                Text(DictionaryMatchModeLabel.label(for: .command, locale: locale))
-                    .tag(ReplacementMatchMode.command)
-            }
-            .pickerStyle(.segmented)
-
-            HStack {
-                Spacer()
-                SecondaryButton(title: localized("Cancel", locale: locale)) {
-                    showAddReplacementSheet = false
-                }
-                PrimaryButton(
-                    title: localized("Add", locale: locale),
-                    isEnabled: canAddReplacement,
-                    action: {
-                        handleAddReplacement()
-                        showAddReplacementSheet = false
-                    }
-                )
-            }
-        }
-        .padding(24)
-        .frame(width: 400)
-        .background(AppColors.contentBackground)
-    }
-
-    private func editVocabularySheet(_ word: VocabularyWord) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(localized("Edit", locale: locale))
-                .font(AppTypography.headline)
-                .foregroundStyle(AppColors.textPrimary)
-
-            TextField(localized("Word", locale: locale), text: $editPrimaryInput)
-                .textFieldStyle(.roundedBorder)
-                .font(AppTypography.body)
-
-            HStack {
-                Spacer()
-                SecondaryButton(title: localized("Cancel", locale: locale)) {
-                    editingVocabulary = nil
-                }
-                PrimaryButton(
-                    title: localized("Save", locale: locale),
-                    action: {
-                        saveVocabularyEdit(word)
-                    }
-                )
-            }
-        }
-        .padding(24)
-        .frame(width: 360)
-        .background(AppColors.contentBackground)
-        .onAppear {
-            editPrimaryInput = word.word
-        }
-    }
-
-    private func editReplacementSheet(_ replacement: WordReplacement) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(localized("Edit", locale: locale))
-                .font(AppTypography.headline)
-                .foregroundStyle(AppColors.textPrimary)
-
-            TextField(localized("Originals (comma-separated)", locale: locale), text: $editPrimaryInput)
-                .textFieldStyle(.roundedBorder)
-                .font(AppTypography.body)
-
-            TextField(localized("Replacement", locale: locale), text: $editSecondaryInput)
-                .textFieldStyle(.roundedBorder)
-                .font(AppTypography.body)
-
-            Picker(localized("Match mode", locale: locale), selection: $editMatchMode) {
-                Text(DictionaryMatchModeLabel.label(for: .caseInsensitive, locale: locale))
-                    .tag(ReplacementMatchMode.caseInsensitive)
-                Text(DictionaryMatchModeLabel.label(for: .exact, locale: locale))
-                    .tag(ReplacementMatchMode.exact)
-                Text(DictionaryMatchModeLabel.label(for: .command, locale: locale))
-                    .tag(ReplacementMatchMode.command)
-            }
-            .pickerStyle(.segmented)
-
-            HStack {
-                Spacer()
-                SecondaryButton(title: localized("Cancel", locale: locale)) {
-                    editingReplacement = nil
-                }
-                PrimaryButton(
-                    title: localized("Save", locale: locale),
-                    action: {
-                        saveReplacementEdit(replacement)
-                    }
-                )
-            }
-        }
-        .padding(24)
-        .frame(width: 400)
-        .background(AppColors.contentBackground)
-        .onAppear {
-            editPrimaryInput = replacement.originals.joined(separator: ", ")
-            editSecondaryInput = replacement.replacement
-            editMatchMode = replacement.matchMode
-        }
-    }
-
-    private var canAddReplacement: Bool {
-        !primaryInput.trimmingCharacters(in: .whitespaces).isEmpty
-            && !secondaryInput.trimmingCharacters(in: .whitespaces).isEmpty
-    }
-
     // MARK: - Actions
 
-    private func handleAddWord() {
+    private func handleAddWord(_ trimmed: String) {
         guard let store = dictionaryStore else { return }
-        let trimmed = primaryInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         guard !vocabularyWords.contains(where: { $0.word.lowercased() == trimmed.lowercased() }) else {
-            primaryInput = ""
             return
         }
         do {
             try store.add(VocabularyWord(word: trimmed))
-            primaryInput = ""
             loadData()
         } catch {
             errorMessage = localized("Failed to add word: %@", locale: locale)
@@ -612,24 +689,21 @@ struct DictionaryView: View {
         }
     }
 
-    private func handleAddReplacement() {
+    private func handleAddReplacement(
+        originals: [String],
+        replacement: String,
+        matchMode: ReplacementMatchMode
+    ) {
         guard let store = dictionaryStore else { return }
-        let originals = primaryInput
-            .split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
         guard !originals.isEmpty else { return }
-        let replacementText = secondaryInput.trimmingCharacters(in: .whitespacesAndNewlines)
         do {
-            let replacement = WordReplacement(
+            let model = WordReplacement(
                 originals: originals,
-                replacement: replacementText,
+                replacement: replacement,
                 sortOrder: replacements.count,
-                matchModeRawValue: addMatchMode.rawValue
+                matchModeRawValue: matchMode.rawValue
             )
-            try store.add(replacement)
-            primaryInput = ""
-            secondaryInput = ""
+            try store.add(model)
             loadData()
         } catch {
             errorMessage = localized("Failed to add replacement: %@", locale: locale)
@@ -645,20 +719,21 @@ struct DictionaryView: View {
         editingVocabulary = word
     }
 
-    private func saveReplacementEdit(_ replacement: WordReplacement) {
+    private func saveReplacementEdit(
+        _ replacement: WordReplacement,
+        originals: [String],
+        replacement value: String,
+        matchMode: ReplacementMatchMode
+    ) {
         guard let store = dictionaryStore else { return }
-        let newOriginals = editPrimaryInput
-            .split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-        guard !newOriginals.isEmpty else {
+        guard !originals.isEmpty else {
             editingReplacement = nil
             return
         }
         do {
-            replacement.originals = newOriginals
-            replacement.replacement = editSecondaryInput.trimmingCharacters(in: .whitespacesAndNewlines)
-            replacement.matchModeRawValue = editMatchMode.rawValue
+            replacement.originals = originals
+            replacement.replacement = value
+            replacement.matchModeRawValue = matchMode.rawValue
             try store.saveContext()
             editingReplacement = nil
             loadData()
@@ -668,9 +743,9 @@ struct DictionaryView: View {
         }
     }
 
-    private func saveVocabularyEdit(_ word: VocabularyWord) {
+    private func saveVocabularyEdit(_ word: VocabularyWord, newWord: String) {
         guard let store = dictionaryStore else { return }
-        let trimmed = editPrimaryInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = newWord.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             editingVocabulary = nil
             return
@@ -707,7 +782,7 @@ struct DictionaryView: View {
     private func moveReplacements(from source: IndexSet, to destination: Int) {
         guard let store = dictionaryStore else { return }
         do {
-            try store.reorder(orderedReplacements, from: source, to: destination)
+            try store.reorder(replacements, from: source, to: destination)
             loadData()
         } catch {
             errorMessage = error.localizedDescription
@@ -741,8 +816,24 @@ struct DictionaryView: View {
     private func loadData() {
         guard let store = dictionaryStore else { return }
         do {
-            replacements = try store.fetchAllReplacements()
-            vocabularyWords = try store.fetchAllVocabularyWords()
+            // Fetch/sort both collections into locals first so a mid-load throw
+            // cannot leave replacements, vocabulary, and selectableIDs divergent.
+            let fetchedReplacements = try store.fetchAllReplacements()
+            let sortedReplacements = fetchedReplacements.sorted(by: { $0.sortOrder < $1.sortOrder })
+
+            let fetchedVocabulary = try store.fetchAllVocabularyWords()
+            let sortedVocabulary = DictionaryVocabularyOrdering.sortedModels(fetchedVocabulary)
+
+            let commit = DictionaryAsyncLifecycle.makeLoadCommit(
+                replacementIDs: sortedReplacements.map(\.id),
+                vocabularyIDs: sortedVocabulary.map(\.id),
+                selectedRowID: selectedRowID
+            )
+
+            replacements = sortedReplacements
+            vocabularyWords = sortedVocabulary
+            selectableIDs = commit.selectableIDs
+            selectedRowID = commit.selectedRowID
         } catch {
             errorMessage = localized("Failed to load data: %@", locale: locale)
                 .replacingOccurrences(of: "%@", with: error.localizedDescription)
@@ -751,17 +842,25 @@ struct DictionaryView: View {
 
     private func handleExport() {
         guard let store = dictionaryStore else { return }
+        let currentLocale = locale
         do {
+            // SwiftData export stays on the main actor; only the disk write moves off.
             let jsonData = try store.exportToJSON()
             let savePanel = NSSavePanel()
             savePanel.allowedContentTypes = [.json]
             savePanel.nameFieldStringValue = "dictionary.json"
-            let currentLocale = locale
             savePanel.title = localized("Export Dictionary", locale: currentLocale)
             savePanel.message = localized("Choose a location to save the dictionary", locale: currentLocale)
-            if savePanel.runModal() == .OK, let url = savePanel.url {
-                try jsonData.write(to: url)
-            }
+            guard savePanel.runModal() == .OK, let url = savePanel.url else { return }
+
+            // Security-scoped access must begin on the main actor before the detached write.
+            // Ownership is process-wide so navigation cannot drop a user-chosen save.
+            let didStartAccess = url.startAccessingSecurityScopedResource()
+            DictionaryExportWorkOwner.shared.enqueue(
+                data: jsonData,
+                url: url,
+                didStartAccess: didStartAccess
+            )
         } catch {
             errorMessage = localized("Failed to export dictionary: %@", locale: locale)
                 .replacingOccurrences(of: "%@", with: error.localizedDescription)
@@ -774,17 +873,95 @@ struct DictionaryView: View {
         let currentLocale = locale
         openPanel.title = localized("Import Dictionary", locale: currentLocale)
         openPanel.message = localized("Select a dictionary JSON file to import", locale: currentLocale)
-        if openPanel.runModal() == .OK, let url = openPanel.url {
+        guard openPanel.runModal() == .OK, let url = openPanel.url else { return }
+
+        // New selection invalidates any in-flight import and any pending confirmation.
+        importGeneration &+= 1
+        let generation = importGeneration
+        importTask?.cancel()
+        importDataCache = nil
+        showingImportStrategyDialog = false
+
+        // Security-scoped access must begin on the main actor before the detached read.
+        let didStartAccess = url.startAccessingSecurityScopedResource()
+        importTask = Task { @MainActor in
+            defer {
+                if didStartAccess {
+                    url.stopAccessingSecurityScopedResource()
+                }
+                if generation == importGeneration {
+                    importTask = nil
+                }
+            }
+
             do {
-                let data = try Data(contentsOf: url)
-                let decoder = JSONDecoder()
-                _ = try decoder.decode(DictionaryImportPreview.self, from: data)
-                showingImportStrategyDialog = true
+                // Detached work is not cooperatively cancelled by parent cancellation;
+                // generation must be re-checked after the await before committing.
+                let data = try await Task.detached(priority: .userInitiated) {
+                    let data = try Data(contentsOf: url)
+                    _ = try JSONDecoder().decode(DictionaryImportPreview.self, from: data)
+                    return data
+                }.value
+
+                guard DictionaryAsyncLifecycle.canCommit(
+                    generation: generation,
+                    activeGeneration: importGeneration,
+                    isCancelled: Task.isCancelled
+                ) else { return }
+
                 importDataCache = data
+                showingImportStrategyDialog = true
+            } catch is CancellationError {
+                return
             } catch {
-                errorMessage = localized("Failed to read import file: %@", locale: locale)
+                guard DictionaryAsyncLifecycle.canCommit(
+                    generation: generation,
+                    activeGeneration: importGeneration,
+                    isCancelled: Task.isCancelled
+                ) else { return }
+                errorMessage = localized("Failed to read import file: %@", locale: currentLocale)
                     .replacingOccurrences(of: "%@", with: error.localizedDescription)
             }
+        }
+    }
+
+    /// Invalidates in-flight import presentation only. Export writes are durable
+    /// and must not be cancelled when this page disappears.
+    private func cancelManagedImportWork() {
+        importGeneration &+= 1
+        importTask?.cancel()
+        importTask = nil
+        importDataCache = nil
+        showingImportStrategyDialog = false
+    }
+
+    /// Present a durable export failure on the dedicated export surface.
+    private func presentExportError(_ message: String) {
+        exportAlertPresentationGeneration &+= 1
+        exportErrorMessage = message
+        isExportErrorPresented = true
+    }
+
+    /// Confirmed export-alert dismissal (`isPresented` true → false). Acknowledge
+    /// the presented failure, then schedule the next delivery after this callback
+    /// returns — never from the OK action, and never via Task.yield-as-barrier.
+    private func handleConfirmedExportAlertDismissal() {
+        guard DictionaryAsyncLifecycle.shouldAdvanceExportQueue(dismissedSurface: .export) else {
+            exportErrorMessage = ""
+            return
+        }
+
+        let dismissedGeneration = exportAlertPresentationGeneration
+        exportErrorMessage = ""
+        DictionaryExportWorkOwner.shared.acknowledgePresentedFailure()
+
+        // After this onChange callback returns, isPresented is already false.
+        // A later main-actor turn may present the next queued failure without
+        // racing the dismissal that just completed.
+        Task { @MainActor in
+            guard dismissedGeneration == exportAlertPresentationGeneration else { return }
+            guard !isExportErrorPresented else { return }
+            DictionaryExportWorkOwner.shared.deliverNextPendingFailureIfNeeded()
         }
     }
 
@@ -862,7 +1039,7 @@ struct DictionaryView: View {
     }
 
     private func moveSelection(delta: Int) {
-        let ids = orderedSelectableIDs
+        let ids = selectableIDs
         let currentIndex = ids.firstIndex(where: { $0 == selectedRowID })
         guard let nextIndex = ListSelectionNavigation.moveIndex(
             current: currentIndex,
@@ -880,6 +1057,216 @@ struct DictionaryView: View {
         } else if let word = vocabularyWords.first(where: { $0.id == selectedRowID }) {
             deleteVocabularyWord(word)
             self.selectedRowID = nil
+        }
+    }
+}
+
+// MARK: - Sheet children (draft state local)
+
+private struct DictionaryAddWordSheet: View {
+    let locale: Locale
+    let onAdd: (String) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var primaryInput = ""
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(localized("Add word", locale: locale))
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.textPrimary)
+
+            TextField(localized("Enter word to add", locale: locale), text: $primaryInput)
+                .textFieldStyle(.roundedBorder)
+                .font(AppTypography.body)
+
+            HStack {
+                Spacer()
+                SecondaryButton(title: localized("Cancel", locale: locale)) {
+                    dismiss()
+                }
+                PrimaryButton(
+                    title: localized("Add", locale: locale),
+                    isEnabled: !primaryInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                    action: {
+                        let trimmed = primaryInput.trimmingCharacters(in: .whitespacesAndNewlines)
+                        onAdd(trimmed)
+                        dismiss()
+                    }
+                )
+            }
+        }
+        .padding(24)
+        .frame(width: 360)
+        .background(AppColors.contentBackground)
+    }
+}
+
+private struct DictionaryAddReplacementSheet: View {
+    let locale: Locale
+    let onAdd: ([String], String, ReplacementMatchMode) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var primaryInput = ""
+    @State private var secondaryInput = ""
+    @State private var matchMode: ReplacementMatchMode = .caseInsensitive
+
+    private var canAdd: Bool {
+        !primaryInput.trimmingCharacters(in: .whitespaces).isEmpty
+            && !secondaryInput.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(localized("Add replacement", locale: locale))
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.textPrimary)
+
+            TextField(localized("Original text (use commas for multiple)", locale: locale), text: $primaryInput)
+                .textFieldStyle(.roundedBorder)
+                .font(AppTypography.body)
+
+            TextField(localized("Replacement text", locale: locale), text: $secondaryInput)
+                .textFieldStyle(.roundedBorder)
+                .font(AppTypography.body)
+
+            Picker(localized("Match mode", locale: locale), selection: $matchMode) {
+                Text(DictionaryMatchModeLabel.label(for: .caseInsensitive, locale: locale))
+                    .tag(ReplacementMatchMode.caseInsensitive)
+                Text(DictionaryMatchModeLabel.label(for: .exact, locale: locale))
+                    .tag(ReplacementMatchMode.exact)
+                Text(DictionaryMatchModeLabel.label(for: .command, locale: locale))
+                    .tag(ReplacementMatchMode.command)
+            }
+            .pickerStyle(.segmented)
+
+            HStack {
+                Spacer()
+                SecondaryButton(title: localized("Cancel", locale: locale)) {
+                    dismiss()
+                }
+                PrimaryButton(
+                    title: localized("Add", locale: locale),
+                    isEnabled: canAdd,
+                    action: {
+                        let originals = primaryInput
+                            .split(separator: ",")
+                            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                            .filter { !$0.isEmpty }
+                        let replacementText = secondaryInput.trimmingCharacters(in: .whitespacesAndNewlines)
+                        onAdd(originals, replacementText, matchMode)
+                        dismiss()
+                    }
+                )
+            }
+        }
+        .padding(24)
+        .frame(width: 400)
+        .background(AppColors.contentBackground)
+    }
+}
+
+private struct DictionaryEditVocabularySheet: View {
+    let locale: Locale
+    let initialWord: String
+    let onSave: (String) -> Void
+    let onCancel: () -> Void
+
+    @State private var primaryInput = ""
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(localized("Edit", locale: locale))
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.textPrimary)
+
+            TextField(localized("Word", locale: locale), text: $primaryInput)
+                .textFieldStyle(.roundedBorder)
+                .font(AppTypography.body)
+
+            HStack {
+                Spacer()
+                SecondaryButton(title: localized("Cancel", locale: locale)) {
+                    onCancel()
+                }
+                PrimaryButton(
+                    title: localized("Save", locale: locale),
+                    action: {
+                        onSave(primaryInput)
+                    }
+                )
+            }
+        }
+        .padding(24)
+        .frame(width: 360)
+        .background(AppColors.contentBackground)
+        .onAppear {
+            primaryInput = initialWord
+        }
+    }
+}
+
+private struct DictionaryEditReplacementSheet: View {
+    let locale: Locale
+    let initialOriginals: String
+    let initialReplacement: String
+    let initialMatchMode: ReplacementMatchMode
+    let onSave: ([String], String, ReplacementMatchMode) -> Void
+    let onCancel: () -> Void
+
+    @State private var primaryInput = ""
+    @State private var secondaryInput = ""
+    @State private var matchMode: ReplacementMatchMode = .caseInsensitive
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(localized("Edit", locale: locale))
+                .font(AppTypography.headline)
+                .foregroundStyle(AppColors.textPrimary)
+
+            TextField(localized("Originals (comma-separated)", locale: locale), text: $primaryInput)
+                .textFieldStyle(.roundedBorder)
+                .font(AppTypography.body)
+
+            TextField(localized("Replacement", locale: locale), text: $secondaryInput)
+                .textFieldStyle(.roundedBorder)
+                .font(AppTypography.body)
+
+            Picker(localized("Match mode", locale: locale), selection: $matchMode) {
+                Text(DictionaryMatchModeLabel.label(for: .caseInsensitive, locale: locale))
+                    .tag(ReplacementMatchMode.caseInsensitive)
+                Text(DictionaryMatchModeLabel.label(for: .exact, locale: locale))
+                    .tag(ReplacementMatchMode.exact)
+                Text(DictionaryMatchModeLabel.label(for: .command, locale: locale))
+                    .tag(ReplacementMatchMode.command)
+            }
+            .pickerStyle(.segmented)
+
+            HStack {
+                Spacer()
+                SecondaryButton(title: localized("Cancel", locale: locale)) {
+                    onCancel()
+                }
+                PrimaryButton(
+                    title: localized("Save", locale: locale),
+                    action: {
+                        let originals = primaryInput
+                            .split(separator: ",")
+                            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                            .filter { !$0.isEmpty }
+                        let value = secondaryInput.trimmingCharacters(in: .whitespacesAndNewlines)
+                        onSave(originals, value, matchMode)
+                    }
+                )
+            }
+        }
+        .padding(24)
+        .frame(width: 400)
+        .background(AppColors.contentBackground)
+        .onAppear {
+            primaryInput = initialOriginals
+            secondaryInput = initialReplacement
+            matchMode = initialMatchMode
         }
     }
 }
@@ -906,14 +1293,58 @@ struct DictionaryImportPreview: Codable {
 struct FlowLayout: Layout {
     var spacing: CGFloat = 8
 
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let result = FlowResult(in: proposal.width ?? 0, subviews: subviews, spacing: spacing)
+    struct Cache {
+        var sizes: [CGSize] = []
+        var width: CGFloat?
+        var result: FlowResult?
+    }
+
+    func makeCache(subviews: Subviews) -> Cache {
+        Cache(sizes: subviews.map { $0.sizeThatFits(.unspecified) })
+    }
+
+    func updateCache(_ cache: inout Cache, subviews: Subviews) {
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        if sizes != cache.sizes {
+            cache.sizes = sizes
+            cache.width = nil
+            cache.result = nil
+        }
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
+        let width = proposal.width ?? 0
+        if cache.sizes.count != subviews.count {
+            cache.sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+            cache.width = nil
+            cache.result = nil
+        }
+        if let cached = cache.result, cache.width == width {
+            return cached.size
+        }
+        let result = FlowResult(in: width, sizes: cache.sizes, spacing: spacing)
+        cache.width = width
+        cache.result = result
         return result.size
     }
 
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        let result = FlowResult(in: bounds.width, subviews: subviews, spacing: spacing)
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
+        let width = bounds.width
+        if cache.sizes.count != subviews.count {
+            cache.sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+            cache.width = nil
+            cache.result = nil
+        }
+        let result: FlowResult
+        if let cached = cache.result, cache.width == width {
+            result = cached
+        } else {
+            result = FlowResult(in: width, sizes: cache.sizes, spacing: spacing)
+            cache.width = width
+            cache.result = result
+        }
         for (index, subview) in subviews.enumerated() {
+            guard index < result.positions.count else { continue }
             subview.place(
                 at: CGPoint(
                     x: bounds.minX + result.positions[index].x,
@@ -928,14 +1359,12 @@ struct FlowLayout: Layout {
         var size: CGSize = .zero
         var positions: [CGPoint] = []
 
-        init(in maxWidth: CGFloat, subviews: Subviews, spacing: CGFloat) {
+        init(in maxWidth: CGFloat, sizes: [CGSize], spacing: CGFloat) {
             var x: CGFloat = 0
             var y: CGFloat = 0
             var rowHeight: CGFloat = 0
 
-            for subview in subviews {
-                let size = subview.sizeThatFits(.unspecified)
-
+            for size in sizes {
                 if x + size.width > maxWidth && x > 0 {
                     x = 0
                     y += rowHeight + spacing

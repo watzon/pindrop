@@ -44,6 +44,9 @@ public protocol StreamingTranscriptionEngine: AnyObject {
     var state: StreamingTranscriptionState { get async }
 
     func loadModel(name: String) async throws
+    /// Releases the model and ends callback production for the current session.
+    /// Once this method returns, no callback originating before the unload may
+    /// ever be invoked, even if this concrete instance is loaded again later.
     func unloadModel() async
 
     func startStreaming() async throws
@@ -57,6 +60,9 @@ public protocol StreamingTranscriptionEngine: AnyObject {
     func setTranscriptionCallback(_ callback: @escaping StreamingTranscriptionCallback) async
     func setEndOfUtteranceCallback(_ callback: @escaping EndOfUtteranceCallback) async
 
+    /// Ends the current streaming session and drains its callback production.
+    /// Once this method returns, callbacks originating in any prior session must
+    /// never be invoked. A subsequent `startStreaming()` begins a fresh session.
     func reset() async
 }
 

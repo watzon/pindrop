@@ -96,10 +96,84 @@ class TranscriptionService {
     /// hitting the engine's `.loading` state and falling back to batch. Class
     /// wrapper so callers can identity-check before clearing the slot.
     private final class StreamingPrepareHandle {
+        let epoch: UInt64
         let task: Task<Void, Error>
-        init(task: Task<Void, Error>) { self.task = task }
+
+        init(epoch: UInt64, task: Task<Void, Error>) {
+            self.epoch = epoch
+            self.task = task
+        }
     }
+    /// A reset is a session barrier. Callers arriving while it is active wait for
+    /// completion rather than reactivating the engine's invariant callback bridge.
+    private final class StreamingResetHandle {
+        let epoch: UInt64
+        let engineID: ObjectIdentifier
+        private var isFinished = false
+        private var waiters: [CheckedContinuation<Void, Never>] = []
+
+        init(epoch: UInt64, engine: any StreamingTranscriptionEngine) {
+            self.epoch = epoch
+            self.engineID = ObjectIdentifier(engine)
+        }
+
+        func wait() async {
+            guard !isFinished else { return }
+            await withCheckedContinuation { continuation in
+                if isFinished {
+                    continuation.resume()
+                } else {
+                    waiters.append(continuation)
+                }
+            }
+        }
+
+        func finish() {
+            guard !isFinished else { return }
+            isFinished = true
+            let waiters = waiters
+            self.waiters.removeAll()
+            for waiter in waiters {
+                waiter.resume()
+            }
+        }
+    }
+
+    private final class StreamingEngineLease {
+        let engine: any StreamingTranscriptionEngine
+        let identity: ObjectIdentifier
+        let epoch: UInt64
+        var isReleased = false
+
+        init(engine: any StreamingTranscriptionEngine, epoch: UInt64) {
+            self.engine = engine
+            self.identity = ObjectIdentifier(engine)
+            self.epoch = epoch
+        }
+    }
+
+    private final class StreamingCallbackBridge {
+        weak var engine: AnyObject?
+        let source: StreamingCallbackDelivery.Source
+
+        init(engine: any StreamingTranscriptionEngine, source: StreamingCallbackDelivery.Source) {
+            self.engine = engine as AnyObject
+            self.source = source
+        }
+    }
+
+    private var streamingResetHandle: StreamingResetHandle?
+    private var streamingEngineLeaseCounts: [ObjectIdentifier: Int] = [:]
+    private var streamingEngineLeaseDrainWaiters:
+        [ObjectIdentifier: [CheckedContinuation<Void, Never>]] = [:]
+    private var streamingEngineAvailabilityWaiters:
+        [ObjectIdentifier: [CheckedContinuation<Void, Never>]] = [:]
+    private var retiredStreamingEngineIdentities: Set<ObjectIdentifier> = []
+    private var streamingRetirementCleanupCounts: [ObjectIdentifier: Int] = [:]
+    private var streamingCallbackBridges: [ObjectIdentifier: StreamingCallbackBridge] = [:]
+    private var streamingLifecycleEpoch: UInt64 = 1
     private var streamingPrepareHandle: StreamingPrepareHandle?
+    private var streamingCallbackSource: StreamingCallbackDelivery.Source?
     private var currentProvider: ModelManager.ModelProvider?
     private enum BatchModelIdentity: Equatable {
         case named(modelName: String, provider: ModelManager.ModelProvider)
@@ -508,56 +582,113 @@ class TranscriptionService {
     }
 
     func unloadModel() async {
-        await engine?.unloadModel()
-        await speakerDiarizer?.unloadModels()
-        await streamingEngine?.unloadModel()
+        // Publish the terminal boundary before any suspension. Engine operations
+        // are cooperative, so their epoch/lease checks — not task cancellation —
+        // prevent late completions from committing or being re-adopted.
+        streamingLifecycleEpoch &+= 1
+        streamingPrepareHandle?.task.cancel()
+        streamingPrepareHandle = nil
+        streamingResetHandle?.finish()
+        streamingResetHandle = nil
+        invalidateAndDiscardStreamingCallbackSource()
+
+        let batchEngine = engine
+        let diarizer = speakerDiarizer
+        let streamingEngine = streamingEngine
+        if let streamingEngine {
+            beginStreamingEngineRetirement(streamingEngine)
+        }
         engine = nil
         speakerDiarizer = nil
-        streamingEngine = nil
+        self.streamingEngine = nil
         currentProvider = nil
         batchModelIdentity = nil
         state = .unloaded
         error = nil
+
+        await batchEngine?.unloadModel()
+        await diarizer?.unloadModels()
+        if let streamingEngine {
+            await streamingEngine.unloadModel()
+            completeStreamingEngineRetirement(streamingEngine)
+        }
     }
 
     func setStreamingCallbacks(
         onPartial: (@MainActor @Sendable (String) async -> Void)? = nil,
         onFinalUtterance: (@MainActor @Sendable (String) async -> Void)? = nil
     ) {
+        // Sinks are read live by the already-installed engine callbacks. Only
+        // update the routing targets (and generation on clear) — never reinstall
+        // invariant engine callbacks on every sink change.
         streamingPartialCallback = onPartial
         streamingFinalUtteranceCallback = onFinalUtterance
         if onPartial == nil && onFinalUtterance == nil {
             streamingCallbackDelivery.reset()
         }
-        applyStreamingCallbacks()
     }
 
     func prepareStreamingEngine() async throws {
+        // A caller that began before unload must not become a fresh preparation
+        // after the old shared task eventually resumes.
+        let invocationEpoch = streamingLifecycleEpoch
+
+        // Cancellation owns the engine until every prior operation drains and
+        // reset returns. Only then may this epoch reactivate its callback source.
+        while let reset = streamingResetHandle {
+            guard reset.epoch == invocationEpoch,
+                  let streamingEngine,
+                  ObjectIdentifier(streamingEngine) == reset.engineID else {
+                throw CancellationError()
+            }
+            await reset.wait()
+            guard invocationEpoch == streamingLifecycleEpoch else {
+                throw CancellationError()
+            }
+            if streamingResetHandle === reset {
+                streamingResetHandle = nil
+            }
+        }
+
         // Wait out any in-flight preparation, then reconcile once more against
         // the settings as they are NOW — a caller landing mid-prewarm must not
         // inherit the backend/chunk profile captured when that prepare started.
         // The re-run is a cheap early-return when nothing changed. Errors from
         // the in-flight task are ignored here; our own run rethrows fresh ones.
         while let inFlight = streamingPrepareHandle {
+            guard inFlight.epoch == invocationEpoch else {
+                throw CancellationError()
+            }
             _ = try? await inFlight.task.value
+            guard invocationEpoch == streamingLifecycleEpoch else {
+                throw CancellationError()
+            }
             if streamingPrepareHandle === inFlight { streamingPrepareHandle = nil }
         }
-        let task = Task { try await performPrepareStreamingEngine() }
-        let handle = StreamingPrepareHandle(task: task)
+
+        guard invocationEpoch == streamingLifecycleEpoch else {
+            throw CancellationError()
+        }
+        let task = Task {
+            try await performPrepareStreamingEngine(epoch: invocationEpoch)
+        }
+        let handle = StreamingPrepareHandle(epoch: invocationEpoch, task: task)
         streamingPrepareHandle = handle
         defer { if streamingPrepareHandle === handle { streamingPrepareHandle = nil } }
         try await task.value
     }
 
-    private func performPrepareStreamingEngine() async throws {
+    private func performPrepareStreamingEngine(epoch: UInt64) async throws {
+        try requireCurrentStreamingLifecycle(epoch)
         let profile = streamingChunkProfileProvider()
         let requestedBackend = streamingBackendProvider()
+        let resolvedAppleEngine: (any StreamingTranscriptionEngine)? =
+            requestedBackend == .appleSpeechTranscriber ? appleSpeechEngineFactory() : nil
 
-        // Resolve the backend we can actually run. Apple's SpeechTranscriber only exists
-        // on macOS 26+; on older hosts fall back to Parakeet and remember to surface a
-        // toast to the user.
+        // Resolve the backend we can actually run. Apple's SpeechTranscriber only
+        // exists on macOS 26+; older hosts fall back to Parakeet.
         let effectiveBackend: TranscriptionBackend
-        if requestedBackend == .appleSpeechTranscriber, appleSpeechEngineFactory() == nil {
+        if requestedBackend == .appleSpeechTranscriber, resolvedAppleEngine == nil {
             effectiveBackend = .parakeet
             appleBackendFellBackToParakeet = true
             Log.transcription.warning(
@@ -567,98 +698,285 @@ class TranscriptionService {
             effectiveBackend = requestedBackend
         }
 
-        // Recreate the engine when the backend changes or, for Parakeet, when the chunk
-        // profile changes.
+        // Recreate when the backend changes or Nemotron's chunk profile changes.
+        // The lease makes every await below part of this epoch's ownership.
         if let existing = streamingEngine {
-            let existingBackend = Self.backendFor(engine: existing)
-            var recreate = existingBackend != effectiveBackend
-            if !recreate, effectiveBackend == .parakeet,
-               let nemotron = existing as? NemotronStreamingEngine {
-                if await nemotron.chunkProfile != profile {
-                    await nemotron.updateChunkProfile(profile)
-                    recreate = true
+            let lease = try acquireOwnedStreamingEngineLease(existing, epoch: epoch)
+            do {
+                let existingBackend = Self.backendFor(engine: existing)
+                var recreate = existingBackend != effectiveBackend
+                if !recreate, effectiveBackend == .parakeet,
+                   let nemotron = existing as? NemotronStreamingEngine {
+                    let existingProfile = await nemotron.chunkProfile
+                    try requireCurrentStreamingLifecycle(epoch, owning: existing)
+                    if existingProfile != profile {
+                        await nemotron.updateChunkProfile(profile)
+                        try requireCurrentStreamingLifecycle(epoch, owning: existing)
+                        recreate = true
+                    }
                 }
-            }
-            if recreate {
-                await existing.unloadModel()
-                streamingEngine = nil
+
+                if recreate {
+                    invalidateAndDiscardStreamingCallbackSource()
+                    streamingEngine = nil
+                    beginStreamingEngineRetirement(existing)
+                    await existing.unloadModel()
+                    completeStreamingEngineRetirement(existing)
+                    releaseStreamingEngineLease(lease)
+                    try requireCurrentStreamingLifecycle(epoch)
+                } else {
+                    releaseStreamingEngineLease(lease)
+                }
+            } catch {
+                if !isCurrentStreamingLifecycle(epoch, owning: existing) {
+                    await finalizeStaleStreamingEngineLease(lease)
+                    throw CancellationError()
+                }
+                releaseStreamingEngineLease(lease)
+                throw error
             }
         }
 
-        if streamingEngine == nil {
-            let created: any StreamingTranscriptionEngine
+        let preparedEngine: any StreamingTranscriptionEngine
+        let lease: StreamingEngineLease
+        if let existing = streamingEngine {
+            preparedEngine = existing
+            lease = try acquireOwnedStreamingEngineLease(existing, epoch: epoch)
+        } else {
             switch effectiveBackend {
             case .parakeet:
-                created = streamingEngineFactory(profile)
+                preparedEngine = streamingEngineFactory(profile)
             case .appleSpeechTranscriber:
-                guard let apple = appleSpeechEngineFactory() else {
-                    // Shouldn't happen — handled above — but stay defensive.
-                    appleBackendFellBackToParakeet = true
-                    created = streamingEngineFactory(profile)
-                    break
+                guard let resolvedAppleEngine else {
+                    throw TranscriptionError.streamingNotReady
                 }
-                created = apple
+                preparedEngine = resolvedAppleEngine
             }
-            streamingEngine = created
-            applyStreamingCallbacks()
+            lease = try await acquireStreamingEngineAdoptionLease(
+                preparedEngine,
+                epoch: epoch
+            )
         }
 
-        guard let streamingEngine else {
-            throw TranscriptionError.streamingNotReady
-        }
-
-        switch await streamingEngine.state {
-        case .ready, .streaming, .paused:
-            if state == .unloaded || state == .error {
-                state = .ready
-            }
-            return
-        case .loading:
-            return
-        case .unloaded, .error:
-            break
-        }
-
-        // Model path is only relevant for Parakeet; the Apple engine ignores `name`.
-        let modelPath: String
-        switch effectiveBackend {
-        case .parakeet:
-            modelPath = FeatureModelType.streamingRepoFolderName(for: profile)
-        case .appleSpeechTranscriber:
-            modelPath = ""
-        }
         do {
-            try await streamingEngine.loadModel(name: modelPath)
-            if state == .unloaded || state == .error {
-                state = .ready
+            let source = try await callbackSource(
+                for: preparedEngine,
+                lifecycleEpoch: epoch
+            )
+            try requireCurrentStreamingLifecycle(epoch)
+            if streamingEngine == nil {
+                streamingEngine = preparedEngine
+            }
+            try requireCurrentStreamingLifecycle(epoch, owning: preparedEngine)
+            streamingCallbackSource = source
+
+            let engineState = await preparedEngine.state
+            try requireCurrentStreamingLifecycle(epoch, owning: preparedEngine)
+            switch engineState {
+            case .ready, .streaming, .paused:
+                releaseStreamingEngineLease(lease)
+                if state == .unloaded || state == .error {
+                    state = .ready
+                }
+                return
+            case .loading:
+                releaseStreamingEngineLease(lease)
+                return
+            case .unloaded, .error:
+                break
+            }
+
+            // Model path is only relevant for Parakeet; Apple ignores `name`.
+            let modelPath: String
+            switch effectiveBackend {
+            case .parakeet:
+                modelPath = FeatureModelType.streamingRepoFolderName(for: profile)
+            case .appleSpeechTranscriber:
+                modelPath = ""
+            }
+
+            do {
+                try await preparedEngine.loadModel(name: modelPath)
+                try requireCurrentStreamingLifecycle(epoch, owning: preparedEngine)
+                releaseStreamingEngineLease(lease)
+                if state == .unloaded || state == .error {
+                    state = .ready
+                }
+            } catch {
+                guard isCurrentStreamingLifecycle(epoch, owning: preparedEngine) else {
+                    await finalizeStaleStreamingEngineLease(lease)
+                    throw CancellationError()
+                }
+                releaseStreamingEngineLease(lease)
+                if error is CancellationError {
+                    throw CancellationError()
+                }
+
+                // Preserve the underlying diagnostic in logs while exposing the
+                // existing service-level error contract.
+                Log.transcription.error(
+                    "Streaming engine load failed for \(modelPath): \(error.localizedDescription)"
+                )
+                let streamingError: TranscriptionError
+                switch effectiveBackend {
+                case .parakeet:
+                    let path = getStreamingModelBase()
+                        .appendingPathComponent(modelPath, isDirectory: true)
+                        .path
+                    streamingError = .streamingModelNotAvailable(path)
+                case .appleSpeechTranscriber:
+                    streamingError = .streamingStartFailed(error.localizedDescription)
+                }
+                self.error = streamingError
+                if state == .unloaded || state == .error {
+                    state = .error
+                }
+                throw streamingError
             }
         } catch {
-            // Keep the underlying failure visible: the remapped error below reads as
-            // "model not downloaded", which is misleading when the files exist but a
-            // CoreML load failed (corrupt file, incompatible export, …).
-            Log.transcription.error(
-                "Streaming engine load failed for \(modelPath): \(error.localizedDescription)"
-            )
-            let streamingError: TranscriptionError
-            switch effectiveBackend {
-            case .parakeet:
-                let path = getStreamingModelBase()
-                    .appendingPathComponent(modelPath, isDirectory: true)
-                    .path
-                streamingError = TranscriptionError.streamingModelNotAvailable(path)
-            case .appleSpeechTranscriber:
-                streamingError = TranscriptionError.streamingStartFailed(
-                    error.localizedDescription)
+            guard isCurrentStreamingLifecycle(epoch, owning: preparedEngine) else {
+                await finalizeStaleStreamingEngineLease(lease)
+                throw CancellationError()
             }
-            self.error = streamingError
-            // A streaming-prepare failure (reachable from the background prewarm
-            // at any time) must not clobber the batch engine's state machine —
-            // mirror the guarded success path above.
-            if state == .unloaded || state == .error {
-                state = .error
-            }
-            throw streamingError
+            releaseStreamingEngineLease(lease)
+            throw error
         }
+    }
+
+    private func requireCurrentStreamingLifecycle(
+        _ expectedEpoch: UInt64,
+        owning expectedEngine: (any StreamingTranscriptionEngine)? = nil
+    ) throws {
+        guard expectedEpoch == streamingLifecycleEpoch else {
+            throw CancellationError()
+        }
+        if let expectedEngine {
+            guard streamingEngine === expectedEngine else {
+                throw CancellationError()
+            }
+        }
+    }
+
+    private func isCurrentStreamingLifecycle(
+        _ expectedEpoch: UInt64,
+        owning expectedEngine: (any StreamingTranscriptionEngine)? = nil
+    ) -> Bool {
+        guard expectedEpoch == streamingLifecycleEpoch else { return false }
+        guard let expectedEngine else { return true }
+        return streamingEngine === expectedEngine
+    }
+
+    private func acquireOwnedStreamingEngineLease(
+        _ engine: any StreamingTranscriptionEngine,
+        epoch: UInt64
+    ) throws -> StreamingEngineLease {
+        try requireCurrentStreamingLifecycle(epoch, owning: engine)
+        let identity = ObjectIdentifier(engine)
+        guard !retiredStreamingEngineIdentities.contains(identity) else {
+            throw CancellationError()
+        }
+        streamingEngineLeaseCounts[identity, default: 0] += 1
+        return StreamingEngineLease(engine: engine, epoch: epoch)
+    }
+
+    private func acquireStreamingEngineAdoptionLease(
+        _ engine: any StreamingTranscriptionEngine,
+        epoch: UInt64
+    ) async throws -> StreamingEngineLease {
+        let identity = ObjectIdentifier(engine)
+        while retiredStreamingEngineIdentities.contains(identity)
+            || streamingEngineLeaseCounts[identity, default: 0] > 0 {
+            await withCheckedContinuation { continuation in
+                streamingEngineAvailabilityWaiters[identity, default: []].append(continuation)
+            }
+            try requireCurrentStreamingLifecycle(epoch)
+        }
+        try requireCurrentStreamingLifecycle(epoch)
+        guard streamingEngine == nil else {
+            throw CancellationError()
+        }
+        streamingEngineLeaseCounts[identity, default: 0] += 1
+        return StreamingEngineLease(engine: engine, epoch: epoch)
+    }
+
+    private func releaseStreamingEngineLease(_ lease: StreamingEngineLease) {
+        guard !lease.isReleased else { return }
+        lease.isReleased = true
+        let identity = lease.identity
+        let remaining = streamingEngineLeaseCounts[identity, default: 0] - 1
+        if remaining > 0 {
+            streamingEngineLeaseCounts[identity] = remaining
+            return
+        }
+        streamingEngineLeaseCounts.removeValue(forKey: identity)
+        let drainWaiters = streamingEngineLeaseDrainWaiters.removeValue(forKey: identity) ?? []
+        for waiter in drainWaiters {
+            waiter.resume()
+        }
+        makeStreamingEngineIdentityAvailableIfPossible(identity)
+    }
+
+    private func finalizeStaleStreamingEngineLease(_ lease: StreamingEngineLease) async {
+        guard !lease.isReleased else { return }
+        // Adoption waits for this lease, so cleanup can never target a newer owner
+        // even when a factory repeatedly returns the exact same object.
+        if streamingEngine !== lease.engine {
+            await lease.engine.unloadModel()
+        }
+        releaseStreamingEngineLease(lease)
+    }
+
+    private func waitForStreamingEngineLeasesToDrain(
+        _ engine: any StreamingTranscriptionEngine,
+        epoch: UInt64
+    ) async throws {
+        let identity = ObjectIdentifier(engine)
+        while streamingEngineLeaseCounts[identity, default: 0] > 0 {
+            await withCheckedContinuation { continuation in
+                streamingEngineLeaseDrainWaiters[identity, default: []].append(continuation)
+            }
+            try requireCurrentStreamingLifecycle(epoch, owning: engine)
+        }
+    }
+
+    private func beginStreamingEngineRetirement(_ engine: any StreamingTranscriptionEngine) {
+        let identity = ObjectIdentifier(engine)
+        retiredStreamingEngineIdentities.insert(identity)
+        streamingRetirementCleanupCounts[identity, default: 0] += 1
+        // A reset waiting for old leases must observe teardown immediately rather
+        // than waiting forever for a non-cooperative operation.
+        let drainWaiters = streamingEngineLeaseDrainWaiters.removeValue(forKey: identity) ?? []
+        for waiter in drainWaiters {
+            waiter.resume()
+        }
+    }
+
+    private func completeStreamingEngineRetirement(_ engine: any StreamingTranscriptionEngine) {
+        let identity = ObjectIdentifier(engine)
+        let remaining = streamingRetirementCleanupCounts[identity, default: 0] - 1
+        if remaining > 0 {
+            streamingRetirementCleanupCounts[identity] = remaining
+        } else {
+            streamingRetirementCleanupCounts.removeValue(forKey: identity)
+        }
+        makeStreamingEngineIdentityAvailableIfPossible(identity)
+    }
+
+    private func makeStreamingEngineIdentityAvailableIfPossible(_ identity: ObjectIdentifier) {
+        guard streamingEngineLeaseCounts[identity, default: 0] == 0,
+              streamingRetirementCleanupCounts[identity, default: 0] == 0 else {
+            return
+        }
+        retiredStreamingEngineIdentities.remove(identity)
+        let waiters = streamingEngineAvailabilityWaiters.removeValue(forKey: identity) ?? []
+        for waiter in waiters {
+            waiter.resume()
+        }
+    }
+
+    private func invalidateAndDiscardStreamingCallbackSource() {
+        streamingCallbackDelivery.invalidateCurrentSource()
+        streamingCallbackSource = nil
     }
 
     /// Map an existing engine instance back to the `TranscriptionBackend` that produced it.
@@ -678,19 +996,43 @@ class TranscriptionService {
         guard state != .transcribing else {
             throw TranscriptionError.transcriptionFailed("Transcription already in progress")
         }
+        let invocationEpoch = streamingLifecycleEpoch
 
         do {
             try await prepareStreamingEngine()
+            try requireCurrentStreamingLifecycle(invocationEpoch)
             guard let streamingEngine else {
                 throw TranscriptionError.streamingNotReady
             }
-            try await streamingEngine.startStreaming()
-            state = .transcribing
-            error = nil
-        } catch let error as TranscriptionError {
-            self.error = error
-            throw error
+            let lease = try acquireOwnedStreamingEngineLease(
+                streamingEngine,
+                epoch: invocationEpoch
+            )
+            do {
+                try await streamingEngine.startStreaming()
+                guard isCurrentStreamingLifecycle(invocationEpoch, owning: streamingEngine) else {
+                    await finalizeStaleStreamingEngineLease(lease)
+                    throw CancellationError()
+                }
+                releaseStreamingEngineLease(lease)
+                state = .transcribing
+                error = nil
+            } catch {
+                guard isCurrentStreamingLifecycle(invocationEpoch, owning: streamingEngine) else {
+                    await finalizeStaleStreamingEngineLease(lease)
+                    throw CancellationError()
+                }
+                releaseStreamingEngineLease(lease)
+                throw error
+            }
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch let transcriptionError as TranscriptionError {
+            try requireCurrentStreamingLifecycle(invocationEpoch)
+            self.error = transcriptionError
+            throw transcriptionError
         } catch {
+            try requireCurrentStreamingLifecycle(invocationEpoch)
             let streamingError = TranscriptionError.streamingStartFailed(error.localizedDescription)
             self.error = streamingError
             throw streamingError
@@ -698,51 +1040,152 @@ class TranscriptionService {
     }
 
     func processStreamingAudioBuffer(_ buffer: AVAudioPCMBuffer) async throws {
-        guard state == .transcribing else {
+        guard state == .transcribing, let streamingEngine else {
             throw TranscriptionError.streamingNotReady
         }
-
-        guard let streamingEngine else {
-            throw TranscriptionError.streamingNotReady
-        }
+        let epoch = streamingLifecycleEpoch
+        let lease = try acquireOwnedStreamingEngineLease(streamingEngine, epoch: epoch)
 
         do {
             try await streamingEngine.processAudioBuffer(buffer)
-        } catch let error as TranscriptionError {
-            throw error
+            guard isCurrentStreamingLifecycle(epoch, owning: streamingEngine) else {
+                await finalizeStaleStreamingEngineLease(lease)
+                throw CancellationError()
+            }
+            releaseStreamingEngineLease(lease)
         } catch {
-            let streamingError = TranscriptionError.streamingProcessingFailed(error.localizedDescription)
+            guard isCurrentStreamingLifecycle(epoch, owning: streamingEngine) else {
+                await finalizeStaleStreamingEngineLease(lease)
+                throw CancellationError()
+            }
+            releaseStreamingEngineLease(lease)
+            if error is CancellationError {
+                throw CancellationError()
+            }
+            if let transcriptionError = error as? TranscriptionError {
+                throw transcriptionError
+            }
+            let streamingError = TranscriptionError.streamingProcessingFailed(
+                error.localizedDescription
+            )
             self.error = streamingError
             throw streamingError
         }
     }
 
     func stopStreaming() async throws -> String {
-        guard let streamingEngine else {
+        guard state == .transcribing, let streamingEngine else {
             throw TranscriptionError.streamingNotReady
         }
+        let epoch = streamingLifecycleEpoch
+        let lease = try acquireOwnedStreamingEngineLease(streamingEngine, epoch: epoch)
 
         do {
             let finalText = try await streamingEngine.stopStreaming()
+            guard isCurrentStreamingLifecycle(epoch, owning: streamingEngine) else {
+                await finalizeStaleStreamingEngineLease(lease)
+                throw CancellationError()
+            }
+            releaseStreamingEngineLease(lease)
             state = .ready
             return finalText
-        } catch let error as TranscriptionError {
-            state = .ready
-            throw error
         } catch {
-            let streamingError = TranscriptionError.streamingStopFailed(error.localizedDescription)
-            self.error = streamingError
+            guard isCurrentStreamingLifecycle(epoch, owning: streamingEngine) else {
+                await finalizeStaleStreamingEngineLease(lease)
+                throw CancellationError()
+            }
+            releaseStreamingEngineLease(lease)
             state = .ready
+            if error is CancellationError {
+                throw CancellationError()
+            }
+            if let transcriptionError = error as? TranscriptionError {
+                throw transcriptionError
+            }
+            let streamingError = TranscriptionError.streamingStopFailed(
+                error.localizedDescription
+            )
+            self.error = streamingError
             throw streamingError
         }
     }
 
+    private func performStreamingResetBarrier(
+        on streamingEngine: any StreamingTranscriptionEngine,
+        epoch: UInt64
+    ) async -> Bool {
+        guard let lease = try? acquireOwnedStreamingEngineLease(
+            streamingEngine,
+            epoch: epoch
+        ) else {
+            return false
+        }
+        await streamingEngine.reset()
+        guard isCurrentStreamingLifecycle(epoch, owning: streamingEngine) else {
+            await finalizeStaleStreamingEngineLease(lease)
+            return false
+        }
+        releaseStreamingEngineLease(lease)
+        return true
+    }
+
     func cancelStreaming() async {
-        await streamingEngine?.reset()
-        if engine != nil || streamingEngine != nil {
-            state = .ready
-        } else {
-            state = .unloaded
+        // Cancellation is a new lifecycle/session epoch. Publish it and deactivate
+        // delivery before awaiting any potentially non-cooperative engine work.
+        streamingLifecycleEpoch &+= 1
+        let resetEpoch = streamingLifecycleEpoch
+        streamingPrepareHandle?.task.cancel()
+        streamingPrepareHandle = nil
+        streamingResetHandle?.finish()
+        streamingCallbackDelivery.invalidateSource(streamingCallbackSource)
+
+        guard let streamingEngine else {
+            streamingResetHandle = nil
+            state = engine == nil ? .unloaded : .ready
+            return
+        }
+
+        state = .ready
+        let resetHandle = StreamingResetHandle(epoch: resetEpoch, engine: streamingEngine)
+        streamingResetHandle = resetHandle
+        let identity = ObjectIdentifier(streamingEngine)
+        let hasPriorOperations = streamingEngineLeaseCounts[identity, default: 0] > 0
+
+        do {
+            if hasPriorOperations {
+                // First interrupt cooperative engine work that only completes in
+                // response to reset. Delivery stays inactive, and this is not the
+                // final session barrier because an old operation may resume late.
+                guard await performStreamingResetBarrier(
+                    on: streamingEngine,
+                    epoch: resetEpoch
+                ) else {
+                    throw CancellationError()
+                }
+            }
+
+            try await waitForStreamingEngineLeasesToDrain(
+                streamingEngine,
+                epoch: resetEpoch
+            )
+
+            // Reset once more after every prior lease has completed. This is the
+            // true callback/state barrier that preparation waits on before source
+            // reactivation.
+            guard await performStreamingResetBarrier(
+                on: streamingEngine,
+                epoch: resetEpoch
+            ) else {
+                throw CancellationError()
+            }
+        } catch {
+            // Unload/replacement owns the state now. Its retirement lease prevents
+            // this abandoned identity from being adopted until cleanup completes.
+        }
+
+        resetHandle.finish()
+        if streamingResetHandle === resetHandle {
+            streamingResetHandle = nil
         }
     }
 
@@ -1033,20 +1476,92 @@ class TranscriptionService {
             segmentsBySpeakerID[segment.speaker.id, default: []].append(segment)
         }
 
-        var matchesByID: [String: SpeakerIdentityMatch] = [:]
+        // Request-scoped match batch: one aggregate embedding per speaker plus every
+        // eligible consensus embedding, resolved against a single profile snapshot.
+        struct PendingSpeaker {
+            let speakerID: String
+            let aggregateEmbeddingIndex: Int
+            let consensusEmbeddingIndices: [Int]
+            let consensusWeights: [Float]
+            let consensusDurations: [TimeInterval]
+        }
+
+        var embeddings: [[Float]] = []
+        var pendingSpeakers: [PendingSpeaker] = []
+        embeddings.reserveCapacity(segmentsBySpeakerID.count)
+        pendingSpeakers.reserveCapacity(segmentsBySpeakerID.count)
+
         for (speakerID, speakerSegments) in segmentsBySpeakerID {
             try Task.checkCancellation()
-            guard let aggregateEmbedding = weightedAggregateEmbedding(from: speakerSegments),
-                  let aggregateMatch = try speakerIdentityService.bestMatch(for: aggregateEmbedding),
-                  try hasSegmentConsensus(
-                    for: aggregateMatch,
-                    segments: speakerSegments,
-                    identityService: speakerIdentityService
-                  ) else {
+            guard let aggregateEmbedding = weightedAggregateEmbedding(from: speakerSegments) else {
                 continue
             }
 
-            matchesByID[speakerID] = aggregateMatch
+            let aggregateEmbeddingIndex = embeddings.count
+            embeddings.append(aggregateEmbedding)
+
+            var consensusEmbeddingIndices: [Int] = []
+            var consensusWeights: [Float] = []
+            var consensusDurations: [TimeInterval] = []
+            consensusEmbeddingIndices.reserveCapacity(speakerSegments.count)
+            consensusWeights.reserveCapacity(speakerSegments.count)
+            consensusDurations.reserveCapacity(speakerSegments.count)
+
+            for segment in speakerSegments {
+                try Task.checkCancellation()
+                guard segment.duration >= Self.identityEligibleSegmentDurationSeconds,
+                      segment.confidence >= Self.identityEligibleSegmentConfidence,
+                      let embedding = validEmbedding(segment.speaker.embedding) else {
+                    continue
+                }
+
+                let weight = Float(max(segment.duration, 0)) * max(segment.confidence, 0)
+                guard weight.isFinite, weight > 0 else { continue }
+
+                consensusEmbeddingIndices.append(embeddings.count)
+                embeddings.append(embedding)
+                consensusWeights.append(weight)
+                consensusDurations.append(segment.duration)
+            }
+
+            pendingSpeakers.append(
+                PendingSpeaker(
+                    speakerID: speakerID,
+                    aggregateEmbeddingIndex: aggregateEmbeddingIndex,
+                    consensusEmbeddingIndices: consensusEmbeddingIndices,
+                    consensusWeights: consensusWeights,
+                    consensusDurations: consensusDurations
+                )
+            )
+        }
+
+        guard !pendingSpeakers.isEmpty else { return [:] }
+
+        let matches = try speakerIdentityService.bestMatches(for: embeddings)
+        guard matches.count == embeddings.count else {
+            // Defensive: protocol contract requires 1:1 cardinality with input order.
+            return [:]
+        }
+
+        var matchesByID: [String: SpeakerIdentityMatch] = [:]
+        matchesByID.reserveCapacity(pendingSpeakers.count)
+
+        for pending in pendingSpeakers {
+            try Task.checkCancellation()
+            guard let aggregateMatch = matches[pending.aggregateEmbeddingIndex] else {
+                continue
+            }
+
+            guard hasSegmentConsensus(
+                for: aggregateMatch,
+                matchResults: pending.consensusEmbeddingIndices.map { matches[$0] },
+                weights: pending.consensusWeights,
+                durations: pending.consensusDurations
+            ) else {
+                continue
+            }
+
+            matchesByID[pending.speakerID] = aggregateMatch
         }
 
         return matchesByID
@@ -1092,37 +1607,33 @@ class TranscriptionService {
         return aggregate
     }
 
+    /// Consensus gate over already-resolved batch matches (no additional identity lookups).
     private func hasSegmentConsensus(
         for aggregateMatch: SpeakerIdentityMatch,
-        segments: [SpeakerSegment],
-        identityService: SpeakerIdentityManaging
-    ) throws -> Bool {
+        matchResults: [SpeakerIdentityMatch?],
+        weights: [Float],
+        durations: [TimeInterval]
+    ) -> Bool {
         var agreeingWeight: Float = 0
         var totalWeight: Float = 0
         var hasLongAgreeingSegment = false
         var eligibleSegmentCount = 0
 
-        for segment in segments {
-            try Task.checkCancellation()
-            guard segment.duration >= Self.identityEligibleSegmentDurationSeconds,
-                  segment.confidence >= Self.identityEligibleSegmentConfidence,
-                  let embedding = validEmbedding(segment.speaker.embedding) else {
-                continue
-            }
-
-            let weight = Float(max(segment.duration, 0)) * max(segment.confidence, 0)
+        let count = min(matchResults.count, min(weights.count, durations.count))
+        for index in 0..<count {
+            let weight = weights[index]
             guard weight.isFinite, weight > 0 else { continue }
 
             eligibleSegmentCount += 1
             totalWeight += weight
 
-            guard let match = try identityService.bestMatch(for: embedding),
+            guard let match = matchResults[index],
                   match.profileID == aggregateMatch.profileID else {
                 continue
             }
 
             agreeingWeight += weight
-            if segment.duration >= Self.identityLongSegmentDurationSeconds {
+            if durations[index] >= Self.identityLongSegmentDurationSeconds {
                 hasLongAgreeingSegment = true
             }
         }
@@ -1438,9 +1949,9 @@ class TranscriptionService {
         let endIndex = max(startIndex + 1, min(samples.count, Int((paddedEnd * Double(sampleRate)).rounded(.up))))
         guard endIndex > startIndex else { return nil }
 
-        let segmentSamples = Array(samples[startIndex..<endIndex])
-        return segmentSamples.withUnsafeBufferPointer { pointer in
-            Data(buffer: pointer)
+        return samples.withUnsafeBufferPointer { samplesBuffer in
+            let slice = UnsafeBufferPointer(rebasing: samplesBuffer[startIndex..<endIndex])
+            return Data(buffer: slice)
         }
     }
 
@@ -1509,44 +2020,62 @@ class TranscriptionService {
             .appendingPathComponent("Models", isDirectory: true)
     }
 
-    private func applyStreamingCallbacks() {
-        guard let streamingEngine else { return }
+    /// Installs the stable engine→delivery bridge once per engine instance.
+    /// Must complete before `loadModel` / `startStreaming` so emissions cannot
+    /// land before sinks are wired. Sink changes go through `setStreamingCallbacks`
+    /// and are picked up live by these callbacks — do not reinstall on sink updates.
+    private func callbackSource(
+        for streamingEngine: any StreamingTranscriptionEngine,
+        lifecycleEpoch: UInt64
+    ) async throws -> StreamingCallbackDelivery.Source {
+        let identity = ObjectIdentifier(streamingEngine)
+        if let bridge = streamingCallbackBridges[identity],
+           bridge.engine === (streamingEngine as AnyObject) {
+            streamingCallbackDelivery.activate(bridge.source)
+            return bridge.source
+        }
+        streamingCallbackBridges.removeValue(forKey: identity)
 
-        // Engine setters are actor-isolated; hop from this sync context. Session
-        // start always awaits prepare/start after this, so the setters land before
-        // the first buffer is processed.
-        //
-        // Each engine emission claims at most one generation-scoped drain via
-        // `streamingCallbackDelivery`. That single drain serializes coalesced
-        // partials and ordered finals — callers must not re-wrap those callbacks
-        // in another MainActor Task.
+        // Finish both invariant setter awaits before publishing the bridge record.
+        // The adoption lease prevents a stale installation from overlapping a
+        // newer owner of the same concrete engine object.
         let delivery = streamingCallbackDelivery
-        Task {
-            await streamingEngine.setTranscriptionCallback { result in
-                guard !result.isFinal else { return }
-                guard let generation = delivery.enqueuePartial(result.text) else { return }
-                Task { @MainActor [weak self] in
-                    await self?.drainStreamingCallbackDelivery(generation: generation)
-                }
+        let source = delivery.makeSource()
+        await streamingEngine.setTranscriptionCallback { result in
+            guard !result.isFinal else { return }
+            guard let generation = delivery.enqueuePartial(result.text, from: source) else {
+                return
             }
-
-            await streamingEngine.setEndOfUtteranceCallback { text in
-                guard let generation = delivery.enqueueFinal(text) else { return }
-                Task { @MainActor [weak self] in
-                    await self?.drainStreamingCallbackDelivery(generation: generation)
-                }
+            Task { @MainActor [weak self] in
+                await self?.drainStreamingCallbackDelivery(generation: generation)
             }
         }
+        await streamingEngine.setEndOfUtteranceCallback { text in
+            guard let generation = delivery.enqueueFinal(text, from: source) else {
+                return
+            }
+            Task { @MainActor [weak self] in
+                await self?.drainStreamingCallbackDelivery(generation: generation)
+            }
+        }
+        streamingCallbackBridges[identity] = StreamingCallbackBridge(
+            engine: streamingEngine,
+            source: source
+        )
+        guard lifecycleEpoch == streamingLifecycleEpoch else {
+            delivery.invalidateSource(source)
+            throw CancellationError()
+        }
+        return source
     }
 
     private func drainStreamingCallbackDelivery(generation: UInt64) async {
-        var generation = generation
         while true {
             let events = streamingCallbackDelivery.snapshotAndClear(forGeneration: generation)
             eventLoop: for event in events {
                 // Capture sinks only while this generation is still current so a
-                // concurrent reset cannot redirect already-snapshotted events into
-                // the next session. In-flight awaits keep the captured (old) sink.
+                // concurrent reset cannot redirect snapshotted events into the
+                // next session. In-flight awaits keep the captured old sink.
                 guard streamingCallbackDelivery.isCurrentGeneration(generation) else {
                     break eventLoop
                 }
@@ -1571,10 +2100,6 @@ class TranscriptionService {
                 continue
             case .finished:
                 return
-            case .adoptGeneration(let newGeneration):
-                // Same task keeps exclusive ownership across reset handoff.
-                generation = newGeneration
-                continue
             }
         }
     }
@@ -1604,11 +2129,19 @@ class TranscriptionService {
 /// single isolation hop. Consecutive partials collapse to the latest value;
 /// final utterances are queued in arrival order and never dropped.
 ///
-/// Ownership model: at most one drain task is live. `reset()` advances the
-/// session generation and drops queued events without marking a still-running
-/// drain as idle, so a concurrent second drain cannot be scheduled. The live
-/// drain either finishes or adopts the new generation itself.
+/// Ownership is serialized within one delivery generation. Invalidation releases
+/// the next generation immediately, so a suspended stale sink cannot starve the
+/// replacement session. When that stale drain resumes, its generation mismatch
+/// makes it exit without reading or clearing the current queue/owner.
 private final class StreamingCallbackDelivery: @unchecked Sendable {
+    final class Source: @unchecked Sendable {
+        fileprivate let id: UInt64
+
+        fileprivate init(id: UInt64) {
+            self.id = id
+        }
+    }
+
     enum Event: Sendable {
         case partial(String)
         case final(String)
@@ -1617,22 +2150,61 @@ private final class StreamingCallbackDelivery: @unchecked Sendable {
     enum DrainPoll: Sendable {
         /// Same generation still has queued work.
         case continueDrain
-        /// This drain released ownership; caller must exit.
+        /// This drain released ownership or was superseded; caller must exit.
         case finished
-        /// Reset superseded this drain; caller keeps ownership under the new generation.
-        case adoptGeneration(UInt64)
     }
 
     private let lock = NSLock()
     private var generation: UInt64 = 1
+    private var nextSourceID: UInt64 = 1
+    private var activeSourceID: UInt64?
     private var queue: [Event] = []
-    /// Generation that currently owns the single drain task, if any.
+    /// Generation that owns its serialized drain task, if any.
     private var drainOwnerGeneration: UInt64?
 
-    /// Enqueue a partial. Returns a generation when the caller must start the drain.
-    func enqueuePartial(_ text: String) -> UInt64? {
+    /// Creates and activates the token captured by one engine callback bridge.
+    func makeSource() -> Source {
         lock.lock()
         defer { lock.unlock() }
+        let source = Source(id: nextSourceID)
+        nextSourceID &+= 1
+        activeSourceID = source.id
+        advanceGenerationAndClearQueue()
+        return source
+    }
+
+    /// Reactivates the existing bridge after a completed engine reset.
+    func activate(_ source: Source) {
+        lock.lock()
+        defer { lock.unlock() }
+        guard activeSourceID != source.id else { return }
+        activeSourceID = source.id
+        advanceGenerationAndClearQueue()
+    }
+
+    /// Invalidates only this source. A stale source cannot deactivate its replacement.
+    func invalidateSource(_ source: Source?) {
+        lock.lock()
+        defer { lock.unlock() }
+        guard let source, activeSourceID == source.id else { return }
+        activeSourceID = nil
+        advanceGenerationAndClearQueue()
+    }
+
+    /// Lifecycle teardown also fences a source whose installation has suspended
+    /// before the main-actor service records its token.
+    func invalidateCurrentSource() {
+        lock.lock()
+        activeSourceID = nil
+        advanceGenerationAndClearQueue()
+        lock.unlock()
+    }
+
+    /// Enqueue a partial. Returns a generation when the caller must start the drain.
+    func enqueuePartial(_ text: String, from source: Source) -> UInt64? {
+        lock.lock()
+        defer { lock.unlock() }
+        guard activeSourceID == source.id else { return nil }
         if let lastIndex = queue.indices.last, case .partial = queue[lastIndex] {
             queue[lastIndex] = .partial(text)
         } else {
@@ -1642,9 +2214,10 @@ private final class StreamingCallbackDelivery: @unchecked Sendable {
     }
 
     /// Enqueue a final utterance. Returns a generation when the caller must start the drain.
-    func enqueueFinal(_ text: String) -> UInt64? {
+    func enqueueFinal(_ text: String, from source: Source) -> UInt64? {
         lock.lock()
         defer { lock.unlock() }
+        guard activeSourceID == source.id else { return nil }
         queue.append(.final(text))
         return claimDrainIfIdle()
     }
@@ -1664,26 +2237,17 @@ private final class StreamingCallbackDelivery: @unchecked Sendable {
         return events
     }
 
-    /// Called by the sole drain task after each batch. Never clears ownership for a
-    /// still-current drain that has more work, and never pretends a live drain is idle.
+    /// Called by a generation's drain after each batch. A stale generation never
+    /// mutates current ownership; a current drain retains ownership while work remains.
     func completeDrain(forGeneration expected: UInt64) -> DrainPoll {
         lock.lock()
         defer { lock.unlock() }
 
-        if expected != generation {
-            // Superseded by reset. Transfer ownership only when the new session
-            // already has events waiting; otherwise become idle.
-            guard drainOwnerGeneration == expected else {
-                return .finished
-            }
-            if !queue.isEmpty {
-                drainOwnerGeneration = generation
-                return .adoptGeneration(generation)
-            }
-            drainOwnerGeneration = nil
+        // Invalidation already released this generation's ownership. A stale
+        // drain must not inspect, adopt, or clear the replacement owner/queue.
+        guard expected == generation else {
             return .finished
         }
-
         if !queue.isEmpty {
             return .continueDrain
         }
@@ -1695,11 +2259,16 @@ private final class StreamingCallbackDelivery: @unchecked Sendable {
 
     func reset() {
         lock.lock()
+        advanceGenerationAndClearQueue()
+        lock.unlock()
+    }
+
+    private func advanceGenerationAndClearQueue() {
         generation &+= 1
         queue.removeAll(keepingCapacity: false)
-        // Leave `drainOwnerGeneration` intact while a drain is running. Clearing it
-        // here would let a new emission schedule a concurrent second drain.
-        lock.unlock()
+        // Drain ownership is generation-scoped. The stale task may remain
+        // suspended, but current events can now claim their own drain.
+        drainOwnerGeneration = nil
     }
 
     private func claimDrainIfIdle() -> UInt64? {

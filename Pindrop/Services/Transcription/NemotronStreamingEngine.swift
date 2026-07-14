@@ -51,6 +51,10 @@ public actor NemotronStreamingEngine: StreamingTranscriptionEngine {
     private var transcriptionCallback: StreamingTranscriptionCallback?
     /// Stored for protocol conformance; never invoked — Nemotron has no EOU token.
     private var endOfUtteranceCallback: EndOfUtteranceCallback?
+    /// Every manager callback closes over the session that installed it. Reset
+    /// advances this value before awaiting the manager barrier, so callback Tasks
+    /// already queued on the cooperative executor reject themselves when resumed.
+    private var callbackSessionGeneration: UInt64 = 1
 
     /// Chunk-size variant to use when loading the model. Changing this after load has no
     /// effect until the manager is unloaded and reloaded.
@@ -93,11 +97,6 @@ public actor NemotronStreamingEngine: StreamingTranscriptionEngine {
                 configuration: mlConfiguration,
                 requestedChunkSize: chunkProfile.nemotronChunkSize
             )
-            await streamingManager.setPartialCallback { [weak self] text in
-                Task { [weak self] in
-                    await self?.deliverPartial(text)
-                }
-            }
 
             do {
                 try await streamingManager.loadModels(from: modelDirectory)
@@ -149,11 +148,13 @@ public actor NemotronStreamingEngine: StreamingTranscriptionEngine {
     }
 
     public func unloadModel() async {
+        callbackSessionGeneration &+= 1
+        let manager = manager
+        self.manager = nil
+        state = .unloaded
         if let manager {
             await manager.reset()
         }
-        manager = nil
-        state = .unloaded
     }
 
     public func startStreaming() async throws {
@@ -163,7 +164,31 @@ public actor NemotronStreamingEngine: StreamingTranscriptionEngine {
 
         switch state {
         case .ready, .paused:
+            callbackSessionGeneration &+= 1
+            let generation = callbackSessionGeneration
             await manager.reset()
+            guard self.manager === manager,
+                  callbackSessionGeneration == generation else {
+                throw CancellationError()
+            }
+
+            // Capture both callback and generation for this session. A callback
+            // queued before reset retains the old generation and cannot be
+            // reclassified as belonging to a subsequent start.
+            let callback = transcriptionCallback
+            await manager.setPartialCallback { [weak self, callback] text in
+                Task { [weak self, callback] in
+                    await self?.deliverPartial(
+                        text,
+                        generation: generation,
+                        callback: callback
+                    )
+                }
+            }
+            guard self.manager === manager,
+                  callbackSessionGeneration == generation else {
+                throw CancellationError()
+            }
             state = .streaming
         case .streaming:
             return
@@ -234,22 +259,36 @@ public actor NemotronStreamingEngine: StreamingTranscriptionEngine {
 
     /// Runs on the engine actor; consumers hop to their own isolation inside the
     /// callback (the session controller wraps delivery in a MainActor task).
-    private func deliverPartial(_ text: String) {
+    private func deliverPartial(
+        _ text: String,
+        generation: UInt64,
+        callback: StreamingTranscriptionCallback?
+    ) {
+        guard generation == callbackSessionGeneration else { return }
         let result = StreamingTranscriptionResult(
             text: text,
             isFinal: false,
             timestamp: Date().timeIntervalSince1970
         )
-        transcriptionCallback?(result)
+        callback?(result)
     }
 
     public func reset() async {
-        if let manager {
-            await manager.reset()
-            state = .ready
-        } else {
+        // Invalidate callback Tasks before the manager await. Actor reentrancy can
+        // run those Tasks while reset is suspended, but their generation check
+        // makes the barrier observable immediately and permanently.
+        callbackSessionGeneration &+= 1
+        let resetGeneration = callbackSessionGeneration
+        guard let manager else {
             state = .unloaded
+            return
         }
+        await manager.reset()
+        guard self.manager === manager,
+              callbackSessionGeneration == resetGeneration else {
+            return
+        }
+        state = .ready
     }
 
     private func resolveModelDirectory(for name: String) -> URL {

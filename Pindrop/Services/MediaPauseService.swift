@@ -33,12 +33,16 @@ final class MediaPauseService {
    private var didPauseMediaForSession = false
    private var systemAudioState: SystemAudioState?
    private var sessionActive = false
+   private var pauseTask: Task<Void, Never>?
+   private var sessionGeneration: UInt64 = 0
 
    init() {}
 
    func beginRecordingSession(pauseMedia: Bool, muteSystemAudio: Bool) {
       guard !sessionActive else { return }
 
+      sessionGeneration &+= 1
+      let generation = sessionGeneration
       sessionActive = true
 
       // Mute is a fast CoreAudio property write; do it synchronously.
@@ -51,14 +55,23 @@ final class MediaPauseService {
       // Resolve private-framework symbols only for pause-enabled sessions.
       if pauseMedia {
          ensureMediaRemoteSymbolsLoaded()
-         Task { @MainActor [weak self] in
-            await self?.pauseMediaForActiveSessionIfNeeded()
+         pauseTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            await self.pauseMediaForActiveSessionIfNeeded(generation: generation)
+            if self.sessionGeneration == generation {
+               self.pauseTask = nil
+            }
          }
       }
    }
 
    func endRecordingSession() {
       guard sessionActive else { return }
+
+      sessionGeneration &+= 1
+      sessionActive = false
+      pauseTask?.cancel()
+      pauseTask = nil
 
       if didPauseMediaForSession, let sendCommandFunction {
          _ = sendCommandFunction(Self.playCommand, nil)
@@ -67,17 +80,16 @@ final class MediaPauseService {
 
       didPauseMediaForSession = false
       restoreSystemOutputIfNeeded()
-      sessionActive = false
    }
 
-   private func pauseMediaForActiveSessionIfNeeded() async {
-      guard sessionActive else { return }
+   private func pauseMediaForActiveSessionIfNeeded(generation: UInt64) async {
+      guard sessionActive, sessionGeneration == generation else { return }
 
-      let didPause = await pauseMediaIfNeeded()
+      let didPause = await pauseMediaIfNeeded(generation: generation)
 
-      // The session may have ended while the Now Playing query was outstanding.
-      // If we still paused media after teardown, resume it immediately.
-      guard sessionActive else {
+      // The session may have ended or been replaced while the Now Playing query
+      // was outstanding. A successful late pause must be undone immediately.
+      guard sessionActive, sessionGeneration == generation else {
          if didPause, let sendCommandFunction {
             _ = sendCommandFunction(Self.playCommand, nil)
             Log.app.debug("Resumed media playback after late pause during session teardown")
@@ -88,7 +100,7 @@ final class MediaPauseService {
       didPauseMediaForSession = didPause
    }
 
-   private func pauseMediaIfNeeded() async -> Bool {
+   private func pauseMediaIfNeeded(generation: UInt64) async -> Bool {
       guard let sendCommandFunction else {
          Log.app.debug("Media pause unavailable: MediaRemote command function missing")
          return false
@@ -96,6 +108,10 @@ final class MediaPauseService {
 
       guard await isNowPlayingActive() else {
          Log.app.debug("Media pause skipped: no active Now Playing session")
+         return false
+      }
+
+      guard sessionActive, sessionGeneration == generation, !Task.isCancelled else {
          return false
       }
 
@@ -190,19 +206,29 @@ final class MediaPauseService {
          return false
       }
 
-      return await withCheckedContinuation { continuation in
-         let bridge = NowPlayingQueryBridge(continuation: continuation)
-
-         getNowPlayingIsPlayingFunction(DispatchQueue.global(qos: .userInitiated)) { playing in
-            bridge.resume(playing)
-         }
-
-         Task {
-            try? await Task.sleep(for: .milliseconds(500))
-            if bridge.resume(false) {
-               Log.app.debug("MediaRemote Now Playing query timed out")
+      let bridge = NowPlayingQueryBridge()
+      return await withTaskCancellationHandler {
+         await withCheckedContinuation { continuation in
+            guard bridge.installContinuation(continuation) else {
+               continuation.resume(returning: false)
+               return
             }
+
+            getNowPlayingIsPlayingFunction(DispatchQueue.global(qos: .userInitiated)) { playing in
+               bridge.resume(playing)
+            }
+
+            let timeoutTask = Task {
+               try? await Task.sleep(for: .milliseconds(500))
+               guard !Task.isCancelled else { return }
+               if bridge.resume(false) {
+                  Log.app.debug("MediaRemote Now Playing query timed out")
+               }
+            }
+            bridge.installTimeoutTask(timeoutTask)
          }
+      } onCancel: {
+         bridge.resume(false)
       }
    }
 
@@ -332,21 +358,45 @@ final class MediaPauseService {
 private final class NowPlayingQueryBridge: @unchecked Sendable {
    private let lock = NSLock()
    private var continuation: CheckedContinuation<Bool, Never>?
+   private var timeoutTask: Task<Void, Never>?
+   private var isFinished = false
 
-   init(continuation: CheckedContinuation<Bool, Never>) {
+   func installContinuation(_ continuation: CheckedContinuation<Bool, Never>) -> Bool {
+      lock.lock()
+      defer { lock.unlock() }
+      guard !isFinished else { return false }
       self.continuation = continuation
+      return true
    }
 
-   /// Returns `true` when this call performed the resume.
+   func installTimeoutTask(_ task: Task<Void, Never>) {
+      lock.lock()
+      if isFinished {
+         lock.unlock()
+         task.cancel()
+         return
+      }
+      timeoutTask = task
+      lock.unlock()
+   }
+
+   /// Returns `true` when this call performed the continuation resume.
    @discardableResult
    func resume(_ value: Bool) -> Bool {
       lock.lock()
+      guard !isFinished else {
+         lock.unlock()
+         return false
+      }
+      isFinished = true
       let pending = continuation
       continuation = nil
+      let timeoutTask = timeoutTask
+      self.timeoutTask = nil
       lock.unlock()
 
-      guard let pending else { return false }
-      pending.resume(returning: value)
-      return true
+      timeoutTask?.cancel()
+      pending?.resume(returning: value)
+      return pending != nil
    }
 }

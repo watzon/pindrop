@@ -29,6 +29,10 @@ enum SpeakerEmbeddingSpace {
 @MainActor
 protocol SpeakerIdentityManaging: AnyObject {
     func bestMatch(for embedding: [Float]) throws -> SpeakerIdentityMatch?
+    /// Request-scoped multi-embedding match: one profile fetch/decode snapshot, then
+    /// score every embedding against that snapshot. Results preserve single-match
+    /// thresholds, margins, and invalid-vector handling; order matches `embeddings`.
+    func bestMatches(for embeddings: [[Float]]) throws -> [SpeakerIdentityMatch?]
     func learnFromDictation(
         recordID: UUID,
         segments: [DiarizedTranscriptSegment]
@@ -51,6 +55,13 @@ protocol SpeakerIdentityManaging: AnyObject {
     func renameProfile(_ profile: ParticipantProfile, to newName: String) throws
     func deleteProfile(_ profile: ParticipantProfile) throws
     func deleteAllProfiles() throws
+}
+
+extension SpeakerIdentityManaging {
+    /// Compatibility default for test doubles and older callers: sequential single matches.
+    func bestMatches(for embeddings: [[Float]]) throws -> [SpeakerIdentityMatch?] {
+        try embeddings.map { try bestMatch(for: $0) }
+    }
 }
 
 @MainActor
@@ -90,44 +101,111 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
     }
 
     func bestMatch(for embedding: [Float]) throws -> SpeakerIdentityMatch? {
+        try bestMatches(for: [embedding])[0]
+    }
+
+    func bestMatches(for embeddings: [[Float]]) throws -> [SpeakerIdentityMatch?] {
         try ensureCurrentEmbeddingSpace()
-        guard !embedding.isEmpty, embedding.allSatisfy(\.isFinite) else { return nil }
+        guard !embeddings.isEmpty else { return [] }
+
+        // Empty / non-finite vectors never score; skip profile fetch/decode entirely
+        // when the whole batch is invalid while preserving exact input cardinality.
+        let hasScorableEmbedding = embeddings.contains { embedding in
+            !embedding.isEmpty && embedding.allSatisfy(\.isFinite)
+        }
+        guard hasScorableEmbedding else {
+            return Array(repeating: nil, count: embeddings.count)
+        }
 
         do {
-            let profiles = try modelContext.fetch(FetchDescriptor<ParticipantProfile>())
-            let scoredProfiles = profiles.compactMap { profile -> SpeakerIdentityMatch? in
-                guard profile.embeddingSpaceIdentifier == SpeakerEmbeddingSpace.current,
-                      let centroid = decodeEmbedding(profile.centroidEmbeddingData),
-                      !centroid.isEmpty,
-                      centroid.count == embedding.count else {
-                    return nil
-                }
-
-                let similarity = cosineSimilarity(between: embedding, and: centroid)
-                guard similarity.isFinite else { return nil }
-
-                return SpeakerIdentityMatch(
-                    profileID: profile.id,
-                    displayName: profile.displayName,
-                    similarity: similarity
-                )
+            let snapshot = try loadDecodedCurrentCentroids()
+            return embeddings.map { embedding in
+                match(embedding, against: snapshot)
             }
-            .sorted { $0.similarity > $1.similarity }
-
-            guard let bestMatch = scoredProfiles.first,
-                  bestMatch.similarity >= Self.minimumSimilarityForAutoMatch else {
-                return nil
-            }
-
-            if let secondBest = scoredProfiles.dropFirst().first,
-               (bestMatch.similarity - secondBest.similarity) < Self.minimumSimilarityMarginForAutoMatch {
-                return nil
-            }
-
-            return bestMatch
+        } catch let error as SpeakerIdentityError {
+            throw error
         } catch {
             throw SpeakerIdentityError.fetchFailed(error.localizedDescription)
         }
+    }
+
+    private struct DecodedCentroid {
+        let profileID: UUID
+        let displayName: String
+        let centroid: [Float]
+    }
+
+    private func loadDecodedCurrentCentroids() throws -> [DecodedCentroid] {
+        let profiles = try modelContext.fetch(FetchDescriptor<ParticipantProfile>())
+        var snapshot: [DecodedCentroid] = []
+        snapshot.reserveCapacity(profiles.count)
+
+        for profile in profiles {
+            guard profile.embeddingSpaceIdentifier == SpeakerEmbeddingSpace.current,
+                  let centroid = decodeEmbedding(profile.centroidEmbeddingData),
+                  !centroid.isEmpty else {
+                continue
+            }
+            snapshot.append(
+                DecodedCentroid(
+                    profileID: profile.id,
+                    displayName: profile.displayName,
+                    centroid: centroid
+                )
+            )
+        }
+        return snapshot
+    }
+
+    private func match(
+        _ embedding: [Float],
+        against snapshot: [DecodedCentroid]
+    ) -> SpeakerIdentityMatch? {
+        guard !embedding.isEmpty, embedding.allSatisfy(\.isFinite) else { return nil }
+
+        var best: SpeakerIdentityMatch?
+        var secondBest: SpeakerIdentityMatch?
+
+        for profile in snapshot {
+            guard profile.centroid.count == embedding.count else { continue }
+
+            let similarity = cosineSimilarity(between: embedding, and: profile.centroid)
+            guard similarity.isFinite else { continue }
+
+            let candidate = SpeakerIdentityMatch(
+                profileID: profile.profileID,
+                displayName: profile.displayName,
+                similarity: similarity
+            )
+            // Keep only best/second-best without sorting. Equal similarities retain the
+            // earlier profile (matches stable sort of the original scored list).
+            if let currentBest = best {
+                if similarity > currentBest.similarity {
+                    secondBest = currentBest
+                    best = candidate
+                } else if let currentSecond = secondBest {
+                    if similarity > currentSecond.similarity {
+                        secondBest = candidate
+                    }
+                } else {
+                    secondBest = candidate
+                }
+            } else {
+                best = candidate
+            }
+        }
+
+        guard let bestMatch = best,
+              bestMatch.similarity >= Self.minimumSimilarityForAutoMatch else {
+            return nil
+        }
+
+        if let secondBest,
+           (bestMatch.similarity - secondBest.similarity) < Self.minimumSimilarityMarginForAutoMatch {
+            return nil
+        }
+
+        return bestMatch
     }
 
     func learnFromProfileAssignments(
@@ -345,6 +423,16 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
     ) throws {
         var touchedProfiles: [PersistentIdentifier: ParticipantProfile] = [:]
 
+        struct EligibleEvidence {
+            let segment: DiarizedTranscriptSegment
+            let embedding: [Float]
+            let profile: ParticipantProfile
+            let key: String
+        }
+
+        var eligible: [EligibleEvidence] = []
+        eligible.reserveCapacity(segments.count)
+
         for segment in segments {
             guard isEligibleForLearning(segment),
                   let embedding = segment.speakerEmbedding,
@@ -353,39 +441,58 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
             }
 
             touchedProfiles[profile.persistentModelID] = profile
-            let key = evidenceKey(for: recordID, segment: segment)
-            let existingEvidence = try fetchTrainingEvidence(withKey: key)
-            if let previousProfile = existingEvidence?.profile {
+            eligible.append(
+                EligibleEvidence(
+                    segment: segment,
+                    embedding: embedding,
+                    profile: profile,
+                    key: evidenceKey(for: recordID, segment: segment)
+                )
+            )
+        }
+
+        guard !eligible.isEmpty else { return }
+
+        let keys = Array(Set(eligible.map(\.key)))
+        var existingByKey = try fetchTrainingEvidence(withKeys: keys)
+
+        for item in eligible {
+            if let previousProfile = existingByKey[item.key]?.profile {
                 touchedProfiles[previousProfile.persistentModelID] = previousProfile
             }
 
+            // Encode once per segment; reuse for insert and assignment.
+            let encodedEmbedding = encodeEmbedding(item.embedding)
+            let existingEvidence = existingByKey[item.key]
             let evidence = existingEvidence ?? ParticipantTrainingEvidence(
-                evidenceKey: key,
+                evidenceKey: item.key,
                 sourceTypeRawValue: source.rawValue,
                 recordID: recordID,
-                sourceSpeakerID: segment.speakerId,
-                segmentStartTime: segment.startTime,
-                segmentEndTime: segment.endTime,
-                segmentDuration: segment.endTime - segment.startTime,
-                confidence: segment.confidence,
-                embeddingData: encodeEmbedding(embedding),
+                sourceSpeakerID: item.segment.speakerId,
+                segmentStartTime: item.segment.startTime,
+                segmentEndTime: item.segment.endTime,
+                segmentDuration: item.segment.endTime - item.segment.startTime,
+                confidence: item.segment.confidence,
+                embeddingData: encodedEmbedding,
                 embeddingSpaceIdentifier: SpeakerEmbeddingSpace.current
             )
 
             evidence.sourceTypeRawValue = source.rawValue
             evidence.recordID = recordID
-            evidence.sourceSpeakerID = segment.speakerId
-            evidence.segmentStartTime = segment.startTime
-            evidence.segmentEndTime = segment.endTime
-            evidence.segmentDuration = segment.endTime - segment.startTime
-            evidence.confidence = segment.confidence
-            evidence.embeddingData = encodeEmbedding(embedding)
+            evidence.sourceSpeakerID = item.segment.speakerId
+            evidence.segmentStartTime = item.segment.startTime
+            evidence.segmentEndTime = item.segment.endTime
+            evidence.segmentDuration = item.segment.endTime - item.segment.startTime
+            evidence.confidence = item.segment.confidence
+            evidence.embeddingData = encodedEmbedding
             evidence.embeddingSpaceIdentifier = SpeakerEmbeddingSpace.current
             evidence.updatedAt = Date()
-            evidence.profile = profile
+            evidence.profile = item.profile
 
             if existingEvidence == nil {
                 modelContext.insert(evidence)
+                // Later duplicate keys in this batch update the same inserted row.
+                existingByKey[item.key] = evidence
             }
         }
 
@@ -470,13 +577,27 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
         }
     }
 
-    private func fetchTrainingEvidence(withKey evidenceKey: String) throws -> ParticipantTrainingEvidence? {
+    /// Batch-fetch evidence rows for the given keys and index the first row per key
+    /// (matches single-key `fetch(...).first` determinism when duplicates exist).
+    private func fetchTrainingEvidence(withKeys keys: [String]) throws -> [String: ParticipantTrainingEvidence] {
+        guard !keys.isEmpty else { return [:] }
+
         let descriptor = FetchDescriptor<ParticipantTrainingEvidence>(
-            predicate: #Predicate { $0.evidenceKey == evidenceKey }
+            predicate: #Predicate<ParticipantTrainingEvidence> { evidence in
+                keys.contains(evidence.evidenceKey)
+            }
         )
 
         do {
-            return try modelContext.fetch(descriptor).first
+            let rows = try modelContext.fetch(descriptor)
+            var byKey: [String: ParticipantTrainingEvidence] = [:]
+            byKey.reserveCapacity(rows.count)
+            for row in rows {
+                if byKey[row.evidenceKey] == nil {
+                    byKey[row.evidenceKey] = row
+                }
+            }
+            return byKey
         } catch {
             throw SpeakerIdentityError.fetchFailed(error.localizedDescription)
         }
@@ -495,31 +616,38 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
     }
 
     private func rebuildProfile(_ profile: ParticipantProfile) {
-        let evidence = ((try? fetchEvidence(for: profile.id)) ?? []).filter {
-            $0.embeddingSpaceIdentifier == SpeakerEmbeddingSpace.current
-        }
+        let evidence = (try? fetchEvidence(for: profile.id)) ?? []
 
         var usable: [(embedding: [Float], duration: TimeInterval, confidence: Float)] = []
         usable.reserveCapacity(evidence.count)
+        var dimension: Int?
+        var totalEvidenceDuration: TimeInterval = 0
 
         for item in evidence {
-            guard let embedding = decodeEmbedding(item.embeddingData), !embedding.isEmpty else {
+            guard item.embeddingSpaceIdentifier == SpeakerEmbeddingSpace.current,
+                  let embedding = decodeEmbedding(item.embeddingData),
+                  !embedding.isEmpty else {
                 continue
             }
+
+            // First valid vector establishes the dimension; mixed-dimension rows are dropped.
+            if let dimension {
+                guard embedding.count == dimension else { continue }
+            } else {
+                dimension = embedding.count
+            }
+
+            let duration = max(item.segmentDuration, 0)
             usable.append((
                 embedding: embedding,
-                duration: max(item.segmentDuration, 0),
+                duration: duration,
                 confidence: max(item.confidence, 0)
             ))
-        }
-
-        // Keep only equal-dimension vectors so a corrupt row cannot poison the centroid.
-        if let dimension = usable.first?.embedding.count {
-            usable = usable.filter { $0.embedding.count == dimension }
+            totalEvidenceDuration += duration
         }
 
         profile.evidenceCount = usable.count
-        profile.totalEvidenceDuration = usable.map(\.duration).reduce(0, +)
+        profile.totalEvidenceDuration = totalEvidenceDuration
 
         if usable.isEmpty {
             profile.centroidEmbeddingData = nil
@@ -539,13 +667,21 @@ final class SpeakerIdentityService: SpeakerIdentityManaging {
         guard let first = samples.first else { return [] }
 
         var totals = Array(repeating: Float.zero, count: first.embedding.count)
-        var weights = samples.map { Float($0.duration) * $0.confidence }
-        if weights.allSatisfy({ $0 <= 0 }) {
-            weights = Array(repeating: 1, count: samples.count)
+
+        var hasPositiveWeight = false
+        for sample in samples {
+            if Float(sample.duration) * sample.confidence > 0 {
+                hasPositiveWeight = true
+                break
+            }
         }
 
         var weightSum: Float = 0
-        for (sample, weight) in zip(samples, weights) where weight > 0 {
+        for sample in samples {
+            let weight = hasPositiveWeight
+                ? Float(sample.duration) * sample.confidence
+                : 1
+            guard weight > 0 else { continue }
             for (index, value) in sample.embedding.enumerated() {
                 totals[index] += value * weight
             }
@@ -1228,11 +1364,25 @@ final class HistoryStore {
     }
 
     func fetchMediaRecords(limit: Int? = nil) throws -> [TranscriptionRecord] {
-        let records = try fetchAll().filter(\.isMediaTranscription)
-        if let limit {
-            return Array(records.prefix(limit))
+        // Preserve pre-optimization prefix(0)/empty semantics. SwiftData treats
+        // fetchLimit == 0 as unlimited, so nonpositive limits must short-circuit
+        // before any descriptor fetch. Negative values also return [].
+        if let limit, limit <= 0 {
+            return []
         }
-        return records
+
+        // Push media source-kind filter + newest timestamp sort into SQL so
+        // voice/meeting rows are never materialized just to discard them.
+        var descriptor = transcriptionsDescriptor(query: "", filter: .media, sort: .newest)
+        if let limit {
+            descriptor.fetchLimit = limit
+        }
+
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            throw HistoryStoreError.fetchFailed(error.localizedDescription)
+        }
     }
 
     func fetchFolders() throws -> [MediaFolder] {
@@ -1465,26 +1615,53 @@ final class HistoryStore {
         sort: MediaLibrarySortMode = .newest
     ) throws -> [TranscriptionRecord] {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        var records = try fetchMediaRecords()
+        // Media kind + timestamp sort live in the descriptor. Broadened
+        // title/summary/source search, folder membership, and name sorts stay
+        // in memory (optional strings / relationship id / localized compare).
+        let descriptor = transcriptionsDescriptor(query: "", filter: .media, sort: sort)
 
-        if let folderID {
-            records = records.filter { $0.folder?.id == folderID }
+        do {
+            var records = try modelContext.fetch(descriptor)
+
+            if folderID != nil || !trimmedQuery.isEmpty {
+                records = records.filter { record in
+                    if let folderID, record.folder?.id != folderID {
+                        return false
+                    }
+                    if !trimmedQuery.isEmpty, !record.matchesMediaLibrarySearch(trimmedQuery) {
+                        return false
+                    }
+                    return true
+                }
+            }
+
+            switch sort {
+            case .newest, .oldest:
+                // Already ordered by SQL via transcriptionsDescriptor.
+                return records
+            case .nameAscending, .nameDescending:
+                return sortMediaRecords(records, sort: sort)
+            }
+        } catch {
+            throw HistoryStoreError.fetchFailed(error.localizedDescription)
         }
-
-        if !trimmedQuery.isEmpty {
-            records = records.filter { $0.matchesMediaLibrarySearch(trimmedQuery) }
-        }
-
-        return sortMediaRecords(records, sort: sort)
     }
-    
+
     func delete(_ record: TranscriptionRecord) throws {
-        removeManagedMedia(for: record)
+        // Snapshot filesystem paths before mutating the store so cleanup can
+        // run after a successful DB commit without rereading models.
+        let mediaPaths = managedMediaPaths(for: record)
         try speakerIdentityService?.removeTrainingEvidence(for: record.id)
         modelContext.delete(record)
-        
+
         do {
             try modelContext.save()
+            // DB must commit before destructive filesystem work so a failed save
+            // never leaves a live row pointing at already-removed files. Single-record
+            // cleanup stays owned/synchronous after that commit: there is no durable
+            // orphan-recovery job for these paths, and an unowned fire-and-forget task
+            // can be lost at process termination, permanently orphaning managed media.
+            Self.removeManagedMediaAssets(at: mediaPaths)
             NotificationCenter.default.post(name: .historyStoreDidChange, object: nil)
         } catch {
             throw HistoryStoreError.deleteFailed(error.localizedDescription)
@@ -1710,11 +1887,10 @@ final class HistoryStore {
             .filter { !$0.isEmpty }
     }
 
-    private func removeManagedMedia(for record: TranscriptionRecord) {
-        Self.removeManagedMediaAssets(at: managedMediaPaths(for: record))
-    }
+    // Single-record delete runs owned/synchronous filesystem cleanup after DB commit.
+    // Bulk delete-all may still schedule best-effort off-main cleanup for throughput.
 
-    /// Fire-and-forget filesystem cleanup after the store transaction commits.
+    /// Fire-and-forget filesystem cleanup after a durable bulk DB commit.
     private static func scheduleManagedMediaRemoval(paths: [String]) {
         guard !paths.isEmpty else { return }
         Task.detached(priority: .utility) {

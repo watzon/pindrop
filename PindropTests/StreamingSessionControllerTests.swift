@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AVFoundation
 import SwiftData
 import Testing
 @testable import Pindrop
@@ -52,7 +53,8 @@ struct StreamingSessionControllerTests {
 
     private func makeController(
         clipboard: RecordingClipboard,
-        toastPresenter: RecordingToastPresenter
+        toastPresenter: RecordingToastPresenter,
+        transcriptionService: TranscriptionService? = nil
     ) throws -> StreamingSessionController {
         let settings = SettingsStore()
         settings.resetAllSettings()
@@ -69,7 +71,7 @@ struct StreamingSessionControllerTests {
         let audioRecorder = try AudioRecorder(permissionManager: permissionManager)
 
         return StreamingSessionController(
-            transcriptionService: TranscriptionService(),
+            transcriptionService: transcriptionService ?? TranscriptionService(),
             settingsStore: settings,
             dictionaryStore: try makeDictionaryStore(),
             outputManager: outputManager,
@@ -80,6 +82,7 @@ struct StreamingSessionControllerTests {
             isEffectivelyEmptyText: { AppCoordinator.isTranscriptionEffectivelyEmpty($0) }
         )
     }
+
 
     @Test func cancelledFinalizeInsertionDoesNotClipboardOrToast() async throws {
         let clipboard = RecordingClipboard()
@@ -179,4 +182,114 @@ struct StreamingSessionControllerTests {
         #expect(StreamingSessionController.isCancellationError(URLError(.cancelled)))
         #expect(StreamingSessionController.isCancellationError(OutputManagerError.clipboardWriteFailed) == false)
     }
+
+    @Test func beginInstallsCallbacksAndStartsStreamingEngineOnce() async throws {
+        let clipboard = RecordingClipboard()
+        let toastPresenter = RecordingToastPresenter()
+
+        final class CountingStreamingEngine: StreamingTranscriptionEngine, @unchecked Sendable {
+            private(set) var state: StreamingTranscriptionState = .unloaded
+            private(set) var loadCallCount = 0
+            private(set) var startStreamingCallCount = 0
+            private(set) var transcriptionCallbackInstallCount = 0
+            private(set) var endOfUtteranceCallbackInstallCount = 0
+            /// Captured synchronously inside `loadModel` / `startStreaming` so the
+            /// assertions are ordering-based, not scheduling-sensitive.
+            private(set) var hadBothCallbacksInstalledAtLoad = false
+            private(set) var hadBothCallbacksInstalledAtStart = false
+
+            func loadModel(name: String) async throws {
+                hadBothCallbacksInstalledAtLoad =
+                    transcriptionCallbackInstallCount > 0
+                    && endOfUtteranceCallbackInstallCount > 0
+                loadCallCount += 1
+                state = .ready
+            }
+
+            func unloadModel() async {
+                state = .unloaded
+            }
+
+            func startStreaming() async throws {
+                hadBothCallbacksInstalledAtStart =
+                    transcriptionCallbackInstallCount > 0
+                    && endOfUtteranceCallbackInstallCount > 0
+                startStreamingCallCount += 1
+                state = .streaming
+            }
+
+            func stopStreaming() async throws -> String {
+                state = .ready
+                return ""
+            }
+
+            func pauseStreaming() async {
+                state = .paused
+            }
+
+            func resumeStreaming() async throws {
+                state = .streaming
+            }
+
+            func processAudioChunk(_ samples: [Float]) async throws {}
+            func processAudioBuffer(_ buffer: AVAudioPCMBuffer) async throws {}
+
+            func setTranscriptionCallback(_ callback: @escaping StreamingTranscriptionCallback) async {
+                transcriptionCallbackInstallCount += 1
+            }
+
+            func setEndOfUtteranceCallback(_ callback: @escaping EndOfUtteranceCallback) async {
+                endOfUtteranceCallbackInstallCount += 1
+            }
+
+            func reset() async {
+                state = .ready
+            }
+        }
+
+        let engine = CountingStreamingEngine()
+        var factoryCallCount = 0
+        var profileProviderCallCount = 0
+        var backendProviderCallCount = 0
+        let transcriptionService = TranscriptionService(
+            streamingEngineFactory: { _ in
+                factoryCallCount += 1
+                return engine
+            },
+            streamingChunkProfileProvider: {
+                profileProviderCallCount += 1
+                return .standard
+            },
+            streamingBackendProvider: {
+                backendProviderCallCount += 1
+                return .parakeet
+            }
+        )
+
+        let controller = try makeController(
+            clipboard: clipboard,
+            toastPresenter: toastPresenter,
+            transcriptionService: transcriptionService
+        )
+
+        await controller.begin()
+
+        #expect(controller.isSessionActive)
+        // Both engine callbacks must already be installed when load and start run.
+        #expect(engine.hadBothCallbacksInstalledAtLoad)
+        #expect(engine.hadBothCallbacksInstalledAtStart)
+        #expect(engine.transcriptionCallbackInstallCount == 1)
+        #expect(engine.endOfUtteranceCallbackInstallCount == 1)
+        #expect(engine.loadCallCount == 1)
+        #expect(engine.startStreamingCallCount == 1)
+        #expect(factoryCallCount == 1)
+        // One prepare evaluation only (no explicit prepare + startStreaming prepare).
+        #expect(profileProviderCallCount == 1)
+        #expect(backendProviderCallCount == 1)
+        #expect(engine.state == .streaming)
+        #expect(transcriptionService.state == .transcribing)
+
+        await controller.cancel()
+    }
+
 }

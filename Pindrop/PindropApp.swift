@@ -187,9 +187,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // re-enqueue tracked drafts, then await each note's latest save task.
         Task { @MainActor in
             await NoteEditorPersistenceController.shared.prepareForTermination()
+            coordinator?.shutdown()
+            NotificationCenter.default.removeObserver(self)
             NSApp.reply(toApplicationShouldTerminate: true)
         }
         return .terminateLater
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        pendingSettingsPresentationUpdate?.cancel()
+        pendingSettingsPresentationUpdate = nil
+        coordinator?.shutdown()
+        NotificationCenter.default.removeObserver(self)
     }
     
 

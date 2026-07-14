@@ -139,7 +139,7 @@ final class StreamingSessionController {
     func begin() async {
         do {
             setEngineCallbacks()
-            try await transcriptionService.prepareStreamingEngine()
+            // startStreaming prepares the engine once; avoid a redundant prepare round-trip.
             try await transcriptionService.startStreaming()
 
             // Surface a one-time toast if the Apple backend was requested but we had to

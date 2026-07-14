@@ -80,12 +80,12 @@ final class StreamingRefinementCoordinator {
    /// Bounded wait after session stop for the last-in-flight work to finish before we
    /// finalize. With live refinement removed, nothing is typically in flight here — kept
    /// in the API for call-site stability.
-   static let defaultStopWaitNanoseconds: UInt64 = 500_000_000  // 500 ms
+   nonisolated static let defaultStopWaitNanoseconds: UInt64 = 500_000_000  // 500 ms
 
    /// How long after the last partial arrives before we promote the current tentative
    /// tail to committedText wholesale. Keeps the "end of thought" feel of iOS dictation
    /// while letting paused speech solidify quickly — 2s read as laggy in practice.
-   static let defaultIdleCommitNanoseconds: UInt64 = 1_200_000_000  // 1.2 s
+   nonisolated static let defaultIdleCommitNanoseconds: UInt64 = 1_200_000_000  // 1.2 s
 
    /// LocalAgreement-N parameter. K=2 — commit a token once it's been agreed on across
    /// two partials AND there are at least two newer tokens past it.

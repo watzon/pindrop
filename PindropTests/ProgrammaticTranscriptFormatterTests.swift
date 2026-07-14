@@ -71,6 +71,168 @@ struct ProgrammaticTranscriptFormatterTests {
         #expect(!formatter.format(input).contains("\n\n"))
     }
 
+    // MARK: - Word-floor threshold (Character.isWhitespace)
+
+    /// Exactly `tokenCount` whitespace-delimited tokens in three sentences.
+    /// Layout: `One.<sep>Two.<sep>word1<sep>…<sep>wordNxxxx.`
+    /// Padding is applied inside the final token so character-floor clearance
+    /// never invents extra tokens. `extraPad` makes long-text fixtures without
+    /// changing the token count.
+    private func wordFloorTokens(tokenCount: Int, extraPad: Int = 0) -> [String] {
+        precondition(tokenCount >= 3)
+        var tokens: [String] = ["One.", "Two."]
+        let contentCount = tokenCount - 2
+        for index in 1..<contentCount {
+            tokens.append("word\(index)")
+        }
+
+        let tentativeLast = "word\(contentCount)."
+        // Length budget uses a single-character separator stand-in; real
+        // separators under test are also single Characters.
+        let tentative = (tokens + [tentativeLast]).joined(separator: " ")
+        let needed = max(
+            0,
+            ProgrammaticTranscriptFormatter.minimumCharacterCount - tentative.count
+        ) + extraPad
+        tokens.append("word\(contentCount)" + String(repeating: "x", count: needed) + ".")
+        return tokens
+    }
+
+    private func joinWordFloorTokens(_ tokens: [String], separator: String) -> String {
+        tokens.joined(separator: separator)
+    }
+
+    private func joinWordFloorTokens(_ tokens: [String], cycling separators: [String]) -> String {
+        precondition(!separators.isEmpty)
+        var result = String(tokens[0])
+        for index in 1..<tokens.count {
+            result.append(contentsOf: separators[(index - 1) % separators.count])
+            result.append(tokens[index])
+        }
+        return result
+    }
+
+    @Test func wordFloorTreatsTabsAndUnicodeWhitespaceAsBoundaries() {
+        // Separators where format() can still paragraphize (no newlines — those
+        // take the existing-structure early return). Each 11/12 pair clears the
+        // character and sentence floors so only the word floor differs.
+        let separators: [String] = ["\t", "\u{00A0}", "\u{3000}"]
+
+        for separator in separators {
+            let elevenTokens = wordFloorTokens(tokenCount: 11)
+            let eleven = joinWordFloorTokens(elevenTokens, separator: separator)
+            #expect(eleven.count >= ProgrammaticTranscriptFormatter.minimumCharacterCount)
+            #expect(eleven.split(whereSeparator: \.isWhitespace).count == 11)
+            #expect(
+                ProgrammaticTranscriptFormatter.splitSentences(eleven).count
+                    >= ProgrammaticTranscriptFormatter.minimumSentenceCount
+            )
+            // Remains unchanged solely because of the word floor.
+            #expect(formatter.format(eleven) == eleven)
+            #expect(!formatter.format(eleven).contains("\n\n"))
+
+            let twelveTokens = wordFloorTokens(tokenCount: 12)
+            let twelve = joinWordFloorTokens(twelveTokens, separator: separator)
+            #expect(twelve.count >= ProgrammaticTranscriptFormatter.minimumCharacterCount)
+            #expect(twelve.split(whereSeparator: \.isWhitespace).count == 12)
+            #expect(
+                ProgrammaticTranscriptFormatter.splitSentences(twelve).count
+                    >= ProgrammaticTranscriptFormatter.minimumSentenceCount
+            )
+            // Unicode/tab whitespace is necessary to cross the 12-word floor:
+            // an ASCII-space-only counter under-counts these inputs.
+            #expect(
+                twelve.split(whereSeparator: { $0 == " " }).count
+                    < ProgrammaticTranscriptFormatter.minimumWordCount
+            )
+            let output = formatter.format(twelve)
+            // Structural paragraph behavior only — do not require whitespace
+            // normalization of tabs/NBSP/ideographic spaces inside sentences.
+            #expect(output.contains("\n\n"))
+            let paragraphs = output.components(separatedBy: "\n\n")
+            #expect(paragraphs.count == 2)
+            #expect(paragraphs[0].contains("One."))
+            #expect(paragraphs[0].contains("Two."))
+            #expect(paragraphs[1].contains("word"))
+        }
+
+        // Newline is a word/sentence boundary, but format preserves existing
+        // newlines instead of inserting paragraph breaks — exercise counting only.
+        let twelveNewline = joinWordFloorTokens(wordFloorTokens(tokenCount: 12), separator: "\n")
+        #expect(twelveNewline.split(whereSeparator: \.isWhitespace).count == 12)
+        #expect(
+            ProgrammaticTranscriptFormatter.splitSentences(twelveNewline).count
+                >= ProgrammaticTranscriptFormatter.minimumSentenceCount
+        )
+        #expect(
+            formatter.format(twelveNewline)
+                == twelveNewline.trimmingCharacters(in: .whitespacesAndNewlines)
+        )
+    }
+
+    @Test func veryLongTextWordFloorEarlyExitMatchesSplitSemantics() {
+        // Early-exit word scan must agree with split(whereSeparator: isWhitespace)
+        // on the 11/12-word floor for genuinely long text (no wall-clock assertions).
+        // Token count stays fixed; length comes from intra-token padding only.
+        let longPad = 50_000
+        let separators: [String] = ["\t", "\u{00A0}", "\u{3000}"]
+
+        for separator in separators {
+            let underFloor = joinWordFloorTokens(
+                wordFloorTokens(tokenCount: 11, extraPad: longPad),
+                separator: separator
+            )
+            #expect(underFloor.count >= ProgrammaticTranscriptFormatter.minimumCharacterCount)
+            #expect(underFloor.split(whereSeparator: \.isWhitespace).count == 11)
+            #expect(
+                ProgrammaticTranscriptFormatter.splitSentences(underFloor).count
+                    >= ProgrammaticTranscriptFormatter.minimumSentenceCount
+            )
+            #expect(formatter.format(underFloor) == underFloor)
+            #expect(!formatter.format(underFloor).contains("\n\n"))
+
+            let formattable = joinWordFloorTokens(
+                wordFloorTokens(tokenCount: 12, extraPad: longPad),
+                separator: separator
+            )
+            #expect(formattable.count >= ProgrammaticTranscriptFormatter.minimumCharacterCount)
+            #expect(formattable.split(whereSeparator: \.isWhitespace).count == 12)
+            #expect(
+                ProgrammaticTranscriptFormatter.splitSentences(formattable).count
+                    >= ProgrammaticTranscriptFormatter.minimumSentenceCount
+            )
+            #expect(
+                formattable.split(whereSeparator: { $0 == " " }).count
+                    < ProgrammaticTranscriptFormatter.minimumWordCount
+            )
+            let output = formatter.format(formattable)
+            #expect(output.contains("\n\n"))
+            #expect(output.components(separatedBy: "\n\n").count == 2)
+        }
+
+        // Mixed Unicode whitespace still clears the floor at exactly 12 tokens
+        // and paragraphizes; ASCII-space-only counting must not.
+        let mixed = joinWordFloorTokens(
+            wordFloorTokens(tokenCount: 12, extraPad: longPad),
+            cycling: ["\t", "\u{00A0}", "\u{3000}"]
+        )
+        #expect(mixed.split(whereSeparator: \.isWhitespace).count == 12)
+        #expect(
+            ProgrammaticTranscriptFormatter.splitSentences(mixed).count
+                >= ProgrammaticTranscriptFormatter.minimumSentenceCount
+        )
+        #expect(
+            mixed.split(whereSeparator: { $0 == " " }).count
+                < ProgrammaticTranscriptFormatter.minimumWordCount
+        )
+        let mixedOutput = formatter.format(mixed)
+        #expect(mixedOutput.contains("\n\n"))
+        #expect(mixedOutput.components(separatedBy: "\n\n").count == 2)
+    }
+
+
+
+
     // MARK: - Sentence grouping into paragraphs
 
     @Test func groupsSentencesWithBlankLineParagraphBreaks() {

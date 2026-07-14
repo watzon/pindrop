@@ -168,12 +168,14 @@ final class FloatingIndicatorFocusTracker {
         // pointer session so idle mouse work is fully paused.
         switch mode {
         case .idlePill:
+            lastObservedMouseDisplayNumber = mouseDisplayNumberProvider()
             if mousePollingSession == nil {
                 mousePollingSession = mousePollingScheduler { [weak self] in
                     self?.handleMouseTick()
                 }
             }
         case .activeSession:
+            lastObservedMouseDisplayNumber = nil
             mousePollingSession?.invalidate()
             mousePollingSession = nil
         }
@@ -182,7 +184,6 @@ final class FloatingIndicatorFocusTracker {
             installAXObservation()
         }
 
-        lastObservedMouseDisplayNumber = mouseDisplayNumberProvider()
 
         guard placementContextValue == nil else {
             if isRestartingInNewMode {

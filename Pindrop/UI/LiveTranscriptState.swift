@@ -33,11 +33,17 @@ final class LiveTranscriptState: ObservableObject {
     /// Upper bound for the floating-indicator viewport string. Three lines of
     /// ~14 pt body in the streaming card fit well under this; rendering cost
     /// stays proportional to the visible tail rather than the full session.
-    static let displayTailCharacterLimit = 360
+    nonisolated static let displayTailCharacterLimit = 360
 
+    /// Phase stays `@Published` so indicator controllers can subscribe to `$phase`
+    /// for shell resize / reveal without observing every text partial.
     @Published private(set) var phase: Phase = .inactive
-    @Published private(set) var committedText = ""
-    @Published private(set) var tentativeText = ""
+
+    /// Content fields are ordinary stored properties. Streaming partials batch
+    /// one `objectWillChange` per accepted snapshot so Combine/`@ObservedObject`
+    /// consumers are not invalidated twice for a single committed+tentative pair.
+    private(set) var committedText = ""
+    private(set) var tentativeText = ""
 
     /// Composed, trimmed display string — authoritative cache of the full live
     /// transcript join. Callers that need the complete text (final output
@@ -51,6 +57,7 @@ final class LiveTranscriptState: ObservableObject {
     var isActive: Bool { phase != .inactive }
 
     func begin() {
+        // Phase assignment publishes once; content fields are non-published.
         clearDisplayCaches()
         phase = .streaming
         committedText = ""
@@ -63,16 +70,18 @@ final class LiveTranscriptState: ObservableObject {
         // indicator bodies and attributed-string rebuilds stay quiet.
         guard committed != committedText || tentative != tentativeText else { return }
 
-        // Compose before publishing so any view invalidated by the @Published
-        // text fields already sees a consistent display cache.
+        // Compose before publishing so any view invalidated by objectWillChange
+        // already sees a consistent display cache.
         let composed = StreamingRefinementCoordinator.composeDisplay(
             committed: committed,
             tentative: tentative
         )
         .trimmingCharacters(in: .whitespacesAndNewlines)
-        displayText = composed
-        displayTail = Self.makeDisplayTail(from: composed)
+        let tail = Self.makeDisplayTail(from: composed)
 
+        objectWillChange.send()
+        displayText = composed
+        displayTail = tail
         committedText = committed
         tentativeText = tentative
     }
@@ -83,6 +92,7 @@ final class LiveTranscriptState: ObservableObject {
     }
 
     func end() {
+        // Phase assignment publishes once; content fields are non-published.
         clearDisplayCaches()
         phase = .inactive
         committedText = ""
@@ -96,13 +106,24 @@ final class LiveTranscriptState: ObservableObject {
 
     /// Keep the newest characters that fit the three-line viewport, preferring a
     /// word boundary near the cut so the first visible glyph isn't a mid-word slice.
+    ///
+    /// Walks at most `limit` grapheme clusters from the end — never `String.count`
+    /// on the full transcript — so streaming cost stays proportional to the
+    /// viewport even for long sessions.
     static func makeDisplayTail(
         from text: String,
         limit: Int = displayTailCharacterLimit
     ) -> String {
-        guard text.count > limit else { return text }
+        guard let start = text.index(
+            text.endIndex,
+            offsetBy: -limit,
+            limitedBy: text.startIndex
+        ), start != text.startIndex else {
+            // Shorter than or exactly equal to the limit: return the original
+            // string (no copy / no mid-string slice).
+            return text
+        }
 
-        let start = text.index(text.endIndex, offsetBy: -limit)
         var tail = String(text[start...])
 
         if let whitespace = tail.firstIndex(where: \.isWhitespace) {

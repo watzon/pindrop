@@ -131,6 +131,48 @@ struct NotesPresentationTests {
         #expect(NotesListPresentation.previewLine(content: "   ") == "")
     }
 
+    // MARK: - Search draft intent (empty-state boundary)
+
+    @Test func draftSearchIntentIgnoresWhitespaceOnly() {
+        #expect(NotesSearchPresentation.hasDraftSearchIntent("") == false)
+        #expect(NotesSearchPresentation.hasDraftSearchIntent("   \n\t  ") == false)
+        #expect(NotesSearchPresentation.hasDraftSearchIntent("a") == true)
+        #expect(NotesSearchPresentation.hasDraftSearchIntent("  note  ") == true)
+    }
+
+    @Test func draftSearchIntentTransitionPublishesOnlyBoundaryCrossings() {
+        #expect(
+            NotesSearchPresentation.draftSearchIntentTransition(
+                previousHasIntent: false,
+                draft: "a"
+            ) == true
+        )
+        #expect(
+            NotesSearchPresentation.draftSearchIntentTransition(
+                previousHasIntent: true,
+                draft: "ab"
+            ) == nil
+        )
+        #expect(
+            NotesSearchPresentation.draftSearchIntentTransition(
+                previousHasIntent: true,
+                draft: "   "
+            ) == false
+        )
+        #expect(
+            NotesSearchPresentation.draftSearchIntentTransition(
+                previousHasIntent: false,
+                draft: ""
+            ) == nil
+        )
+        #expect(
+            NotesSearchPresentation.draftSearchIntentTransition(
+                previousHasIntent: false,
+                draft: "  "
+            ) == nil
+        )
+    }
+
     // MARK: - Helpers
 
     private func date(year: Int, month: Int, day: Int, hour: Int = 0, minute: Int = 0) -> Date {

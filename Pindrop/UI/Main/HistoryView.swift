@@ -54,6 +54,9 @@ struct HistoryView: View {
     @State private var pendingDeletionRecord: TranscriptionRecord?
     @State private var isLoading = true
     @State private var visibleTranscriptions: [TranscriptionRecord] = []
+    /// Grouped sections cached with the visible records so selection-only
+    /// updates do not re-run day grouping over every loaded page.
+    @State private var groupedSections: [LibraryDaySection] = []
     @State private var totalCount: Int = 0
     @State private var totalSpokenDuration: TimeInterval = 0
     @State private var transcriptionSnapshot: HistoryStore.TranscriptionSnapshot?
@@ -106,11 +109,8 @@ struct HistoryView: View {
         )
     }
 
-    private var groupedTranscriptions: [LibraryDaySection] {
-        LibraryDayGrouping.sections(
-            from: visibleTranscriptions,
-            newestFirst: selectedSort != .oldest
-        )
+    private var newestFirstGrouping: Bool {
+        selectedSort != .oldest
     }
 
     private var defaultJobOptions: TranscriptionJobOptions {
@@ -640,11 +640,11 @@ struct HistoryView: View {
     private var transcriptionsList: some View {
         ScrollView(.vertical, showsIndicators: true) {
             LazyVStack(alignment: .leading, spacing: 0) {
-                ForEach(Array(groupedTranscriptions.enumerated()), id: \.element.key) { index, group in
+                ForEach(groupedSections, id: \.key) { group in
                     SectionHeader(
                         title: LibraryDayGrouping.displayTitle(group.key, locale: locale),
                         trailing: "\(group.records.count)",
-                        isFirst: index == 0
+                        isFirst: group.key == groupedSections.first?.key
                     )
                     .padding(.horizontal, 24)
 
@@ -1135,7 +1135,7 @@ struct HistoryView: View {
                 snapshotGeneration = generation
                 totalCount = snapshot.count
                 totalSpokenDuration = snapshot.spokenDuration
-                visibleTranscriptions = []
+                replaceVisibleRecords([])
                 currentOffset = 0
                 hasMorePages = snapshot.count > 0
                 isLoading = snapshot.count > 0
@@ -1163,7 +1163,7 @@ struct HistoryView: View {
                 snapshotGeneration = generation
                 totalCount = snapshot.count
                 totalSpokenDuration = snapshot.spokenDuration
-                visibleTranscriptions = records
+                replaceVisibleRecords(records)
                 currentOffset = records.count
                 hasMorePages = records.count < snapshot.count
                 isLoading = false
@@ -1202,10 +1202,29 @@ struct HistoryView: View {
         _ records: [TranscriptionRecord],
         snapshot: HistoryStore.TranscriptionSnapshot
     ) {
-        visibleTranscriptions = records
+        replaceVisibleRecords(records)
         currentOffset = records.count
         hasMorePages = records.count < snapshot.count
         isLoading = false
+    }
+
+    /// Single path for visible-record mutations so grouping stays coherent with
+    /// the flat list and is never re-derived on selection-only updates.
+    private func replaceVisibleRecords(_ records: [TranscriptionRecord]) {
+        visibleTranscriptions = records
+        groupedSections = LibraryDayGrouping.sections(
+            from: records,
+            newestFirst: newestFirstGrouping
+        )
+    }
+
+    private func appendVisibleRecords(_ records: [TranscriptionRecord]) {
+        guard !records.isEmpty else { return }
+        visibleTranscriptions.append(contentsOf: records)
+        groupedSections = LibraryDayGrouping.sections(
+            from: visibleTranscriptions,
+            newestFirst: newestFirstGrouping
+        )
     }
 
     private func loadNextPage() {
@@ -1238,7 +1257,7 @@ struct HistoryView: View {
                 )
                 guard isCurrent(request, generation: generation),
                       currentOffset == offset else { return }
-                visibleTranscriptions.append(contentsOf: records)
+                appendVisibleRecords(records)
                 currentOffset += records.count
                 hasMorePages = currentOffset < snapshot.count
                 isLoading = false

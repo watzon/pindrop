@@ -8,6 +8,7 @@
 //
 
 import AVFoundation
+import Combine
 import Foundation
 import Testing
 @testable import Pindrop
@@ -114,6 +115,131 @@ struct LiveTranscriptStatePerformanceTests {
         #expect(state.displayText == displayBefore)
         #expect(state.displayTail == tailBefore)
     }
+
+    @Test func acceptedContentSnapshotEmitsExactlyOneObjectWillChange() {
+        let state = LiveTranscriptState()
+        state.begin()
+
+        var emissions = 0
+        var cancellables = Set<AnyCancellable>()
+        state.objectWillChange
+            .sink { _ in emissions += 1 }
+            .store(in: &cancellables)
+
+        state.update(committed: "hello", tentative: " world")
+        #expect(emissions == 1)
+        #expect(state.displayText == "hello world")
+
+        // Identical snapshot must stay silent for Combine/@ObservedObject consumers.
+        state.update(committed: "hello", tentative: " world")
+        #expect(emissions == 1)
+
+        state.update(committed: "hello world", tentative: " again")
+        #expect(emissions == 2)
+        #expect(state.committedText == "hello world")
+        #expect(state.tentativeText == " again")
+    }
+
+    @Test func identicalSnapshotsEmitZeroObjectWillChange() {
+        let state = LiveTranscriptState()
+        state.begin()
+        state.update(committed: "once", tentative: " only")
+
+        var emissions = 0
+        var cancellables = Set<AnyCancellable>()
+        state.objectWillChange
+            .sink { _ in emissions += 1 }
+            .store(in: &cancellables)
+
+        state.update(committed: "once", tentative: " only")
+        state.update(committed: "once", tentative: " only")
+        #expect(emissions == 0)
+    }
+
+    @Test func phasePublisherTracksLifecycleWithoutContentNoise() {
+        let state = LiveTranscriptState()
+        var phases: [LiveTranscriptState.Phase] = []
+        var cancellables = Set<AnyCancellable>()
+
+        state.$phase
+            .sink { phases.append($0) }
+            .store(in: &cancellables)
+
+        #expect(phases == [.inactive])
+
+        state.begin()
+        #expect(phases == [.inactive, .streaming])
+        #expect(state.isActive)
+
+        // Content updates must not re-publish phase.
+        state.update(committed: "alpha", tentative: " beta")
+        state.update(committed: "alpha beta", tentative: "")
+        #expect(phases == [.inactive, .streaming])
+
+        state.beginEnhancing()
+        #expect(phases == [.inactive, .streaming, .enhancing])
+        #expect(state.phase == .enhancing)
+        #expect(state.displayText == "alpha beta")
+
+        state.end()
+        #expect(phases == [.inactive, .streaming, .enhancing, .inactive])
+        #expect(state.phase == .inactive)
+        #expect(!state.isActive)
+    }
+
+    @Test func makeDisplayTailHandlesUnicodeCJKEmojiCombiningAndExactLimit() {
+        let limit = 24
+
+        // CJK has no whitespace, so the tail is a pure grapheme suffix.
+        let cjk = String(repeating: "漢字", count: 80)
+        let cjkTail = LiveTranscriptState.makeDisplayTail(from: cjk, limit: limit)
+        #expect(cjkTail.count == limit)
+        #expect(cjk.hasSuffix(cjkTail))
+
+        // ZWJ family emoji is one Character; limit is grapheme-based.
+        let family = "👨‍👩‍👧‍👦"
+        let emoji = String(repeating: family, count: 40)
+        let emojiTail = LiveTranscriptState.makeDisplayTail(from: emoji, limit: 10)
+        #expect(emojiTail.count == 10)
+        #expect(Array(emojiTail) == Array(emoji.suffix(10)))
+
+        // Combining marks form a single Character with their base.
+        let combining = String(repeating: "e\u{0301}", count: 100)
+        let combiningTail = LiveTranscriptState.makeDisplayTail(from: combining, limit: 12)
+        #expect(combiningTail.count == 12)
+        #expect(combining.hasSuffix(combiningTail))
+
+        // Exact-limit input returns the original string unchanged.
+        let exact = String(repeating: "あ", count: LiveTranscriptState.displayTailCharacterLimit)
+        #expect(LiveTranscriptState.makeDisplayTail(from: exact) == exact)
+
+        let shortUnicode = "你好 👋 e\u{0301}"
+        #expect(LiveTranscriptState.makeDisplayTail(from: shortUnicode) == shortUnicode)
+    }
+
+    @Test func updateBoundsLongUnicodeDisplayTailWhileRetainingFullText() {
+        let state = LiveTranscriptState()
+        state.begin()
+
+        let committed = String(repeating: "你好世界", count: 120)
+        let tentative = " 🎉e\u{0301}"
+        #expect(committed.count > LiveTranscriptState.displayTailCharacterLimit)
+
+        state.update(committed: committed, tentative: tentative)
+
+        let expectedFull = StreamingRefinementCoordinator.composeDisplay(
+            committed: committed,
+            tentative: tentative
+        )
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        #expect(state.displayText == expectedFull)
+        #expect(state.displayText.count > LiveTranscriptState.displayTailCharacterLimit)
+        #expect(state.displayTail.count <= LiveTranscriptState.displayTailCharacterLimit)
+        #expect(state.displayTail == LiveTranscriptState.makeDisplayTail(from: expectedFull))
+        #expect(state.displayText.hasSuffix(state.displayTail))
+    }
+
 }
 
 // MARK: - Media playback teardown

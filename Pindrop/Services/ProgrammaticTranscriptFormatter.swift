@@ -69,11 +69,11 @@ struct ProgrammaticTranscriptFormatter: Sendable {
 
         guard trimmed.count >= Self.minimumCharacterCount else { return trimmed }
 
-        let wordCount = trimmed
-            .split(whereSeparator: { $0.isWhitespace || $0.isNewline })
-            .filter { !$0.isEmpty }
-            .count
-        guard wordCount >= Self.minimumWordCount else { return trimmed }
+        // Early-exit word floor: same whitespace token boundaries as split, without
+        // materializing the full substring array. isNewline ⊆ isWhitespace.
+        guard Self.hasAtLeastWords(trimmed, count: Self.minimumWordCount) else {
+            return trimmed
+        }
 
         let sentences = Self.splitSentences(trimmed)
         guard sentences.count >= Self.minimumSentenceCount else { return trimmed }
@@ -96,6 +96,25 @@ struct ProgrammaticTranscriptFormatter: Sendable {
     static func formatIfEnabled(_ text: String, enabled: Bool) -> String {
         guard enabled else { return text }
         return ProgrammaticTranscriptFormatter().format(text)
+    }
+
+    /// True when `text` contains at least `target` whitespace-delimited tokens.
+    /// Matches `split(whereSeparator: { $0.isWhitespace })` / omitting empties.
+    private static func hasAtLeastWords(_ text: String, count target: Int) -> Bool {
+        guard target > 0 else { return true }
+
+        var words = 0
+        var insideWord = false
+        for character in text {
+            if character.isWhitespace {
+                insideWord = false
+            } else if !insideWord {
+                words += 1
+                if words >= target { return true }
+                insideWord = true
+            }
+        }
+        return false
     }
 
     // MARK: - Sentence splitting

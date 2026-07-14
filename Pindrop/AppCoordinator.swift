@@ -18,12 +18,17 @@ private final class EventTapRunLoopThread: Thread {
     private let readinessSemaphore = DispatchSemaphore(value: 0)
     private let stateLock = NSLock()
     private var runLoop: CFRunLoop?
+    private let threadExitGroup = DispatchGroup()
+    private var hasStarted = false
+    private var hasExited = false
+    private var stopRequested = false
     private let keepAlivePort = Port()
 
     init(name: String) {
         super.init()
         self.name = name
         self.qualityOfService = .userInteractive
+        threadExitGroup.enter()
     }
 
     override func main() {
@@ -44,7 +49,9 @@ private final class EventTapRunLoopThread: Thread {
 
         stateLock.lock()
         runLoop = nil
+        hasExited = true
         stateLock.unlock()
+        threadExitGroup.leave()
     }
 
     func performAndWait(_ block: @escaping (CFRunLoop) -> Void) {
@@ -63,21 +70,54 @@ private final class EventTapRunLoopThread: Thread {
     }
 
     func stopIfNeeded() {
-        guard let runLoop = currentRunLoop else { return }
-        guard let defaultMode = CFRunLoopMode.defaultMode else { return }
+        var shouldCompleteWithoutStarting = false
 
-        let completionSemaphore = DispatchSemaphore(value: 0)
-        CFRunLoopPerformBlock(runLoop, defaultMode.rawValue as CFTypeRef) {
-            CFRunLoopStop(runLoop)
-            completionSemaphore.signal()
+        stateLock.lock()
+        if !stopRequested {
+            stopRequested = true
+            cancel()
         }
-        CFRunLoopWakeUp(runLoop)
-        completionSemaphore.wait()
-        cancel()
+        let runLoop = runLoop
+        if !hasStarted && !hasExited {
+            hasExited = true
+            shouldCompleteWithoutStarting = true
+        }
+        stateLock.unlock()
+
+        if shouldCompleteWithoutStarting {
+            threadExitGroup.leave()
+        }
+
+        // Cancellation is set while holding the same lock used to publish the
+        // run loop. A starting thread therefore either observes cancellation
+        // before its first iteration, or publishes a loop that we stop here.
+        if let runLoop {
+            // Cover the narrow window after the loop condition is evaluated but
+            // before `run` begins: if that activation starts, this block stops it.
+            if let defaultMode = CFRunLoopMode.defaultMode {
+                CFRunLoopPerformBlock(runLoop, defaultMode.rawValue as CFTypeRef) {
+                    CFRunLoopStop(CFRunLoopGetCurrent())
+                }
+            }
+            CFRunLoopStop(runLoop)
+            CFRunLoopWakeUp(runLoop)
+        }
+
+        // Waiting for thread exit, rather than for a queued run-loop block,
+        // remains safe after the run loop has stopped processing blocks.
+        guard Thread.current !== self else { return }
+        threadExitGroup.wait()
     }
 
     private func startIfNeeded() {
-        guard !isExecuting && !isFinished else { return }
+        stateLock.lock()
+        guard !stopRequested, !hasStarted else {
+            stateLock.unlock()
+            return
+        }
+        hasStarted = true
+        stateLock.unlock()
+
         start()
         readinessSemaphore.wait()
     }
@@ -270,6 +310,87 @@ struct DictationOperationToken: Equatable, Sendable {
     let generation: UInt64
 }
 
+private final class LiveContextKeyRefreshGate: @unchecked Sendable {
+    private let lock = NSLock()
+    private var isEnabled = false
+    private var nextEligibleUptime: TimeInterval = 0
+
+    func setEnabled(_ enabled: Bool) {
+        lock.lock()
+        defer { lock.unlock() }
+        guard isEnabled != enabled else { return }
+        isEnabled = enabled
+        nextEligibleUptime = 0
+    }
+
+    func claim(now: TimeInterval, minimumInterval: TimeInterval) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        guard isEnabled, now >= nextEligibleUptime else { return false }
+        nextEligibleUptime = now + minimumInterval
+        return true
+    }
+}
+
+private final class EscapeEventState: @unchecked Sendable {
+    private let lock = NSLock()
+    private var shouldSuppress = false
+
+    func setShouldSuppress(_ shouldSuppress: Bool) {
+        lock.lock()
+        self.shouldSuppress = shouldSuppress
+        lock.unlock()
+    }
+
+    func currentShouldSuppress() -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return shouldSuppress
+    }
+}
+
+private final class CoordinatorNotificationResources: @unchecked Sendable {
+    private let lock = NSLock()
+    private let notificationCenter: NotificationCenter
+    private var tokens: [NSObjectProtocol] = []
+    private var isTornDown = false
+
+    init(notificationCenter: NotificationCenter = .default) {
+        self.notificationCenter = notificationCenter
+    }
+
+    func install(_ token: NSObjectProtocol) {
+        lock.lock()
+        if isTornDown {
+            lock.unlock()
+            notificationCenter.removeObserver(token)
+            return
+        }
+        tokens.append(token)
+        lock.unlock()
+    }
+
+    func tearDown() {
+        lock.lock()
+        guard !isTornDown else {
+            lock.unlock()
+            return
+        }
+        isTornDown = true
+        let installedTokens = tokens
+        tokens.removeAll()
+        lock.unlock()
+
+        for token in installedTokens {
+            notificationCenter.removeObserver(token)
+        }
+    }
+
+    deinit {
+        tearDown()
+    }
+}
+
 @MainActor
 @Observable
 final class AppCoordinator {
@@ -429,6 +550,10 @@ final class AppCoordinator {
     private var quickCaptureTranscription: String?
     private var noteAppendEditorID: UUID?
     private var mediaTranscriptionTask: Task<Void, Never>?
+    private var mediaTranscriptionGeneration: UInt64 = 0
+    private var mediaTranscriptionTaskGeneration: UInt64?
+    private var mediaQueueRestoreRequested = false
+    private var mediaQueueNeedsProcessingReset = false
     /// Owned processing task for stop/transcribe/enhance pipelines. Cancelled by cancel-operation.
     private var activeOperationTask: Task<Void, Error>?
     private var operationController = DictationOperationController()
@@ -436,13 +561,23 @@ final class AppCoordinator {
 
     // MARK: - State
     
+    private let escapeEventState = EscapeEventState()
     private(set) var activeModelName: String?
-    private(set) var isRecording = false
-    private(set) var isProcessing = false
+    private(set) var isRecording = false {
+        didSet {
+            escapeEventState.setShouldSuppress(isRecording || isProcessing)
+        }
+    }
+    private(set) var isProcessing = false {
+        didSet {
+            escapeEventState.setShouldSuppress(isRecording || isProcessing)
+        }
+    }
     private(set) var error: Error?
     
     private var recordingStartTime: Date?
     private var cancellables = Set<AnyCancellable>()
+    private let notificationResources = CoordinatorNotificationResources()
     private var capturedContext: CapturedContext?
     private var capturedSnapshot: ContextSnapshot?
     private var capturedAdapterCapabilities: AppAdapterCapabilities?
@@ -457,6 +592,7 @@ final class AppCoordinator {
     private var contextSessionRefreshTask: Task<Void, Never>?
     private var contextSessionRefreshGeneration: UInt64 = 0
     private var contextSessionPendingRefresh: (trigger: ContextSessionUpdateTrigger, snapshotOverride: ContextSnapshot?)?
+    private let liveContextKeyRefreshGate = LiveContextKeyRefreshGate()
     private let contextSessionPollInterval: TimeInterval = 1.25
     private let contextSessionFocusUpdateThrottle: TimeInterval = 0.75
     private var recordingStartAttemptCounter: UInt64 = 0
@@ -464,6 +600,7 @@ final class AppCoordinator {
     private let appContextAdapterRegistry = AppContextAdapterRegistry()
     private let promptRoutingResolver: any PromptRoutingResolver = NoOpPromptRoutingResolver()
     private let enableSystemHooks: Bool
+    private var isShutdown = false
     private var lastObservedSettingsSnapshot: SettingsObservationSnapshot?
     private var hasRequestedAccessibilityPermissionThisLaunch = false
     private var hasShownAccessibilityFallbackAlertThisLaunch = false
@@ -805,81 +942,97 @@ final class AppCoordinator {
     }
     
     private func setupNotifications() {
-        NotificationCenter.default.addObserver(
-            forName: .switchModel,
-            object: nil,
-            queue: .main
-        ) { [weak self] notification in
-            guard let self = self,
-                  let modelName = notification.userInfo?["modelName"] as? String else {
-                return
-            }
-            Task {
-                await self.switchToModel(named: modelName)
-            }
-        }
-        
-        NotificationCenter.default.addObserver(
-            forName: .requestActiveModel,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor [weak self] in
-                guard let self, let activeModel = self.activeModelName else { return }
-                NotificationCenter.default.post(
-                    name: .modelActiveChanged,
-                    object: nil,
-                    userInfo: ["modelName": activeModel]
-                )
-            }
-        }
-
-        NotificationCenter.default.addObserver(
-            forName: .showWhatsNew,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor [weak self] in
-                self?.handleShowWhatsNew()
-            }
-        }
-
-        NotificationCenter.default.addObserver(
-            forName: .copyTextWithUndo,
-            object: nil,
-            queue: .main
-        ) { [weak self] notification in
-            Task { @MainActor [weak self] in
-                self?.handleCopyTextWithUndoNotification(notification)
-            }
-        }
-
-        NotificationCenter.default.addObserver(
-            forName: .insertText,
-            object: nil,
-            queue: .main
-        ) { [weak self] notification in
-            Task { @MainActor [weak self] in
-                await self?.handleInsertTextNotification(notification)
-            }
-        }
-
-        NotificationCenter.default.addObserver(
-            forName: .noteSpeakToAppendRequest,
-            object: nil,
-            queue: .main
-        ) { [weak self] notification in
-            Task { @MainActor [weak self] in
-                guard let self,
-                      let editorID = notification.userInfo?["editorID"] as? UUID,
-                      let action = notification.userInfo?["action"] as? String else { return }
-                if action == "start" {
-                    await self.handleNoteAppendStart(editorID: editorID)
-                } else if action == "stop" {
-                    await self.handleNoteAppendStop(editorID: editorID)
+        notificationResources.install(
+            NotificationCenter.default.addObserver(
+                forName: .switchModel,
+                object: nil,
+                queue: .main
+            ) { [weak self] notification in
+                guard let modelName = notification.userInfo?["modelName"] as? String else {
+                    return
+                }
+                Task { @MainActor [weak self] in
+                    guard let self, !self.isShutdown else { return }
+                    await self.switchToModel(named: modelName)
                 }
             }
-        }
+        )
+
+        notificationResources.install(
+            NotificationCenter.default.addObserver(
+                forName: .requestActiveModel,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    guard let self, !self.isShutdown,
+                          let activeModel = self.activeModelName else { return }
+                    NotificationCenter.default.post(
+                        name: .modelActiveChanged,
+                        object: nil,
+                        userInfo: ["modelName": activeModel]
+                    )
+                }
+            }
+        )
+
+        notificationResources.install(
+            NotificationCenter.default.addObserver(
+                forName: .showWhatsNew,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor [weak self] in
+                    guard let self, !self.isShutdown else { return }
+                    self.handleShowWhatsNew()
+                }
+            }
+        )
+
+        notificationResources.install(
+            NotificationCenter.default.addObserver(
+                forName: .copyTextWithUndo,
+                object: nil,
+                queue: .main
+            ) { [weak self] notification in
+                Task { @MainActor [weak self] in
+                    guard let self, !self.isShutdown else { return }
+                    self.handleCopyTextWithUndoNotification(notification)
+                }
+            }
+        )
+
+        notificationResources.install(
+            NotificationCenter.default.addObserver(
+                forName: .insertText,
+                object: nil,
+                queue: .main
+            ) { [weak self] notification in
+                Task { @MainActor [weak self] in
+                    guard let self, !self.isShutdown else { return }
+                    await self.handleInsertTextNotification(notification)
+                }
+            }
+        )
+
+        notificationResources.install(
+            NotificationCenter.default.addObserver(
+                forName: .noteSpeakToAppendRequest,
+                object: nil,
+                queue: .main
+            ) { [weak self] notification in
+                Task { @MainActor [weak self] in
+                    guard let self, !self.isShutdown,
+                          let editorID = notification.userInfo?["editorID"] as? UUID,
+                          let action = notification.userInfo?["action"] as? String else { return }
+                    if action == "start" {
+                        await self.handleNoteAppendStart(editorID: editorID)
+                    } else if action == "stop" {
+                        await self.handleNoteAppendStop(editorID: editorID)
+                    }
+                }
+            }
+        )
     }
     
     // MARK: - Lifecycle
@@ -1378,9 +1531,13 @@ final class AppCoordinator {
     /// Cancels the MCP-submitted job with the given internal state ID.
     func cancelMCPJob(stateID: UUID) {
         if mediaTranscriptionState.currentJob?.id == stateID {
+            mediaTranscriptionGeneration &+= 1
+            mediaQueueNeedsProcessingReset = mediaQueueNeedsProcessingReset || isProcessing
             mediaTranscriptionTask?.cancel()
-            mediaTranscriptionTask = nil
             mediaTranscriptionState.clearCurrentJob()
+            if mediaTranscriptionTask == nil {
+                startMediaQueueContinuationIfNeeded()
+            }
             Log.mcp.info("Cancelled active MCP job \(stateID)")
         } else {
             mediaTranscriptionState.pendingJobs.removeAll { $0.id == stateID }
@@ -2181,6 +2338,7 @@ final class AppCoordinator {
             return
         }
 
+        liveContextKeyRefreshGate.setEnabled(true)
         installContextSessionObserversIfNeeded()
 
         if contextSessionPollTimer == nil {
@@ -2202,6 +2360,7 @@ final class AppCoordinator {
     }
 
     private func stopLiveContextSession() {
+        liveContextKeyRefreshGate.setEnabled(false)
         contextSessionPollTimer?.invalidate()
         contextSessionPollTimer = nil
         removeContextSessionObserversIfNeeded()
@@ -2211,6 +2370,7 @@ final class AppCoordinator {
     }
 
     private func suspendLiveContextSessionUpdates() {
+        liveContextKeyRefreshGate.setEnabled(false)
         contextSessionPollTimer?.invalidate()
         contextSessionPollTimer = nil
         removeContextSessionObserversIfNeeded()
@@ -3371,7 +3531,7 @@ final class AppCoordinator {
         mediaPauseService.endRecordingSession()
         suspendLiveContextSessionUpdates()
         isProcessing = true
-        var didResetProcessingState = false
+        let didResetProcessingState = false
 
         statusBarController.setProcessingState()
 
@@ -4145,8 +4305,9 @@ final class AppCoordinator {
 
         escapeGlobalMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.keyDown]) { [weak self] event in
             guard event.keyCode == 53 else { return }
-            Task { @MainActor in
-                self?.handleEscapeSignal(source: "nsevent-global")
+            Task { @MainActor [weak self] in
+                guard let self, !self.isShutdown else { return }
+                self.handleEscapeSignal(source: "nsevent-global")
             }
         }
 
@@ -4167,8 +4328,9 @@ final class AppCoordinator {
 
         modifierGlobalMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.flagsChanged]) { [weak self] event in
             guard let cgEvent = event.cgEvent else { return }
-            Task { @MainActor in
-                self?.hotkeyManager.handleModifierFlagsChanged(event: cgEvent)
+            Task { @MainActor [weak self] in
+                guard let self, !self.isShutdown else { return }
+                self.hotkeyManager.handleModifierFlagsChanged(event: cgEvent)
             }
         }
 
@@ -4244,7 +4406,8 @@ final class AppCoordinator {
         event: CGEvent
     ) -> Unmanaged<CGEvent>? {
         if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
+                guard let self, !self.isShutdown else { return }
                 self.scheduleEventTapRecovery(for: .escape, disabledType: type)
             }
             return Unmanaged.passUnretained(event)
@@ -4254,50 +4417,30 @@ final class AppCoordinator {
 
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
         guard keyCode == 53 else {
-            Task { @MainActor in
+            guard liveContextKeyRefreshGate.claim(
+                now: ProcessInfo.processInfo.systemUptime,
+                minimumInterval: 0.75
+            ) else {
+                return Unmanaged.passUnretained(event)
+            }
+            Task { @MainActor [weak self] in
+                guard let self, !self.isShutdown else { return }
                 self.scheduleFocusOrWindowContextRefreshIfNeeded()
             }
             return Unmanaged.passUnretained(event)
         }
         
-        let shouldSuppress: Bool
-        if Thread.isMainThread {
-            shouldSuppress = MainActor.assumeIsolated {
-                let suppress = Self.shouldSuppressEscapeEvent(
-                    isRecording: self.isRecording,
-                    isProcessing: self.isProcessing
-                )
-                self.handleEscapeSignal(source: "cg-event-tap")
-
-                if suppress {
-                    Log.app.info("Escape intercepted+suppressing (recordingOrProcessing=true)")
-                } else {
-                    Log.app.debug("Escape observed+forwarding (recordingOrProcessing=false)")
-                }
-
-                return suppress
-            }
-        } else {
-            shouldSuppress = DispatchQueue.main.sync {
-                MainActor.assumeIsolated {
-                    let suppress = Self.shouldSuppressEscapeEvent(
-                        isRecording: self.isRecording,
-                        isProcessing: self.isProcessing
-                    )
-                    self.handleEscapeSignal(source: "cg-event-tap")
-
-                    if suppress {
-                        Log.app.info("Escape intercepted+suppressing (recordingOrProcessing=true)")
-                    } else {
-                        Log.app.debug("Escape observed+forwarding (recordingOrProcessing=false)")
-                    }
-
-                    return suppress
-                }
-            }
+        let shouldSuppress = escapeEventState.currentShouldSuppress()
+        guard shouldSuppress else {
+            return Unmanaged.passUnretained(event)
         }
 
-        return shouldSuppress ? nil : Unmanaged.passUnretained(event)
+        Task { @MainActor [weak self] in
+            guard let self, !self.isShutdown else { return }
+            self.handleEscapeSignal(source: "cg-event-tap")
+            Log.app.info("Escape intercepted+suppressing (recordingOrProcessing=true)")
+        }
+        return nil
     }
 
     private func handleEscapeSignal(source: String) {
@@ -4319,7 +4462,8 @@ final class AppCoordinator {
         event: CGEvent
     ) -> Unmanaged<CGEvent>? {
         if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
+                guard let self, !self.isShutdown else { return }
                 self.scheduleEventTapRecovery(for: .modifier, disabledType: type)
             }
             return Unmanaged.passUnretained(event)
@@ -4327,8 +4471,9 @@ final class AppCoordinator {
 
         guard type == .flagsChanged else { return Unmanaged.passUnretained(event) }
 
-        Task { @MainActor in
-            hotkeyManager.handleModifierFlagsChanged(event: event)
+        Task { @MainActor [weak self] in
+            guard let self, !self.isShutdown else { return }
+            self.hotkeyManager.handleModifierFlagsChanged(event: event)
         }
         return Unmanaged.passUnretained(event)
     }
@@ -4738,15 +4883,14 @@ final class AppCoordinator {
     }
 
     private func clearTranscriptionQueue() {
+        mediaTranscriptionGeneration &+= 1
+        mediaQueueRestoreRequested =
+            mediaQueueRestoreRequested || queueOriginalModelName != nil
+        mediaQueueNeedsProcessingReset = mediaQueueNeedsProcessingReset || isProcessing
         mediaTranscriptionTask?.cancel()
-        mediaTranscriptionTask = nil
         mediaTranscriptionState.clearAllJobs()
-        if let original = queueOriginalModelName {
-            queueOriginalModelName = nil
-            Task { [weak self] in
-                guard let self else { return }
-                try? await self.loadAndActivateModel(named: original, provider: .whisperKit)
-            }
+        if mediaTranscriptionTask == nil {
+            startMediaQueueContinuationIfNeeded()
         }
     }
 
@@ -4990,30 +5134,130 @@ final class AppCoordinator {
     }
 
     private func startMediaTranscriptionTask(for job: MediaTranscriptionJobState) {
+        guard mediaTranscriptionTask == nil, !isShutdown else {
+            if !isShutdown {
+                mediaTranscriptionState.enqueue(job)
+            }
+            return
+        }
+
+        mediaTranscriptionGeneration &+= 1
+        let generation = mediaTranscriptionGeneration
+        mediaTranscriptionTaskGeneration = generation
         mediaTranscriptionTask = Task { @MainActor [weak self] in
             guard let self else { return }
-            await self.performMediaTranscription(job)
-            self.mediaTranscriptionTask = nil
-            if let next = self.mediaTranscriptionState.dequeueNextJob() {
-                self.startMediaTranscriptionTask(for: next)
-            } else {
-                await self.restoreOriginalModelAfterQueueIfNeeded()
-            }
+            await self.performMediaTranscription(job, generation: generation)
+            await self.finishMediaTranscriptionTask(generation: generation)
         }
     }
 
-    private func restoreOriginalModelAfterQueueIfNeeded() async {
-        guard let original = queueOriginalModelName else { return }
-        queueOriginalModelName = nil
+    private func restoreOriginalModelAfterQueueIfNeeded(generation: UInt64) async {
+        guard isMediaTranscriptionOwnerCurrent(generation),
+              let original = queueOriginalModelName else {
+            return
+        }
+
         do {
             try await loadAndActivateModel(named: original, provider: .whisperKit)
+            guard isMediaTranscriptionOwnerCurrent(generation) else { return }
+            queueOriginalModelName = nil
             toastService.show(ToastPayload(message: "Queue complete — restored \(modelManager.availableModels.first(where: { $0.name == original })?.displayName ?? original)", style: .standard))
         } catch {
+            guard isMediaTranscriptionOwnerCurrent(generation) else { return }
+            queueOriginalModelName = nil
             Log.model.error("Failed to restore original model after queue: \(error)")
         }
     }
+    
+    private func finishMediaTranscriptionTask(generation: UInt64) async {
+        guard mediaTranscriptionTaskGeneration == generation else { return }
+        guard isMediaTranscriptionOwnerCurrent(generation) else {
+            releaseMediaTranscriptionTaskOwnership(generation: generation)
+            startMediaQueueContinuationIfNeeded()
+            return
+        }
 
-    private func performMediaTranscription(_ jobIn: MediaTranscriptionJobState) async {
+        await continueMediaQueueAsOwner(generation: generation)
+    }
+
+    private func startMediaQueueContinuationIfNeeded() {
+        guard !isShutdown, mediaTranscriptionTask == nil else { return }
+        guard mediaQueueRestoreRequested
+                || mediaQueueNeedsProcessingReset
+                || queueOriginalModelName != nil
+                || !mediaTranscriptionState.pendingJobs.isEmpty else {
+            return
+        }
+
+        let generation = mediaTranscriptionGeneration
+        mediaTranscriptionTaskGeneration = generation
+        mediaTranscriptionTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            await self.continueMediaQueueAsOwner(generation: generation)
+        }
+    }
+
+    private func continueMediaQueueAsOwner(generation: UInt64) async {
+        guard isMediaTranscriptionOwnerCurrent(generation) else {
+            releaseMediaTranscriptionTaskOwnership(generation: generation)
+            startMediaQueueContinuationIfNeeded()
+            return
+        }
+
+        if mediaQueueNeedsProcessingReset {
+            resetProcessingState()
+            mediaQueueNeedsProcessingReset = false
+        }
+
+        if mediaQueueRestoreRequested {
+            await restoreOriginalModelAfterQueueIfNeeded(generation: generation)
+            guard isMediaTranscriptionOwnerCurrent(generation) else {
+                releaseMediaTranscriptionTaskOwnership(generation: generation)
+                startMediaQueueContinuationIfNeeded()
+                return
+            }
+            mediaQueueRestoreRequested = false
+        }
+
+        if let next = mediaTranscriptionState.dequeueNextJob() {
+            releaseMediaTranscriptionTaskOwnership(generation: generation)
+            startMediaTranscriptionTask(for: next)
+            return
+        }
+
+        await restoreOriginalModelAfterQueueIfNeeded(generation: generation)
+        guard isMediaTranscriptionOwnerCurrent(generation) else {
+            releaseMediaTranscriptionTaskOwnership(generation: generation)
+            startMediaQueueContinuationIfNeeded()
+            return
+        }
+        releaseMediaTranscriptionTaskOwnership(generation: generation)
+    }
+
+    private func releaseMediaTranscriptionTaskOwnership(generation: UInt64) {
+        guard mediaTranscriptionTaskGeneration == generation else { return }
+        mediaTranscriptionTask = nil
+        mediaTranscriptionTaskGeneration = nil
+    }
+
+    private func isMediaTranscriptionOwnerCurrent(_ generation: UInt64) -> Bool {
+        !isShutdown
+            && mediaTranscriptionGeneration == generation
+            && mediaTranscriptionTaskGeneration == generation
+    }
+
+    private func ensureMediaTranscriptionOwnerCurrent(_ generation: UInt64) throws {
+        try Task.checkCancellation()
+        guard isMediaTranscriptionOwnerCurrent(generation) else {
+            throw CancellationError()
+        }
+    }
+
+    private func performMediaTranscription(
+        _ jobIn: MediaTranscriptionJobState,
+        generation: UInt64
+    ) async {
+        guard isMediaTranscriptionOwnerCurrent(generation) else { return }
         guard !isRecording && !isProcessing else {
             toastService.show(ToastPayload(message: "Finish the active recording before starting a transcription.", style: .error))
             return
@@ -5023,12 +5267,13 @@ final class AppCoordinator {
         let options = jobIn.options
 
         await modelManager.refreshDownloadedFeatureModels()
+        guard isMediaTranscriptionOwnerCurrent(generation), !Task.isCancelled else { return }
         guard !options.diarizationEnabled || modelManager.isFeatureModelDownloaded(.diarization) else {
             mediaTranscriptionState.setSetupIssue(localized("Download the speaker diarization model before starting media transcription.", locale: settingsStore.selectedAppLocale.locale))
             return
         }
 
-        var job = MediaTranscriptionJobState(
+        let job = MediaTranscriptionJobState(
             id: jobIn.id,
             request: request,
             options: options,
@@ -5049,7 +5294,8 @@ final class AppCoordinator {
         var didResetProcessingState = false
 
         defer {
-            if !didResetProcessingState {
+            if !didResetProcessingState,
+               isMediaTranscriptionOwnerCurrent(generation) {
                 resetProcessingState()
             }
         }
@@ -5072,13 +5318,16 @@ final class AppCoordinator {
                 try await loadAndActivateModel(named: requestedModel, provider: .whisperKit)
             }
 
-            try Task.checkCancellation()
+            try ensureMediaTranscriptionOwnerCurrent(generation)
 
             let managedAsset = try await mediaIngestionService.ingest(
                 request: request,
                 jobID: job.id,
                 progressHandler: { [weak self] progress, detail in
-                    guard let self else { return }
+                    guard let self,
+                          self.isMediaTranscriptionOwnerCurrent(generation) else {
+                        return
+                    }
                     let stage: MediaTranscriptionStage = request.sourceKind == .webLink ? .downloading : .importing
                     self.mediaTranscriptionState.updateJob(
                         stage: stage,
@@ -5089,7 +5338,7 @@ final class AppCoordinator {
                 }
             )
 
-            try Task.checkCancellation()
+            try ensureMediaTranscriptionOwnerCurrent(generation)
 
             mediaTranscriptionState.updateJob(
                 stage: .preparingAudio,
@@ -5098,12 +5347,13 @@ final class AppCoordinator {
                 errorMessage: nil
             )
             let tooling = await mediaIngestionService.checkTooling()
+            try ensureMediaTranscriptionOwnerCurrent(generation)
             let preparedAudio = try await mediaPreparationService.prepareAudio(
                 from: managedAsset.mediaURL,
                 ffmpegPath: tooling.ffmpegPath
             )
 
-            try Task.checkCancellation()
+            try ensureMediaTranscriptionOwnerCurrent(generation)
 
             mediaTranscriptionState.updateJob(
                 stage: .transcribing,
@@ -5119,9 +5369,8 @@ final class AppCoordinator {
                 diarizationOptions: .init(expectedSpeakerCount: options.expectedSpeakerCount),
                 diarizationFailurePolicy: options.diarizationEnabled ? .required : .bestEffort
             )
+            try ensureMediaTranscriptionOwnerCurrent(generation)
             let diarizationSegmentsJSON = encodeDiarizationSegmentsJSON(transcriptionOutput.diarizedSegments)
-
-            try Task.checkCancellation()
 
             mediaTranscriptionState.updateJob(
                 stage: .saving,
@@ -5140,6 +5389,7 @@ final class AppCoordinator {
                 from: finalText,
                 managedAsset: managedAsset
             )
+            try ensureMediaTranscriptionOwnerCurrent(generation)
 
             let record = try historyStore.save(
                 text: finalText,
@@ -5167,11 +5417,13 @@ final class AppCoordinator {
             toastService.show(ToastPayload(message: "Transcribed: \(managedAsset.displayName)"))
             mediaTranscriptionState.completeCurrentJob(with: record.id, shouldNavigateToDetail: shouldNavigateToDetail)
         } catch is CancellationError {
+            guard isMediaTranscriptionOwnerCurrent(generation) else { return }
             resetProcessingState()
             didResetProcessingState = true
             mediaTranscriptionState.showLibrary()
             mediaTranscriptionState.clearCurrentJob()
         } catch let error as MediaIngestionError {
+            guard isMediaTranscriptionOwnerCurrent(generation) else { return }
             Log.app.error("Media ingestion failed: \(error.localizedDescription)")
             resetProcessingState()
             didResetProcessingState = true
@@ -5182,6 +5434,7 @@ final class AppCoordinator {
                 toastService.show(ToastPayload(message: error.localizedDescription, style: .error))
             }
         } catch {
+            guard isMediaTranscriptionOwnerCurrent(generation) else { return }
             Log.app.error("Media transcription failed: \(error)")
             resetProcessingState()
             didResetProcessingState = true
@@ -5495,13 +5748,58 @@ final class AppCoordinator {
         }
     }
 
-    func cleanup() {
-        floatingIndicatorHiddenTask?.cancel()
-        floatingIndicatorHiddenTask = nil
+    func shutdown() {
+        guard !isShutdown else { return }
+        isShutdown = true
+
+        // Stop Carbon callbacks first. The sources must be disabled and detached on
+        // their owning run loop before the pass-unretained coordinator refcon can die.
+        liveContextKeyRefreshGate.setEnabled(false)
+        escapeEventState.setShouldSuppress(false)
         teardownEscapeKeyMonitor()
         teardownModifierKeyMonitor()
         removeEscapeGlobalMonitorFallbackIfNeeded()
         removeModifierGlobalMonitorFallbackIfNeeded()
         eventTapRunLoopThread.stopIfNeeded()
+
+        notificationResources.tearDown()
+        cancellables.removeAll()
+
+        floatingIndicatorHiddenTask?.cancel()
+        floatingIndicatorHiddenTask = nil
+        escapeEventTapRecoveryTask?.cancel()
+        escapeEventTapRecoveryTask = nil
+        modifierEventTapRecoveryTask?.cancel()
+        modifierEventTapRecoveryTask = nil
+
+        stopLiveContextSession()
+        operationController.cancel()
+        recordingStopAdmission.invalidateCurrentClaim()
+        activeOperationTask?.cancel()
+        activeOperationTask = nil
+
+        mediaTranscriptionGeneration &+= 1
+        mediaTranscriptionTask?.cancel()
+        mediaQueueRestoreRequested = false
+        mediaQueueNeedsProcessingReset = false
+        mediaTranscriptionState.clearAllJobs()
+
+        streamingSession.cancelDetached()
+        audioRecorder.resetAudioEngine()
+        mediaPauseService.endRecordingSession()
+        isRecording = false
+        isProcessing = false
+        isRecordingFeatureCaptureActive = false
+        automaticDictionaryLearningService.cancelObservation()
+
+        inputMuteMonitor?.stop()
+        inputMuteMonitor = nil
+        inputDeviceListMonitor?.stop()
+        inputDeviceListMonitor = nil
+        floatingIndicatorFocusTracker.stop()
+
+        hotkeyManager.unregisterAll()
+        stopMCPServerIfRunning()
+        dictationAudioRetentionService.stopPeriodicSweep()
     }
 }

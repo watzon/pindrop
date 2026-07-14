@@ -616,6 +616,142 @@ struct HistoryStoreTests {
         #expect(match == nil)
     }
 
+    @Test func speakerIdentityBestMatchesPreservesOrderAndRejectsInvalidEmbeddings() throws {
+        let fixture = try makeFixture()
+
+        let alice = ParticipantProfile(normalizedName: "alice", displayName: "Alice")
+        alice.embeddingSpaceIdentifier = SpeakerEmbeddingSpace.current
+        alice.centroidEmbeddingData = try JSONEncoder().encode([1.0 as Float, 0.0, 0.0])
+        fixture.modelContext.insert(alice)
+
+        let bob = ParticipantProfile(normalizedName: "bob", displayName: "Bob")
+        bob.embeddingSpaceIdentifier = SpeakerEmbeddingSpace.current
+        bob.centroidEmbeddingData = try JSONEncoder().encode([0.0 as Float, 1.0, 0.0])
+        fixture.modelContext.insert(bob)
+        try fixture.modelContext.save()
+
+        // Valid unambiguous vectors after each invalid category so early-return,
+        // compaction, or index-shifting would misalign later matches.
+        let embeddings: [[Float]] = [
+            [0.98, 0.02, 0.0],          // 0: Alice above threshold
+            [],                         // 1: empty => nil
+            [0.0, 0.98, 0.0],           // 2: Bob after empty
+            [0.5, 0.5],                 // 3: dimension mismatch => nil
+            [0.97, 0.03, 0.0],          // 4: Alice after dimension mismatch
+            [0.9, Float.nan, 0.0],      // 5: non-finite => nil
+            [0.02, 0.97, 0.0],          // 6: Bob after non-finite
+            [0.01, 0.01, 0.98],         // 7: no profile near enough => nil
+        ]
+
+        let matches = try fixture.speakerIdentityService.bestMatches(for: embeddings)
+
+        #expect(matches.count == embeddings.count)
+
+        #expect(matches[0]?.profileID == alice.id)
+        #expect(matches[0]?.displayName == "Alice")
+        #expect((matches[0]?.similarity ?? 0) >= 0.72)
+
+        #expect(matches[1] == nil)
+
+        #expect(matches[2]?.profileID == bob.id)
+        #expect(matches[2]?.displayName == "Bob")
+        #expect((matches[2]?.similarity ?? 0) >= 0.72)
+
+        #expect(matches[3] == nil)
+
+        #expect(matches[4]?.profileID == alice.id)
+        #expect(matches[4]?.displayName == "Alice")
+        #expect((matches[4]?.similarity ?? 0) >= 0.72)
+
+        #expect(matches[5] == nil)
+
+        #expect(matches[6]?.profileID == bob.id)
+        #expect(matches[6]?.displayName == "Bob")
+        #expect((matches[6]?.similarity ?? 0) >= 0.72)
+
+        #expect(matches[7] == nil)
+
+
+        // Single-match API is a thin ordered batch of one.
+        let single = try fixture.speakerIdentityService.bestMatch(for: embeddings[0])
+        #expect(single == matches[0])
+        #expect(try fixture.speakerIdentityService.bestMatches(for: []).isEmpty)
+    }
+
+    @Test func speakerIdentityBestMatchesRejectsWhenSimilarityMarginIsTooSmall() throws {
+        let fixture = try makeFixture()
+
+        let alice = ParticipantProfile(normalizedName: "alice", displayName: "Alice")
+        alice.embeddingSpaceIdentifier = SpeakerEmbeddingSpace.current
+        alice.centroidEmbeddingData = try JSONEncoder().encode([1.0 as Float, 0.0])
+        fixture.modelContext.insert(alice)
+
+        let bob = ParticipantProfile(normalizedName: "bob", displayName: "Bob")
+        bob.embeddingSpaceIdentifier = SpeakerEmbeddingSpace.current
+        bob.centroidEmbeddingData = try JSONEncoder().encode([0.99 as Float, 0.01])
+        fixture.modelContext.insert(bob)
+        try fixture.modelContext.save()
+
+        let matches = try fixture.speakerIdentityService.bestMatches(for: [
+            [1.0, 0.0],
+            [0.0, 1.0],
+        ])
+
+        #expect(matches.count == 2)
+        #expect(matches[0] == nil)
+        #expect(matches[1] == nil)
+    }
+
+    @Test func speakerIdentityBestMatchesReturnsNilWhenSimilarityIsBelowThreshold() throws {
+        let fixture = try makeFixture()
+
+        let alice = ParticipantProfile(normalizedName: "alice", displayName: "Alice")
+        alice.embeddingSpaceIdentifier = SpeakerEmbeddingSpace.current
+        alice.centroidEmbeddingData = try JSONEncoder().encode([1.0 as Float, 0.0, 0.0])
+        fixture.modelContext.insert(alice)
+        try fixture.modelContext.save()
+
+        // Cosine similarity well under the 0.72 auto-match floor.
+        let matches = try fixture.speakerIdentityService.bestMatches(for: [
+            [0.0, 1.0, 0.0],
+            [0.2, 0.2, 0.2],
+        ])
+
+        #expect(matches.count == 2)
+        #expect(matches[0] == nil)
+        #expect(matches[1] == nil)
+    }
+
+    @Test func speakerIdentityBestMatchesReturnsAlignedNilsForInvalidOnlyBatch() throws {
+        let fixture = try makeFixture()
+
+        // Profiles exist so a non-fast-path call would fetch/decode them.
+        let alice = ParticipantProfile(normalizedName: "alice", displayName: "Alice")
+        alice.embeddingSpaceIdentifier = SpeakerEmbeddingSpace.current
+        alice.centroidEmbeddingData = try JSONEncoder().encode([1.0 as Float, 0.0, 0.0])
+        fixture.modelContext.insert(alice)
+        try fixture.modelContext.save()
+
+        let invalidOnly: [[Float]] = [
+            [],
+            [0.5, Float.nan, 0.0],
+            [Float.infinity, 0.0, 0.0],
+        ]
+
+
+        let matches = try fixture.speakerIdentityService.bestMatches(for: invalidOnly)
+
+        #expect(matches.count == invalidOnly.count)
+        #expect(matches.allSatisfy { $0 == nil })
+
+        // A later scorable call still matches normally.
+        let scorable = try fixture.speakerIdentityService.bestMatches(for: [[0.98, 0.02, 0.0]])
+        #expect(scorable.count == 1)
+        #expect(scorable[0]?.profileID == alice.id)
+    }
+
+
+
     // MARK: - Profile Management Tests
 
     @Test func fetchAllProfilesReturnsProfilesSortedByName() throws {
@@ -812,6 +948,7 @@ struct HistoryStoreTests {
         #expect(noResults.count == 0)
     }
 
+    // Semantic media-filter coverage only — does not prove query-plan cost.
     @Test func fetchMediaRecordsOnlyReturnsMediaBackedTranscriptions() throws {
         let fixture = try makeFixture()
         try fixture.historyStore.save(text: "Voice", duration: 1.0, modelUsed: "tiny")
@@ -838,6 +975,77 @@ struct HistoryStoreTests {
         #expect(records.allSatisfy { $0.isMediaTranscription })
         #expect(records.map(\.resolvedSourceKind) == [.importedFile, .webLink])
     }
+
+    // Semantic limit/order/source-kind coverage only — does not prove query-plan cost.
+    @Test func fetchMediaRecordsHonorsLimitNewestOrderAndImportedWebOnly() throws {
+        let fixture = try makeFixture()
+
+        let voice = try fixture.historyStore.save(text: "Voice only", duration: 1.0, modelUsed: "tiny")
+        voice.timestamp = Date(timeIntervalSince1970: 5_000)
+
+        let meeting = try fixture.historyStore.save(
+            text: "Meeting capture",
+            duration: 2.0,
+            modelUsed: "base",
+            sourceKind: .manualCapture,
+            sourceDisplayName: "Meeting",
+            managedMediaPath: "/tmp/meeting.caf"
+        )
+        meeting.timestamp = Date(timeIntervalSince1970: 4_000)
+
+        let olderWeb = try fixture.historyStore.save(
+            text: "Older web",
+            duration: 3.0,
+            modelUsed: "base",
+            sourceKind: .webLink,
+            sourceDisplayName: "Older web",
+            originalSourceURL: "https://example.com/older",
+            managedMediaPath: "/tmp/older.mp4"
+        )
+        olderWeb.timestamp = Date(timeIntervalSince1970: 1_000)
+
+        let middleImport = try fixture.historyStore.save(
+            text: "Middle import",
+            duration: 4.0,
+            modelUsed: "small",
+            sourceKind: .importedFile,
+            sourceDisplayName: "middle.mov",
+            managedMediaPath: "/tmp/middle.mov"
+        )
+        middleImport.timestamp = Date(timeIntervalSince1970: 2_000)
+
+        let newestWeb = try fixture.historyStore.save(
+            text: "Newest web",
+            duration: 5.0,
+            modelUsed: "base",
+            sourceKind: .webLink,
+            sourceDisplayName: "Newest web",
+            originalSourceURL: "https://example.com/newest",
+            managedMediaPath: "/tmp/newest.mp4"
+        )
+        newestWeb.timestamp = Date(timeIntervalSince1970: 3_000)
+        try fixture.modelContext.save()
+
+        let allMedia = try fixture.historyStore.fetchMediaRecords()
+        #expect(allMedia.map(\.id) == [newestWeb.id, middleImport.id, olderWeb.id])
+        #expect(allMedia.map(\.resolvedSourceKind) == [.webLink, .importedFile, .webLink])
+        #expect(!allMedia.map(\.id).contains(voice.id))
+        #expect(!allMedia.map(\.id).contains(meeting.id))
+
+        let limited = try fixture.historyStore.fetchMediaRecords(limit: 2)
+        #expect(limited.map(\.id) == [newestWeb.id, middleImport.id])
+
+        let single = try fixture.historyStore.fetchMediaRecords(limit: 1)
+        #expect(single.map(\.id) == [newestWeb.id])
+
+        // Nonpositive limits short-circuit to empty (SwiftData fetchLimit 0 == unlimited).
+        let zeroLimit = try fixture.historyStore.fetchMediaRecords(limit: 0)
+        #expect(zeroLimit.isEmpty)
+
+        let negativeLimit = try fixture.historyStore.fetchMediaRecords(limit: -1)
+        #expect(negativeLimit.isEmpty)
+    }
+
 
     @Test func voiceAndMediaClassificationMatchesSourceKind() throws {
         let fixture = try makeFixture()
@@ -1000,10 +1208,52 @@ struct HistoryStoreTests {
 
         try fixture.historyStore.delete(record)
 
-        #expect(FileManager.default.fileExists(atPath: mediaURL.path) == false)
-        #expect(FileManager.default.fileExists(atPath: thumbnailURL.path) == false)
-        #expect(FileManager.default.fileExists(atPath: tempDirectory.path) == false)
+        // Successful single-record delete owns post-commit filesystem cleanup:
+        // row is gone and managed media paths are removed before delete returns.
+        #expect(try fixture.historyStore.fetchAll().isEmpty)
+        #expect(!FileManager.default.fileExists(atPath: mediaURL.path))
+        #expect(!FileManager.default.fileExists(atPath: thumbnailURL.path))
+        #expect(!FileManager.default.fileExists(atPath: tempDirectory.path))
     }
+
+    @Test func deleteRemovesManagedMediaPeaksSidecarImmediately() throws {
+        let fixture = try makeFixture()
+        let tempDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true)
+
+        let mediaURL = tempDirectory.appendingPathComponent("clip.mp4")
+        let thumbnailURL = tempDirectory.appendingPathComponent("clip.png")
+        let peaksURL = WaveformPeaks.sidecarURL(for: mediaURL)
+        try Data("media".utf8).write(to: mediaURL)
+        try Data("thumb".utf8).write(to: thumbnailURL)
+        try Data("[0.25,0.5,0.75]".utf8).write(to: peaksURL)
+
+        let record = try fixture.historyStore.save(
+            text: "Peaks media",
+            duration: 4.0,
+            modelUsed: "base",
+            sourceKind: .importedFile,
+            sourceDisplayName: "clip.mp4",
+            managedMediaPath: mediaURL.path,
+            thumbnailPath: thumbnailURL.path
+        )
+
+        #expect(FileManager.default.fileExists(atPath: mediaURL.path))
+        #expect(FileManager.default.fileExists(atPath: thumbnailURL.path))
+        #expect(FileManager.default.fileExists(atPath: peaksURL.path))
+
+        try fixture.historyStore.delete(record)
+
+        // Single-record delete owns post-commit cleanup synchronously: media,
+        // thumbnail, peaks sidecar, and empty parent directory are gone when
+        // delete returns.
+        #expect(try fixture.historyStore.fetchAll().isEmpty)
+        #expect(!FileManager.default.fileExists(atPath: mediaURL.path))
+        #expect(!FileManager.default.fileExists(atPath: thumbnailURL.path))
+        #expect(!FileManager.default.fileExists(atPath: peaksURL.path))
+        #expect(!FileManager.default.fileExists(atPath: tempDirectory.path))
+    }
+
     
     @Test func timestampOrdering() async throws {
         let fixture = try makeFixture()
@@ -1183,6 +1433,77 @@ struct HistoryStoreTests {
         #expect(ascending.map(\.preferredTitle) == ["Alpha Call", "Beta Planning"])
         #expect(descending.map(\.preferredTitle) == ["Beta Planning", "Alpha Call"])
     }
+
+    // Semantic search/folder/sort coverage only — does not prove query-plan cost.
+    @Test func fetchMediaLibraryPreservesSearchFolderAndNameSortSemantics() throws {
+        let fixture = try makeFixture()
+        let research = try fixture.historyStore.createFolder(named: "Research")
+        let archive = try fixture.historyStore.createFolder(named: "Archive")
+
+        let beta = try fixture.historyStore.save(
+            text: "Body without the needle",
+            originalText: "original body text",
+            duration: 5.0,
+            modelUsed: "base",
+            sourceKind: .webLink,
+            sourceDisplayName: "Zulu Source",
+            generatedTitle: "Beta Planning",
+            aiSummary: "Summary mentions Zephyr outcomes",
+            sourceTitleOrigin: .fallback,
+            originalSourceURL: "https://example.com/zephyr-beta",
+            managedMediaPath: "/tmp/beta.mp4",
+            folderID: research.id
+        )
+        beta.timestamp = Date(timeIntervalSince1970: 1_000)
+
+        let alpha = try fixture.historyStore.save(
+            text: "Alpha body",
+            duration: 2.0,
+            modelUsed: "base",
+            sourceKind: .importedFile,
+            sourceDisplayName: "Alpha Source",
+            sourceTitleOrigin: .sourceMetadata,
+            managedMediaPath: "/tmp/alpha.mov",
+            folderID: archive.id
+        )
+        alpha.timestamp = Date(timeIntervalSince1970: 2_000)
+
+        let voice = try fixture.historyStore.save(
+            text: "Voice should never appear in media library",
+            duration: 1.0,
+            modelUsed: "tiny",
+            generatedTitle: "Zephyr Voice"
+        )
+        voice.timestamp = Date(timeIntervalSince1970: 3_000)
+        try fixture.modelContext.save()
+
+        // Broadened optional-field search (title/summary/source/URL/body) + media-only.
+        #expect(try fixture.historyStore.fetchMediaLibrary(query: "Zephyr").map(\.id) == [beta.id])
+        #expect(try fixture.historyStore.fetchMediaLibrary(query: "Beta Planning").map(\.id) == [beta.id])
+        #expect(try fixture.historyStore.fetchMediaLibrary(query: "Zulu Source").map(\.id) == [beta.id])
+        #expect(try fixture.historyStore.fetchMediaLibrary(query: "example.com/zephyr").map(\.id) == [beta.id])
+        #expect(try fixture.historyStore.fetchMediaLibrary(query: "original body").map(\.id) == [beta.id])
+        #expect(try fixture.historyStore.fetchMediaLibrary(query: "Alpha body").map(\.id) == [alpha.id])
+
+        // Folder membership is independent of sort and still media-only.
+        #expect(try fixture.historyStore.fetchMediaLibrary(folderID: research.id).map(\.id) == [beta.id])
+        #expect(try fixture.historyStore.fetchMediaLibrary(folderID: archive.id).map(\.id) == [alpha.id])
+        #expect(
+            try fixture.historyStore.fetchMediaLibrary(folderID: research.id, query: "Alpha").isEmpty
+        )
+
+        let newest = try fixture.historyStore.fetchMediaLibrary(sort: .newest)
+        let oldest = try fixture.historyStore.fetchMediaLibrary(sort: .oldest)
+        let ascending = try fixture.historyStore.fetchMediaLibrary(sort: .nameAscending)
+        let descending = try fixture.historyStore.fetchMediaLibrary(sort: .nameDescending)
+
+        #expect(newest.map(\.id) == [alpha.id, beta.id])
+        #expect(oldest.map(\.id) == [beta.id, alpha.id])
+        #expect(ascending.map(\.preferredTitle) == ["Alpha Source", "Beta Planning"])
+        #expect(descending.map(\.preferredTitle) == ["Beta Planning", "Alpha Source"])
+        #expect(!newest.map(\.id).contains(voice.id))
+    }
+
 
     // MARK: - Library sort / broadened search (B7)
 

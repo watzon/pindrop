@@ -528,7 +528,11 @@ struct TranscriptionServiceTests {
 
         #expect(output.text == "Hello team")
         #expect(output.diarizedSegments?.map(\.speakerLabel) == [""])
-        #expect(identityService.bestMatchCallCount == 2)
+        #expect(identityService.bestMatchesCallCount == 1)
+        #expect(identityService.bestMatchCallCount == 0)
+        #expect(identityService.lastBestMatchEmbeddings.count == 2)
+        #expect(identityService.lastBestMatchEmbeddings == [[0.1, 0.2, 0.3], [0.1, 0.2, 0.3]])
+        #expect(identityService.lastBestMatchesResults.map { $0?.displayName } == ["Alice", "Alice"])
     }
 
     @Test func transcribeWithDiarizationFallsBackWhenKnownSpeakerMatchDoesNotClearGate() async throws {
@@ -564,8 +568,165 @@ struct TranscriptionServiceTests {
 
         #expect(output.text == "Hello team")
         #expect(output.diarizedSegments?.map(\.speakerLabel) == [""])
-        #expect(identityService.bestMatchCallCount == 1)
+        #expect(identityService.bestMatchesCallCount == 1)
+        #expect(identityService.bestMatchCallCount == 0)
+        #expect(identityService.lastBestMatchEmbeddings.count == 2)
+        #expect(identityService.lastBestMatchEmbeddings == [[0.1, 0.2, 0.3], [0.1, 0.2, 0.3]])
+        #expect(identityService.lastBestMatchesResults.allSatisfy { $0 == nil })
     }
+
+    @Test func transcribeWithDiarizationBatchesAggregateAndConsensusEmbeddingsOnce() async throws {
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        mockEngine.transcribeResponses = ["Hello Alice", "Hello Bob"]
+
+        let aliceProfileID = UUID()
+        let bobProfileID = UUID()
+        let aliceEmbedding: [Float] = [0.9, 0.1, 0.0]
+        let bobEmbedding: [Float] = [0.0, 0.9, 0.1]
+
+        // Two speakers, each with one long eligible consensus segment (>= 5s).
+        // Production builds one batch of aggregate + consensus embeddings.
+        // Long-segment consensus clears the gate without needing multi-segment ratios.
+        let speakerA = Speaker(id: "speaker-a", label: "A", embedding: aliceEmbedding)
+        let speakerB = Speaker(id: "speaker-b", label: "B", embedding: bobEmbedding)
+        let diarizationResult = DiarizationResult(
+            segments: [
+                SpeakerSegment(speaker: speakerA, startTime: 0.0, endTime: 5.5, confidence: 0.95),
+                SpeakerSegment(speaker: speakerB, startTime: 5.6, endTime: 11.0, confidence: 0.93),
+            ],
+            speakers: [speakerA, speakerB],
+            audioDuration: 11.0
+        )
+
+        let mockDiarizer = MockSpeakerDiarizer()
+        mockDiarizer.nextResult = diarizationResult
+
+        let identityService = MockSpeakerIdentityService(
+            matchesByEmbeddingKey: [
+                "0.9000,0.1000,0.0000": SpeakerIdentityMatch(
+                    profileID: aliceProfileID,
+                    displayName: "Alice",
+                    similarity: 0.95
+                ),
+                "0.0000,0.9000,0.1000": SpeakerIdentityMatch(
+                    profileID: bobProfileID,
+                    displayName: "Bob",
+                    similarity: 0.94
+                ),
+            ]
+        )
+
+        let service = TranscriptionService(
+            engineFactory: { _ in mockEngine },
+            diarizerFactory: { mockDiarizer },
+            speakerIdentityService: identityService
+        )
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        let output = try await service.transcribe(
+            audioData: makeFloatAudioData(seconds: 12.0),
+            diarizationEnabled: true
+        )
+
+        // One request-scoped bestMatches call for all aggregate + consensus embeddings.
+        #expect(identityService.bestMatchesCallCount == 1)
+        #expect(identityService.bestMatchCallCount == 0)
+
+        // Two speakers × (1 aggregate + 1 eligible consensus) = 4 ordered slots.
+        #expect(identityService.lastBestMatchEmbeddings.count == 4)
+        #expect(identityService.lastBestMatchesResults.count == 4)
+
+        // Embedding contents are speaker-keyed, not order-keyed: both Alice and Bob
+        // embeddings must appear, but dictionary iteration order is irrelevant.
+        let embeddingKeys = Set(
+            identityService.lastBestMatchEmbeddings.map {
+                $0.map { String(format: "%.4f", $0) }.joined(separator: ",")
+            }
+        )
+        #expect(embeddingKeys == Set([
+            "0.9000,0.1000,0.0000",
+            "0.0000,0.9000,0.1000",
+        ]))
+
+        // Every embedding slot is matched; no empty / corrupt slots were included.
+        #expect(identityService.lastBestMatchesResults.allSatisfy { $0 != nil })
+        #expect(Set(identityService.lastBestMatchesResults.compactMap(\.?.displayName)) == Set(["Alice", "Bob"]))
+
+        // Bind identities to speaker IDs so Alice/Bob swapping fails even if
+        // segment/dictionary order varies.
+        let segments = try #require(output.diarizedSegments)
+        #expect(segments.count == 2)
+        let labelBySpeakerId = Dictionary(uniqueKeysWithValues: segments.map { ($0.speakerId, $0.speakerLabel) })
+        let profileBySpeakerId = Dictionary(uniqueKeysWithValues: segments.map { ($0.speakerId, $0.speakerProfileID) })
+        #expect(labelBySpeakerId["speaker-a"] == "Alice")
+        #expect(labelBySpeakerId["speaker-b"] == "Bob")
+        #expect(profileBySpeakerId["speaker-a"] == aliceProfileID)
+        #expect(profileBySpeakerId["speaker-b"] == bobProfileID)
+    }
+
+    @Test func transcribeWithDiarizationRejectsCorruptAndNonFiniteEmbeddingsFromBatch() async throws {
+        let mockEngine = MockDiarizationTranscriptionEngine()
+        mockEngine.transcribeResponses = ["Only valid speaker text"]
+
+        // Empty / non-finite embeddings are excluded before the request-scoped batch.
+        // Dimension mismatch is rejected later by bestMatches (covered in HistoryStoreTests).
+        let validSpeaker = Speaker(id: "speaker-a", label: "A", embedding: [0.2, 0.4, 0.6])
+        let emptySpeaker = Speaker(id: "speaker-b", label: "B", embedding: [])
+        let nanSpeaker = Speaker(id: "speaker-c", label: "C", embedding: [0.1, Float.nan, 0.3])
+        let nilSpeaker = Speaker(id: "speaker-d", label: "D", embedding: nil)
+
+        let diarizationResult = DiarizationResult(
+            segments: [
+                SpeakerSegment(speaker: validSpeaker, startTime: 0.0, endTime: 5.5, confidence: 0.92),
+                SpeakerSegment(speaker: emptySpeaker, startTime: 5.6, endTime: 11.0, confidence: 0.9),
+                SpeakerSegment(speaker: nanSpeaker, startTime: 11.1, endTime: 16.5, confidence: 0.9),
+                SpeakerSegment(speaker: nilSpeaker, startTime: 16.6, endTime: 22.0, confidence: 0.9),
+            ],
+            speakers: [validSpeaker, emptySpeaker, nanSpeaker, nilSpeaker],
+            audioDuration: 22.0
+        )
+
+        let mockDiarizer = MockSpeakerDiarizer()
+        mockDiarizer.nextResult = diarizationResult
+
+        let identityService = MockSpeakerIdentityService(
+            matchesByEmbeddingKey: [
+                "0.2000,0.4000,0.6000": SpeakerIdentityMatch(
+                    profileID: UUID(),
+                    displayName: "Valid",
+                    similarity: 0.91
+                )
+            ]
+        )
+
+        let service = TranscriptionService(
+            engineFactory: { _ in mockEngine },
+            diarizerFactory: { mockDiarizer },
+            speakerIdentityService: identityService
+        )
+
+        try await service.loadModel(modelName: "tiny", provider: .whisperKit)
+        _ = try await service.transcribe(
+            audioData: makeFloatAudioData(seconds: 23.0),
+            diarizationEnabled: true
+        )
+
+        #expect(identityService.bestMatchesCallCount == 1)
+        #expect(identityService.bestMatchCallCount == 0)
+        // Only the one valid speaker contributes aggregate + consensus embeddings.
+        #expect(identityService.lastBestMatchEmbeddings.count == 2)
+        let expectedValid: [Float] = [0.2, 0.4, 0.6]
+        for embedding in identityService.lastBestMatchEmbeddings {
+            #expect(embedding.count == expectedValid.count)
+            #expect(embedding.allSatisfy { $0.isFinite })
+            for (value, expected) in zip(embedding, expectedValid) {
+                #expect(abs(value - expected) < 0.0001)
+            }
+        }
+        #expect(identityService.lastBestMatchesResults.map { $0?.displayName } == ["Valid", "Valid"])
+    }
+
+
 
     @Test func transcribeWithDiarizationFallsBackToGenericLabelWhenSpeakerLabelIsBlank() async throws {
         let mockEngine = MockDiarizationTranscriptionEngine()
@@ -1008,6 +1169,21 @@ struct TranscriptionServiceTests {
 
         #expect(snapshot.partials == ["hello wor"])
         #expect(snapshot.finals == ["hello world"])
+
+        let replacementCollector = StreamingCallbackCollector()
+        service.setStreamingCallbacks(
+            onPartial: { text in
+                await replacementCollector.recordPartial(text)
+            },
+            onFinalUtterance: { text in
+                await replacementCollector.recordFinal(text)
+            }
+        )
+        mockStreamingEngine.emitFinalUtterance("replacement sink")
+        try await replacementCollector.waitForFinals(["replacement sink"])
+
+        #expect(mockStreamingEngine.transcriptionCallbackInstallCount == 1)
+        #expect(mockStreamingEngine.endOfUtteranceCallbackInstallCount == 1)
     }
 
     @Test func streamingPartialsCoalesceWhileAllFinalsDeliverInOrder() async throws {
@@ -1054,7 +1230,7 @@ struct TranscriptionServiceTests {
         }
     }
 
-    @Test func streamingResetWhileCallbackSuspendedKeepsSingleDrainAndSuppressesOldGeneration() async throws {
+    @Test func currentStreamingGenerationProgressesWhileStaleSinkIsSuspended() async throws {
         let mockStreamingEngine = MockStreamingTranscriptionEngine()
         let service = TranscriptionService(streamingEngineFactory: { _ in mockStreamingEngine })
         let oldCollector = StreamingCallbackCollector()
@@ -1066,7 +1242,6 @@ struct TranscriptionServiceTests {
                 await oldCollector.recordPartial(text)
             },
             onFinalUtterance: { text in
-                // First final suspends the sole drain task so reset can race it.
                 await gate.enterAndWait()
                 await oldCollector.recordFinal(text)
             }
@@ -1076,8 +1251,8 @@ struct TranscriptionServiceTests {
 
         mockStreamingEngine.emitFinalUtterance("old-session")
         await gate.waitUntilEntered()
+        mockStreamingEngine.emitFinalUtterance("old-queued")
 
-        // Reset invalidates the old generation without marking the suspended drain idle.
         service.setStreamingCallbacks(onPartial: nil, onFinalUtterance: nil)
         service.setStreamingCallbacks(
             onPartial: { text in
@@ -1087,49 +1262,338 @@ struct TranscriptionServiceTests {
                 await newCollector.recordFinal(text)
             }
         )
-        try await mockStreamingEngine.waitUntilCallbacksInstalled()
 
-        // These must not schedule a second concurrent drain; the suspended owner
-        // adopts the new generation after the old callback resumes.
         mockStreamingEngine.emitPartial("n")
         mockStreamingEngine.emitPartial("ne")
         mockStreamingEngine.emitPartial("new")
         mockStreamingEngine.emitFinalUtterance("new-one")
         mockStreamingEngine.emitFinalUtterance("new-two")
 
-        // Old generation is still suspended — new session must not have delivered yet
-        // through a racing second drain.
+        // The replacement generation owns an independent drain. Its progress must
+        // not depend on an arbitrary stale sink opening its gate.
+        try await newCollector.waitForFinals(["new-one", "new-two"])
         let midOld = await oldCollector.snapshot()
         let midNew = await newCollector.snapshot()
         #expect(midOld.finals.isEmpty)
-        #expect(midNew.finals.isEmpty)
-        #expect(midNew.partials.isEmpty)
+        #expect(midNew.finals == ["new-one", "new-two"])
+        #expect(midNew.partials == ["new"] || midNew.partials.isEmpty)
 
         await gate.open()
-
         try await oldCollector.waitForFinals(["old-session"])
-        try await newCollector.waitForFinals(["new-one", "new-two"])
 
         let oldSnapshot = await oldCollector.snapshot()
         let newSnapshot = await newCollector.snapshot()
-
         #expect(oldSnapshot.finals == ["old-session"])
-        #expect(oldSnapshot.partials.isEmpty)
-        #expect(
-            newSnapshot.finals == ["new-one", "new-two"],
-            "finals must stay ordered under a single drain across reset"
-        )
-        #expect(
-            newSnapshot.partials == ["new"] || newSnapshot.partials.isEmpty,
-            "latest-partial coalescing must survive generation handoff"
-        )
-        #expect(
-            !newSnapshot.finals.contains("old-session"),
-            "old-generation finals must not mutate the new session"
-        )
+        #expect(!oldSnapshot.finals.contains("old-queued"))
+        #expect(newSnapshot.finals == ["new-one", "new-two"])
+        #expect(!newSnapshot.finals.contains("old-session"))
     }
 
 
+
+    @Test func cancelWaitsForResetBarrierAndReusesOneBridgeInstallation() async throws {
+        let mockStreamingEngine = MockStreamingTranscriptionEngine()
+        let resetGate = StreamingCallbackSuspendGate()
+        mockStreamingEngine.resetGate = resetGate
+        let service = TranscriptionService(streamingEngineFactory: { _ in mockStreamingEngine })
+        let oldCollector = StreamingCallbackCollector()
+        let newCollector = StreamingCallbackCollector()
+
+        service.setStreamingCallbacks(
+            onFinalUtterance: { text in
+                await oldCollector.recordFinal(text)
+            }
+        )
+        try await service.startStreaming()
+        let oldSessionEmission = mockStreamingEngine.captureFinalUtterance(
+            "captured old session"
+        )
+
+        let cancelTask = Task {
+            await service.cancelStreaming()
+        }
+        await resetGate.waitUntilEntered()
+
+        service.setStreamingCallbacks(onPartial: nil, onFinalUtterance: nil)
+        service.setStreamingCallbacks(
+            onFinalUtterance: { text in
+                await newCollector.recordFinal(text)
+            }
+        )
+        let nextStartGate = StreamingCallbackSuspendGate()
+        mockStreamingEngine.startGate = nextStartGate
+        let (startAttempts, startAttemptContinuation) = AsyncStream.makeStream(
+            of: Void.self,
+            bufferingPolicy: .bufferingNewest(1)
+        )
+        var startAttemptIterator = startAttempts.makeAsyncIterator()
+        let nextStartTask = Task {
+            startAttemptContinuation.yield(())
+            try await service.startStreaming()
+        }
+        _ = await startAttemptIterator.next()
+
+        // Source delivery is inactive for the full reset await.
+        mockStreamingEngine.emitFinalUtterance("late during reset")
+        await resetGate.open()
+        await cancelTask.value
+        await nextStartGate.waitUntilEntered()
+
+        // Preparation has reactivated the invariant bridge, but the engine-side
+        // session capture still rejects work queued by the pre-reset session.
+        oldSessionEmission()
+        await nextStartGate.open()
+        try await nextStartTask.value
+
+        mockStreamingEngine.emitFinalUtterance("new session")
+        try await newCollector.waitForFinals(["new session"])
+
+        let oldSnapshot = await oldCollector.snapshot()
+        let newSnapshot = await newCollector.snapshot()
+        #expect(oldSnapshot.finals.isEmpty)
+        #expect(newSnapshot.finals == ["new session"])
+        #expect(mockStreamingEngine.transcriptionCallbackInstallCount == 1)
+        #expect(mockStreamingEngine.endOfUtteranceCallbackInstallCount == 1)
+    }
+
+    @Test func cancelInterruptsResetDependentOperationBeforeFinalBarrier() async throws {
+        let mockStreamingEngine = MockStreamingTranscriptionEngine()
+        let service = TranscriptionService(streamingEngineFactory: { _ in mockStreamingEngine })
+        try await service.startStreaming()
+
+        let processGate = StreamingCallbackSuspendGate()
+        mockStreamingEngine.processGate = processGate
+        mockStreamingEngine.operationGateToOpenOnReset = processGate
+        let buffer = try makeStreamingBuffer()
+        let processTask = Task {
+            try await service.processStreamingAudioBuffer(buffer)
+        }
+        await processGate.waitUntilEntered()
+
+        await service.cancelStreaming()
+        do {
+            try await processTask.value
+            Issue.record("Expected the prior-session process to be cancelled")
+        } catch is CancellationError {
+            // Expected: the interrupt reset released it under the old epoch.
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+
+        #expect(service.state == .ready)
+        #expect(mockStreamingEngine.state == .ready)
+        #expect(mockStreamingEngine.resetCallCount == 2)
+    }
+
+    @Test func unloadedEngineCannotDeliverLateCallbacksIntoReplacementSink() async throws {
+        let oldEngine = MockStreamingTranscriptionEngine()
+        let replacementEngine = MockStreamingTranscriptionEngine()
+        var factoryCallCount = 0
+        let service = TranscriptionService(
+            streamingEngineFactory: { _ in
+                defer { factoryCallCount += 1 }
+                return factoryCallCount == 0 ? oldEngine : replacementEngine
+            }
+        )
+        let collector = StreamingCallbackCollector()
+
+        try await service.prepareStreamingEngine()
+        await service.unloadModel()
+        service.setStreamingCallbacks(onPartial: nil, onFinalUtterance: nil)
+        service.setStreamingCallbacks(
+            onFinalUtterance: { text in
+                await collector.recordFinal(text)
+            }
+        )
+        try await service.prepareStreamingEngine()
+
+        oldEngine.emitFinalUtterance("stale old engine")
+        replacementEngine.emitFinalUtterance("replacement engine")
+        try await collector.waitForFinals(["replacement engine"])
+
+        let snapshot = await collector.snapshot()
+        #expect(snapshot.finals == ["replacement engine"])
+        #expect(oldEngine.transcriptionCallbackInstallCount == 1)
+        #expect(replacementEngine.transcriptionCallbackInstallCount == 1)
+    }
+
+    @Test func unloadDuringNonCooperativeStreamingLoadCannotResurrectModel() async throws {
+        let mockStreamingEngine = MockStreamingTranscriptionEngine()
+        let loadGate = StreamingCallbackSuspendGate()
+        mockStreamingEngine.loadGate = loadGate
+        let service = TranscriptionService(streamingEngineFactory: { _ in mockStreamingEngine })
+
+        let prepareTask = Task {
+            try await service.prepareStreamingEngine()
+        }
+        await loadGate.waitUntilEntered()
+
+        await service.unloadModel()
+        #expect(service.state == .unloaded)
+        #expect(service.activeStreamingEngine == nil)
+
+        await loadGate.open()
+        do {
+            try await prepareTask.value
+            Issue.record("Expected invalidated streaming prepare to be cancelled")
+        } catch is CancellationError {
+            // Expected: lifecycle identity, not cooperative cancellation, rejects it.
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+
+        #expect(service.state == .unloaded)
+        #expect(service.activeStreamingEngine == nil)
+        #expect(mockStreamingEngine.state == .unloaded)
+        #expect(mockStreamingEngine.unloadCallCount >= 1)
+    }
+
+    @Test func lateStreamingStartCannotOverwriteUnload() async throws {
+        let mockStreamingEngine = MockStreamingTranscriptionEngine()
+        let startGate = StreamingCallbackSuspendGate()
+        mockStreamingEngine.startGate = startGate
+        let service = TranscriptionService(streamingEngineFactory: { _ in mockStreamingEngine })
+        try await service.prepareStreamingEngine()
+
+        let startTask = Task {
+            try await service.startStreaming()
+        }
+        await startGate.waitUntilEntered()
+        await service.unloadModel()
+        await startGate.open()
+
+        do {
+            try await startTask.value
+            Issue.record("Expected stale streaming start to be cancelled")
+        } catch is CancellationError {
+            // Expected.
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+        #expect(service.state == .unloaded)
+        #expect(service.error == nil)
+        #expect(service.activeStreamingEngine == nil)
+        #expect(mockStreamingEngine.state == .unloaded)
+    }
+
+    @Test func lateStreamingStopCannotOverwriteUnload() async throws {
+        let mockStreamingEngine = MockStreamingTranscriptionEngine()
+        let service = TranscriptionService(streamingEngineFactory: { _ in mockStreamingEngine })
+        try await service.startStreaming()
+        let stopGate = StreamingCallbackSuspendGate()
+        mockStreamingEngine.stopGate = stopGate
+
+        let stopTask = Task {
+            try await service.stopStreaming()
+        }
+        await stopGate.waitUntilEntered()
+        await service.unloadModel()
+        await stopGate.open()
+
+        do {
+            _ = try await stopTask.value
+            Issue.record("Expected stale streaming stop to be cancelled")
+        } catch is CancellationError {
+            // Expected.
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+        #expect(service.state == .unloaded)
+        #expect(service.error == nil)
+        #expect(service.activeStreamingEngine == nil)
+        #expect(mockStreamingEngine.state == .unloaded)
+    }
+
+    @Test func lateStreamingProcessErrorCannotOverwriteUnload() async throws {
+        let mockStreamingEngine = MockStreamingTranscriptionEngine()
+        let service = TranscriptionService(streamingEngineFactory: { _ in mockStreamingEngine })
+        try await service.startStreaming()
+        let processGate = StreamingCallbackSuspendGate()
+        mockStreamingEngine.processGate = processGate
+        mockStreamingEngine.processError = MockStreamingTranscriptionEngine.MockError.modelMissing
+        let buffer = try makeStreamingBuffer()
+
+        let processTask = Task {
+            try await service.processStreamingAudioBuffer(buffer)
+        }
+        await processGate.waitUntilEntered()
+        await service.unloadModel()
+        await processGate.open()
+
+        do {
+            try await processTask.value
+            Issue.record("Expected stale streaming processing to be cancelled")
+        } catch is CancellationError {
+            // Expected.
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+        #expect(service.state == .unloaded)
+        #expect(service.error == nil)
+        #expect(service.activeStreamingEngine == nil)
+    }
+
+    @Test func lateStreamingResetCannotOverwriteUnload() async throws {
+        let mockStreamingEngine = MockStreamingTranscriptionEngine()
+        let service = TranscriptionService(streamingEngineFactory: { _ in mockStreamingEngine })
+        try await service.startStreaming()
+        let resetGate = StreamingCallbackSuspendGate()
+        mockStreamingEngine.resetGate = resetGate
+
+        let cancelTask = Task {
+            await service.cancelStreaming()
+        }
+        await resetGate.waitUntilEntered()
+        await service.unloadModel()
+        await resetGate.open()
+        await cancelTask.value
+
+        #expect(service.state == .unloaded)
+        #expect(service.error == nil)
+        #expect(service.activeStreamingEngine == nil)
+        #expect(mockStreamingEngine.state == .unloaded)
+    }
+
+    @Test func stalePrepareCannotCleanUpReownedSameEngineInstance() async throws {
+        let mockStreamingEngine = MockStreamingTranscriptionEngine()
+        let loadGate = StreamingCallbackSuspendGate()
+        mockStreamingEngine.loadGate = loadGate
+        var factoryCallCount = 0
+        let service = TranscriptionService(
+            streamingEngineFactory: { _ in
+                factoryCallCount += 1
+                return mockStreamingEngine
+            }
+        )
+
+        let stalePrepare = Task {
+            try await service.prepareStreamingEngine()
+        }
+        await loadGate.waitUntilEntered()
+        await service.unloadModel()
+
+        let replacementPrepare = Task {
+            try await service.prepareStreamingEngine()
+        }
+        await loadGate.open()
+
+        do {
+            try await stalePrepare.value
+            Issue.record("Expected stale prepare to be cancelled")
+        } catch is CancellationError {
+            // Expected.
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+        try await replacementPrepare.value
+
+        #expect(factoryCallCount == 2)
+        #expect(service.state == .ready)
+        #expect(service.activeStreamingEngine === mockStreamingEngine)
+        #expect(mockStreamingEngine.state == .ready)
+        #expect(mockStreamingEngine.transcriptionCallbackInstallCount == 1)
+        #expect(mockStreamingEngine.endOfUtteranceCallbackInstallCount == 1)
+    }
 
     @Test func prepareStreamingEngineThrowsModelNotAvailableWhenLoadFails() async throws {
         let mockStreamingEngine = MockStreamingTranscriptionEngine()
@@ -1453,6 +1917,9 @@ private final class MockSpeakerDiarizer: SpeakerDiarizer {
 private final class MockSpeakerIdentityService: SpeakerIdentityManaging {
     private(set) var knownSpeakersCallCount = 0
     private(set) var bestMatchCallCount = 0
+    private(set) var bestMatchesCallCount = 0
+    private(set) var lastBestMatchEmbeddings: [[Float]] = []
+    private(set) var lastBestMatchesResults: [SpeakerIdentityMatch?] = []
     private(set) var learnCallCount = 0
     private let speakers: [Speaker]
     private let matchesByEmbeddingKey: [String: SpeakerIdentityMatch]
@@ -1462,10 +1929,21 @@ private final class MockSpeakerIdentityService: SpeakerIdentityManaging {
         self.matchesByEmbeddingKey = matchesByEmbeddingKey
     }
 
-
     func bestMatch(for embedding: [Float]) throws -> SpeakerIdentityMatch? {
         bestMatchCallCount += 1
-        return matchesByEmbeddingKey[embedding.map { String(format: "%.4f", $0) }.joined(separator: ",")]
+        return match(for: embedding)
+    }
+
+    func bestMatches(for embeddings: [[Float]]) throws -> [SpeakerIdentityMatch?] {
+        bestMatchesCallCount += 1
+        lastBestMatchEmbeddings = embeddings
+        let results = embeddings.map { match(for: $0) }
+        lastBestMatchesResults = results
+        return results
+    }
+
+    private func match(for embedding: [Float]) -> SpeakerIdentityMatch? {
+        matchesByEmbeddingKey[embedding.map { String(format: "%.4f", $0) }.joined(separator: ",")]
     }
 
     func learnFromProfileAssignments(
@@ -1508,10 +1986,18 @@ private final class MockStreamingTranscriptionEngine: StreamingTranscriptionEngi
     var stopResult: String = "streaming final transcript"
 
     private(set) var processedBufferCount = 0
+    private(set) var loadCallCount = 0
     private(set) var unloadCallCount = 0
     private(set) var resetCallCount = 0
     private(set) var transcriptionCallbackInstallCount = 0
     private(set) var endOfUtteranceCallbackInstallCount = 0
+    var loadGate: StreamingCallbackSuspendGate?
+    var resetGate: StreamingCallbackSuspendGate?
+    var startGate: StreamingCallbackSuspendGate?
+    var processGate: StreamingCallbackSuspendGate?
+    var stopGate: StreamingCallbackSuspendGate?
+    var operationGateToOpenOnReset: StreamingCallbackSuspendGate?
+    private var callbackSessionGeneration: UInt64 = 1
 
     var hasInstalledCallbacks: Bool {
         transcriptionCallbackInstallCount > 0 && endOfUtteranceCallbackInstallCount > 0
@@ -1522,6 +2008,10 @@ private final class MockStreamingTranscriptionEngine: StreamingTranscriptionEngi
     private var callbackInstallationWaiters: [UUID: CheckedContinuation<Void, Error>] = [:]
 
     func loadModel(name: String) async throws {
+        loadCallCount += 1
+        if let loadGate {
+            await loadGate.enterAndWait()
+        }
         if let loadError {
             state = .error
             throw loadError
@@ -1530,16 +2020,24 @@ private final class MockStreamingTranscriptionEngine: StreamingTranscriptionEngi
     }
 
     func unloadModel() async {
+        callbackSessionGeneration &+= 1
         unloadCallCount += 1
         state = .unloaded
     }
 
     func startStreaming() async throws {
+        if let startGate {
+            await startGate.enterAndWait()
+        }
         if let startError { throw startError }
+        callbackSessionGeneration &+= 1
         state = .streaming
     }
 
     func stopStreaming() async throws -> String {
+        if let stopGate {
+            await stopGate.enterAndWait()
+        }
         if let stopError { throw stopError }
         state = .ready
         return stopResult
@@ -1559,6 +2057,9 @@ private final class MockStreamingTranscriptionEngine: StreamingTranscriptionEngi
     }
 
     func processAudioBuffer(_ buffer: AVAudioPCMBuffer) async throws {
+        if let processGate {
+            await processGate.enterAndWait()
+        }
         if let processError { throw processError }
         processedBufferCount += 1
     }
@@ -1614,12 +2115,30 @@ private final class MockStreamingTranscriptionEngine: StreamingTranscriptionEngi
     }
 
     func reset() async {
+        callbackSessionGeneration &+= 1
         resetCallCount += 1
+        if let operationGateToOpenOnReset {
+            await operationGateToOpenOnReset.open()
+        }
+        if let resetGate {
+            await resetGate.enterAndWait()
+        }
         state = .ready
     }
 
     func emitPartial(_ text: String) {
         transcriptionCallback?(StreamingTranscriptionResult(text: text, isFinal: false))
+    }
+
+    func captureFinalUtterance(_ text: String) -> @MainActor @Sendable () -> Void {
+        let generation = callbackSessionGeneration
+        let transcriptionCallback = transcriptionCallback
+        let endOfUtteranceCallback = endOfUtteranceCallback
+        return { [weak self] in
+            guard self?.callbackSessionGeneration == generation else { return }
+            transcriptionCallback?(StreamingTranscriptionResult(text: text, isFinal: true))
+            endOfUtteranceCallback?(text)
+        }
     }
 
     func emitFinalUtterance(_ text: String) {
@@ -1628,7 +2147,7 @@ private final class MockStreamingTranscriptionEngine: StreamingTranscriptionEngi
     }
 }
 
-/// Parks the first awaiter so a streaming drain can be held across reset.
+/// Deterministically parks an engine operation or async callback until released.
 private actor StreamingCallbackSuspendGate {
     private var isOpen = false
     private var hasEntered = false
