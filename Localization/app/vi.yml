@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "Notch"
 whatsnew:
-  footer: "Ngoài ra: hủy một lượt đọc chính tả đang diễn ra bằng phím nóng, khởi chạy lặng lẽ vào thanh menu, và gõ đáng tin cậy vào máy ảo."
-  formatting_body: "Các đoạn đọc chính tả dài giờ đây có thể chia thành các đoạn văn dễ đọc, hoàn toàn trên thiết bị."
-  formatting_title: "Bản chép lời gọn gàng hơn"
-  indicators_body: "Chọn một viên thuốc kín đáo dưới notch hoặc một bong bóng đi theo dấu mũ của bạn."
-  indicators_title: "Chỉ báo notch và dấu mũ"
-  languages_body: "Đọc chính tả bằng tiếng Ba Lan, tiếng Hindi và tiếng Malayalam. Giao diện giờ đây cũng nói được tiếng Ba Lan."
-  languages_title: "Ba ngôn ngữ mới"
-  sensevoice_body: "Một công cụ hoàn toàn cục bộ mới với khả năng nhận dạng đa ngôn ngữ nhanh và chính xác."
-  sensevoice_title: "Phiên âm SenseVoice"
-  summary: "Một công cụ cục bộ mới, ba ngôn ngữ mới và nhiều quyền kiểm soát hơn đối với mỗi lượt đọc chính tả."
-  version_line: "Pindrop 1.21.0 · tháng 7 năm 2026"
+  footer: "Ngoài ra: các preset lời nhắc đã trở lại thanh menu, quả cầu ghi âm có dạng sóng mới, và các thư viện hiện có lại mở một cách đáng tin cậy."
+  formatting_body: "Sửa bản chép lời đã lưu trong Library và giữ thẻ Edited rõ ràng."
+  formatting_title: "Bản chép lời có thể chỉnh sửa"
+  indicators_body: "Xem thời gian theo từng giai đoạn và mức dùng token AI cho mỗi lần đọc chính tả, cùng số trung bình trong Stats."
+  indicators_title: "Thông tin pipeline"
+  languages_body: "Telemetry vẫn tắt cho đến khi bạn chọn tham gia, và dữ liệu đóng góp huấn luyện vẫn ở trên Mac của bạn để xem, xuất hoặc xóa."
+  languages_title: "Chẩn đoán ưu tiên quyền riêng tư"
+  sensevoice_body: "Callback streaming, tắt máy và cập nhật UI trực tiếp nay vẫn giữ thứ tự và hiệu quả."
+  sensevoice_title: "Đọc chính tả đáng tin cậy hơn"
+  summary: "Chẩn đoán riêng tư, lịch sử có thể chỉnh sửa, thông tin hiệu năng sâu hơn và đọc chính tả đáng tin cậy hơn."
+  version_line: "Pindrop 1.22.0 · tháng 7 năm 2026"
 privacy:
   _self: "Quyền riêng tư"
 share:

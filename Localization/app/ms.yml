@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "Takik"
 whatsnew:
-  footer: "Juga: batalkan imlak yang sedang berlangsung dengan kekunci pintas, lancarkan secara senyap ke bar menu, dan taip dengan boleh dipercayai ke dalam mesin maya."
-  formatting_body: "Imlak yang panjang kini boleh dipecahkan kepada perenggan yang mudah dibaca, sepenuhnya pada peranti."
-  formatting_title: "Transkrip yang lebih kemas"
-  indicators_body: "Pilih pil yang tidak menyerlah di bawah takik atau gelembung yang mengikut karet anda."
-  indicators_title: "Penunjuk takik dan karet"
-  languages_body: "Mendikte dalam Bahasa Poland, Hindi, dan Malayalam. Antara muka kini turut menyokong Bahasa Poland."
-  languages_title: "Tiga bahasa baharu"
-  sensevoice_body: "Enjin sepenuhnya tempatan yang baharu dengan pengecaman berbilang bahasa yang pantas dan tepat."
-  sensevoice_title: "Transkripsi SenseVoice"
-  summary: "Enjin tempatan baharu, tiga bahasa baharu, dan lebih banyak kawalan ke atas setiap imlak."
-  version_line: "Pindrop 1.21.0 · Julai 2026"
+  footer: "Juga: pratetap prompt kembali dalam bar menu, orbs rakaman mempunyai bentuk gelombang baharu, dan pustaka sedia ada dibuka dengan boleh dipercayai semula."
+  formatting_body: "Betulkan transkrip tersimpan dalam Library dan kekalkan penanda Edited yang jelas."
+  formatting_title: "Transkrip boleh sunting"
+  indicators_body: "Lihat masa setiap peringkat dan penggunaan token AI untuk setiap imlak, serta purata dalam Stats."
+  indicators_title: "Cerapan saluran paip"
+  languages_body: "Telemetri kekal dimatikan sehingga anda memilih untuk ikut serta, dan sumbangan latihan kekal pada Mac anda untuk semakan, eksport atau pemadaman."
+  languages_title: "Diagnostik yang mengutamakan privasi"
+  sensevoice_body: "Panggilan balik penstriman, penutupan dan kemas kini UI langsung kini kekal teratur dan cekap."
+  sensevoice_title: "Imlak yang lebih boleh dipercayai"
+  summary: "Diagnostik peribadi, sejarah boleh sunting, cerapan prestasi yang lebih mendalam dan imlak yang lebih boleh dipercayai."
+  version_line: "Pindrop 1.22.0 · Julai 2026"
 privacy:
   _self: "Privasi"
 share:

@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "Zářez"
 whatsnew:
-  footer: "Také: zrušte diktování za běhu klávesovou zkratkou, spusťte aplikaci tiše na liště nabídek a spolehlivě pište do virtuálních počítačů."
-  formatting_body: "Delší diktáty se nyní dokážou rozdělit do čitelných odstavců, zcela na zařízení."
-  formatting_title: "Čistší přepisy"
-  indicators_body: "Vyberte si nenápadnou pilulku pod zářezem nebo bublinu, která sleduje váš kurzor."
-  indicators_title: "Indikátory zářezu a kurzoru"
-  languages_body: "Diktujte v polštině, hindštině a malajálamštině. Rozhraní teď mluví i polsky."
-  languages_title: "Tři nové jazyky"
-  sensevoice_body: "Nový zcela lokální model s rychlým a přesným vícejazyčným rozpoznáváním."
-  sensevoice_title: "Přepis SenseVoice"
-  summary: "Nový lokální model, tři nové jazyky a větší kontrola nad každým diktátem."
-  version_line: "Pindrop 1.21.0 · červenec 2026"
+  footer: "Také: předvolby promptů jsou zpět v liště nabídek, nahrávací koule má novou vlnovku a stávající knihovny se znovu otevírají spolehlivě."
+  formatting_body: "Opravujte uložené přepisy v Library a ponechte si jasnou značku Edited."
+  formatting_title: "Upravitelné přepisy"
+  indicators_body: "Sledujte časování jednotlivých fází a spotřebu AI tokenů u každého diktátu i průměry ve Stats."
+  indicators_title: "Přehledy pipeline"
+  languages_body: "Telemetrie zůstává vypnutá, dokud ji nezapnete, a tréninkové příspěvky zůstávají na vašem Macu ke kontrole, exportu nebo smazání."
+  languages_title: "Diagnostika s prioritou soukromí"
+  sensevoice_body: "Streamovací callbacky, ukončení a živé aktualizace UI nyní zůstávají uspořádané a efektivní."
+  sensevoice_title: "Spolehlivější diktování"
+  summary: "Soukromá diagnostika, upravitelná historie, hlubší výkonnostní přehledy a spolehlivější diktování."
+  version_line: "Pindrop 1.22.0 · červenec 2026"
 privacy:
   _self: "Soukromí"
 share:

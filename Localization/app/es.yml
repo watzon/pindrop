@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "Notch"
 whatsnew:
-  footer: "Además: cancela un dictado a mitad con un atajo, inicia en silencio en la barra de menús y escribe de forma fiable en máquinas virtuales."
-  formatting_body: "Los dictados largos ahora pueden dividirse en párrafos legibles, totalmente en el dispositivo."
-  formatting_title: "Transcripciones más claras"
-  indicators_body: "Elige una píldora discreta bajo el Notch o una Bubble que sigue tu cursor."
-  indicators_title: "Indicadores de Notch y cursor"
-  languages_body: "Dicta en polaco, hindi y malayalam. La interfaz ahora también habla polaco."
-  languages_title: "Tres idiomas nuevos"
-  sensevoice_body: "Un nuevo motor totalmente local con reconocimiento multilingüe rápido y preciso."
-  sensevoice_title: "Transcripción con SenseVoice"
-  summary: "Un nuevo motor local, tres idiomas nuevos y más control sobre cada dictado."
-  version_line: "Pindrop 1.21.0 · julio de 2026"
+  footer: "Además: los preajustes de prompts vuelven a la barra de menús, el orbe de grabación tiene una nueva forma de onda y las bibliotecas existentes se abren de forma fiable otra vez."
+  formatting_body: "Corrige las transcripciones guardadas en Library y mantén un marcador Edited claro."
+  formatting_title: "Transcripciones editables"
+  indicators_body: "Consulta el tiempo por etapa y el uso de tokens de AI en cada dictado, además de promedios en Stats."
+  indicators_title: "Información del pipeline"
+  languages_body: "La telemetría permanece desactivada hasta que la actives, y las contribuciones de entrenamiento se quedan en tu Mac para revisarlas, exportarlas o eliminarlas."
+  languages_title: "Diagnósticos con la privacidad primero"
+  sensevoice_body: "Las devoluciones de llamada en streaming, el apagado y las actualizaciones de UI en vivo ahora se mantienen ordenados y eficientes."
+  sensevoice_title: "Dictado más fiable"
+  summary: "Diagnósticos privados, historial editable, información de rendimiento más profunda y dictado más fiable."
+  version_line: "Pindrop 1.22.0 · julio de 2026"
 privacy:
   _self: "Privacidad"
 share:

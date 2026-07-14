@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "Takik"
 whatsnew:
-  footer: "Juga: batalkan dikte yang sedang berlangsung dengan tombol pintas, luncurkan secara diam-diam ke bilah menu, dan ketik dengan andal ke dalam mesin virtual."
-  formatting_body: "Dikte panjang kini dapat dipecah menjadi paragraf yang mudah dibaca, sepenuhnya di perangkat."
-  formatting_title: "Transkrip yang lebih rapi"
-  indicators_body: "Pilih pil diskret di bawah takik atau gelembung yang mengikuti tanda sisipan Anda."
-  indicators_title: "Indikator takik dan tanda sisipan"
-  languages_body: "Dikte dalam bahasa Polandia, Hindi, dan Malayalam. Antarmuka kini juga berbicara bahasa Polandia."
-  languages_title: "Tiga bahasa baru"
-  sensevoice_body: "Mesin baru yang sepenuhnya lokal dengan pengenalan multibahasa yang cepat dan akurat."
-  sensevoice_title: "Transkripsi SenseVoice"
-  summary: "Mesin lokal baru, tiga bahasa baru, dan lebih banyak kontrol atas setiap dikte."
-  version_line: "Pindrop 1.21.0 · Juli 2026"
+  footer: "Juga: preset prompt kembali di bilah menu, bola rekaman punya bentuk gelombang baru, dan pustaka yang ada terbuka andal lagi."
+  formatting_body: "Perbaiki transkrip tersimpan di Library dan pertahankan penanda Edited yang jelas."
+  formatting_title: "Transkrip yang dapat diedit"
+  indicators_body: "Lihat waktu per tahap dan penggunaan token AI untuk setiap dikte, plus rata-rata di Stats."
+  indicators_title: "Wawasan pipeline"
+  languages_body: "Telemetri tetap nonaktif hingga Anda ikut serta, dan kontribusi pelatihan tetap di Mac Anda untuk ditinjau, diekspor, atau dihapus."
+  languages_title: "Diagnostik yang mengutamakan privasi"
+  sensevoice_body: "Callback streaming, penonaktifan, dan pembaruan UI langsung kini tetap terurut dan efisien."
+  sensevoice_title: "Dikte yang lebih andal"
+  summary: "Diagnostik pribadi, riwayat yang dapat diedit, wawasan performa yang lebih dalam, dan dikte yang lebih andal."
+  version_line: "Pindrop 1.22.0 · Juli 2026"
 privacy:
   _self: "Privasi"
 share:

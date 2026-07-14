@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "Inkeping"
 whatsnew:
-  footer: "Ook: annuleer een dictaat halverwege met een sneltoets, start geruisloos in de menubalk en typ betrouwbaar in virtuele machines."
-  formatting_body: "Lange dictaten kunnen nu worden opgedeeld in leesbare alinea's, volledig op het apparaat."
-  formatting_title: "Overzichtelijkere transcripties"
-  indicators_body: "Kies een discrete pil onder de inkeping of een bel die je caret volgt."
-  indicators_title: "Inkeping- en caretindicatoren"
-  languages_body: "Dicteer in het Pools, Hindi en Malayalam. De interface spreekt nu ook Pools."
-  languages_title: "Drie nieuwe talen"
-  sensevoice_body: "Een nieuwe, volledig lokale engine met snelle, nauwkeurige meertalige herkenning."
-  sensevoice_title: "SenseVoice-transcriptie"
-  summary: "Een nieuwe lokale engine, drie nieuwe talen en meer controle over elk dictaat."
-  version_line: "Pindrop 1.21.0 · juli 2026"
+  footer: "Ook: promptvoorinstellingen zijn terug in de menubalk, de opnamebol heeft een nieuwe golfvorm en bestaande bibliotheken openen weer betrouwbaar."
+  formatting_body: "Corrigeer opgeslagen transcripties in Library en houd een duidelijke Edited-markering."
+  formatting_title: "Bewerkbare transcripties"
+  indicators_body: "Bekijk de timing per fase en het AI-tokengebruik voor elk dictaat, plus gemiddelden in Stats."
+  indicators_title: "Pipeline-inzichten"
+  languages_body: "Telemetrie blijft uit tot je meedoet, en trainingsbijdragen blijven op je Mac voor beoordeling, export of verwijdering."
+  languages_title: "Diagnostiek met privacy eerst"
+  sensevoice_body: "Streaming-callbacks, afsluiten en live UI-updates blijven nu geordend en efficiënt."
+  sensevoice_title: "Betrouwbaarder dicteren"
+  summary: "Privédiagnostiek, bewerkbare geschiedenis, diepere prestatie-inzichten en betrouwbaarder dicteren."
+  version_line: "Pindrop 1.22.0 · juli 2026"
 privacy:
   _self: "Privacy"
 share:

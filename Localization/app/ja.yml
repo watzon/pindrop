@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "ノッチ"
 whatsnew:
-  footer: "その他: ホットキーでディクテーションを途中でキャンセル、メニューバーへ静かに起動、仮想マシンへの確実な入力にも対応。"
-  formatting_body: "長いディクテーションは、デバイス上だけで読みやすい段落に分割できるようになりました。"
-  formatting_title: "よりきれいな文字起こし"
-  indicators_body: "ノッチの下の控えめな錠剤、またはキャレットに追従するバブルを選べます。"
-  indicators_title: "ノッチとキャレットのインジケーター"
-  languages_body: "ポーランド語、ヒンディー語、マラヤーラム語でディクテーションできます。インターフェースもポーランド語に対応しました。"
-  languages_title: "3つの新しい言語"
-  sensevoice_body: "高速で正確な多言語認識を実現する、新しい完全ローカルエンジン。"
-  sensevoice_title: "SenseVoice文字起こし"
-  summary: "新しいローカルエンジン、3つの新しい言語、そして各ディクテーションへのさらなる制御。"
-  version_line: "Pindrop 1.21.0 · 2026年7月"
+  footer: "その他: プロンプトプリセットがメニューバーに復帰、録音オーブに新しい波形、既存ライブラリも再び確実に開きます。"
+  formatting_body: "Library に保存した文字起こしを修正でき、明確な Edited マーカーが残ります。"
+  formatting_title: "編集可能な文字起こし"
+  indicators_body: "各ディクテーションの段階ごとの時間と AI トークン使用量、さらに Stats の平均を確認できます。"
+  indicators_title: "パイプラインのインサイト"
+  languages_body: "テレメトリは同意するまでオフのまま。トレーニング貢献データは確認・書き出し・削除のため Mac 上に残ります。"
+  languages_title: "プライバシー優先の診断"
+  sensevoice_body: "ストリーミングのコールバック、シャットダウン、ライブ UI 更新が、順序どおり効率的に動くようになりました。"
+  sensevoice_title: "より信頼性の高いディクテーション"
+  summary: "プライベートな診断、編集可能な履歴、より深いパフォーマンス分析、より信頼性の高いディクテーション。"
+  version_line: "Pindrop 1.22.0 · 2026年7月"
 privacy:
   _self: "プライバシー"
 share:

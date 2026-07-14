@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "Hakk"
 whatsnew:
-  footer: "Også: avbryt en pågående diktering med en hurtigtast, start stille i menylinjen, og skriv pålitelig inn i virtuelle maskiner."
-  formatting_body: "Lange dikteringer kan nå deles opp i lesbare avsnitt, helt på enheten."
-  formatting_title: "Renere transkripsjoner"
-  indicators_body: "Velg en diskret pille under hakket, eller en boble som følger karetten din."
-  indicators_title: "Hakk- og karettindikatorer"
-  languages_body: "Dikter på polsk, hindi og malayalam. Grensesnittet snakker nå også polsk."
-  languages_title: "Tre nye språk"
-  sensevoice_body: "En ny, helt lokal motor med rask og nøyaktig flerspråklig gjenkjenning."
-  sensevoice_title: "SenseVoice-transkripsjon"
-  summary: "En ny lokal motor, tre nye språk, og mer kontroll over hver diktering."
-  version_line: "Pindrop 1.21.0 · juli 2026"
+  footer: "Også: ledetekstforhåndsinnstillinger er tilbake i menylinjen, opptakskulen har en ny bølgeform, og eksisterende biblioteker åpnes pålitelig igjen."
+  formatting_body: "Rett lagrede transkripsjoner i Library og behold en tydelig Edited-markering."
+  formatting_title: "Redigerbare transkripsjoner"
+  indicators_body: "Se tidsbruk per trinn og AI-tokenbruk for hver diktering, pluss gjennomsnitt i Stats."
+  indicators_title: "Pipeline-innsikt"
+  languages_body: "Telemetri forblir av til du velger å delta, og treningsbidrag blir på Mac-en din for gjennomgang, eksport eller sletting."
+  languages_title: "Personvern-først diagnostikk"
+  sensevoice_body: "Strømmingskall, avslutning og live UI-oppdateringer holder seg nå ordnede og effektive."
+  sensevoice_title: "Mer pålitelig diktering"
+  summary: "Privat diagnostikk, redigerbar historikk, dypere ytelsesinnsikt og mer pålitelig diktering."
+  version_line: "Pindrop 1.22.0 · juli 2026"
 privacy:
   _self: "Personvern"
 share:

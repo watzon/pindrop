@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "Bemetszés"
 whatsnew:
-  footer: "Emellett: szakítsa meg a diktálást menet közben egy gyorsbillentyűvel, indítsa el a Pindropot csendben a menüsorba, és gépeljen megbízhatóan virtuális gépekben is."
-  formatting_body: "A hosszú diktálások mostantól olvasható bekezdésekre bonthatók, teljesen a helyi eszközön."
-  formatting_title: "Tisztább átiratok"
-  indicators_body: "Válasszon diszkrét tablettát a bemetszés alatt, vagy egy buborékot, amely követi a kurzort."
-  indicators_title: "Bemetszés- és kurzorjelzők"
-  languages_body: "Diktáljon lengyelül, hindiül és malajálamul. A felület mostantól lengyelül is beszél."
-  languages_title: "Három új nyelv"
-  sensevoice_body: "Egy új, teljesen helyi motor gyors, pontos többnyelvű felismeréssel."
-  sensevoice_title: "SenseVoice átírás"
-  summary: "Egy új helyi motor, három új nyelv, és nagyobb kontroll minden diktálás felett."
-  version_line: "Pindrop 1.21.0 · 2026. július"
+  footer: "Emellett: a prompt-előbeállítások visszatértek a menüsorba, a felvételi gömb új hullámformát kapott, és a meglévő könyvtárak újra megbízhatóan megnyílnak."
+  formatting_body: "Javítsa a mentett átiratokat a Libraryban, és tartson meg egy egyértelmű Edited jelölést."
+  formatting_title: "Szerkeszthető átiratok"
+  indicators_body: "Lássa a szakaszonkénti időzítést és az AI-tokenhasználatot minden diktálásnál, valamint az átlagokat a Statsban."
+  indicators_title: "Pipeline-betekintések"
+  languages_body: "A telemetria kikapcsolva marad, amíg be nem kapcsolja, a tanítási hozzájárulások pedig a Macjén maradnak áttekintéshez, exportáláshoz vagy törléshez."
+  languages_title: "Adatvédelem-első diagnosztika"
+  sensevoice_body: "A streamelési visszahívások, a leállítás és az élő UI-frissítések mostantól rendezettek és hatékonyak maradnak."
+  sensevoice_title: "Megbízhatóbb diktálás"
+  summary: "Privát diagnosztika, szerkeszthető előzmények, mélyebb teljesítmény-betekintések és megbízhatóbb diktálás."
+  version_line: "Pindrop 1.22.0 · 2026. július"
 privacy:
   _self: "Adatvédelem"
 share:

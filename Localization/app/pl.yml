@@ -1622,17 +1622,17 @@ bubble:
 notch:
   _self: "Karb"
 whatsnew:
-  footer: "Poza tym: anuluj dyktowanie w trakcie za pomocą skrótu klawiszowego, uruchamiaj aplikację po cichu na pasku menu i wstawiaj tekst niezawodnie w maszynach wirtualnych."
-  formatting_body: "Długie dyktowania są teraz dzielone na czytelne akapity, w całości na urządzeniu."
-  formatting_title: "Czytelniejsze transkrypcje"
-  indicators_body: "Wybierz dyskretną pigułkę pod karbem lub bańkę, która podąża za Twoją karetką."
-  indicators_title: "Wskaźniki karbu i karetki"
-  languages_body: "Dyktuj po polsku, w hindi i malajalam. Polski pojawił się teraz również w interfejsie."
-  languages_title: "Trzy nowe języki"
-  sensevoice_body: "Nowy, w pełni lokalny silnik z szybkim i dokładnym rozpoznawaniem wielojęzycznym."
-  sensevoice_title: "Transkrypcja SenseVoice"
-  summary: "Nowy lokalny silnik, trzy nowe języki i większa kontrola nad każdym dyktowaniem."
-  version_line: "Pindrop 1.21.0 · lipiec 2026"
+  footer: "Poza tym: gotowe ustawienia promptów wróciły do paska menu, kula nagrywania ma nową falę, a istniejące biblioteki znów otwierają się niezawodnie."
+  formatting_body: "Popraw zapisane transkrypcje w Library i zachowaj wyraźny znacznik Edited."
+  formatting_title: "Edytowalne transkrypcje"
+  indicators_body: "Zobacz czasy poszczególnych etapów i zużycie tokenów AI dla każdego dyktowania, a także średnie w Stats."
+  indicators_title: "Wgląd w pipeline"
+  languages_body: "Telemetria pozostaje wyłączona, dopóki jej nie włączysz, a wkłady treningowe zostają na Twoim Macu do przeglądu, eksportu lub usunięcia."
+  languages_title: "Diagnostyka z prywatnością na pierwszym miejscu"
+  sensevoice_body: "Wywołania zwrotne strumieniowania, zamykanie i aktualizacje UI na żywo pozostają teraz uporządkowane i wydajne."
+  sensevoice_title: "Bardziej niezawodne dyktowanie"
+  summary: "Prywatna diagnostyka, edytowalna historia, głębsze informacje o wydajności i bardziej niezawodne dyktowanie."
+  version_line: "Pindrop 1.22.0 · lipiec 2026"
 privacy:
   _self: "Prywatność"
 share:

@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "Lovi"
 whatsnew:
-  footer: "Lisäksi: peruuta sanelu kesken kaiken pikanäppäimellä, käynnisty hiljaa valikkopalkkiin ja kirjoita luotettavasti virtuaalikoneisiin."
-  formatting_body: "Pitkät sanelut voivat nyt jakautua luettaviin kappaleisiin, täysin laitteella."
-  formatting_title: "Siistimmät transkriptiot"
-  indicators_body: "Valitse huomaamaton pilleri loven alla tai kupla, joka seuraa kohdistintasi."
-  indicators_title: "Loven ja kohdistimen ilmaisimet"
-  languages_body: "Sanele puolaksi, hindiksi ja malajalamiksi. Käyttöliittymä puhuu nyt myös puolaa."
-  languages_title: "Kolme uutta kieltä"
-  sensevoice_body: "Uusi täysin paikallinen moottori nopealla ja tarkalla monikielisellä tunnistuksella."
-  sensevoice_title: "SenseVoice-transkriptio"
-  summary: "Uusi paikallinen moottori, kolme uutta kieltä ja enemmän hallintaa jokaiseen saneluun."
-  version_line: "Pindrop 1.21.0 · heinäkuu 2026"
+  footer: "Lisäksi: kehote-esiasetukset ovat taas valikkopalkissa, tallennuspallolla on uusi aaltomuoto ja olemassa olevat kirjastot avautuvat jälleen luotettavasti."
+  formatting_body: "Korjaa tallennettuja litterointeja Libraryssa ja pidä selkeä Edited-merkintä."
+  formatting_title: "Muokattavat litteroinnit"
+  indicators_body: "Näe vaiheittaiset ajat ja AI-tokenien käyttö jokaisesta sanelusta sekä keskiarvot Statsissa."
+  indicators_title: "Putken näkemykset"
+  languages_body: "Telemetria pysyy pois päältä, kunnes otat sen käyttöön, ja harjoituskontribuutiot pysyvät Macillasi tarkastelua, vientiä tai poistoa varten."
+  languages_title: "Yksityisyys ensin -diagnostiikka"
+  sensevoice_body: "Suoratoistokutsut, sammutus ja live-käyttöliittymäpäivitykset pysyvät nyt järjestyksessä ja tehokkaina."
+  sensevoice_title: "Luotettavampi sanelu"
+  summary: "Yksityinen diagnostiikka, muokattava historia, syvemmät suorituskykytiedot ja luotettavampi sanelu."
+  version_line: "Pindrop 1.22.0 · heinäkuu 2026"
 privacy:
   _self: "Tietosuoja"
 share:

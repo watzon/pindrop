@@ -1542,17 +1542,17 @@ bubble:
 notch:
   _self: "Notch"
 whatsnew:
-  footer: "Also: cancel a dictation mid-flight with a hotkey, launch silently to the menu bar, and type reliably into virtual machines."
-  formatting_body: "Long dictations can now break into readable paragraphs, entirely on device."
-  formatting_title: "Cleaner transcripts"
-  indicators_body: "Choose a discreet pill under the notch or a bubble that follows your caret."
-  indicators_title: "Notch and caret indicators"
-  languages_body: "Dictate in Polish, Hindi, and Malayalam. The interface now speaks Polish too."
-  languages_title: "Three new languages"
-  sensevoice_body: "A new fully local engine with fast, accurate multilingual recognition."
-  sensevoice_title: "SenseVoice transcription"
-  summary: "A new local engine, three new languages, and more control over every dictation."
-  version_line: "Pindrop 1.21.0 · July 2026"
+  footer: "Also: prompt presets are back in the menu bar, the recording orb has a new waveform, and existing libraries open reliably again."
+  formatting_body: "Correct saved transcripts in Library and keep a clear Edited marker."
+  formatting_title: "Editable transcripts"
+  indicators_body: "See per-stage timing and AI token usage for each dictation, plus averages in Stats."
+  indicators_title: "Pipeline insights"
+  languages_body: "Telemetry stays off until you opt in, and training contributions remain on your Mac for review, export, or deletion."
+  languages_title: "Privacy-first diagnostics"
+  sensevoice_body: "Streaming callbacks, shutdown, and live UI updates now stay ordered and efficient."
+  sensevoice_title: "More reliable dictation"
+  summary: "Private diagnostics, editable history, deeper performance insights, and more reliable dictation."
+  version_line: "Pindrop 1.22.0 · July 2026"
 privacy:
   _self: "Privacy"
 share:

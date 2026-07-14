@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "Entalhe"
 whatsnew:
-  footer: "Além disso: cancele um ditado em andamento com uma tecla de atalho, inicie silenciosamente na barra de menus e digite de forma confiável em máquinas virtuais."
-  formatting_body: "Ditados longos agora podem ser divididos em parágrafos legíveis, totalmente no dispositivo."
-  formatting_title: "Transcrições mais limpas"
-  indicators_body: "Escolha uma pílula discreta sob o entalhe ou uma bolha que acompanha o cursor de texto."
-  indicators_title: "Indicadores de entalhe e cursor"
-  languages_body: "Dite em polonês, hindi e malaiala. A interface agora também fala em polonês."
-  languages_title: "Três novos idiomas"
-  sensevoice_body: "Um novo mecanismo totalmente local com reconhecimento multilíngue rápido e preciso."
-  sensevoice_title: "Transcrição SenseVoice"
-  summary: "Um novo mecanismo local, três novos idiomas e mais controle sobre cada ditado."
-  version_line: "Pindrop 1.21.0 · julho de 2026"
+  footer: "Além disso: os predefinidos de prompt voltaram à barra de menus, o orbe de gravação tem uma nova forma de onda e as bibliotecas existentes abrem de forma confiável de novo."
+  formatting_body: "Corrija transcrições salvas na Library e mantenha um marcador Edited claro."
+  formatting_title: "Transcrições editáveis"
+  indicators_body: "Veja o tempo por etapa e o uso de tokens de AI em cada ditado, além das médias em Stats."
+  indicators_title: "Insights do pipeline"
+  languages_body: "A telemetria permanece desligada até você optar por participar, e as contribuições de treinamento ficam no seu Mac para revisão, exportação ou exclusão."
+  languages_title: "Diagnósticos com privacidade em primeiro lugar"
+  sensevoice_body: "Callbacks de streaming, encerramento e atualizações de UI ao vivo agora permanecem ordenados e eficientes."
+  sensevoice_title: "Ditado mais confiável"
+  summary: "Diagnósticos privados, histórico editável, insights de desempenho mais profundos e ditado mais confiável."
+  version_line: "Pindrop 1.22.0 · julho de 2026"
 privacy:
   _self: "Privacidade"
 share:

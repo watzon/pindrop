@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "Tacca"
 whatsnew:
-  footer: "Inoltre: annulla una dettatura in corso con un tasto di scelta rapida, avvia Pindrop silenziosamente nella barra dei menu e digita in modo affidabile nelle macchine virtuali."
-  formatting_body: "Le dettature lunghe ora possono suddividersi in paragrafi leggibili, interamente sul dispositivo."
-  formatting_title: "Trascrizioni più pulite"
-  indicators_body: "Scegli una pillola discreta sotto la tacca o una bolla che segue il cursore."
-  indicators_title: "Indicatori di tacca e cursore"
-  languages_body: "Detta in polacco, hindi e malayalam. Ora l'interfaccia parla anche polacco."
-  languages_title: "Tre nuove lingue"
-  sensevoice_body: "Un nuovo motore completamente locale con riconoscimento multilingue veloce e accurato."
-  sensevoice_title: "Trascrizione SenseVoice"
-  summary: "Un nuovo motore locale, tre nuove lingue e più controllo su ogni dettatura."
-  version_line: "Pindrop 1.21.0 · luglio 2026"
+  footer: "Inoltre: i preset dei prompt sono di nuovo nella barra dei menu, l'orbe di registrazione ha una nuova forma d'onda e le librerie esistenti si aprono di nuovo in modo affidabile."
+  formatting_body: "Correggi le trascrizioni salvate in Library e mantieni un chiaro contrassegno Edited."
+  formatting_title: "Trascrizioni modificabili"
+  indicators_body: "Vedi i tempi per fase e l'uso di token AI per ogni dettatura, più le medie in Stats."
+  indicators_title: "Approfondimenti sulla pipeline"
+  languages_body: "La telemetria resta disattivata finché non acconsenti, e i contributi di addestramento restano sul tuo Mac per revisione, esportazione o eliminazione."
+  languages_title: "Diagnostica con privacy al primo posto"
+  sensevoice_body: "I callback in streaming, lo spegnimento e gli aggiornamenti UI in tempo reale restano ora ordinati ed efficienti."
+  sensevoice_title: "Dettatura più affidabile"
+  summary: "Diagnostica privata, cronologia modificabile, approfondimenti sulle prestazioni più dettagliati e dettatura più affidabile."
+  version_line: "Pindrop 1.22.0 · luglio 2026"
 privacy:
   _self: "Privacy"
 share:

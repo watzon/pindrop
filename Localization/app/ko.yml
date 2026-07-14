@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "골짜기"
 whatsnew:
-  footer: "또한: 단축키로 진행 중인 받아쓰기를 취소하고, 메뉴 막대에서 조용히 실행하며, 가상 머신에도 안정적으로 입력할 수 있습니다."
-  formatting_body: "이제 긴 받아쓰기도 기기에서 완전히 처리되어 읽기 쉬운 단락으로 나뉩니다."
-  formatting_title: "더 깔끔해진 스크립트"
-  indicators_body: "골짜기 아래 눈에 띄지 않는 알약이나 캐럿을 따라다니는 거품 중에서 선택하세요."
-  indicators_title: "골짜기와 캐럿 표시기"
-  languages_body: "폴란드어, 힌디어, 말라얄람어로 받아쓰세요. 이제 인터페이스도 폴란드어를 지원합니다."
-  languages_title: "새로운 언어 3개"
-  sensevoice_body: "빠르고 정확한 다국어 인식을 제공하는 새로운 완전 로컬 엔진입니다."
-  sensevoice_title: "SenseVoice 전사"
-  summary: "새로운 로컬 엔진, 새로운 언어 3개, 그리고 모든 받아쓰기에 대한 더 강력한 제어 기능."
-  version_line: "Pindrop 1.21.0 · 2026년 7월"
+  footer: "또한: 프롬프트 프리셋이 메뉴 막대로 돌아왔고, 녹음 오브에 새 파형이 추가되었으며, 기존 라이브러리가 다시 안정적으로 열립니다."
+  formatting_body: "Library에 저장된 스크립트를 수정하고 명확한 Edited 표시를 유지하세요."
+  formatting_title: "편집 가능한 스크립트"
+  indicators_body: "각 받아쓰기의 단계별 시간과 AI 토큰 사용량, 그리고 Stats의 평균을 확인하세요."
+  indicators_title: "파이프라인 인사이트"
+  languages_body: "원격 분석은 옵트인하기 전까지 꺼져 있으며, 학습 기여 데이터는 검토·내보내기·삭제를 위해 Mac에 남습니다."
+  languages_title: "개인정보 보호 우선 진단"
+  sensevoice_body: "스트리밍 콜백, 종료, 실시간 UI 업데이트가 이제 순서대로 효율적으로 유지됩니다."
+  sensevoice_title: "더 안정적인 받아쓰기"
+  summary: "비공개 진단, 편집 가능한 기록, 더 깊은 성능 인사이트, 더 안정적인 받아쓰기."
+  version_line: "Pindrop 1.22.0 · 2026년 7월"
 privacy:
   _self: "개인정보 보호"
 share:

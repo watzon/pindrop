@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "Çentik"
 whatsnew:
-  footer: "Ayrıca: bir kısayol tuşuyla devam eden bir dikteyi iptal edin, menü çubuğuna sessizce başlatın ve sanal makinelere güvenilir şekilde yazın."
-  formatting_body: "Uzun dikteler artık tamamen cihaz üzerinde okunabilir paragraflara ayrılabiliyor."
-  formatting_title: "Daha temiz transkripsiyonlar"
-  indicators_body: "Çentiğin altında sade bir hap veya imlecinizi takip eden bir kabarcık seçin."
-  indicators_title: "Çentik ve imleç göstergeleri"
-  languages_body: "Lehçe, Hintçe ve Malayalamca dikte edin. Arayüz artık Lehçe de konuşuyor."
-  languages_title: "Üç yeni dil"
-  sensevoice_body: "Hızlı, doğru ve çok dilli tanımaya sahip yepyeni, tamamen yerel bir motor."
-  sensevoice_title: "SenseVoice transkripsiyonu"
-  summary: "Yeni bir yerel motor, üç yeni dil ve her dikte üzerinde daha fazla kontrol."
-  version_line: "Pindrop 1.21.0 · Temmuz 2026"
+  footer: "Ayrıca: istem ön ayarları menü çubuğuna geri döndü, kayıt küresinin yeni bir dalga biçimi var ve mevcut kitaplıklar yeniden güvenilir şekilde açılıyor."
+  formatting_body: "Library’deki kayıtlı transkripsiyonları düzeltin ve net bir Edited işaretini koruyun."
+  formatting_title: "Düzenlenebilir transkripsiyonlar"
+  indicators_body: "Her dikte için aşama bazlı süreyi ve AI jeton kullanımını, ayrıca Stats’taki ortalamaları görün."
+  indicators_title: "Boru hattı içgörüleri"
+  languages_body: "Telemetri siz katılmayı seçene kadar kapalı kalır ve eğitim katkıları inceleme, dışa aktarma veya silme için Mac’inizde kalır."
+  languages_title: "Gizlilik odaklı tanılama"
+  sensevoice_body: "Akış geri çağrıları, kapatma ve canlı UI güncellemeleri artık sıralı ve verimli kalıyor."
+  sensevoice_title: "Daha güvenilir dikte"
+  summary: "Özel tanılama, düzenlenebilir geçmiş, daha derin performans içgörüleri ve daha güvenilir dikte."
+  version_line: "Pindrop 1.22.0 · Temmuz 2026"
 privacy:
   _self: "Gizlilik"
 share:

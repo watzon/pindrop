@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "Hak"
 whatsnew:
-  footer: "Derudover: annuller en diktering midt i det hele med en genvejstast, start lydløst til menulinjen, og skriv pålideligt ind i virtuelle maskiner."
-  formatting_body: "Lange dikteringer kan nu opdeles i letlæselige afsnit, helt på enheden."
-  formatting_title: "Renere transskriptioner"
-  indicators_body: "Vælg en diskret pille under hakket eller en boble, der følger din markør."
-  indicators_title: "Hak- og markørindikatorer"
-  languages_body: "Diktér på polsk, hindi og malayalam. Grænsefladen taler nu også polsk."
-  languages_title: "Tre nye sprog"
-  sensevoice_body: "En ny, helt lokal motor med hurtig og præcis flersproget genkendelse."
-  sensevoice_title: "SenseVoice-transskription"
-  summary: "En ny lokal motor, tre nye sprog og mere kontrol over hver diktering."
-  version_line: "Pindrop 1.21.0 · juli 2026"
+  footer: "Derudover: promptforudindstillinger er tilbage i menulinjen, optagekuglen har en ny bølgeform, og eksisterende biblioteker åbner igen pålideligt."
+  formatting_body: "Ret gemte transskriptioner i Library, og behold en tydelig Edited-markering."
+  formatting_title: "Redigerbare transskriptioner"
+  indicators_body: "Se tidsforbrug pr. trin og AI-tokenforbrug for hver diktering samt gennemsnit i Stats."
+  indicators_title: "Pipeline-indsigt"
+  languages_body: "Telemetri forbliver slået fra, indtil du tilmelder dig, og træningsbidrag bliver på din Mac til gennemgang, eksport eller sletning."
+  languages_title: "Privatlivs-først diagnostik"
+  sensevoice_body: "Streaming-callbacks, nedlukning og live UI-opdateringer forbliver nu ordnede og effektive."
+  sensevoice_title: "Mere pålidelig diktering"
+  summary: "Privat diagnostik, redigerbar historik, dybere performance-indsigt og mere pålidelig diktering."
+  version_line: "Pindrop 1.22.0 · juli 2026"
 privacy:
   _self: "Anonymitet"
 share:

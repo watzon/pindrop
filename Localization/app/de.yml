@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "Kerbe"
 whatsnew:
-  footer: "Außerdem: ein Diktat mitten im Vorgang per Tastenkürzel abbrechen, lautlos in die Menüleiste starten und zuverlässig in virtuelle Maschinen tippen."
-  formatting_body: "Lange Diktate lassen sich jetzt vollständig auf dem Gerät in lesbare Absätze gliedern."
-  formatting_title: "Saubere Transkripte"
-  indicators_body: "Wähle eine dezente Pille unter der Kerbe oder eine Blase, die deinem Cursor folgt."
-  indicators_title: "Kerben- und Cursor-Anzeigen"
-  languages_body: "Diktiere auf Polnisch, Hindi und Malayalam. Die Oberfläche spricht jetzt auch Polnisch."
-  languages_title: "Drei neue Sprachen"
-  sensevoice_body: "Eine neue, vollständig lokale Engine mit schneller, präziser mehrsprachiger Erkennung."
-  sensevoice_title: "SenseVoice-Transkription"
-  summary: "Eine neue lokale Engine, drei neue Sprachen und mehr Kontrolle über jedes Diktat."
-  version_line: "Pindrop 1.21.0 · Juli 2026"
+  footer: "Außerdem: Prompt-Voreinstellungen sind zurück in der Menüleiste, die Aufnahme-Kugel hat eine neue Wellenform, und bestehende Bibliotheken öffnen wieder zuverlässig."
+  formatting_body: "Korrigiere gespeicherte Transkripte in Library und behalte eine klare Edited-Markierung."
+  formatting_title: "Bearbeitbare Transkripte"
+  indicators_body: "Sieh die Zeit pro Stufe und den AI-Token-Verbrauch für jedes Diktat sowie Durchschnittswerte in Stats."
+  indicators_title: "Pipeline-Einblicke"
+  languages_body: "Telemetrie bleibt aus, bis du sie aktivierst, und Trainingsbeiträge bleiben auf deinem Mac zur Prüfung, zum Export oder zum Löschen."
+  languages_title: "Diagnosen mit Datenschutz zuerst"
+  sensevoice_body: "Streaming-Callbacks, Beenden und Live-UI-Updates bleiben jetzt geordnet und effizient."
+  sensevoice_title: "Zuverlässigeres Diktat"
+  summary: "Private Diagnosen, bearbeitbare Historie, tiefere Performance-Einblicke und zuverlässigeres Diktat."
+  version_line: "Pindrop 1.22.0 · Juli 2026"
 privacy:
   _self: "Datenschutz"
 share:

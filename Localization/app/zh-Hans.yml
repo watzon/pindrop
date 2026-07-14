@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "刘海"
 whatsnew:
-  footer: "此外：可通过快捷键取消正在进行的听写、静默启动到菜单栏，并在虚拟机中可靠地输入文字。"
-  formatting_body: "长篇听写现在可以完全在设备上自动分成易读的段落。"
-  formatting_title: "更整洁的转录"
-  indicators_body: "选择刘海下方低调的胶囊，或跟随光标移动的气泡。"
-  indicators_title: "刘海与光标指示器"
-  languages_body: "支持波兰语、印地语和马拉雅拉姆语听写。界面现在也支持波兰语。"
-  languages_title: "三种新语言"
-  sensevoice_body: "全新的完全本地引擎，具有快速、准确的多语言识别能力。"
-  sensevoice_title: "SenseVoice 转录"
-  summary: "全新本地引擎、三种新语言，以及对每次听写更强的控制力。"
-  version_line: "Pindrop 1.21.0 · 2026 年 7 月"
+  footer: "此外：提示词预设已重回菜单栏，录音光球有了新波形，现有资料库也能再次可靠打开。"
+  formatting_body: "可在 Library 中修正已保存的转录，并保留清晰的 Edited 标记。"
+  formatting_title: "可编辑转录"
+  indicators_body: "查看每次听写各阶段耗时与 AI 令牌用量，以及 Stats 中的平均值。"
+  indicators_title: "流水线洞察"
+  languages_body: "遥测在你主动启用前保持关闭，训练贡献数据仍留在你的 Mac 上，可随时查看、导出或删除。"
+  languages_title: "隐私优先的诊断"
+  sensevoice_body: "流式回调、关闭流程与实时界面更新现在保持有序且高效。"
+  sensevoice_title: "更可靠的听写"
+  summary: "私密诊断、可编辑历史、更深入的性能洞察，以及更可靠的听写。"
+  version_line: "Pindrop 1.22.0 · 2026 年 7 月"
 privacy:
   _self: "隐私"
 share:

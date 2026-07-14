@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "Encoche"
 whatsnew:
-  footer: "Également : annulez une dictée en cours avec un raccourci, lancez Pindrop silencieusement dans la barre de menus, et saisissez du texte de façon fiable dans les machines virtuelles."
-  formatting_body: "Les dictées longues peuvent désormais être découpées en paragraphes lisibles, entièrement sur l'appareil."
-  formatting_title: "Transcriptions plus nettes"
-  indicators_body: "Choisissez une pilule discrète sous l'encoche ou une bulle qui suit votre curseur."
-  indicators_title: "Indicateurs d'encoche et de curseur"
-  languages_body: "Dictez en polonais, en hindi et en malayalam. L'interface parle désormais aussi polonais."
-  languages_title: "Trois nouvelles langues"
-  sensevoice_body: "Un nouveau moteur entièrement local avec une reconnaissance multilingue rapide et précise."
-  sensevoice_title: "Transcription SenseVoice"
-  summary: "Un nouveau moteur local, trois nouvelles langues et plus de contrôle sur chaque dictée."
-  version_line: "Pindrop 1.21.0 · juillet 2026"
+  footer: "Également : les préréglages de prompts sont de retour dans la barre de menus, l'orbe d'enregistrement a une nouvelle forme d'onde, et les bibliothèques existantes s'ouvrent à nouveau de façon fiable."
+  formatting_body: "Corrigez les transcriptions enregistrées dans Library et conservez un marqueur Edited clairement visible."
+  formatting_title: "Transcriptions modifiables"
+  indicators_body: "Consultez le temps par étape et l'utilisation de tokens AI pour chaque dictée, ainsi que les moyennes dans Stats."
+  indicators_title: "Perspectives du pipeline"
+  languages_body: "La télémétrie reste désactivée tant que vous ne l'activez pas, et les contributions d'entraînement restent sur votre Mac pour relecture, export ou suppression."
+  languages_title: "Diagnostics axés sur la confidentialité"
+  sensevoice_body: "Les callbacks de streaming, l'arrêt et les mises à jour d'interface en direct restent désormais ordonnés et efficaces."
+  sensevoice_title: "Dictée plus fiable"
+  summary: "Diagnostics privés, historique modifiable, analyses de performance plus approfondies et dictée plus fiable."
+  version_line: "Pindrop 1.22.0 · juillet 2026"
 privacy:
   _self: "Confidentialité"
 share:

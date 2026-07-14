@@ -1525,17 +1525,17 @@ bubble:
 notch:
   _self: "Crestătură"
 whatsnew:
-  footer: "De asemenea: anulați o dictare în curs cu o tastă rapidă, porniți silențios în bara de meniu și tastați fiabil în mașini virtuale."
-  formatting_body: "Dictările lungi pot acum fi împărțite în paragrafe lizibile, complet pe dispozitiv."
-  formatting_title: "Transcrieri mai clare"
-  indicators_body: "Alegeți o pilulă discretă sub crestătură sau o bulă care urmărește cursorul tău."
-  indicators_title: "Indicatoare de crestătură și cursor"
-  languages_body: "Dictați în poloneză, hindi și malayalam. Acum interfața vorbește și poloneza."
-  languages_title: "Trei limbi noi"
-  sensevoice_body: "Un nou motor complet local, cu recunoaștere multilingvă rapidă și precisă."
-  sensevoice_title: "Transcriere SenseVoice"
-  summary: "Un motor local nou, trei limbi noi și mai mult control asupra fiecărei dictări."
-  version_line: "Pindrop 1.21.0 · iulie 2026"
+  footer: "De asemenea: presetările de prompt revin în bara de meniu, sfera de înregistrare are o nouă formă de undă, iar bibliotecile existente se deschid din nou în mod fiabil."
+  formatting_body: "Corectați transcrierile salvate în Library și păstrați un marcaj Edited clar."
+  formatting_title: "Transcrieri editabile"
+  indicators_body: "Vedeți timpul pe etape și utilizarea de tokeni AI pentru fiecare dictare, plus mediile din Stats."
+  indicators_title: "Perspective asupra pipeline-ului"
+  languages_body: "Telemetria rămâne dezactivată până când optați să o activați, iar contribuțiile de antrenament rămân pe Mac-ul dvs. pentru revizuire, export sau ștergere."
+  languages_title: "Diagnostice cu confidențialitatea pe primul loc"
+  sensevoice_body: "Callback-urile de streaming, oprirea și actualizările UI live rămân acum ordonate și eficiente."
+  sensevoice_title: "Dictare mai fiabilă"
+  summary: "Diagnostice private, istoric editabil, perspective mai profunde de performanță și dictare mai fiabilă."
+  version_line: "Pindrop 1.22.0 · iulie 2026"
 privacy:
   _self: "Confidențialitate"
 share:
