@@ -541,8 +541,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func makeModelContainer() throws -> ModelContainer {
-        let configuration = ModelConfiguration(url: storeRepairService.storeURL())
+        try Self.makeModelContainer(at: storeRepairService.storeURL())
+    }
+
+    /// Keeps the schema and store URL in one configuration. Stores with
+    /// persistent history can otherwise defer an option mismatch until the
+    /// first fetch, which is where Library and stop-recording surface it.
+    static func makeModelContainer(at storeURL: URL) throws -> ModelContainer {
         let schema = Schema(versionedSchema: TranscriptionRecordSchemaV12.self)
+        let configuration = ModelConfiguration(schema: schema, url: storeURL)
         return try ModelContainer(
             for: schema,
             migrationPlan: TranscriptionRecordMigrationPlan.self,
