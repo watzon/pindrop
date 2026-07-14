@@ -1250,7 +1250,6 @@ u3:
   library_import_file_or_paste_link: "ファイルを読み込むかリンクを貼り付けてメディアを文字起こしします。"
   library_import_files: "ファイルを読み込む…"
   library_imported_audio: "読み込んだ音声"
-  library_insert_again: "再挿入"
   library_inserted_into: "%@ に挿入済み"
   library_m_spoken: "%d 分 話した"
   library_meeting_recording: "ミーティング録音"

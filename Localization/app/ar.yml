@@ -1250,7 +1250,6 @@ u3:
   library_import_file_or_paste_link: "استورد ملفًا أو الصق رابطًا لنسخ الوسائط."
   library_import_files: "استيراد ملفات…"
   library_imported_audio: "صوت مستورد"
-  library_insert_again: "إدراج مرة أخرى"
   library_inserted_into: "أُدرج في %@"
   library_m_spoken: "%d د منطوقة"
   library_meeting_recording: "تسجيل اجتماع"

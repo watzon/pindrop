@@ -1250,7 +1250,6 @@ u3:
   library_import_file_or_paste_link: "导入文件或粘贴链接以转录媒体。"
   library_import_files: "导入文件…"
   library_imported_audio: "导入的音频"
-  library_insert_again: "再次插入"
   library_inserted_into: "已插入到 %@"
   library_m_spoken: "已说 %d 分"
   library_meeting_recording: "会议录音"

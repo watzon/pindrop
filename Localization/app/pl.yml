@@ -1309,7 +1309,6 @@ u3:
   library_import_file_or_paste_link: "Zaimportuj plik lub wklej link, by transkrybować media."
   library_import_files: "Importuj pliki…"
   library_imported_audio: "Zaimportowane audio"
-  library_insert_again: "Wstaw ponownie"
   library_inserted_into: "wstawiono do %@"
   library_m_spoken: "%d min mówienia"
   library_meeting_recording: "Nagranie spotkania"

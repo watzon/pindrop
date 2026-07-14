@@ -1250,7 +1250,6 @@ u3:
   library_import_file_or_paste_link: "मीडिया ट्रांसक्राइब करने के लिए फ़ाइल आयात करें या लिंक पेस्ट करें।"
   library_import_files: "फ़ाइलें आयात करें…"
   library_imported_audio: "आयातित ऑडियो"
-  library_insert_again: "फिर से डालें"
   library_inserted_into: "%@ में डाला गया"
   library_m_spoken: "%d मि बोला"
   library_meeting_recording: "मीटिंग रिकॉर्डिंग"

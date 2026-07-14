@@ -674,7 +674,6 @@ struct HistoryView: View {
                     record: record,
                     retention: retention,
                     onCopy: { copyRecord(record) },
-                    onInsertAgain: { insertRecord(record) },
                     onExport: { format in exportRecord(record, format: format) },
                     onDelete: { pendingDeletionRecord = record }
                 )
@@ -880,19 +879,11 @@ struct HistoryView: View {
         }
     }
 
-    // MARK: - Copy / Insert / Export
+    // MARK: - Copy / Export
 
     private func copyRecord(_ record: TranscriptionRecord) {
         NotificationCenter.default.post(
             name: .copyTextWithUndo,
-            object: nil,
-            userInfo: ["text": record.text]
-        )
-    }
-
-    private func insertRecord(_ record: TranscriptionRecord) {
-        NotificationCenter.default.post(
-            name: .insertText,
             object: nil,
             userInfo: ["text": record.text]
         )

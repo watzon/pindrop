@@ -1267,7 +1267,6 @@ u3:
   library_import_file_or_paste_link: "Import a file or paste a link to transcribe media."
   library_import_files: "Import Files…"
   library_imported_audio: "Imported Audio"
-  library_insert_again: "Insert again"
   library_inserted_into: "inserted into %@"
   library_m_spoken: "%d m spoken"
   library_meeting_recording: "Meeting Recording"

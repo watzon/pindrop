@@ -14,7 +14,6 @@ struct LibraryExpandedPlayerCard: View {
     let record: TranscriptionRecord
     let retention: DictationAudioRetention
     let onCopy: () -> Void
-    let onInsertAgain: () -> Void
     let onExport: (TranscriptExportFormat) -> Void
     let onDelete: () -> Void
 
@@ -124,11 +123,6 @@ struct LibraryExpandedPlayerCard: View {
                 title: localized("Copy", locale: locale),
                 systemImage: "doc.on.doc",
                 action: onCopy
-            )
-            SecondaryButton(
-                title: localized("Insert again", locale: locale),
-                systemImage: "arrow.uturn.backward",
-                action: onInsertAgain
             )
             ExportMenuButton(
                 title: localized("Export", locale: locale),

@@ -1257,7 +1257,6 @@ u3:
   library_import_file_or_paste_link: "মিডিয়া ট্রান্সক্রাইব করতে ফাইল আমদানি বা লিংক পেস্ট করুন।"
   library_import_files: "ফাইল আমদানি…"
   library_imported_audio: "আমদানিকৃত অডিও"
-  library_insert_again: "আবার ঢোকান"
   library_inserted_into: "%@-এ ঢোকানো"
   library_m_spoken: "%d মি কথা"
   library_meeting_recording: "মিটিং রেকর্ডিং"

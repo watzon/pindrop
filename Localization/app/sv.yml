@@ -1250,7 +1250,6 @@ u3:
   library_import_file_or_paste_link: "Importera en fil eller klistra in en länk för att transkribera media."
   library_import_files: "Importera filer…"
   library_imported_audio: "Importerat ljud"
-  library_insert_again: "Infoga igen"
   library_inserted_into: "infogat i %@"
   library_m_spoken: "%d m talat"
   library_meeting_recording: "Mötesinspelning"

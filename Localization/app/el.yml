@@ -1250,7 +1250,6 @@ u3:
   library_import_file_or_paste_link: "Εισαγάγετε αρχείο ή επικολλήστε σύνδεσμο για μεταγραφή πολυμέσων."
   library_import_files: "Εισαγωγή αρχείων…"
   library_imported_audio: "Εισαγόμενο ήχο"
-  library_insert_again: "Εισαγωγή ξανά"
   library_inserted_into: "εισήχθη στο %@"
   library_m_spoken: "%d λ ομιλίας"
   library_meeting_recording: "Εγγραφή σύσκεψης"

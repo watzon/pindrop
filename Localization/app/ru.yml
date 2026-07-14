@@ -1250,7 +1250,6 @@ u3:
   library_import_file_or_paste_link: "Импортируйте файл или вставьте ссылку для транскрипции."
   library_import_files: "Импорт файлов…"
   library_imported_audio: "Импортированное аудио"
-  library_insert_again: "Вставить снова"
   library_inserted_into: "вставлено в %@"
   library_m_spoken: "%d м речи"
   library_meeting_recording: "Запись встречи"

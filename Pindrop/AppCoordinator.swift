@@ -136,8 +136,6 @@ extension Notification.Name {
     static let showWhatsNew = Notification.Name("tech.watzon.pindrop.showWhatsNew")
     /// UI posts this with `userInfo["text"]` (String) to copy with clipboard-undo toast.
     static let copyTextWithUndo = Notification.Name("tech.watzon.pindrop.copyTextWithUndo")
-    /// UI posts this with `userInfo["text"]` (String) to re-insert via OutputManager.
-    static let insertText = Notification.Name("tech.watzon.pindrop.insertText")
 }
 
 struct HotkeyConflict: Equatable {
@@ -998,19 +996,6 @@ final class AppCoordinator {
                 Task { @MainActor [weak self] in
                     guard let self, !self.isShutdown else { return }
                     self.handleCopyTextWithUndoNotification(notification)
-                }
-            }
-        )
-
-        notificationResources.install(
-            NotificationCenter.default.addObserver(
-                forName: .insertText,
-                object: nil,
-                queue: .main
-            ) { [weak self] notification in
-                Task { @MainActor [weak self] in
-                    guard let self, !self.isShutdown else { return }
-                    await self.handleInsertTextNotification(notification)
                 }
             }
         )
@@ -4791,18 +4776,6 @@ final class AppCoordinator {
     @objc private func handleCopyTextWithUndoNotification(_ notification: Notification) {
         guard let text = notification.userInfo?["text"] as? String else { return }
         copyTextWithUndo(text)
-    }
-
-    private func handleInsertTextNotification(_ notification: Notification) async {
-        guard let text = notification.userInfo?["text"] as? String, !text.isEmpty else { return }
-        do {
-            _ = try await outputManager.output(text)
-            Log.output.info("Re-inserted transcript into active app")
-        } catch {
-            Log.output.error("Failed to re-insert transcript: \(error)")
-            // Fall back to clipboard so the text is not lost.
-            copyTextWithUndo(text)
-        }
     }
 
     private func handlePasteLastTranscript() async {

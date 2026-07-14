@@ -1250,7 +1250,6 @@ u3:
   library_import_file_or_paste_link: "Importálj fájlt vagy illessz be hivatkozást média átírásához."
   library_import_files: "Fájlok importálása…"
   library_imported_audio: "Importált hang"
-  library_insert_again: "Beillesztés újra"
   library_inserted_into: "beillesztve ide: %@"
   library_m_spoken: "%d p beszéd"
   library_meeting_recording: "Találkozófelvétel"

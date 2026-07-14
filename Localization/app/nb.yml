@@ -1250,7 +1250,6 @@ u3:
   library_import_file_or_paste_link: "Importer en fil eller lim inn en lenke for å transkribere media."
   library_import_files: "Importer filer…"
   library_imported_audio: "Importert lyd"
-  library_insert_again: "Sett inn igjen"
   library_inserted_into: "satt inn i %@"
   library_m_spoken: "%d m talt"
   library_meeting_recording: "Møteopptak"

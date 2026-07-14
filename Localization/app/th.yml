@@ -1250,7 +1250,6 @@ u3:
   library_import_file_or_paste_link: "นำเข้าไฟล์หรือวางลิงก์เพื่อถอดเสียงสื่อ"
   library_import_files: "นำเข้าไฟล์…"
   library_imported_audio: "เสียงที่นำเข้า"
-  library_insert_again: "แทรกอีกครั้ง"
   library_inserted_into: "แทรกไปยัง %@"
   library_m_spoken: "พูด %d น."
   library_meeting_recording: "การบันทึกการประชุม"

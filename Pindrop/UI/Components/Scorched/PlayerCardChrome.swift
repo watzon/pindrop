@@ -99,7 +99,6 @@ struct PlayerCardChrome<Meta: View, Player: View, Actions: View>: View {
     } actions: {
         HStack(spacing: 8) {
             SecondaryButton(title: "Copy", systemImage: "doc.on.doc", action: {})
-            SecondaryButton(title: "Insert again", systemImage: "arrow.uturn.backward", action: {})
             SecondaryButton(title: "Export", systemImage: "square.and.arrow.up", action: {})
             Spacer()
             DestructiveGhostButton(title: "Delete", action: {})
