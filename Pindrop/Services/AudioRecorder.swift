@@ -2412,7 +2412,7 @@ final class MixedAudioCaptureBackend: AudioCaptureBackend {
 
 /// Per-band RMS levels for the current audio buffer, normalized 0…1 with the same
 /// gain curve as `AudioCaptureUtilities.calculateAudioLevel`. Drives the Orb
-/// indicator's layered EKG traces.
+/// indicator's low, mid, and high waveform traces.
 struct AudioBandLevels: Equatable {
     var low: Float
     var mid: Float
@@ -2495,8 +2495,8 @@ final class ThreeBandLevelAnalyzer {
 /// Visualization-only automatic gain control. Tracks a slow-decaying envelope of
 /// the incoming overall level and rescales levels so quiet sources (soft voices,
 /// low-gain mics, far-field devices) still fill the visual range while loud
-/// sources don't change. Only indicator waveforms and the orb's EKG consume the
-/// normalized values — recorded audio and transcription input are untouched.
+/// sources don't change. Only indicator waveforms consume the normalized values;
+/// recorded audio and transcription input are untouched.
 /// Instances must only be used from the capture callback's serial context.
 final class AudioLevelNormalizer {
     /// The envelope never adapts below this, so silence and room noise are not

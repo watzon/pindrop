@@ -5,8 +5,8 @@
 //  Created on 2026-07-06.
 //
 //  The Orb floating indicator: a liquid-glass orb resting in a screen corner
-//  (bottom-right by default). Its interior renders three audio-reactive band
-//  blobs; hovering (or tapping to start) makes the orb itself swell and churn.
+//  (bottom-right by default). Its interior renders three subtly offset,
+//  audio-reactive frequency-band waveforms that rest flat below the input floor.
 //  While recording, a compact pill pops out of the orb's side carrying the timer
 //  and stop control; while overlay streaming is active the same pill grows to
 //  hold the live transcript with the timer/actions row on top. Orb and pill are
@@ -1068,7 +1068,7 @@ struct OrbIndicatorView: View {
         return controller.isHovered ? sz.orbHoverDiameter : sz.orbIdleDiameter
     }
 
-    private var ribbonPalette: OrbRibbonPalette {
+    private var waveformPalette: OrbWaveformPalette {
         // `theme.revision` invalidates only on real theme/appearance changes.
         // Audio/transcript/duration ticks must reuse the resolved palette.
         let _ = theme.revision
@@ -1077,7 +1077,7 @@ struct OrbIndicatorView: View {
         let key = isDark
             ? PindropThemeStorageKeys.darkThemePresetID
             : PindropThemeStorageKeys.lightThemePresetID
-        return OrbRibbonPalette.cached(
+        return OrbWaveformPalette.cached(
             presetID: UserDefaults.standard.string(forKey: key),
             variant: isDark ? .dark : .light,
             themeRevision: theme.revision
@@ -1279,10 +1279,12 @@ struct OrbIndicatorView: View {
         } label: {
             ZStack {
                 OrbGlassFillView(
-                    palette: ribbonPalette,
-                    // Closure, not value: bandLevels is deliberately non-@Published, so it
-                    // must be polled inside the shader timeline tick to stay live.
-                    bands: { [weak state] in state?.bandLevels ?? .zero },
+                    palette: waveformPalette,
+                    // Closure, not values: meters are deliberately non-@Published, so
+                    // the shader timeline polls them without invalidating the orb shell.
+                    sample: { [weak state] _ in
+                        (state?.bandLevels ?? .zero, state?.audioLevel ?? 0)
+                    },
                     isHovered: controller.isHovered,
                     isRecording: state.isRecording,
                     isProcessing: state.isProcessing,
@@ -1293,20 +1295,11 @@ struct OrbIndicatorView: View {
                     .strokeBorder(Color.white.opacity(0.14), lineWidth: 1.5)
                     .blendMode(.plusLighter)
 
-                if state.isRecording {
-                    Circle()
-                        .stroke(
-                            Color.white.opacity(0.14),
-                            style: StrokeStyle(lineWidth: 1, dash: [2.5, 2.5])
-                        )
-                        .frame(width: 44, height: 44)
-                        .allowsHitTesting(false)
-                }
             }
             .frame(width: orbDiameter, height: orbDiameter)
             .clipShape(Circle())
             .shadow(
-                color: ribbonPalette.glowColor.opacity(state.isInputMuted ? 0 : (controller.isHovered ? 1 : 0.78)),
+                color: waveformPalette.glowColor.opacity(state.isInputMuted ? 0 : (controller.isHovered ? 1 : 0.78)),
                 radius: state.isRecording ? 26 : 18,
                 y: state.isRecording ? 8 : 6
             )
@@ -1468,10 +1461,50 @@ private struct OrbGooSurface: View, Animatable {
     }
 }
 
-private struct OrbGlassFillView: View {
-    let palette: OrbRibbonPalette
-    /// Sampled once per timeline tick — see the call site for why this is a closure.
-    let bands: () -> AudioBandLevels
+/// Converts the RMS-derived, AGC-normalized meters into restrained waveform
+/// amplitudes. The input floor acts as the visual equivalent of a noise gate:
+/// below it every band resolves to exactly zero, so all three traces stay flat.
+enum OrbWaveformResponse {
+    static let baselineLevel: Float = 0.07
+    static let bandFloor: Float = 0.025
+    static let fullResponseLevel: Float = 0.28
+    static let fullBandLevel: Float = 0.72
+    static let maximumResponse: Float = 0.92
+
+    static func levels(bands: AudioBandLevels, overall: Float) -> AudioBandLevels {
+        let inputResponse = smoothstep(
+            edge0: baselineLevel,
+            edge1: fullResponseLevel,
+            value: overall
+        )
+        guard inputResponse > 0 else { return .zero }
+
+        func response(for band: Float) -> Float {
+            let bandResponse = smoothstep(
+                edge0: bandFloor,
+                edge1: fullBandLevel,
+                value: band
+            )
+            return maximumResponse * bandResponse * inputResponse
+        }
+
+        return AudioBandLevels(
+            low: response(for: bands.low),
+            mid: response(for: bands.mid),
+            high: response(for: bands.high)
+        )
+    }
+
+    private static func smoothstep(edge0: Float, edge1: Float, value: Float) -> Float {
+        let t = min(1, max(0, (value - edge0) / (edge1 - edge0)))
+        return t * t * (3 - 2 * t)
+    }
+}
+
+struct OrbGlassFillView: View {
+    let palette: OrbWaveformPalette
+    /// Sampled once per timeline tick — see the call sites for why this is a closure.
+    let sample: (Date) -> (bands: AudioBandLevels, overall: Float)
     let isHovered: Bool
     let isRecording: Bool
     let isProcessing: Bool
@@ -1480,10 +1513,10 @@ private struct OrbGlassFillView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// Shader time must be app-relative: absolute reference-date seconds (~8e8) exceed
-    /// Float32 precision (ulp ≈ 32 s), which froze the aurora entirely.
+    /// Float32 precision (ulp ≈ 32 s), which would freeze the waveform phase.
     private static let animationEpoch = Date.timeIntervalSinceReferenceDate
 
-    private var ribbonIntensity: Float {
+    private var waveformIntensity: Float {
         if isMuted { return 0 }
         if isHovered { return 1.15 }
         if isRecording { return 1 }
@@ -1502,9 +1535,13 @@ private struct OrbGlassFillView: View {
                     ? 0
                     : timeline.date.timeIntervalSinceReferenceDate - Self.animationEpoch
                 let speed = isProcessing ? 0.18 : 0.42
-                let liveBands = isRecording && !isMuted && !reduceMotion
-                    ? bands()
-                    : .zero
+                let meter = isRecording && !isMuted && !reduceMotion
+                    ? sample(timeline.date)
+                    : (bands: AudioBandLevels.zero, overall: Float.zero)
+                let waveformLevels = OrbWaveformResponse.levels(
+                    bands: meter.bands,
+                    overall: meter.overall
+                )
 
                 Rectangle()
                     .fill(Color.white)
@@ -1514,12 +1551,11 @@ private struct OrbGlassFillView: View {
                             .float(Float(baseTime * speed)),
                             .color(palette.primaryColor),
                             .color(palette.secondaryColor),
-                            .float(ribbonIntensity),
-                            .float(isRecording ? 1 : 0),
+                            .float(waveformIntensity),
                             .float(isMuted ? 1 : 0),
-                            .float(liveBands.low),
-                            .float(liveBands.mid),
-                            .float(liveBands.high)
+                            .float(waveformLevels.low),
+                            .float(waveformLevels.mid),
+                            .float(waveformLevels.high)
                         )
                     )
             }
@@ -1530,7 +1566,7 @@ private struct OrbGlassFillView: View {
 
 // MARK: - Palette
 
-struct OrbRibbonPalette: Equatable {
+struct OrbWaveformPalette: Equatable {
     let primaryHex: String
     let secondaryHex: String
     let glowHex: String
@@ -1562,7 +1598,7 @@ struct OrbRibbonPalette: Equatable {
     nonisolated(unsafe) private static var cachedThemeRevision: Int?
     // A revision change invalidates all prior palettes. Keeping only the current
     // revision prevents accessibility/theme refreshes from growing this cache forever.
-    nonisolated(unsafe) private static var cache: [CacheKey: OrbRibbonPalette] = [:]
+    nonisolated(unsafe) private static var cache: [CacheKey: OrbWaveformPalette] = [:]
 
     /// Cached by preset ID, appearance variant, and theme revision so root
     /// audio/transcript/duration invalidations reuse the resolved palette.
@@ -1570,7 +1606,7 @@ struct OrbRibbonPalette: Equatable {
         presetID: String?,
         variant: PindropThemeVariant,
         themeRevision: Int
-    ) -> OrbRibbonPalette {
+    ) -> OrbWaveformPalette {
         let resolvedPresetID = presetID ?? PindropThemePresetCatalog.defaultPresetID
         let key = CacheKey(
             presetID: resolvedPresetID,
@@ -1602,24 +1638,24 @@ struct OrbRibbonPalette: Equatable {
     static func forPresetID(
         _ presetID: String?,
         variant: PindropThemeVariant = .light
-    ) -> OrbRibbonPalette {
+    ) -> OrbWaveformPalette {
         switch presetID ?? PindropThemePresetCatalog.defaultPresetID {
         case "library":
-            return OrbRibbonPalette(
+            return OrbWaveformPalette(
                 primaryHex: "#6FDCAF",
                 secondaryHex: "#EFD9A8",
                 glowHex: "#1F6D53",
                 glowOpacity: 0.45
             )
         case "pindrop":
-            return OrbRibbonPalette(
+            return OrbWaveformPalette(
                 primaryHex: "#F2B54A",
                 secondaryHex: "#F7E3BC",
                 glowHex: "#F2B54A",
                 glowOpacity: 0.35
             )
         case "harbor":
-            return OrbRibbonPalette(
+            return OrbWaveformPalette(
                 primaryHex: "#4FB3D1",
                 secondaryHex: "#CFE9F0",
                 glowHex: "#14708A",
@@ -1627,11 +1663,11 @@ struct OrbRibbonPalette: Equatable {
             )
         default:
             // Derived presets track the catalog accent for the active variant so the
-            // ribbon hue matches the rest of the themed UI (spec §15).
+            // waveform hue matches the rest of the themed UI (spec §15).
             let accent = PindropThemePresetCatalog
                 .profile(for: presetID, variant: variant)
                 .accentHex
-            return OrbRibbonPalette(
+            return OrbWaveformPalette(
                 primaryHex: accent,
                 secondaryHex: mixedHex(accent, with: "#EFEBE2", ratio: 0.65),
                 glowHex: accent,
@@ -1665,207 +1701,14 @@ struct OrbRibbonPalette: Equatable {
     }
 }
 
-/// Literal dark floating-surface colors. The aurora itself is theme-driven by
-/// `OrbRibbonPalette`; the body remains stable over arbitrary desktop content.
+/// Literal dark floating-surface colors. The waveform itself is theme-driven by
+/// `OrbWaveformPalette`; the body remains stable over arbitrary desktop content.
 enum OrbPalette {
     static let surface = Color(nsColor: NSColor(pindropHex: "#181511") ?? .black).opacity(0.92)
     static let rim = Color.white.opacity(0.12)
     static let rimSoft = Color.white.opacity(0.14)
-    static let depthTint = Color(nsColor: NSColor(pindropHex: "#1F6D53") ?? .systemGreen).opacity(0.22)
-
-    static let bandLow = Color(nsColor: NSColor(pindropHex: "#17614A") ?? .systemGreen).opacity(0.6)
-    static let bandMid = Color(nsColor: NSColor(pindropHex: "#6FDCAF") ?? .systemMint)
-    static let bandHigh = Color(nsColor: NSColor(pindropHex: "#EFD9A8") ?? .systemYellow).opacity(0.75)
 }
 
-// MARK: - Band blobs (audio-reactive orb interior)
-
-/// Phase state for the three band-driven blobs. Wobble and drift phases are
-/// integrated per frame (dt-based) so churn speed can follow band energy without
-/// phase jumps, and the levels get VU-meter ballistics (fast attack, slow
-/// release) so the motion stays flowy instead of tracking every syllable spike.
-final class OrbBlobModel {
-    struct Blob {
-        var wobblePhases: [Double]
-        var driftPhase: Double
-    }
-
-    /// Integer harmonics keep each blob's outline closed (periodic in θ).
-    static let harmonics: [Double] = [2, 3, 5]
-    static let harmonicWeights: [Double] = [0.55, 0.30, 0.15]
-
-    private(set) var blobs: [Blob]
-    /// Smoothed low/mid/high levels, 0…1.
-    private(set) var levels: [Double] = [0, 0, 0]
-    private var lastTime: TimeInterval = 0
-
-    init() {
-        blobs = (0..<3).map { index in
-            Blob(
-                wobblePhases: [0.0, 2.1, 4.2].map { $0 + Double(index) * 1.3 },
-                driftPhase: Double(index) * 2.09
-            )
-        }
-    }
-
-    func advance(to time: TimeInterval, bands: AudioBandLevels, overall: Float, isLive: Bool, isExcited: Bool) {
-        let dt = lastTime == 0 ? 1.0 / 40.0 : min(0.1, max(0.0, time - lastTime))
-        lastTime = time
-
-        // Fall back to the overall level when band data isn't flowing (e.g. capture
-        // backends that only report RMS) so the orb never looks dead while recording.
-        var targets = [Double(bands.low), Double(bands.mid), Double(bands.high)]
-        if targets.reduce(0, +) < 0.01 {
-            let level = Double(overall)
-            targets = [level, level * 0.7, level * 0.45]
-        }
-        if !isLive {
-            if isExcited {
-                // Hover: the orb perks up — a quicker, fuller pulse than the idle breath.
-                let pulse = 0.34 + 0.10 * sin(time * 2.6)
-                targets = [pulse, pulse * 0.78, pulse * 0.58]
-            } else {
-                // Idle: lazy drifting blobs with a slow breathing swell.
-                let breath = 0.18 + 0.07 * sin(time * 1.15)
-                targets = [breath, breath * 0.72, breath * 0.52]
-            }
-        }
-
-        for index in levels.indices {
-            let target = min(1.0, targets[index])
-            let rate = target > levels[index] ? 9.0 : 2.0
-            levels[index] += (target - levels[index]) * min(1.0, rate * dt)
-        }
-
-        for index in blobs.indices {
-            let churn = 0.5 + levels[index] * 2.6
-            for k in blobs[index].wobblePhases.indices {
-                blobs[index].wobblePhases[k] += dt * churn * (0.8 + Double(k) * 0.5)
-            }
-            blobs[index].driftPhase += dt * (0.3 + levels[index] * 1.1)
-        }
-    }
-}
-
-/// The orb's interior: three translucent morphing blobs, one per frequency band,
-/// drifting and churning with the voice under additive blending, plus a hot core
-/// highlight — the flowy, organic look rather than a spiky trace.
-struct OrbBlobsView: View {
-    /// Meter sample polled once per visual frame inside `TimelineView`.
-    /// Production passes a non-publishing state read; the What's New demo can
-    /// synthesize levels from the same tick without a second clock or
-    /// `ObservableObject` root invalidation.
-    let sample: (Date) -> (bands: AudioBandLevels, overall: Float)
-    let isLive: Bool
-    let isExcited: Bool
-
-    @State private var model = OrbBlobModel()
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    private static let blobColors = [OrbPalette.bandLow, OrbPalette.bandMid, OrbPalette.bandHigh]
-    private static let baseRadiusFractions: [CGFloat] = [0.40, 0.34, 0.27]
-
-    /// Convenience for live meter state that is deliberately not `@Published`.
-    /// Samples are read on the blob timeline only — never mirrored into a second
-    /// Combine/timer cadence at the call site.
-    init(state: FloatingIndicatorState, isLive: Bool, isExcited: Bool) {
-        self.sample = { _ in (state.bandLevels, state.audioLevel) }
-        self.isLive = isLive
-        self.isExcited = isExcited
-    }
-
-    init(
-        sample: @escaping (Date) -> (bands: AudioBandLevels, overall: Float),
-        isLive: Bool,
-        isExcited: Bool
-    ) {
-        self.sample = sample
-        self.isLive = isLive
-        self.isExcited = isExcited
-    }
-
-    var body: some View {
-        // Single 40 Hz cadence for blob integration + meter sampling. Callers must
-        // not stack a second timer/timeline that publishes levels into the root.
-        TimelineView(.animation(minimumInterval: 1.0 / 40.0, paused: reduceMotion)) { timeline in
-            let meter = sample(timeline.date)
-            Canvas { context, size in
-                model.advance(
-                    to: timeline.date.timeIntervalSinceReferenceDate,
-                    bands: meter.bands,
-                    overall: meter.overall,
-                    isLive: isLive,
-                    isExcited: isExcited
-                )
-                context.blendMode = .plusLighter
-
-                let center = CGPoint(x: size.width / 2, y: size.height / 2)
-                let scale = min(size.width, size.height) / 2
-                for index in model.blobs.indices {
-                    drawBlob(index: index, in: &context, center: center, scale: scale)
-                }
-                drawCore(in: &context, center: center, scale: scale)
-            }
-        }
-        .allowsHitTesting(false)
-    }
-
-    private func drawBlob(index: Int, in context: inout GraphicsContext, center: CGPoint, scale: CGFloat) {
-        let blob = model.blobs[index]
-        let level = model.levels[index]
-        let color = Self.blobColors[index]
-
-        // The blob swells with its band and wanders around the orb centre.
-        let radius = scale * Self.baseRadiusFractions[index] * (0.8 + level * 0.55)
-        let wander = scale * (0.16 + level * 0.10)
-        let blobCenter = CGPoint(
-            x: center.x + cos(blob.driftPhase) * wander,
-            y: center.y + sin(blob.driftPhase * 1.31 + Double(index)) * wander
-        )
-        let wobbleAmplitude = 0.10 + level * 0.35
-
-        var path = Path()
-        let steps = 72
-        for step in 0...steps {
-            let theta = Double(step) / Double(steps) * 2 * .pi
-            var wobble = 0.0
-            for (k, harmonic) in OrbBlobModel.harmonics.enumerated() {
-                wobble += sin(harmonic * theta + blob.wobblePhases[k]) * OrbBlobModel.harmonicWeights[k]
-            }
-            let r = radius * (1 + wobble * wobbleAmplitude)
-            let point = CGPoint(
-                x: blobCenter.x + cos(theta) * r,
-                y: blobCenter.y + sin(theta) * r
-            )
-            if step == 0 { path.move(to: point) } else { path.addLine(to: point) }
-        }
-        path.closeSubpath()
-
-        let shading = GraphicsContext.Shading.radialGradient(
-            Gradient(colors: [color.opacity(0.72 + level * 0.2), color.opacity(0.05)]),
-            center: blobCenter,
-            startRadius: 0,
-            endRadius: radius * 1.35
-        )
-        context.drawLayer { layer in
-            layer.addFilter(.blur(radius: 1.6))
-            layer.fill(path, with: shading)
-        }
-    }
-
-    private func drawCore(in context: inout GraphicsContext, center: CGPoint, scale: CGFloat) {
-        let energy = model.levels.reduce(0, +) / 3
-        let radius = scale * (0.16 + energy * 0.16)
-        let rect = CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2)
-        let shading = GraphicsContext.Shading.radialGradient(
-            Gradient(colors: [Color.white.opacity(0.55 + energy * 0.35), Color.white.opacity(0)]),
-            center: center,
-            startRadius: 0,
-            endRadius: radius
-        )
-        context.fill(Path(ellipseIn: rect), with: shading)
-    }
-}
 
 // MARK: - Previews
 

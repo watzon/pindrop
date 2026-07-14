@@ -1064,3 +1064,61 @@ struct AudioLevelNormalizerTests {
         #expect(sut.currentGain > adaptedGain)
     }
 }
+
+@Suite
+struct OrbWaveformResponseTests {
+    @Test func inputAtOrBelowBaselineKeepsEveryTraceFlat() {
+        let loudBands = AudioBandLevels(low: 1, mid: 1, high: 1)
+
+        let below = OrbWaveformResponse.levels(
+            bands: loudBands,
+            overall: OrbWaveformResponse.baselineLevel - 0.001
+        )
+        let atBaseline = OrbWaveformResponse.levels(
+            bands: loudBands,
+            overall: OrbWaveformResponse.baselineLevel
+        )
+
+        #expect(below == .zero)
+        #expect(atBaseline == .zero)
+    }
+
+    @Test func individualBandsRemainFlatBelowTheirFloor() {
+        let response = OrbWaveformResponse.levels(
+            bands: AudioBandLevels(
+                low: OrbWaveformResponse.bandFloor,
+                mid: 0.5,
+                high: OrbWaveformResponse.bandFloor - 0.001
+            ),
+            overall: 1
+        )
+
+        #expect(response.low == 0)
+        #expect(response.mid > 0)
+        #expect(response.high == 0)
+    }
+
+    @Test func responsePreservesBandOrderingAndCapsPeakMotion() {
+        let response = OrbWaveformResponse.levels(
+            bands: AudioBandLevels(low: 1, mid: 0.6, high: 0.25),
+            overall: 1
+        )
+
+        #expect(response.low > response.mid)
+        #expect(response.mid > response.high)
+        #expect(response.low <= OrbWaveformResponse.maximumResponse)
+        #expect(response.mid <= OrbWaveformResponse.maximumResponse)
+        #expect(response.high <= OrbWaveformResponse.maximumResponse)
+    }
+
+    @Test func ordinarySpeechLevelsProduceVisibleMotion() {
+        let response = OrbWaveformResponse.levels(
+            bands: AudioBandLevels(low: 0.3, mid: 0.25, high: 0.18),
+            overall: 0.2
+        )
+
+        #expect(response.low > 0.18)
+        #expect(response.mid > 0.12)
+        #expect(response.high > 0.05)
+    }
+}

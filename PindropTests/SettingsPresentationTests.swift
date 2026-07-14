@@ -180,25 +180,25 @@ struct SettingsPresentationTests {
 
     // MARK: - Floating surface presentation
 
-    @Test func orbRibbonPaletteUsesExactArtboardRemaps() {
-        let library = OrbRibbonPalette.forPresetID("library")
+    @Test func orbWaveformPaletteUsesExactArtboardRemaps() {
+        let library = OrbWaveformPalette.forPresetID("library")
         #expect(library.primaryHex == "#6FDCAF")
         #expect(library.secondaryHex == "#EFD9A8")
         #expect(library.glowHex == "#1F6D53")
 
-        let pindrop = OrbRibbonPalette.forPresetID("pindrop")
+        let pindrop = OrbWaveformPalette.forPresetID("pindrop")
         #expect(pindrop.primaryHex == "#F2B54A")
         #expect(pindrop.secondaryHex == "#F7E3BC")
 
-        let harbor = OrbRibbonPalette.forPresetID("harbor")
+        let harbor = OrbWaveformPalette.forPresetID("harbor")
         #expect(harbor.primaryHex == "#4FB3D1")
         #expect(harbor.secondaryHex == "#CFE9F0")
     }
 
-    @Test func orbRibbonPaletteDerivesUnspecifiedPresetFromAccent() {
+    @Test func orbWaveformPaletteDerivesUnspecifiedPresetFromAccent() {
         // Derived presets follow the catalog's (contrast-tuned) accent, not the raw
-        // artboard table, so the ribbon matches the rest of the themed UI.
-        let signal = OrbRibbonPalette.forPresetID("signal")
+        // artboard table, so the waveform matches the rest of the themed UI.
+        let signal = OrbWaveformPalette.forPresetID("signal")
         let catalogAccent = PindropThemePresetCatalog
             .profile(for: "signal", variant: .light)
             .accentHex
@@ -207,10 +207,10 @@ struct SettingsPresentationTests {
         #expect(signal.glowHex == signal.primaryHex)
     }
 
-    @Test func orbRibbonPaletteTracksVariantAccentForDerivedPresets() {
+    @Test func orbWaveformPaletteTracksVariantAccentForDerivedPresets() {
         for presetID in ["paper", "evergreen", "signal"] {
             for variant in [PindropThemeVariant.light, .dark] {
-                let palette = OrbRibbonPalette.forPresetID(presetID, variant: variant)
+                let palette = OrbWaveformPalette.forPresetID(presetID, variant: variant)
                 let catalogAccent = PindropThemePresetCatalog
                     .profile(for: presetID, variant: variant)
                     .accentHex

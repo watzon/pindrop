@@ -196,51 +196,31 @@ private struct AnnouncementCreditView: View {
     }
 }
 
-/// Compact Orb preview for What's New. Synthetic meter levels and blob rendering
-/// share `OrbBlobsView`'s single 40 Hz `TimelineView` — no Combine timer and no
-/// published-state root invalidation.
+/// Compact Orb preview for What's New. The synthetic meter is polled from the
+/// production waveform timeline, with no second timer or published-state churn.
 @MainActor
 private struct AnnouncementOrbDemoView: View {
     /// Non-publishing sample holder so EMA smoothing survives across timeline
     /// ticks without an `ObservableObject` invalidating the demo chrome.
     @State private var sampler = AnnouncementOrbDemoSampler()
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
+        let palette = OrbWaveformPalette.forPresetID("library")
         ZStack {
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [
-                            OrbPalette.surface.opacity(0.96),
-                            OrbPalette.depthTint,
-                            OrbPalette.surface
-                        ],
-                        center: .center,
-                        startRadius: 8,
-                        endRadius: 44
-                    )
-                )
+            OrbGlassFillView(
+                palette: palette,
+                sample: { date in sampler.sample(at: date) },
+                isHovered: true,
+                isRecording: true,
+                isProcessing: false,
+                isMuted: false
+            )
 
             Circle()
                 .strokeBorder(OrbPalette.rimSoft, lineWidth: 1)
-
-            OrbBlobsView(
-                sample: { date in
-                    // Match prior demo behavior: Reduce Motion freezes at idle (zero)
-                    // energy rather than a mid-phrase pose from a one-shot sample.
-                    if reduceMotion {
-                        return (.zero, 0)
-                    }
-                    return sampler.sample(at: date)
-                },
-                isLive: true,
-                isExcited: true
-            )
-                .padding(5)
-                .clipShape(Circle())
         }
-        .shadow(color: OrbPalette.bandMid.opacity(0.30), radius: 12, x: 0, y: 4)
+        .clipShape(Circle())
+        .shadow(color: palette.glowColor.opacity(0.30), radius: 12, x: 0, y: 4)
         .onDisappear {
             sampler.reset()
         }
@@ -249,7 +229,7 @@ private struct AnnouncementOrbDemoView: View {
 }
 
 /// Generates the demo's speech-like meter curve and applies the same light EMA
-/// ballistics production meters use, polled only from the blob timeline.
+/// ballistics production meters use, polled only from the waveform timeline.
 @MainActor
 private final class AnnouncementOrbDemoSampler {
     private var audioLevel: Float = 0
