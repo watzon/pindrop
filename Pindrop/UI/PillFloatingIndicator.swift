@@ -51,6 +51,8 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         /// The transcript card itself (pill row + transcript area), bottom-aligned in
         /// the panel like the plain recording pill.
         static let streamingCardSize = CGSize(width: 270, height: 104)
+        static let recordingCardSize = CGSize(width: 166, height: 32)
+        static let processingCardSize = CGSize(width: 148, height: 32)
 
         static let compactBottomInset: CGFloat = 6
         static let expandedBottomInset: CGFloat = 10
@@ -115,6 +117,30 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         self.actions = actions
     }
 
+    func toastAnchor() -> FloatingIndicatorToastAnchor? {
+        guard isVisible else { return nil }
+        let screen = lastScreen ?? preferredScreen()
+        let currentLayoutState = layoutState
+        let panelFrame = panel?.frame ?? frame(for: screen, state: currentLayoutState)
+        let rect: NSRect
+        switch currentLayoutState {
+        case .compact:
+            rect = compactPillFrame(in: panelFrame)
+        case .hover:
+            rect = isHoverTooltipVisible ? panelFrame : compactPillFrame(in: panelFrame)
+        case .recording, .processing:
+            rect = expandedCardFrame(
+                in: panelFrame,
+                showsTranscript: liveTranscript.isActive
+            )
+        }
+        return FloatingIndicatorToastAnchor(
+            rect: rect,
+            visibleFrame: screen.visibleFrame,
+            edge: .automatic
+        )
+    }
+
     func reloadLocalizedStrings() {
         contextMenu = makeContextMenu()
         hostingView?.rootView = makeRootView(isCompact: true)
@@ -171,6 +197,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
 
         lastScreen = screen
         startHoverIntentMonitoring()
+        actions.onToastAnchorChanged?()
     }
 
     func showForCurrentState() {
@@ -243,6 +270,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
                 guard let self else { return }
                 guard self.isHovered, !self.state.isRecording, !self.state.isProcessing, !self.isContextMenuOpen else { return }
                 self.isHoverTooltipVisible = true
+                self.actions.onToastAnchorChanged?()
             }
         }
         RunLoop.main.add(timer, forMode: .common)
@@ -252,7 +280,9 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     private func hideHoverTooltip() {
         hoverTooltipTimer?.invalidate()
         hoverTooltipTimer = nil
+        guard isHoverTooltipVisible else { return }
         isHoverTooltipVisible = false
+        actions.onToastAnchorChanged?()
     }
 
     private func makeContextMenu() -> NSMenu {
@@ -557,6 +587,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         setHoverState(true)
         lastHoverContactAt = Date()
         isHoverTooltipVisible = true
+        actions.onToastAnchorChanged?()
     }
 
     func menuDidClose(_ menu: NSMenu) {
@@ -581,6 +612,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
             context.allowsImplicitAnimation = false
             panel.setFrame(newFrame, display: false, animate: false)
         }
+        actions.onToastAnchorChanged?()
     }
 
     func setHoverState(_ hovering: Bool) {
@@ -646,6 +678,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         lastScreen = nil
         hideHoverTooltip()
         isVisible = false
+        actions.onToastAnchorChanged?()
         isDragging = false
         dragStartMouseLocation = nil
         isHovered = false
@@ -776,6 +809,28 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
             .environment(\.layoutDirection, .leftToRight))
     }
 
+    func expandedCardSize(showsTranscript: Bool) -> CGSize {
+        if showsTranscript {
+            return LayoutMetrics.streamingCardSize
+        }
+        return state.isProcessing
+            ? LayoutMetrics.processingCardSize
+            : LayoutMetrics.recordingCardSize
+    }
+
+    private func expandedCardFrame(
+        in panelFrame: NSRect,
+        showsTranscript: Bool
+    ) -> NSRect {
+        let cardSize = expandedCardSize(showsTranscript: showsTranscript)
+        return NSRect(
+            x: panelFrame.midX - cardSize.width / 2,
+            y: panelFrame.minY + LayoutMetrics.compactPillBottomPadding,
+            width: cardSize.width,
+            height: cardSize.height
+        )
+    }
+
     private func size(for layoutState: LayoutState) -> CGSize {
         switch layoutState {
         case .recording:
@@ -854,6 +909,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
             }
             applyContentSize()
         }
+        actions.onToastAnchorChanged?()
     }
 
 }
@@ -937,12 +993,6 @@ struct PillIndicatorView: View {
                     )
             }
 
-            if let completion = state.recentCompletion {
-                IndicatorCompletionOverlay(completion: completion)
-                    .offset(y: -34)
-                    .allowsHitTesting(false)
-                    .appAnimation(.smooth, value: state.recentCompletion)
-            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
         .padding(.bottom, 6)
@@ -974,10 +1024,7 @@ struct PillIndicatorView: View {
     }
 
     private var expandedSize: CGSize {
-        if showsTranscript { return CGSize(width: 270, height: 104) }
-        return state.isProcessing
-            ? CGSize(width: 148, height: 32)
-            : CGSize(width: 166, height: 32)
+        controller.expandedCardSize(showsTranscript: showsTranscript)
     }
 
     @ViewBuilder

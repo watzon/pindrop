@@ -30,6 +30,12 @@ enum FloatingIndicatorType: String, CaseIterable, Identifiable {
         }
     }
 
+    /// Bubble toasts remain screen-corner notifications because the bubble follows
+    /// the focused caret. Every stable indicator location can anchor its own toasts.
+    var anchorsToastsToIndicator: Bool {
+        self != .bubble
+    }
+
     var displayName: String {
         displayName(locale: .autoupdatingCurrent)
     }

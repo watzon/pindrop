@@ -16,6 +16,7 @@ private enum ToastMetrics {
     static let screenInset: CGFloat = 28
     static let bottomInset: CGFloat = 42
     static let maxWidth: CGFloat = 520
+    static let anchorGap: CGFloat = 10
     static let minWidth: CGFloat = 120
     static let showDuration: TimeInterval = 0.18
     static let hideDuration: TimeInterval = 0.14
@@ -23,6 +24,92 @@ private enum ToastMetrics {
     /// Transparent margin around the chip so the drop shadow isn't clipped by the
     /// tight panel frame; frameForToast subtracts it so the chip lands unchanged.
     static let shadowMargin: CGFloat = 20
+}
+
+enum ToastLayoutMath {
+    static func frame(
+        size: CGSize,
+        visibleFrame: CGRect,
+        placement: ToastPlacement,
+        anchor: FloatingIndicatorToastAnchor?
+    ) -> CGRect {
+        let margin = ToastMetrics.shadowMargin
+        let clampedWidth = min(
+            size.width,
+            max(
+                ToastMetrics.minWidth + margin * 2,
+                visibleFrame.width - ToastMetrics.screenInset * 2 + margin * 2
+            )
+        )
+        let panelSize = CGSize(width: clampedWidth, height: size.height)
+
+        let minimumX = visibleFrame.minX + ToastMetrics.screenInset - margin
+        let maximumX = max(
+            minimumX,
+            visibleFrame.maxX - panelSize.width + margin - ToastMetrics.screenInset
+        )
+        let minimumY = visibleFrame.minY + ToastMetrics.screenInset - margin
+        let maximumY = max(
+            minimumY,
+            visibleFrame.maxY - panelSize.height + margin - ToastMetrics.screenInset
+        )
+
+        let proposedX: CGFloat
+        let proposedY: CGFloat
+        if let anchor {
+            proposedX = anchor.rect.midX - panelSize.width / 2
+            proposedY = anchoredOriginY(
+                panelHeight: panelSize.height,
+                anchor: anchor,
+                minimumY: minimumY,
+                maximumY: maximumY
+            )
+        } else {
+            switch placement {
+            case .bottomCenter:
+                proposedX = visibleFrame.midX - panelSize.width / 2
+            case .bottomTrailing:
+                proposedX = visibleFrame.maxX - panelSize.width - ToastMetrics.screenInset + margin
+            }
+            proposedY = visibleFrame.minY + ToastMetrics.bottomInset - margin
+        }
+
+        return CGRect(
+            x: clamp(proposedX, minimum: minimumX, maximum: maximumX),
+            y: clamp(proposedY, minimum: minimumY, maximum: maximumY),
+            width: panelSize.width,
+            height: panelSize.height
+        )
+    }
+
+    private static func anchoredOriginY(
+        panelHeight: CGFloat,
+        anchor: FloatingIndicatorToastAnchor,
+        minimumY: CGFloat,
+        maximumY: CGFloat
+    ) -> CGFloat {
+        let aboveY = anchor.rect.maxY + ToastMetrics.anchorGap - ToastMetrics.shadowMargin
+        let belowY = anchor.rect.minY - ToastMetrics.anchorGap - panelHeight + ToastMetrics.shadowMargin
+
+        switch anchor.edge {
+        case .below:
+            return belowY
+        case .automatic:
+            let roomAbove = anchor.visibleFrame.maxY - anchor.rect.maxY
+            let roomBelow = anchor.rect.minY - anchor.visibleFrame.minY
+            let aboveFits = aboveY <= maximumY
+            let belowFits = belowY >= minimumY
+
+            if roomAbove >= roomBelow {
+                return aboveFits || !belowFits ? aboveY : belowY
+            }
+            return belowFits || !aboveFits ? belowY : aboveY
+        }
+    }
+
+    private static func clamp(_ value: CGFloat, minimum: CGFloat, maximum: CGFloat) -> CGFloat {
+        max(minimum, min(value, maximum))
+    }
 }
 
 private var shouldReduceToastMotion: Bool {
@@ -38,19 +125,34 @@ private final class ToastPanel: NSPanel {
 final class ToastWindowController: ToastPresenting {
     private var panel: ToastPanel?
     private var hostingView: NSHostingView<AnyView>?
+    private var indicatorAnchorProvider: (@MainActor () -> FloatingIndicatorToastAnchor?)?
+    private var activePayload: ToastPayload?
+    private var isFrameUpdateScheduled = false
+
+    func configureIndicatorAnchorProvider(
+        _ provider: @escaping @MainActor () -> FloatingIndicatorToastAnchor?
+    ) {
+        indicatorAnchorProvider = provider
+    }
+
+    func repositionActiveToast() {
+        guard activePayload != nil else { return }
+        updateToastFrame()
+    }
 
     func show(
         payload: ToastPayload,
         onAction: @escaping (UUID) -> Void,
         onHoverChange: @escaping (Bool) -> Void
     ) {
+        activePayload = payload
         let appLocale = AppLocale.currentSelection()
         let rootView = AnyView(ToastView(
             payload: payload,
             onAction: onAction,
             onHoverChange: { [weak self] (isHovering: Bool) in
                 onHoverChange(isHovering)
-                self?.updateToastFrame(for: payload)
+                self?.updateToastFrame()
             }
         )
         .environment(\.locale, appLocale.locale)
@@ -123,6 +225,7 @@ final class ToastWindowController: ToastPresenting {
     }
 
     func hide() {
+        activePayload = nil
         guard let panel else { return }
         let closingPanel = panel
 
@@ -130,11 +233,13 @@ final class ToastWindowController: ToastPresenting {
             context.duration = shouldReduceToastMotion ? 0 : ToastMetrics.hideDuration
             context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             closingPanel.animator().alphaValue = 0
-        }, completionHandler: { [weak self] in
+        }, completionHandler: { [weak self, weak closingPanel] in
+            guard let closingPanel else { return }
             closingPanel.orderOut(nil)
-            Task { @MainActor [weak self] in
-                self?.panel = nil
-                self?.hostingView = nil
+            Task { @MainActor [weak self, weak closingPanel] in
+                guard let self, let closingPanel, self.panel === closingPanel else { return }
+                self.panel = nil
+                self.hostingView = nil
             }
         })
     }
@@ -144,34 +249,20 @@ final class ToastWindowController: ToastPresenting {
         hintRect: CGRect?,
         placement: ToastPlacement
     ) -> NSRect {
-        let screen = screen(for: hintRect) ?? NSScreen.main
-        let visibleFrame = screen?.visibleFrame ?? NSScreen.main?.visibleFrame ?? .zero
-
-        // size includes the transparent shadowMargin on every side; insets apply to
-        // the visible chip, so shift the panel outward by the margin.
-        let margin = ToastMetrics.shadowMargin
-        let clampedWidth = min(
-            size.width,
-            max(ToastMetrics.minWidth + margin * 2, visibleFrame.width - (ToastMetrics.screenInset * 2) + margin * 2)
-        )
-        let originX: CGFloat
-        switch placement {
-        case .bottomCenter:
-            originX = visibleFrame.midX - (clampedWidth / 2)
-        case .bottomTrailing:
-            originX = visibleFrame.maxX - clampedWidth - ToastMetrics.screenInset + margin
+        let anchor = indicatorAnchorProvider?()
+        let visibleFrame: CGRect
+        if let anchor {
+            visibleFrame = anchor.visibleFrame
+        } else {
+            let screen = screen(for: hintRect) ?? NSScreen.main
+            visibleFrame = screen?.visibleFrame ?? NSScreen.main?.visibleFrame ?? .zero
         }
-        let origin = CGPoint(
-            x: originX,
-            y: visibleFrame.minY + ToastMetrics.bottomInset - margin
-        )
-        let rawFrame = NSRect(origin: origin, size: CGSize(width: clampedWidth, height: size.height))
 
-        return NSRect(
-            x: max(visibleFrame.minX + ToastMetrics.screenInset - margin, min(rawFrame.origin.x, visibleFrame.maxX - rawFrame.width + margin - ToastMetrics.screenInset)),
-            y: max(visibleFrame.minY + ToastMetrics.screenInset - margin, rawFrame.origin.y),
-            width: rawFrame.width,
-            height: rawFrame.height
+        return ToastLayoutMath.frame(
+            size: size,
+            visibleFrame: visibleFrame,
+            placement: placement,
+            anchor: anchor
         )
     }
 
@@ -180,11 +271,18 @@ final class ToastWindowController: ToastPresenting {
         return NSScreen.screens.first(where: { $0.frame.intersects(hintRect) }) ?? NSScreen.main
     }
 
-    private func updateToastFrame(for payload: ToastPayload) {
-        guard let panel, let hostingView else { return }
+    private func updateToastFrame() {
+        guard panel != nil, hostingView != nil, !isFrameUpdateScheduled else { return }
+        isFrameUpdateScheduled = true
 
-        DispatchQueue.main.async { [weak self, weak panel, weak hostingView] in
-            guard let self, let panel, let hostingView else { return }
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.isFrameUpdateScheduled = false
+            guard let payload = self.activePayload,
+                  let panel = self.panel,
+                  let hostingView = self.hostingView else {
+                return
+            }
             hostingView.layoutSubtreeIfNeeded()
 
             let fittedSize = hostingView.fittingSize

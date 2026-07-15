@@ -128,3 +128,75 @@ struct ToastServiceTests {
         #expect(presenter.hideCallCount == 1)
     }
 }
+
+@Suite
+struct ToastLayoutMathTests {
+    private let visibleFrame = CGRect(x: 0, y: 0, width: 1_440, height: 900)
+    private let toastSize = CGSize(width: 240, height: 80)
+    private let shadowMargin: CGFloat = 20
+
+    @Test func unanchoredToastKeepsBottomTrailingPlacement() {
+        let frame = ToastLayoutMath.frame(
+            size: toastSize,
+            visibleFrame: visibleFrame,
+            placement: .bottomTrailing,
+            anchor: nil
+        )
+
+        #expect(frame == CGRect(x: 1_192, y: 22, width: 240, height: 80))
+    }
+
+    @Test func bottomIndicatorPlacesToastAboveIt() {
+        let indicatorFrame = CGRect(x: 700, y: 16, width: 40, height: 40)
+        let frame = ToastLayoutMath.frame(
+            size: toastSize,
+            visibleFrame: visibleFrame,
+            placement: .bottomTrailing,
+            anchor: FloatingIndicatorToastAnchor(
+                rect: indicatorFrame,
+                visibleFrame: visibleFrame,
+                edge: .automatic
+            )
+        )
+
+        let visibleToastMinY = frame.minY + shadowMargin
+        #expect(visibleToastMinY == indicatorFrame.maxY + 10)
+        #expect(frame.midX == indicatorFrame.midX)
+    }
+
+    @Test func topIndicatorPlacesToastBelowIt() {
+        let indicatorFrame = CGRect(x: 700, y: 800, width: 40, height: 40)
+        let frame = ToastLayoutMath.frame(
+            size: toastSize,
+            visibleFrame: visibleFrame,
+            placement: .bottomTrailing,
+            anchor: FloatingIndicatorToastAnchor(
+                rect: indicatorFrame,
+                visibleFrame: visibleFrame,
+                edge: .automatic
+            )
+        )
+
+        let visibleToastMaxY = frame.maxY - shadowMargin
+        #expect(visibleToastMaxY == indicatorFrame.minY - 10)
+        #expect(frame.midX == indicatorFrame.midX)
+    }
+
+    @Test func notchForcesCenteredToastBelowItsPanel() {
+        let notchFrame = CGRect(x: 600, y: 840, width: 240, height: 60)
+        let frame = ToastLayoutMath.frame(
+            size: toastSize,
+            visibleFrame: visibleFrame,
+            placement: .bottomTrailing,
+            anchor: FloatingIndicatorToastAnchor(
+                rect: notchFrame,
+                visibleFrame: visibleFrame,
+                edge: .below
+            )
+        )
+
+        let visibleToastMaxY = frame.maxY - shadowMargin
+        #expect(visibleToastMaxY == notchFrame.minY - 10)
+        #expect(frame.midX == visibleFrame.midX)
+    }
+}

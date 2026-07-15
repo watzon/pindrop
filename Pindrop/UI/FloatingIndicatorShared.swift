@@ -309,36 +309,6 @@ private struct _IndicatorProcessingDot: View {
     }
 }
 
-/// Brief animated badge shown when a transcription/session completes.
-/// Displays the completion kind's icon and title, then fades out automatically
-/// when `state.recentCompletion` returns to nil.
-struct IndicatorCompletionOverlay: View {
-    let completion: FloatingIndicatorState.CompletionKind
-    @Environment(\.locale) private var locale
-
-    var body: some View {
-        HStack(spacing: 5) {
-            Image(systemName: completion.icon)
-                .font(.system(size: 9, weight: .semibold))
-                .foregroundStyle(AppColors.overlayTooltipAccent)
-            Text(completion.title(locale: locale))
-                .font(.system(size: 10, weight: .semibold, design: .rounded))
-                .foregroundStyle(AppColors.overlayTextPrimary)
-        }
-        .padding(.horizontal, 9)
-        .padding(.vertical, 5)
-        .background(
-            Capsule()
-                .fill(AppColors.overlaySurfaceStrong)
-                .hairlineStroke(Capsule(), style: AppColors.overlayLine.opacity(0.7))
-        )
-        .shadow(color: AppColors.shadowColor.opacity(0.32), radius: 8, y: 4)
-        .transition(.asymmetric(
-            insertion: .opacity.combined(with: .scale(scale: 0.88, anchor: .center)),
-            removal: .opacity
-        ))
-    }
-}
 
 // MARK: - Live transcript (overlay streaming)
 
@@ -787,6 +757,17 @@ enum FloatingIndicatorTimeFormatting {
     }
 }
 
+enum FloatingIndicatorToastAnchorEdge: Equatable {
+    case automatic
+    case below
+}
+
+struct FloatingIndicatorToastAnchor: Equatable {
+    let rect: CGRect
+    let visibleFrame: CGRect
+    let edge: FloatingIndicatorToastAnchorEdge
+}
+
 struct FloatingIndicatorActions {
     var onStartRecording: ((FloatingIndicatorType) -> Void)?
     var onStopRecording: ((FloatingIndicatorType) -> Void)?
@@ -798,6 +779,7 @@ struct FloatingIndicatorActions {
     var onPasteLastTranscript: (() async -> Void)?
     var onSelectInputDeviceUID: ((String) -> Void)?
     var onSelectLanguage: ((AppLanguage) -> Void)?
+    var onToastAnchorChanged: (() -> Void)?
     var availableInputDevicesProvider: (() -> [(uid: String, displayName: String)])?
     var selectedInputDeviceUIDProvider: (() -> String)?
     var selectedLanguageProvider: (() -> AppLanguage)?
@@ -825,6 +807,7 @@ protocol FloatingIndicatorPresenting: AnyObject {
     var type: FloatingIndicatorType { get }
     var state: FloatingIndicatorState { get }
 
+    func toastAnchor() -> FloatingIndicatorToastAnchor?
     func configure(actions: FloatingIndicatorActions)
     func showIdleIndicator()
     func showForCurrentState()
@@ -834,32 +817,14 @@ protocol FloatingIndicatorPresenting: AnyObject {
     func finishProcessing()
 }
 
+extension FloatingIndicatorPresenting {
+    func toastAnchor() -> FloatingIndicatorToastAnchor? {
+        nil
+    }
+}
+
 @MainActor
 final class FloatingIndicatorState: ObservableObject {
-    enum CompletionKind: Equatable {
-        case transcription
-        case meeting
-        case note
-        case mediaTranscription
-
-        func title(locale: Locale) -> String {
-            switch self {
-            case .transcription: return localized("Transcription saved", locale: locale)
-            case .meeting: return localized("Meeting saved", locale: locale)
-            case .note: return localized("Note saved", locale: locale)
-            case .mediaTranscription: return localized("Media saved", locale: locale)
-            }
-        }
-
-        var icon: String {
-            switch self {
-            case .transcription: return "waveform"
-            case .meeting: return "person.2.fill"
-            case .note: return "note.text"
-            case .mediaTranscription: return "headphones"
-            }
-        }
-    }
 
     @Published var isRecording = false
     @Published var recordingDuration: TimeInterval = 0
@@ -877,11 +842,9 @@ final class FloatingIndicatorState: ObservableObject {
     @Published var isInputMuted = false
     @Published var toggleRecordingHotkey = ""
     @Published var pushToTalkHotkey = ""
-    @Published var recentCompletion: CompletionKind?
 
     private var recordingStartTime: Date?
     private var durationTimer: Timer?
-    private var completionClearTask: Task<Void, Never>?
 
     /// Minimum absolute delta before a meter sample replaces the stored level.
     /// Below this, the visual change is lost in bar/blob quantization.
@@ -962,19 +925,6 @@ final class FloatingIndicatorState: ObservableObject {
         self.pushToTalkHotkey = normalize(hotkey: pushToTalkHotkey)
     }
 
-    /// Flash a completion badge in any hero/indicator that observes this
-    /// state. The badge clears itself after `holdFor` seconds.
-    func showCompletion(_ kind: CompletionKind, holdFor seconds: TimeInterval = 2.5) {
-        completionClearTask?.cancel()
-        recentCompletion = kind
-        completionClearTask = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
-            guard !Task.isCancelled else { return }
-            await MainActor.run {
-                self?.recentCompletion = nil
-            }
-        }
-    }
 
     private func normalize(hotkey: String) -> String {
         hotkey.trimmingCharacters(in: .whitespacesAndNewlines)

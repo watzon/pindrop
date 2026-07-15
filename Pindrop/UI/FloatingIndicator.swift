@@ -17,9 +17,10 @@ enum NotchPanelMetrics {
     static let maximumSideWidth: CGFloat = 118
     static let panelHeightMinimum: CGFloat = 30
     static let horizontalInset: CGFloat = 12
-    static let cornerRadius: CGFloat = 14
+    /// Matches `topFlareRadius` so the silhouette reads as a uniform, squarish notch.
+    static let cornerRadius: CGFloat = 7
     /// Softer bottom corners while the transcript drop is extended.
-    static let expandedCornerRadius: CGFloat = 19
+    static let expandedCornerRadius: CGFloat = 12
     /// Radius of the concave fillet where the panel's sides meet the screen's
     /// top edge — the outward curve of the hardware-notch silhouette.
     static let topFlareRadius: CGFloat = 7
@@ -29,6 +30,81 @@ enum NotchPanelMetrics {
     /// Dynamic-Island-style downward extension while the live transcript is showing.
     /// Sized for three lines of 12 pt transcript plus padding (see `NotchIndicatorView`).
     static let transcriptDropHeight: CGFloat = 70
+}
+
+enum NotchIndicatorPresentationStyle: Equatable {
+    case hardwareNotch
+    case externalDisplay
+
+    init(hasHardwareNotch: Bool) {
+        self = hasHardwareNotch ? .hardwareNotch : .externalDisplay
+    }
+
+    var entranceDuration: TimeInterval {
+        switch self {
+        case .hardwareNotch:
+            return 0.34
+        case .externalDisplay:
+            return NotchPanelMetrics.showHideDuration
+        }
+    }
+
+    var animation: Animation {
+        switch self {
+        case .hardwareNotch:
+            return .spring(duration: entranceDuration, bounce: 0.18)
+        case .externalDisplay:
+            return .easeOut(duration: entranceDuration)
+        }
+    }
+}
+
+struct NotchIndicatorPresentationValues: Equatable {
+    let horizontalRevealScale: CGFloat
+    let leftWingOffset: CGFloat
+    let rightWingOffset: CGFloat
+    let verticalOffset: CGFloat
+    let opacity: Double
+}
+
+enum NotchIndicatorPresentationMath {
+    static func values(
+        style: NotchIndicatorPresentationStyle,
+        isPresented: Bool,
+        notchWidth: CGFloat,
+        sideWidth: CGFloat,
+        height: CGFloat
+    ) -> NotchIndicatorPresentationValues {
+        guard !isPresented else {
+            return NotchIndicatorPresentationValues(
+                horizontalRevealScale: 1,
+                leftWingOffset: 0,
+                rightWingOffset: 0,
+                verticalOffset: 0,
+                opacity: 1
+            )
+        }
+
+        switch style {
+        case .hardwareNotch:
+            let fullWidth = max(1, notchWidth + (sideWidth * 2))
+            return NotchIndicatorPresentationValues(
+                horizontalRevealScale: min(1, max(0, notchWidth / fullWidth)),
+                leftWingOffset: sideWidth,
+                rightWingOffset: -sideWidth,
+                verticalOffset: 0,
+                opacity: 1
+            )
+        case .externalDisplay:
+            return NotchIndicatorPresentationValues(
+                horizontalRevealScale: 1,
+                leftWingOffset: 0,
+                rightWingOffset: 0,
+                verticalOffset: -min(10, max(0, height / 3)),
+                opacity: 0
+            )
+        }
+    }
 }
 
 extension NSScreen {
@@ -250,8 +326,10 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
         guard let panel else { return }
         let screen = lastScreen ?? preferredScreen()
         let layout = panelLayout(for: screen)
-        panel.setFrame(layout.frame, display: true, animate: animated)
+        let shouldAnimate = animated && !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+        panel.setFrame(layout.frame, display: true, animate: shouldAnimate)
         hostingView?.frame = NSRect(origin: .zero, size: layout.frame.size)
+        actions.onToastAnchorChanged?()
     }
 
     func configure(actions: FloatingIndicatorActions) {
@@ -279,7 +357,9 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
             applyPanelFrameForCurrentScreen(animated: false)
             existingPanel.orderFrontRegardless()
             NSAnimationContext.runAnimationGroup { context in
-                context.duration = NotchPanelMetrics.showHideDuration
+                context.duration = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+                    ? 0
+                    : NotchPanelMetrics.showHideDuration
                 context.timingFunction = CAMediaTimingFunction(name: .easeOut)
                 existingPanel.animator().alphaValue = 1
             }
@@ -290,6 +370,7 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
         guard let screen = Optional(preferredScreen()) else { return }
 
         let layout = panelLayout(for: screen)
+        let presentationStyle = NotchIndicatorPresentationStyle(hasHardwareNotch: screen.hasNotch)
         let panel = NotchPanel(contentRect: layout.frame)
 
         let appLocale = AppLocale.currentSelection()
@@ -299,6 +380,7 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
             notchWidth: layout.notchWidth,
             sideWidth: layout.sideWidth,
             height: layout.rowHeight,
+            presentationStyle: presentationStyle,
             onStopRecording: { [weak self] in
                 self?.handleStopButtonTapped()
             }
@@ -313,19 +395,17 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
         panel.contentView = hostingView
         self.panel = panel
         self.lastScreen = screen
+        actions.onToastAnchorChanged?()
         
-        panel.alphaValue = 0
+        // The SwiftUI content owns the first presentation animation. Keeping the
+        // window opaque avoids a second fade obscuring the hardware-notch reveal.
+        panel.alphaValue = 1
         panel.orderFrontRegardless()
         
-        let localPanel = panel
-        
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = NotchPanelMetrics.showHideDuration
-            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
-            localPanel.animator().alphaValue = 1
-        }
-        
-        startScreenTracking()
+        let trackingDelay = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+            ? 0
+            : presentationStyle.entranceDuration
+        scheduleScreenTracking(after: trackingDelay, for: presentationGeneration)
     }
     
     func hide() {
@@ -338,7 +418,9 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
         let localHostingView = hostingView
 
         NSAnimationContext.runAnimationGroup({ context in
-            context.duration = NotchPanelMetrics.hideDuration
+            context.duration = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+                ? 0
+                : NotchPanelMetrics.hideDuration
             context.timingFunction = CAMediaTimingFunction(name: .easeIn)
             localPanel.animator().alphaValue = 0
         }, completionHandler: { [weak self] in
@@ -374,10 +456,34 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
         hide()
     }
 
+    func toastAnchor() -> FloatingIndicatorToastAnchor? {
+        let screen = lastScreen ?? preferredScreen()
+        let rect = panel?.frame ?? panelLayout(for: screen).frame
+        return FloatingIndicatorToastAnchor(
+            rect: rect,
+            visibleFrame: screen.visibleFrame,
+            edge: .below
+        )
+    }
+
     func handleStopButtonTapped() {
         actions.onStopRecording?(type)
     }
     
+    private func scheduleScreenTracking(after delay: TimeInterval, for generation: UInt) {
+        guard delay > 0 else {
+            startScreenTracking()
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+            guard let self else { return }
+            guard self.presentationGeneration == generation, self.panel != nil else { return }
+            self.startScreenTracking()
+            self.checkAndUpdateScreenPosition()
+        }
+    }
+
     private func startScreenTracking() {
         screenTrackingTimer?.invalidate()
         screenTrackingTimer = Timer.pindrop_scheduleRepeating(interval: 0.05) { [weak self] _ in
@@ -409,12 +515,15 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
 }
 
 struct NotchIndicatorView: View {
+    @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
     @ObservedObject var state: FloatingIndicatorState
     @ObservedObject var transcript: LiveTranscriptState
     @ObservedObject private var theme = PindropThemeController.shared
+    @State private var isPresented = false
     let notchWidth: CGFloat
     let sideWidth: CGFloat
     let height: CGFloat
+    let presentationStyle: NotchIndicatorPresentationStyle
     let onStopRecording: () -> Void
 
     private var formattedDuration: String {
@@ -426,15 +535,25 @@ struct NotchIndicatorView: View {
     private var showsTranscript: Bool { transcript.isActive }
 
     var body: some View {
+        let presentation = NotchIndicatorPresentationMath.values(
+            style: presentationStyle,
+            isPresented: isPresented,
+            notchWidth: notchWidth,
+            sideWidth: sideWidth,
+            height: height
+        )
+
         VStack(spacing: 0) {
             HStack(spacing: 0) {
                 leftWing
+                    .offset(x: presentation.leftWingOffset)
                 // The hardware notch occludes this region on notched displays, so it
                 // stays pure black and empty — content here would be invisible on the
                 // very machines this indicator imitates.
                 Color.clear
                     .frame(width: notchWidth)
                 rightWing
+                    .offset(x: presentation.rightWingOffset)
             }
             .frame(height: height)
 
@@ -457,47 +576,45 @@ struct NotchIndicatorView: View {
                 ? NotchPanelMetrics.expandedCornerRadius
                 : NotchPanelMetrics.cornerRadius
         ))
+        .mask {
+            Rectangle()
+                .scaleEffect(x: presentation.horizontalRevealScale, anchor: .center)
+        }
+        .offset(y: presentation.verticalOffset)
+        .opacity(presentation.opacity)
         .ignoresSafeArea()
-        .animation(.easeInOut(duration: 0.2), value: showsTranscript)
+        .animation(accessibilityReduceMotion ? nil : .easeInOut(duration: 0.2), value: showsTranscript)
+        .onAppear(perform: present)
         .themeRefresh()
     }
 
+    private func present() {
+        guard !isPresented else { return }
+
+        if accessibilityReduceMotion {
+            isPresented = true
+        } else {
+            withAnimation(presentationStyle.animation) {
+                isPresented = true
+            }
+        }
+    }
+
     private var leftWing: some View {
-        ZStack {
-            HStack(spacing: 8) {
-                if state.isRecording {
-                    stopButton
-                } else {
-                    IndicatorProcessingView(dotCount: 3, dotDiameter: 3.5, spacing: 2.5)
-                        .frame(width: 18, height: 18)
-                }
-
-                timerDisplay
-                Spacer(minLength: 0)
+        HStack(spacing: 8) {
+            if state.isRecording {
+                stopButton
+            } else {
+                IndicatorProcessingView(dotCount: 3, dotDiameter: 3.5, spacing: 2.5)
+                    .frame(width: 18, height: 18)
             }
-            .opacity(state.recentCompletion != nil ? 0 : 1)
 
-            if let completion = state.recentCompletion {
-                HStack(spacing: 5) {
-                    Image(systemName: completion.icon)
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundStyle(AppColors.overlayTooltipAccent)
-                    Text(completion.title(locale: .autoupdatingCurrent))
-                        .font(.system(size: 10, weight: .semibold, design: .rounded))
-                        .foregroundStyle(AppColors.overlayTextPrimary)
-                        .lineLimit(1)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .transition(.asymmetric(
-                    insertion: .opacity.combined(with: .scale(scale: 0.9, anchor: .leading)),
-                    removal: .opacity
-                ))
-            }
+            timerDisplay
+            Spacer(minLength: 0)
         }
         .padding(.leading, NotchPanelMetrics.sidePadding)
         .padding(.trailing, 8)
         .frame(width: sideWidth, height: height)
-        .animation(AppTheme.Animation.smooth, value: state.recentCompletion)
     }
 
     private var rightWing: some View {
@@ -563,7 +680,15 @@ private var notchRecordingPreview: some View {
     state.recordingDuration = 5.3
     state.updateAudioLevel(0.6)
 
-    return NotchIndicatorView(state: state, transcript: LiveTranscriptState(), notchWidth: 185, sideWidth: 100, height: 38, onStopRecording: {})
+    return NotchIndicatorView(
+        state: state,
+        transcript: LiveTranscriptState(),
+        notchWidth: 185,
+        sideWidth: 100,
+        height: 38,
+        presentationStyle: .hardwareNotch,
+        onStopRecording: {}
+    )
         .frame(width: 385, height: 38)
         .background(AppColors.windowBackground)
 }
@@ -582,7 +707,15 @@ private var notchStreamingPreview: some View {
         tentative: "notch shows every word as it lands"
     )
 
-    return NotchIndicatorView(state: state, transcript: transcript, notchWidth: 185, sideWidth: 100, height: 38, onStopRecording: {})
+    return NotchIndicatorView(
+        state: state,
+        transcript: transcript,
+        notchWidth: 185,
+        sideWidth: 100,
+        height: 38,
+        presentationStyle: .hardwareNotch,
+        onStopRecording: {}
+    )
         .frame(width: 385, height: 38 + NotchPanelMetrics.transcriptDropHeight)
         .background(AppColors.windowBackground)
 }
@@ -595,7 +728,15 @@ private var notchProcessingPreview: some View {
     state.recordingDuration = 12.7
     state.updateAudioLevel(0.0)
 
-    return NotchIndicatorView(state: state, transcript: LiveTranscriptState(), notchWidth: 185, sideWidth: 100, height: 38, onStopRecording: {})
+    return NotchIndicatorView(
+        state: state,
+        transcript: LiveTranscriptState(),
+        notchWidth: 185,
+        sideWidth: 100,
+        height: 38,
+        presentationStyle: .hardwareNotch,
+        onStopRecording: {}
+    )
         .frame(width: 385, height: 38)
         .background(AppColors.windowBackground)
 }

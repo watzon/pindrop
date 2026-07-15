@@ -23,6 +23,13 @@ struct FloatingIndicatorTypeTests {
         #expect(!FloatingIndicatorType.bubble.isAlwaysOn)
     }
 
+    @Test func toastAnchoringMatchesStyleContract() {
+        #expect(FloatingIndicatorType.notch.anchorsToastsToIndicator)
+        #expect(FloatingIndicatorType.pill.anchorsToastsToIndicator)
+        #expect(!FloatingIndicatorType.bubble.anchorsToastsToIndicator)
+        #expect(FloatingIndicatorType.orb.anchorsToastsToIndicator)
+    }
+
     @Test func rawValuesRoundTrip() {
         for type in FloatingIndicatorType.allCases {
             #expect(FloatingIndicatorType(rawValue: type.rawValue) == type)

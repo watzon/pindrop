@@ -919,6 +919,9 @@ final class AppCoordinator {
             onSelectLanguage: { [weak self] language in
                 self?.handleSelectLanguage(language)
             },
+            onToastAnchorChanged: { [weak self] in
+                self?.toastWindowController.repositionActiveToast()
+            },
             availableInputDevicesProvider: {
                 AudioDeviceManager.inputDevices().map { (uid: $0.uid, displayName: $0.displayName) }
             },
@@ -938,6 +941,12 @@ final class AppCoordinator {
 
         for presenter in self.floatingIndicatorPresenters.values {
             presenter.configure(actions: floatingIndicatorActions)
+        }
+        self.toastWindowController.configureIndicatorAnchorProvider { [weak self] in
+            guard let self else { return nil }
+            let type = self.settingsStore.selectedFloatingIndicatorType
+            guard type.anchorsToastsToIndicator else { return nil }
+            return self.floatingIndicatorPresenters[type]?.toastAnchor()
         }
         self.floatingIndicatorState.updateHotkeys(
             toggleHotkey: settingsStore.toggleHotkey,
@@ -2190,15 +2199,10 @@ final class AppCoordinator {
         }
         activeFloatingIndicatorType = nil
 
-        if let pending = pendingIndicatorCompletion {
-            pendingIndicatorCompletion = nil
-            floatingIndicatorState.showCompletion(pending)
-        }
 
         updateFloatingIndicatorVisibility()
     }
 
-    private var pendingIndicatorCompletion: FloatingIndicatorState.CompletionKind?
 
     private func isFloatingIndicatorTemporarilyHidden() -> Bool {
         guard let hiddenUntil = floatingIndicatorHiddenUntil else { return false }
@@ -3159,7 +3163,6 @@ final class AppCoordinator {
         )
 
         noteEditorWindowController.show(note: newNote, isNewNote: true)
-        pendingIndicatorCompletion = .note
 
         Log.app.info("Opened note editor with enhanced note")
     }
@@ -3690,7 +3693,6 @@ final class AppCoordinator {
                 )
             }
             updateRecentTranscriptsMenu()
-            pendingIndicatorCompletion = .transcription
             if outcome.didPaste {
                 showInsertionSuccessToast(
                     appName: outcome.destinationAppName,
@@ -4171,7 +4173,6 @@ final class AppCoordinator {
                 )
             }
             updateRecentTranscriptsMenu()
-            pendingIndicatorCompletion = .transcription
             if outputResult?.didPaste == true {
                 showInsertionSuccessToast(
                     appName: outputResult?.destinationAppName,
@@ -5229,7 +5230,6 @@ final class AppCoordinator {
             )
             updateRecentTranscriptsMenu()
 
-            pendingIndicatorCompletion = .meeting
             if operationController.isCurrent(token) {
                 resetProcessingState()
                 didResetProcessingState = true
@@ -5541,7 +5541,6 @@ final class AppCoordinator {
             updateRecentTranscriptsMenu()
 
             let shouldNavigateToDetail = mediaTranscriptionState.route == .processing(job.id)
-            pendingIndicatorCompletion = .mediaTranscription
             resetProcessingState()
             didResetProcessingState = true
             toastService.show(ToastPayload(message: "Transcribed: \(managedAsset.displayName)"))

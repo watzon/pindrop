@@ -100,4 +100,68 @@ struct NotchPanelLayoutTests {
         #expect(abs(result.frame.midX - offsetVisible.midX) < 0.5)
         #expect(offsetVisible.minX...offsetVisible.maxX ~= result.frame.minX)
     }
+
+    @Test func presentationStyleFollowsHardwareNotchPresence() {
+        #expect(NotchIndicatorPresentationStyle(hasHardwareNotch: true) == .hardwareNotch)
+        #expect(NotchIndicatorPresentationStyle(hasHardwareNotch: false) == .externalDisplay)
+        #expect(NotchIndicatorPresentationStyle.hardwareNotch.entranceDuration > 0)
+        #expect(NotchIndicatorPresentationStyle.externalDisplay.entranceDuration > 0)
+    }
+
+    @Test func hardwareNotchStartsWithWingsBehindNotch() {
+        let notchWidth: CGFloat = 186
+        let sideWidth: CGFloat = 102
+        let values = NotchIndicatorPresentationMath.values(
+            style: .hardwareNotch,
+            isPresented: false,
+            notchWidth: notchWidth,
+            sideWidth: sideWidth,
+            height: 38
+        )
+
+        #expect(values.horizontalRevealScale == notchWidth / (notchWidth + sideWidth * 2))
+        #expect(values.leftWingOffset == sideWidth)
+        #expect(values.rightWingOffset == -sideWidth)
+        #expect(values.verticalOffset == 0)
+        #expect(values.opacity == 1)
+    }
+
+    @Test func externalDisplayStartsAbovePanelWithoutLateralMotion() {
+        let values = NotchIndicatorPresentationMath.values(
+            style: .externalDisplay,
+            isPresented: false,
+            notchWidth: 186,
+            sideWidth: 102,
+            height: 30
+        )
+
+        #expect(values.horizontalRevealScale == 1)
+        #expect(values.leftWingOffset == 0)
+        #expect(values.rightWingOffset == 0)
+        #expect(values.verticalOffset == -10)
+        #expect(values.opacity == 0)
+    }
+
+    @Test(
+        "Presented indicator settles at its full geometry",
+        arguments: [
+            NotchIndicatorPresentationStyle.hardwareNotch,
+            NotchIndicatorPresentationStyle.externalDisplay,
+        ]
+    )
+    func presentedIndicatorUsesNeutralTransforms(style: NotchIndicatorPresentationStyle) {
+        let values = NotchIndicatorPresentationMath.values(
+            style: style,
+            isPresented: true,
+            notchWidth: 186,
+            sideWidth: 102,
+            height: 38
+        )
+
+        #expect(values.horizontalRevealScale == 1)
+        #expect(values.leftWingOffset == 0)
+        #expect(values.rightWingOffset == 0)
+        #expect(values.verticalOffset == 0)
+        #expect(values.opacity == 1)
+    }
 }

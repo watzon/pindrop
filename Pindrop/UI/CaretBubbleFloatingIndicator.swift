@@ -494,12 +494,6 @@ private struct CaretBubbleIndicatorView: View {
                     y: 9
                 )
 
-            if let completion = state.recentCompletion, !state.isRecording, !state.isProcessing {
-                IndicatorCompletionOverlay(completion: completion)
-                    .offset(x: controller.actionRevealWidth, y: -16)
-                    .allowsHitTesting(false)
-                    .animation(AppTheme.Animation.smooth, value: state.recentCompletion)
-            }
         }
         .frame(width: panelSize.width, height: panelSize.height, alignment: .leading)
         .contentShape(Rectangle())
