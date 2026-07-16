@@ -137,32 +137,35 @@ struct OnboardingWindow: View {
     private static let preferredContentSize = CGSize(width: 760, height: 560)
 
     var body: some View {
-        VStack(spacing: 0) {
-            ZStack(alignment: .topLeading) {
-                stepContent
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+        ZStack {
+            AppColors.windowBackground
+                .ignoresSafeArea()
 
-                if canGoBack {
-                    Button(action: goBack) {
-                        HStack(spacing: 4) {
-                            IconView(icon: .chevronLeft, size: 14)
-                                .scaleEffect(x: layoutDirection == .rightToLeft ? -1 : 1)
-                            Text(localized("Back", locale: settings.selectedAppLocale.locale))
+            VStack(spacing: 0) {
+                ZStack(alignment: .topLeading) {
+                    stepContent
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                    if canGoBack {
+                        Button(action: goBack) {
+                            HStack(spacing: 4) {
+                                IconView(icon: .chevronLeft, size: 14)
+                                    .scaleEffect(x: layoutDirection == .rightToLeft ? -1 : 1)
+                                Text(localized("Back", locale: settings.selectedAppLocale.locale))
+                            }
+                            .font(AppTypography.label)
+                            .foregroundStyle(AppColors.textSecondary)
                         }
-                        .font(AppTypography.label)
-                        .foregroundStyle(AppColors.textSecondary)
+                        .buttonStyle(.plain)
+                        .keyboardFocusRing(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
-                    .buttonStyle(.plain)
-                    .keyboardFocusRing(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 }
-            }
 
-            stepIndicator
-                .padding(.top, 8)
+                stepIndicator
+                    .padding(.top, 8)
+            }
+            .padding(24)
         }
-        .padding(24)
-        .background(AppColors.windowBackground)
-        .clipShape(.rect(cornerRadius: 12))
         .frame(width: 760, height: 560)
         .environment(\.locale, settings.selectedAppLocale.locale)
         .environment(\.layoutDirection, settings.selectedAppLocale.layoutDirection)
