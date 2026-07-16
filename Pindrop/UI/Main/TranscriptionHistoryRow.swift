@@ -80,7 +80,7 @@ struct TranscriptionHistoryRow: View {
 
         let wordCount = record.text.split(separator: " ").count
         if wordCount > 0 {
-            parts.append("\(formatWordCount(wordCount)) words")
+            parts.append(String(format: localized("%@ words", locale: locale), locale: locale, formatWordCount(wordCount)))
         }
 
         return parts.joined(separator: " · ")

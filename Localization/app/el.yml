@@ -60,6 +60,8 @@ ai:
   enhancement: "Βελτίωση AI"
   enhancement_529f5583: "Βελτίωση AI: %@"
   enhancement_failed: "Η βελτίωση AI απέτυχε"
+  enhancement_failed_streamed_text_kept_as_is: "Η βελτίωση AI απέτυχε. Το κείμενο ροής παρέμεινε ως έχει."
+  enhancement_failed_transcription_inserted: "Η βελτίωση AI απέτυχε. Η μεταγραφή εισήχθη χωρίς βελτίωση."
   enhancement_is_disabled: "Η βελτίωση AI είναι απενεργοποιημένη."
   enhancement_will: "Η Βελτίωση AI θα:"
   model: "Μοντέλο AI"
@@ -250,6 +252,8 @@ copy:
   transcript: "Αντιγραφή μεταγραφής"
 correct:
   grammar_mistakes: "Διορθώστε τα γραμματικά λάθη"
+could:
+  not_switch_microphone: "Δεν ήταν δυνατή η αλλαγή μικροφώνου: %@"
 create:
   _self: "Δημιουργώ"
   new_note: "Δημιουργία νέας σημείωσης"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Δεν υπάρχουν ακόμα μεταγραφές μέσων"
   model_loaded: "Δεν έχει φορτωθεί μοντέλο"
+  model_loaded_please_download_a_model: "Δεν έχει φορτωθεί μοντέλο. Κάντε λήψη ενός μοντέλου στις Ρυθμίσεις."
   model_selected: "Δεν επιλέχθηκε μοντέλο"
   models_available: "Δεν υπάρχουν διαθέσιμα μοντέλα"
   models_available_ae9dbd29: "Δεν υπάρχουν διαθέσιμα μοντέλα."
@@ -724,6 +729,7 @@ no:
   replacements: "Χωρίς Αντικαταστάσεις"
   results_found: "Δεν βρέθηκαν αποτελέσματα"
   settings_found: "Δεν βρέθηκαν ρυθμίσεις"
+  speech_detected_try_speaking_closer_to_your: "Δεν εντοπίστηκε ομιλία. Δοκιμάστε να μιλήσετε πιο κοντά στο μικρόφωνο."
   transcriptions_yet: "Δεν υπάρχουν ακόμη μεταγραφές"
   vocabulary_words: "Χωρίς λεξιλογικές λέξεις"
   transcripts_audio_prompts_file_names_or_perso: "Καμία μεταγραφή, ήχος, προτροπή, όνομα αρχείου ή προσωπικό περιεχόμενο — ποτέ."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "Στοιχεία ελέγχου παρόχων, μηνυμάτων προτροπής και λειτουργίας vibe"
 push:
   to_talk: "Push-to-Talk"
+queue:
+  complete_restored: "Η ουρά ολοκληρώθηκε — έγινε επαναφορά σε %@"
 quickly:
   copy_your_last_transcription: "Αντιγράψτε γρήγορα την τελευταία σας μεταγραφή"
   pull_your_latest_transcript_back_to_the: "Τραβήξτε γρήγορα την τελευταία μεταγραφή σας πίσω στο πρόχειρο."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "Εγγραφή"
   3f8fd48c: "🔴 Ηχογράφηση"
+  canceled: "Η εγγραφή ακυρώθηκε."
+  in_progress_transcription_will_start: "Η εγγραφή σε εξέλιξη — η μεταγραφή θα ξεκινήσει μόλις ολοκληρωθεί."
+  stopped_with_error: "Η εγγραφή σταμάτησε: %@"
   from_external_and_bluetooth_microphone: "Η εγγραφή από εξωτερικά μικρόφωνα και μικρόφωνα Bluetooth είναι πλέον απόλυτα αξιόπιστη, ακόμη κι όταν η έξοδος ήχου δρομολογείται αλλού."
 recordings:
   _self: "ηχογραφήσεις"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "Υποστηρίζει αρχεία τοπικών πολυμέσων και συνδέσμους ιστού που επιλύονται με yt-dlp."
 switch:
   to_model: "Μετάβαση στο μοντέλο"
+switching:
+  to_for_this_queue: "Εναλλαγή σε %@ για αυτήν την ουρά"
 system:
   _self: "Σύστημα"
   default: "Προεπιλογή συστήματος"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "Μεταγραφή μέσων"
 transcribed:
   _self: "μεταγραφεί"
+  source_name: "Μεταγράφηκε: %@"
   words: "Transcribed words"
 transcription:
   _self: "Μεταγραφή"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "Η μεταγραφή διαγράφηκε."
   enhancement: "Βελτίωση μεταγραφής"
   failed: "Η μεταγραφή απέτυχε"
+  failed_with_error: "Η μεταγραφή απέτυχε: %@"
   finished: "Η μεταγραφή ολοκληρώθηκε."
   in_progress: "Η μεταγραφή σε εξέλιξη"
   metadata: "Μεταδεδομένα μεταγραφής"

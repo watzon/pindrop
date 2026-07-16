@@ -60,6 +60,8 @@ ai:
   enhancement: "AIの強化"
   enhancement_529f5583: "AI強化: %@"
   enhancement_failed: "AI強化に失敗しました"
+  enhancement_failed_streamed_text_kept_as_is: "AI強化に失敗しました。ストリーミングされたテキストはそのまま保持されます。"
+  enhancement_failed_transcription_inserted: "AI強化に失敗しました。文字起こしは強化なしで挿入されました。"
   enhancement_is_disabled: "AI強化は無効になっています。"
   enhancement_will: "AI の強化により次のことが可能になります。"
   model: "AIモデル"
@@ -250,6 +252,8 @@ copy:
   transcript: "成績証明書のコピー"
 correct:
   grammar_mistakes: "文法の間違いを正す"
+could:
+  not_switch_microphone: "マイクを切り替えられませんでした: %@"
 create:
   _self: "作成する"
   new_note: "新しいメモを作成する"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "学習済みの参加者はまだありません"
   media_transcriptions_yet: "メディアの転写はまだありません"
   model_loaded: "モデルがロードされていません"
+  model_loaded_please_download_a_model: "モデルがロードされていません。設定でモデルをダウンロードしてください。"
   model_selected: "モデルが選択されていません"
   models_available: "利用可能なモデルはありません"
   models_available_ae9dbd29: "利用可能なモデルはありません。"
@@ -724,6 +729,7 @@ no:
   replacements: "代替品なし"
   results_found: "結果が見つかりませんでした"
   settings_found: "設定が見つかりません"
+  speech_detected_try_speaking_closer_to_your: "音声が検出されませんでした。マイクに近づいて話してみてください。"
   transcriptions_yet: "転写はまだありません"
   vocabulary_words: "語彙がありません"
   transcripts_audio_prompts_file_names_or_perso: "文字起こし、音声、プロンプト、ファイル名、個人的な内容は一切ありません — 決して。"
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "プロバイダー、プロンプト、およびバイブ モード コントロール"
 push:
   to_talk: "プッシュツートーク"
+queue:
+  complete_restored: "キューが完了しました — %@ を復元しました"
 quickly:
   copy_your_last_transcription: "最後の文字起こしをすばやくコピーする"
   pull_your_latest_transcript_back_to_the: "最新のトランスクリプトをクリップボードにすばやく取り込みます。"
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "録音"
   3f8fd48c: "🔴 録音"
+  canceled: "録音をキャンセルしました。"
+  in_progress_transcription_will_start: "録音中です — 終了すると文字起こしが開始されます。"
+  stopped_with_error: "録音を停止しました: %@"
   from_external_and_bluetooth_microphone: "外部マイクや Bluetooth マイクからの録音が、音声出力が別の場所にルーティングされていても安定して動作するようになりました。"
 recordings:
   _self: "録音"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "yt-dlp で解決されるローカル メディア ファイルと Web リンクをサポートします。"
 switch:
   to_model: "モデルに切り替える"
+switching:
+  to_for_this_queue: "このキューのために%@に切り替えています"
 system:
   _self: "システム"
   default: "システムのデフォルト"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "メディアの転写"
 transcribed:
   _self: "転写された"
+  source_name: "文字起こし: %@"
   words: "Transcribed words"
 transcription:
   _self: "転写"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "転写は削除されました。"
   enhancement: "転写の強化"
   failed: "転写に失敗しました"
+  failed_with_error: "転写に失敗しました: %@"
   finished: "転写が完了しました。"
   in_progress: "文字起こし中です"
   metadata: "転写メタデータ"

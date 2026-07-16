@@ -60,6 +60,8 @@ ai:
   enhancement: "Yapay Zeka Geliştirme"
   enhancement_529f5583: "Yapay Zeka Geliştirme: %@"
   enhancement_failed: "Yapay Zeka Geliştirme Başarısız Oldu"
+  enhancement_failed_streamed_text_kept_as_is: "Yapay Zeka Geliştirme başarısız oldu. Akış hâlindeki metin olduğu gibi bırakıldı."
+  enhancement_failed_transcription_inserted: "Yapay Zeka Geliştirme başarısız oldu. Transkripsiyon geliştirme yapılmadan eklendi."
   enhancement_is_disabled: "Yapay zeka geliştirmesi devre dışı."
   enhancement_will: "Yapay Zeka Geliştirme şunları sağlayacaktır:"
   model: "Yapay Zeka Modeli"
@@ -250,6 +252,8 @@ copy:
   transcript: "Transkripti Kopyala"
 correct:
   grammar_mistakes: "Dilbilgisi hatalarını düzeltin"
+could:
+  not_switch_microphone: "Mikrofon değiştirilemedi: %@"
 create:
   _self: "Yaratmak"
   new_note: "Yeni Not Oluştur"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Henüz medya transkripsiyonu yok"
   model_loaded: "Hiçbir Model Yüklenmedi"
+  model_loaded_please_download_a_model: "Hiçbir model yüklenmedi. Lütfen Ayarlar'da bir model indirin."
   model_selected: "Model seçilmedi"
   models_available: "Mevcut model yok"
   models_available_ae9dbd29: "Hiçbir model mevcut değil."
@@ -724,6 +729,7 @@ no:
   replacements: "Değiştirme Yok"
   results_found: "Sonuç bulunamadı"
   settings_found: "Hiçbir ayar bulunamadı"
+  speech_detected_try_speaking_closer_to_your: "Konuşma algılanmadı. Mikrofona daha yakın konuşmayı deneyin."
   transcriptions_yet: "Henüz transkripsiyon yok"
   vocabulary_words: "Kelime Bilgisi Yok"
   transcripts_audio_prompts_file_names_or_perso: "Hiçbir transkripsiyon, ses, istem, dosya adı veya kişisel içerik yok — asla."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "Sağlayıcılar, istemler ve titreşim modu kontrolleri"
 push:
   to_talk: "Bas-Konuş"
+queue:
+  complete_restored: "Kuyruk tamamlandı — %@ geri yüklendi"
 quickly:
   copy_your_last_transcription: "Son transkripsiyonunuzu hızlıca kopyalayın"
   pull_your_latest_transcript_back_to_the: "En son transkriptinizi hızla panoya geri çekin."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "Kayıt"
   3f8fd48c: "🔴 Kayıt"
+  canceled: "Kayıt iptal edildi."
+  in_progress_transcription_will_start: "Kayıt devam ediyor — bittiğinde transkripsiyon başlayacak."
+  stopped_with_error: "Kayıt durduruldu: %@"
   from_external_and_bluetooth_microphone: "Harici ve Bluetooth mikrofonlardan kayıt artık, ses çıkışı başka yere yönlendirilse bile son derece kararlı."
 recordings:
   _self: "kayıtlar"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "Yt-dlp ile çözümlenen yerel medya dosyalarını ve web bağlantılarını destekler."
 switch:
   to_model: "Modele Geç"
+switching:
+  to_for_this_queue: "Bu kuyruk için %@ moduna geçiliyor"
 system:
   _self: "Sistem"
   default: "Sistem Varsayılanı"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "Medyayı Metne Dönüştür"
 transcribed:
   _self: "yazıya geçirilmiş"
+  source_name: "Transkript edildi: %@"
   words: "Transcribed words"
 transcription:
   _self: "Transkripsiyon"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "Transkripsiyon silindi."
   enhancement: "Transkripsiyon Geliştirme"
   failed: "Transkripsiyon Başarısız"
+  failed_with_error: "Transkripsiyon başarısız: %@"
   finished: "Transkripsiyon tamamlandı."
   in_progress: "Transkripsiyon devam ediyor"
   metadata: "Transkripsiyon Meta Verileri"

@@ -60,6 +60,8 @@ ai:
   enhancement: "שיפור AI"
   enhancement_529f5583: "שיפור בינה מלאכותית: %@"
   enhancement_failed: "שיפור AI נכשל"
+  enhancement_failed_streamed_text_kept_as_is: "שיפור ה-AI נכשל. הטקסט המוזרם נשמר כפי שהוא."
+  enhancement_failed_transcription_inserted: "שיפור ה-AI נכשל. התמלול הוכנס ללא שיפור."
   enhancement_is_disabled: "שיפור AI מושבת."
   enhancement_will: "שיפור בינה מלאכותית יעשה:"
   model: "דגם AI"
@@ -250,6 +252,8 @@ copy:
   transcript: "העתק תמליל"
 correct:
   grammar_mistakes: "תקן טעויות דקדוק"
+could:
+  not_switch_microphone: "לא ניתן היה להחליף מיקרופון: %@"
 create:
   _self: "לִיצוֹר"
   new_note: "צור הערה חדשה"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "עדיין אין תמלול מדיה"
   model_loaded: "לא נטען דגם"
+  model_loaded_please_download_a_model: "לא נטען דגם. אנא הורד דגם בהגדרות."
   model_selected: "לא נבחר דגם"
   models_available: "אין דגמים זמינים"
   models_available_ae9dbd29: "אין דגמים זמינים."
@@ -724,6 +729,7 @@ no:
   replacements: "אין תחליפים"
   results_found: "לא נמצאו תוצאות"
   settings_found: "לא נמצאו הגדרות"
+  speech_detected_try_speaking_closer_to_your: "לא זוהה דיבור. נסה לדבר קרוב יותר למיקרופון."
   transcriptions_yet: "עדיין אין תעתיקים"
   vocabulary_words: "אין מילים אוצר מילים"
   transcripts_audio_prompts_file_names_or_perso: "אין תמלולים, אודיו, הנחיות, שמות קבצים או תוכן אישי — לעולם."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "ספקים, הנחיות ופקדי מצב אווירה"
 push:
   to_talk: "דחיפה-לדבר"
+queue:
+  complete_restored: "התור הושלם — %@ שוחזר"
 quickly:
   copy_your_last_transcription: "העתק במהירות את התמלול האחרון שלך"
   pull_your_latest_transcript_back_to_the: "משוך במהירות את התמליל האחרון שלך בחזרה ללוח."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "הַקלָטָה"
   3f8fd48c: "🔴 הקלטה"
+  canceled: "ההקלטה בוטלה."
+  in_progress_transcription_will_start: "ההקלטה מתבצעת — התמלול יתחיל כשהיא תסתיים."
+  stopped_with_error: "ההקלטה הופסקה: %@"
   from_external_and_bluetooth_microphone: "הקלטה ממיקרופונים חיצוניים וממיקרופוני Bluetooth יציבה עכשיו מאוד, גם כשפלט האודיו מנותב למקום אחר."
 recordings:
   _self: "הקלטות"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "תומך בקבצי מדיה מקומיים וקישורי אינטרנט שנפתרו באמצעות yt-dlp."
 switch:
   to_model: "עבור לדגם"
+switching:
+  to_for_this_queue: "מעבר אל %@ עבור תור זה"
 system:
   _self: "מַעֲרֶכֶת"
   default: "מערכת ברירת מחדל"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "תמלול מדיה"
 transcribed:
   _self: "מתומלל"
+  source_name: "תומלל: %@"
   words: "Transcribed words"
 transcription:
   _self: "תַעֲתוּק"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "התמלול נמחק."
   enhancement: "שיפור תמלול"
   failed: "התמלול נכשל"
+  failed_with_error: "התמלול נכשל: %@"
   finished: "התמלול הסתיים."
   in_progress: "תמלול מתבצע"
   metadata: "מטא נתונים של תמלול"

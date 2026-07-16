@@ -60,6 +60,8 @@ ai:
   enhancement: "Cải tiến AI"
   enhancement_529f5583: "Cải tiến AI: %@"
   enhancement_failed: "Cải tiến AI không thành công"
+  enhancement_failed_streamed_text_kept_as_is: "Cải tiến AI không thành công. Văn bản truyền trực tuyến được giữ nguyên."
+  enhancement_failed_transcription_inserted: "Cải tiến AI không thành công. Bản phiên âm đã được chèn mà không có cải tiến."
   enhancement_is_disabled: "Tính năng nâng cao AI bị vô hiệu hóa."
   enhancement_will: "Cải tiến AI sẽ:"
   model: "Mô hình AI"
@@ -250,6 +252,8 @@ copy:
   transcript: "Sao chép bảng điểm"
 correct:
   grammar_mistakes: "Sửa lỗi ngữ pháp"
+could:
+  not_switch_microphone: "Không thể chuyển micrô: %@"
 create:
   _self: "Tạo nên"
   new_note: "Tạo ghi chú mới"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Chưa có bản ghi phương tiện nào"
   model_loaded: "Không có mô hình nào được tải"
+  model_loaded_please_download_a_model: "Không có mô hình nào được tải. Vui lòng tải một mô hình trong Cài đặt."
   model_selected: "Không có mô hình nào được chọn"
   models_available: "Không có mẫu nào có sẵn"
   models_available_ae9dbd29: "Không có mô hình có sẵn."
@@ -724,6 +729,7 @@ no:
   replacements: "Không thay thế"
   results_found: "Không tìm thấy kết quả nào"
   settings_found: "Không tìm thấy cài đặt nào"
+  speech_detected_try_speaking_closer_to_your: "Không phát hiện giọng nói. Hãy thử nói gần micrô hơn."
   transcriptions_yet: "Chưa có phiên âm"
   vocabulary_words: "Không có từ vựng"
   transcripts_audio_prompts_file_names_or_perso: "Không có bản phiên âm, âm thanh, lời nhắc, tên tệp hay nội dung cá nhân — không bao giờ."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "Nhà cung cấp, lời nhắc và điều khiển chế độ rung cảm"
 push:
   to_talk: "Nhấn để nói"
+queue:
+  complete_restored: "Hàng đợi hoàn tất — đã khôi phục %@"
 quickly:
   copy_your_last_transcription: "Sao chép nhanh bản phiên âm cuối cùng của bạn"
   pull_your_latest_transcript_back_to_the: "Nhanh chóng kéo bản ghi mới nhất của bạn trở lại bảng tạm."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "ghi âm"
   3f8fd48c: "🔴 Ghi âm"
+  canceled: "Đã hủy ghi âm."
+  in_progress_transcription_will_start: "Đang ghi âm — quá trình phiên âm sẽ bắt đầu khi ghi âm kết thúc."
+  stopped_with_error: "Đã dừng ghi âm: %@"
   from_external_and_bluetooth_microphone: "Ghi âm từ mic ngoài và mic Bluetooth giờ rất ổn định, ngay cả khi đầu ra âm thanh được định tuyến sang nơi khác."
 recordings:
   _self: "bản ghi âm"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "Hỗ trợ các tệp phương tiện cục bộ và liên kết web được giải quyết bằng yt-dlp."
 switch:
   to_model: "Chuyển sang mô hình"
+switching:
+  to_for_this_queue: "Đang chuyển sang %@ cho hàng đợi này"
 system:
   _self: "Hệ thống"
   default: "Mặc định hệ thống"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "Phiên âm phương tiện"
 transcribed:
   _self: "phiên âm"
+  source_name: "Đã phiên âm: %@"
   words: "Transcribed words"
 transcription:
   _self: "Phiên âm"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "Đã xóa bản ghi."
   enhancement: "Tăng cường phiên mã"
   failed: "Phiên âm không thành công"
+  failed_with_error: "Phiên âm không thành công: %@"
   finished: "Phiên âm xong."
   in_progress: "Đang phiên âm"
   metadata: "Siêu dữ liệu phiên mã"

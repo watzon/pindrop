@@ -128,6 +128,8 @@ final class HotkeyManager {
     }
     
     private var registeredHotkeys: [String: RegisteredHotkey] = [:]
+    /// Collision-free source for Carbon `EventHotKeyID.id` values.
+    private var nextCarbonHotkeyID: UInt32 = 1
     private var eventHandlerRef: EventHandlerRef?
     private let registration: HotkeyRegistrationProtocol
     private var hotkeyCaptureStateObserver: NSObjectProtocol?
@@ -166,8 +168,12 @@ final class HotkeyManager {
             onKeyUp: onKeyUp
         )
         
-        // Use truncatingIfNeeded to safely convert hash to UInt32 (handles negative values and overflow)
-        let hotkeyID = UInt32(truncatingIfNeeded: identifier.hashValue)
+        // Monotonic counter: IDs only need to be unique within this launch (the
+        // event handler matches against stored registrations). `String.hashValue`
+        // was used before, but truncating it to 32 bits can collide between
+        // identifiers, mis-routing or failing registration.
+        let hotkeyID = nextCarbonHotkeyID
+        nextCarbonHotkeyID &+= 1
         
         let usesCarbonRegistration = modifierMask(for: keyCode) == nil
         if usesCarbonRegistration {

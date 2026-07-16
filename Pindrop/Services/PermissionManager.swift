@@ -171,11 +171,21 @@ final class PermissionManager {
     }
 
     func requestSystemAudioPermission() async -> Bool {
-        if #available(macOS 14.2, *) {
+        guard #available(macOS 14.2, *) else {
+            return false
+        }
+
+        if Self.shouldSuppressSystemPermissionPrompts {
             return true
         }
 
-        return false
+        // Creating a process tap is both the check and the request for the
+        // system-audio recording TCC grant (the first attempt shows the system
+        // consent prompt). Run it off the main actor: that first call can block
+        // until the user answers the prompt.
+        return await Task.detached(priority: .userInitiated) {
+            SystemAudioTapCaptureBackend.probeSystemAudioTapAccess()
+        }.value
     }
 
     func microphoneAuthorizationSnapshot() -> MicrophoneAuthorizationSnapshot {

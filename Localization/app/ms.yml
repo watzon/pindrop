@@ -60,6 +60,8 @@ ai:
   enhancement: "Peningkatan AI"
   enhancement_529f5583: "Peningkatan AI: %@"
   enhancement_failed: "Peningkatan AI Gagal"
+  enhancement_failed_streamed_text_kept_as_is: "Peningkatan AI gagal. Teks strim dikekalkan seperti sedia ada."
+  enhancement_failed_transcription_inserted: "Peningkatan AI gagal. Transkripsi dimasukkan tanpa peningkatan."
   enhancement_is_disabled: "Peningkatan AI dilumpuhkan."
   enhancement_will: "Peningkatan AI akan:"
   model: "Model AI"
@@ -250,6 +252,8 @@ copy:
   transcript: "Salin Transkrip"
 correct:
   grammar_mistakes: "Betulkan kesalahan tatabahasa"
+could:
+  not_switch_microphone: "Tidak dapat menukar mikrofon: %@"
 create:
   _self: "Buat"
   new_note: "Cipta Nota Baharu"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Tiada transkripsi media lagi"
   model_loaded: "Tiada Model Dimuatkan"
+  model_loaded_please_download_a_model: "Tiada model dimuatkan. Sila muat turun model dalam Tetapan."
   model_selected: "Tiada model dipilih"
   models_available: "Tiada model tersedia"
   models_available_ae9dbd29: "Tiada model tersedia."
@@ -724,6 +729,7 @@ no:
   replacements: "Tiada Penggantian"
   results_found: "Tiada hasil ditemui"
   settings_found: "Tiada tetapan ditemui"
+  speech_detected_try_speaking_closer_to_your: "Tiada pertuturan dikesan. Cuba bercakap lebih dekat dengan mikrofon anda."
   transcriptions_yet: "Tiada transkripsi lagi"
   vocabulary_words: "Tiada Perbendaharaan Kata"
   transcripts_audio_prompts_file_names_or_perso: "Tiada transkripsi, audio, gesaan, nama fail, atau kandungan peribadi — tidak sekali-kali."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "Pembekal, gesaan dan kawalan mod getaran"
 push:
   to_talk: "Tekan-untuk-Cakap"
+queue:
+  complete_restored: "Barisan gilir selesai — %@ dipulihkan"
 quickly:
   copy_your_last_transcription: "Cepat salin transkripsi terakhir anda"
   pull_your_latest_transcript_back_to_the: "Tarik transkrip terbaharu anda kembali ke papan keratan dengan cepat."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "Rakaman"
   3f8fd48c: "🔴 Rakaman"
+  canceled: "Rakaman dibatalkan."
+  in_progress_transcription_will_start: "Rakaman sedang dijalankan — transkripsi akan bermula apabila selesai."
+  stopped_with_error: "Rakaman dihentikan: %@"
   from_external_and_bluetooth_microphone: "Rakaman daripada mikrofon luaran dan Bluetooth kini sangat stabil, walaupun output audio dihalakan ke tempat lain."
 recordings:
   _self: "rakaman"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "Menyokong fail media tempatan dan pautan web yang diselesaikan dengan yt-dlp."
 switch:
   to_model: "Tukar kepada Model"
+switching:
+  to_for_this_queue: "Menukar kepada %@ untuk baris gilir ini"
 system:
   _self: "Sistem"
   default: "Lalai Sistem"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "Transkripsi Media"
 transcribed:
   _self: "ditranskripsikan"
+  source_name: "Ditranskripsikan: %@"
   words: "Transcribed words"
 transcription:
   _self: "Transkripsi"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "Transkripsi dipadamkan."
   enhancement: "Peningkatan Transkripsi"
   failed: "Transkripsi Gagal"
+  failed_with_error: "Transkripsi gagal: %@"
   finished: "Transkripsi selesai."
   in_progress: "Transkripsi sedang dijalankan"
   metadata: "Metadata Transkripsi"

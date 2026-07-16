@@ -60,6 +60,8 @@ ai:
   enhancement: "การเพิ่มประสิทธิภาพ AI"
   enhancement_529f5583: "การปรับปรุง AI: %@"
   enhancement_failed: "การปรับปรุง AI ล้มเหลว"
+  enhancement_failed_streamed_text_kept_as_is: "การปรับปรุง AI ล้มเหลว ข้อความที่สตรีมไว้จะถูกเก็บไว้ตามเดิม"
+  enhancement_failed_transcription_inserted: "การปรับปรุง AI ล้มเหลว ข้อความถอดเสียงถูกแทรกโดยไม่มีการปรับปรุง"
   enhancement_is_disabled: "การเพิ่มประสิทธิภาพ AI ถูกปิดใช้งาน"
   enhancement_will: "การปรับปรุง AI จะ:"
   model: "โมเดลเอไอ"
@@ -250,6 +252,8 @@ copy:
   transcript: "คัดลอกใบรับรองผลการเรียน"
 correct:
   grammar_mistakes: "แก้ไขข้อผิดพลาดทางไวยากรณ์"
+could:
+  not_switch_microphone: "ไม่สามารถเปลี่ยนไมโครโฟนได้: %@"
 create:
   _self: "สร้าง"
   new_note: "สร้างบันทึกใหม่"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "ยังไม่มีการถอดความจากสื่อ"
   model_loaded: "ไม่มีการโหลดโมเดล"
+  model_loaded_please_download_a_model: "ไม่มีการโหลดโมเดล โปรดดาวน์โหลดโมเดลในการตั้งค่า"
   model_selected: "ไม่ได้เลือกรุ่น"
   models_available: "ไม่มีรุ่นที่มีจำหน่าย"
   models_available_ae9dbd29: "ไม่มีรุ่นที่มีจำหน่าย"
@@ -724,6 +729,7 @@ no:
   replacements: "ไม่มีการเปลี่ยน"
   results_found: "ไม่พบผลลัพธ์"
   settings_found: "ไม่พบการตั้งค่า"
+  speech_detected_try_speaking_closer_to_your: "ไม่พบคำพูด ลองพูดให้ใกล้ไมโครโฟนมากขึ้น"
   transcriptions_yet: "ยังไม่มีการถอดเสียงเป็นคำ"
   vocabulary_words: "ไม่มีคำศัพท์"
   transcripts_audio_prompts_file_names_or_perso: "ไม่มีการถอดเสียง เสียง พรอมต์ ชื่อไฟล์ หรือเนื้อหาส่วนบุคคล — ไม่มีเลย"
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "ผู้ให้บริการ ข้อความแจ้ง และการควบคุมโหมดความรู้สึก"
 push:
   to_talk: "กดเพื่อพูดคุย"
+queue:
+  complete_restored: "คิวเสร็จสมบูรณ์ — คืนค่า %@ แล้ว"
 quickly:
   copy_your_last_transcription: "คัดลอกการถอดเสียงเป็นคำล่าสุดของคุณอย่างรวดเร็ว"
   pull_your_latest_transcript_back_to_the: "ดึงข้อความถอดเสียงล่าสุดของคุณกลับไปที่คลิปบอร์ดอย่างรวดเร็ว"
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "การบันทึก"
   3f8fd48c: "🔴 การบันทึก"
+  canceled: "การบันทึกถูกยกเลิก"
+  in_progress_transcription_will_start: "กำลังบันทึกอยู่ — การถอดเสียงจะเริ่มเมื่อบันทึกเสร็จสิ้น"
+  stopped_with_error: "การบันทึกหยุดลง: %@"
   from_external_and_bluetooth_microphone: "การบันทึกจากไมโครโฟนภายนอกและ Bluetooth ตอนนี้เสถียรมาก แม้ว่าเอาต์พุตเสียงจะถูกส่งไปที่อื่น"
 recordings:
   _self: "การบันทึก"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "รองรับไฟล์สื่อท้องถิ่นและเว็บลิงก์ที่แก้ไขด้วย yt-dlp"
 switch:
   to_model: "สลับไปที่รุ่น"
+switching:
+  to_for_this_queue: "กำลังสลับไปที่ %@ สำหรับคิวนี้"
 system:
   _self: "ระบบ"
   default: "ค่าเริ่มต้นของระบบ"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "ถอดเสียงสื่อ"
 transcribed:
   _self: "ถอดความ"
+  source_name: "ถอดความแล้ว: %@"
   words: "Transcribed words"
 transcription:
   _self: "การถอดเสียง"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "ลบการถอดเสียงเป็นคำแล้ว"
   enhancement: "การเพิ่มประสิทธิภาพการถอดความ"
   failed: "การถอดเสียงล้มเหลว"
+  failed_with_error: "การถอดเสียงล้มเหลว: %@"
   finished: "การถอดเสียงเป็นคำเสร็จสิ้น"
   in_progress: "อยู่ระหว่างการถอดเสียง"
   metadata: "ข้อมูลเมตาของการถอดเสียง"

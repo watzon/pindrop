@@ -60,6 +60,8 @@ ai:
   enhancement: "AI 增強"
   enhancement_529f5583: "AI 增強：%@"
   enhancement_failed: "AI 增強失敗"
+  enhancement_failed_streamed_text_kept_as_is: "AI 增強失敗。串流文字已保持原樣。"
+  enhancement_failed_transcription_inserted: "AI 增強失敗。轉錄已插入但未增強。"
   enhancement_is_disabled: "AI 增強已禁用。"
   enhancement_will: "AI 增強將："
   model: "AI 模型"
@@ -250,6 +252,8 @@ copy:
   transcript: "複製轉錄"
 correct:
   grammar_mistakes: "糾正語法錯誤"
+could:
+  not_switch_microphone: "無法切換麥克風：%@"
 create:
   _self: "建立"
   new_note: "建立新筆記"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "尚無已學習的參與者"
   media_transcriptions_yet: "尚無媒體轉錄"
   model_loaded: "未載入模型"
+  model_loaded_please_download_a_model: "未載入模型。請在設定中下載模型。"
   model_selected: "未選擇模型"
   models_available: "無可用模型"
   models_available_ae9dbd29: "無可用模型。"
@@ -724,6 +729,7 @@ no:
   replacements: "無替換"
   results_found: "未找到結果"
   settings_found: "未找到設定"
+  speech_detected_try_speaking_closer_to_your: "未偵測到語音。請嘗試靠近麥克風說話。"
   transcriptions_yet: "尚無轉錄"
   vocabulary_words: "無詞彙詞"
   transcripts_audio_prompts_file_names_or_perso: "絕無轉錄、音訊、提示詞、檔案名稱或個人內容 — 永不。"
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "提供商、提示詞和 vibe 模式控制"
 push:
   to_talk: "按鍵通話"
+queue:
+  complete_restored: "佇列已完成 — 已恢復 %@"
 quickly:
   copy_your_last_transcription: "快速複製您的上次轉錄"
   pull_your_latest_transcript_back_to_the: "快速將您最新的轉錄拉回剪貼簿。"
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "錄音中"
   3f8fd48c: "🔴 錄音中"
+  canceled: "錄音已取消。"
+  in_progress_transcription_will_start: "正在錄音 — 轉錄將在錄音結束後開始。"
+  stopped_with_error: "錄音已停止：%@"
   from_external_and_bluetooth_microphone: "現在即使音訊輸出被路由到其他位置，外接與 Bluetooth 麥克風錄音也能穩定運作。"
 recordings:
   _self: "錄音"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "支援本地媒體檔案和使用 yt-dlp 解析的網頁連結。"
 switch:
   to_model: "切換到模型"
+switching:
+  to_for_this_queue: "正在為此佇列切換到 %@"
 system:
   _self: "系統"
   default: "系統預設"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "轉錄媒體"
 transcribed:
   _self: "已轉錄"
+  source_name: "已轉錄：%@"
   words: "Transcribed words"
 transcription:
   _self: "轉錄"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "轉錄已刪除。"
   enhancement: "轉錄增強"
   failed: "轉錄失敗"
+  failed_with_error: "轉錄失敗：%@"
   finished: "轉錄完成。"
   in_progress: "轉錄進行中"
   metadata: "轉錄後設資料"

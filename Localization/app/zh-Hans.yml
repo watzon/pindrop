@@ -60,6 +60,8 @@ ai:
   enhancement: "AI 增强"
   enhancement_529f5583: "AI 增强：%@"
   enhancement_failed: "AI 增强失败"
+  enhancement_failed_streamed_text_kept_as_is: "AI 增强失败。流式文本已保持原样。"
+  enhancement_failed_transcription_inserted: "AI 增强失败。转录已插入但未增强。"
   enhancement_is_disabled: "AI 增强已禁用。"
   enhancement_will: "AI 增强将："
   model: "AI 模型"
@@ -250,6 +252,8 @@ copy:
   transcript: "复制转录"
 correct:
   grammar_mistakes: "纠正语法错误"
+could:
+  not_switch_microphone: "无法切换麦克风：%@"
 create:
   _self: "创建"
   new_note: "创建新笔记"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "尚无已学习的参与者"
   media_transcriptions_yet: "尚无媒体转录"
   model_loaded: "未加载模型"
+  model_loaded_please_download_a_model: "未加载模型。请在设置中下载模型。"
   model_selected: "未选择模型"
   models_available: "无可用模型"
   models_available_ae9dbd29: "无可用模型。"
@@ -724,6 +729,7 @@ no:
   replacements: "无替换"
   results_found: "未找到结果"
   settings_found: "未找到设置"
+  speech_detected_try_speaking_closer_to_your: "未检测到语音。请尝试靠近麦克风说话。"
   transcriptions_yet: "尚无转录"
   vocabulary_words: "无词汇词"
   transcripts_audio_prompts_file_names_or_perso: "绝无转录、音频、提示词、文件名或个人内容 — 永不。"
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "提供商、提示词和 vibe 模式控制"
 push:
   to_talk: "按键通话"
+queue:
+  complete_restored: "队列已完成 — 已恢复 %@"
 quickly:
   copy_your_last_transcription: "快速复制您的上次转录"
   pull_your_latest_transcript_back_to_the: "快速将您最新的转录拉回剪贴板。"
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "录音中"
   3f8fd48c: "🔴 录音中"
+  canceled: "录音已取消。"
+  in_progress_transcription_will_start: "正在录音 — 转录将在录音结束后开始。"
+  stopped_with_error: "录音已停止：%@"
   from_external_and_bluetooth_microphone: "现在即使音频输出被路由到其他位置，外接和 Bluetooth 麦克风录音也能稳定工作。"
 recordings:
   _self: "录音"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "支持本地媒体文件和使用 yt-dlp 解析的网页链接。"
 switch:
   to_model: "切换到模型"
+switching:
+  to_for_this_queue: "正在为此队列切换到 %@"
 system:
   _self: "系统"
   default: "系统默认"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "转录媒体"
 transcribed:
   _self: "已转录"
+  source_name: "已转录：%@"
   words: "Transcribed words"
 transcription:
   _self: "转录"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "转录已删除。"
   enhancement: "转录增强"
   failed: "转录失败"
+  failed_with_error: "转录失败：%@"
   finished: "转录完成。"
   in_progress: "转录进行中"
   metadata: "转录元数据"

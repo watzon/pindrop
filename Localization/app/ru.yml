@@ -60,6 +60,8 @@ ai:
   enhancement: "Улучшение искусственного интеллекта"
   enhancement_529f5583: "Улучшение ИИ: %@"
   enhancement_failed: "Улучшение ИИ не удалось"
+  enhancement_failed_streamed_text_kept_as_is: "Улучшение ИИ не удалось. Потоковый текст оставлен как есть."
+  enhancement_failed_transcription_inserted: "Улучшение ИИ не удалось. Транскрипция вставлена без улучшения."
   enhancement_is_disabled: "Улучшение ИИ отключено."
   enhancement_will: "Улучшение ИИ позволит:"
   model: "Модель ИИ"
@@ -250,6 +252,8 @@ copy:
   transcript: "Копировать стенограмму"
 correct:
   grammar_mistakes: "Исправьте грамматические ошибки"
+could:
+  not_switch_microphone: "Не удалось переключить микрофон: %@"
 create:
   _self: "Создавать"
   new_note: "Создать новую заметку"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "Пока нет выученных участников"
   media_transcriptions_yet: "Медиа-транскрипций пока нет"
   model_loaded: "Модель не загружена"
+  model_loaded_please_download_a_model: "Модель не загружена. Пожалуйста, загрузите модель в Настройках."
   model_selected: "Модель не выбрана"
   models_available: "Нет доступных моделей"
   models_available_ae9dbd29: "Нет доступных моделей."
@@ -724,6 +729,7 @@ no:
   replacements: "Нет замен"
   results_found: "Результаты не найдены"
   settings_found: "Настройки не найдены"
+  speech_detected_try_speaking_closer_to_your: "Речь не обнаружена. Попробуйте говорить ближе к микрофону."
   transcriptions_yet: "Транскрипций пока нет"
   vocabulary_words: "Нет словарных слов"
   transcripts_audio_prompts_file_names_or_perso: "Никаких транскрипций, аудио, промптов, имён файлов или личного контента — никогда."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "Поставщики, подсказки и элементы управления режимом Vibe"
 push:
   to_talk: "Нажми и говори"
+queue:
+  complete_restored: "Очередь завершена — восстановлено %@"
 quickly:
   copy_your_last_transcription: "Быстро скопируйте последнюю транскрипцию"
   pull_your_latest_transcript_back_to_the: "Быстро скопируйте последнюю расшифровку обратно в буфер обмена."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "Запись"
   3f8fd48c: "🔴 Запись"
+  canceled: "Запись отменена."
+  in_progress_transcription_will_start: "Идёт запись — транскрипция начнётся после её завершения."
+  stopped_with_error: "Запись остановлена: %@"
   from_external_and_bluetooth_microphone: "Запись с внешних и Bluetooth-микрофонов теперь работает очень стабильно, даже если вывод звука направлен в другое место."
 recordings:
   _self: "записи"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "Поддерживает локальные медиафайлы и веб-ссылки, разрешенные с помощью yt-dlp."
 switch:
   to_model: "Переключиться на модель"
+switching:
+  to_for_this_queue: "Переключение на %@ для этой очереди"
 system:
   _self: "Система"
   default: "Системные настройки по умолчанию"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "Транскрипция медиа"
 transcribed:
   _self: "переписанный"
+  source_name: "Транскрибировано: %@"
   words: "Transcribed words"
 transcription:
   _self: "Транскрипция"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "Транскрипция удалена."
   enhancement: "Улучшение транскрипции"
   failed: "Транскрипция не удалась"
+  failed_with_error: "Транскрипция не удалась: %@"
   finished: "Транскрипция завершена."
   in_progress: "Транскрипция в процессе"
   metadata: "Метаданные транскрипции"

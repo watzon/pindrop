@@ -45,7 +45,7 @@ protocol ClipboardProtocol {
     func restoreSnapshot(_ snapshot: ClipboardSnapshot) -> Bool
 }
 
-struct ClipboardSnapshot {
+struct ClipboardSnapshot: Equatable {
     let items: [[String: Data]]
     let changeCount: Int
 
@@ -286,8 +286,9 @@ final class OutputManager {
 
     /// How `output(_:)` actually landed the text in the target app. `.pasted` means the
     /// paste keystroke was issued; `.copiedToClipboard` means insertion wasn't possible
-    /// (no accessibility permission, or the paste failed) and the text was left on the
-    /// clipboard for the user to paste manually — callers can surface that distinction.
+    /// and the text was left on the clipboard for the user to paste manually —
+    /// `clipboardFallbackReason` tells callers whether that was the intentional no-AX
+    /// fallback or a real paste failure, so they can surface the right message.
     ///
     /// Destination fields are always captured from the frontmost app at insert/copy time
     /// (including clipboard-only mode: "frontmost app at copy time").
@@ -297,7 +298,18 @@ final class OutputManager {
             case copiedToClipboard
         }
 
+        enum ClipboardFallbackReason: Equatable {
+            /// Accessibility permission is missing; copying was the intended behavior.
+            case accessibilityUnavailable
+            /// A paste was attempted and failed; the copy is a recovery, not a success.
+            case pasteFailed
+        }
+
         let kind: Kind
+        let clipboardFallbackReason: ClipboardFallbackReason?
+        /// Pasteboard contents captured before the fallback copy replaced them, so
+        /// callers can offer Undo. Only set for `.copiedToClipboard`.
+        let previousClipboardSnapshot: ClipboardSnapshot?
         let destinationAppName: String?
         let destinationAppBundleID: String?
 
@@ -310,17 +322,23 @@ final class OutputManager {
         ) -> OutputResult {
             OutputResult(
                 kind: .pasted,
+                clipboardFallbackReason: nil,
+                previousClipboardSnapshot: nil,
                 destinationAppName: destinationAppName,
                 destinationAppBundleID: destinationAppBundleID
             )
         }
 
         static func copiedToClipboard(
+            reason: ClipboardFallbackReason = .pasteFailed,
+            previousClipboardSnapshot: ClipboardSnapshot? = nil,
             destinationAppName: String? = nil,
             destinationAppBundleID: String? = nil
         ) -> OutputResult {
             OutputResult(
                 kind: .copiedToClipboard,
+                clipboardFallbackReason: reason,
+                previousClipboardSnapshot: previousClipboardSnapshot,
                 destinationAppName: destinationAppName,
                 destinationAppBundleID: destinationAppBundleID
             )
@@ -396,8 +414,10 @@ final class OutputManager {
         destination: (name: String?, bundleID: String?)
     ) async throws -> OutputResult {
         guard checkAccessibilityPermission() else {
-            try copyToClipboard(text)
+            let snapshot = try copyReplacingClipboard(text)
             return .copiedToClipboard(
+                reason: .accessibilityUnavailable,
+                previousClipboardSnapshot: snapshot,
                 destinationAppName: destination.name,
                 destinationAppBundleID: destination.bundleID
             )
@@ -413,9 +433,14 @@ final class OutputManager {
                 destinationAppName: destination.name,
                 destinationAppBundleID: destination.bundleID
             )
+        } catch is CancellationError {
+            // The operation was cancelled before the paste keystroke landed; abort
+            // cleanly instead of stomping the clipboard with the transcript.
+            throw CancellationError()
         } catch {
             try copyToClipboard(text)
             return .copiedToClipboard(
+                reason: .pasteFailed,
                 destinationAppName: destination.name,
                 destinationAppBundleID: destination.bundleID
             )
@@ -436,8 +461,10 @@ final class OutputManager {
         destination: (name: String?, bundleID: String?)
     ) async throws -> OutputResult {
         guard checkAccessibilityPermission() else {
-            try copyToClipboard(text)
+            let snapshot = try copyReplacingClipboard(text)
             return .copiedToClipboard(
+                reason: .accessibilityUnavailable,
+                previousClipboardSnapshot: snapshot,
                 destinationAppName: destination.name,
                 destinationAppBundleID: destination.bundleID
             )
@@ -460,10 +487,15 @@ final class OutputManager {
                 destinationAppName: destination.name,
                 destinationAppBundleID: destination.bundleID
             )
+        } catch is CancellationError {
+            // The operation was cancelled before the paste keystroke landed; abort
+            // cleanly instead of stomping the clipboard with the transcript.
+            throw CancellationError()
         } catch {
             Log.output.error("Direct insert paste failed; leaving text on clipboard: \(error.localizedDescription)")
             try copyToClipboard(text)
             return .copiedToClipboard(
+                reason: .pasteFailed,
                 destinationAppName: destination.name,
                 destinationAppBundleID: destination.bundleID
             )
@@ -495,18 +527,6 @@ final class OutputManager {
             targetApplication?.activate(options: [.activateIgnoringOtherApps])
             try await Task.sleep(nanoseconds: 80_000_000)
             try await keySimulation.simulatePaste(allowSystemEventsFallback: allowSystemEventsFallback)
-
-            if restoreClipboard {
-                try await Task.sleep(nanoseconds: 500_000_000)
-                if shouldRestoreClipboard(expectedChangeCount: temporaryClipboardChangeCount, insertedText: text) {
-                    let restored = clipboard.restoreSnapshot(previousSnapshot)
-                    if !restored {
-                        Log.output.error("Failed to restore clipboard snapshot")
-                    }
-                } else {
-                    Log.output.info("Skipping clipboard restore because clipboard changed externally")
-                }
-            }
         } catch {
             if restoreClipboard && shouldRestoreClipboard(expectedChangeCount: temporaryClipboardChangeCount, insertedText: text) {
                 let restored = clipboard.restoreSnapshot(previousSnapshot)
@@ -517,6 +537,25 @@ final class OutputManager {
 
             throw error
         }
+
+        // The paste keystroke landed — the insertion is committed. Run the deferred
+        // clipboard restore in an unstructured task so cancelling the surrounding
+        // operation can neither skip the restore nor turn this success into a failure
+        // (which previously dropped history and re-stomped the clipboard on Escape
+        // during the restore window).
+        guard restoreClipboard else { return }
+        let restoreTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            if self.shouldRestoreClipboard(expectedChangeCount: temporaryClipboardChangeCount, insertedText: text) {
+                let restored = self.clipboard.restoreSnapshot(previousSnapshot)
+                if !restored {
+                    Log.output.error("Failed to restore clipboard snapshot")
+                }
+            } else {
+                Log.output.info("Skipping clipboard restore because clipboard changed externally")
+            }
+        }
+        await restoreTask.value
     }
 
     func copyToClipboard(_ text: String) throws {

@@ -60,6 +60,8 @@ ai:
   enhancement: "AI-förbättring"
   enhancement_529f5583: "AI-förbättring: %@"
   enhancement_failed: "AI Enhancement misslyckades"
+  enhancement_failed_streamed_text_kept_as_is: "AI-förbättring misslyckades. Den strömmade texten behölls som den är."
+  enhancement_failed_transcription_inserted: "AI-förbättring misslyckades. Transkriptionen infogades utan förbättring."
   enhancement_is_disabled: "AI-förbättring är inaktiverad."
   enhancement_will: "AI Enhancement kommer att:"
   model: "AI-modell"
@@ -250,6 +252,8 @@ copy:
   transcript: "Kopiera avskrift"
 correct:
   grammar_mistakes: "Rätta grammatikfel"
+could:
+  not_switch_microphone: "Kunde inte byta mikrofon: %@"
 create:
   _self: "Skapa"
   new_note: "Skapa ny anteckning"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Inga mediatranskriptioner ännu"
   model_loaded: "Ingen modell laddad"
+  model_loaded_please_download_a_model: "Ingen modell laddad. Ladda ner en modell i Inställningar."
   model_selected: "Ingen modell har valts"
   models_available: "Inga modeller tillgängliga"
   models_available_ae9dbd29: "Inga modeller tillgängliga."
@@ -724,6 +729,7 @@ no:
   replacements: "Inga ersättningar"
   results_found: "Inga resultat hittades"
   settings_found: "Inga inställningar hittades"
+  speech_detected_try_speaking_closer_to_your: "Inget tal upptäckt. Försök tala närmare mikrofonen."
   transcriptions_yet: "Inga transkriptioner ännu"
   vocabulary_words: "Inga ordförråd"
   transcripts_audio_prompts_file_names_or_perso: "Inga transkriptioner, ljud, prompter, filnamn eller personligt innehåll — aldrig."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "Providers, uppmaningar och vibelägeskontroller"
 push:
   to_talk: "Push-to-Talk"
+queue:
+  complete_restored: "Kö klar — återställde %@"
 quickly:
   copy_your_last_transcription: "Kopiera snabbt din senaste transkription"
   pull_your_latest_transcript_back_to_the: "Dra snabbt tillbaka din senaste utskrift till urklippet."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "Inspelning"
   3f8fd48c: "🔴 Inspelning"
+  canceled: "Inspelning avbruten."
+  in_progress_transcription_will_start: "Inspelning pågår — transkriptionen börjar när den är klar."
+  stopped_with_error: "Inspelningen stoppades: %@"
   from_external_and_bluetooth_microphone: "Inspelning från externa och Bluetooth-mikrofoner är nu mycket stabil, även när ljudutgången dirigeras någon annanstans."
 recordings:
   _self: "inspelningar"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "Stöder lokala mediefiler och webblänkar lösta med yt-dlp."
 switch:
   to_model: "Byt till modell"
+switching:
+  to_for_this_queue: "Byter till %@ för denna kö"
 system:
   _self: "System"
   default: "System Standard"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "Transkribera media"
 transcribed:
   _self: "transkriberat"
+  source_name: "Transkriberat: %@"
   words: "Transcribed words"
 transcription:
   _self: "Transkription"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "Transkription raderad."
   enhancement: "Transkriptionsförbättring"
   failed: "Transkriptionen misslyckades"
+  failed_with_error: "Transkriptionen misslyckades: %@"
   finished: "Transkriptionen avslutad."
   in_progress: "Transkription pågår"
   metadata: "Transkriptionsmetadata"

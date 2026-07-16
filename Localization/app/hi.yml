@@ -60,6 +60,8 @@ ai:
   enhancement: "एआई संवर्धन"
   enhancement_529f5583: "एआई एन्हांसमेंट: %@"
   enhancement_failed: "एआई एन्हांसमेंट विफल"
+  enhancement_failed_streamed_text_kept_as_is: "AI एन्हांसमेंट विफल रहा। स्ट्रीम किया गया टेक्स्ट यथावत रखा गया।"
+  enhancement_failed_transcription_inserted: "AI एन्हांसमेंट विफल रहा। प्रतिलेखन बिना एन्हांसमेंट के डाला गया।"
   enhancement_is_disabled: "AI एन्हांसमेंट अक्षम है."
   enhancement_will: "एआई संवर्धन होगा:"
   model: "एआई मॉडल"
@@ -250,6 +252,8 @@ copy:
   transcript: "प्रतिलेख कॉपी करें"
 correct:
   grammar_mistakes: "व्याकरण की गलतियाँ सुधारें"
+could:
+  not_switch_microphone: "माइक्रोफ़ोन बदलने में असमर्थ: %@"
 create:
   _self: "बनाएं"
   new_note: "नया नोट बनाएं"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "अभी तक कोई मीडिया प्रतिलेखन नहीं"
   model_loaded: "कोई मॉडल लोड नहीं किया गया"
+  model_loaded_please_download_a_model: "कोई मॉडल लोड नहीं किया गया। कृपया सेटिंग्स में एक मॉडल डाउनलोड करें।"
   model_selected: "कोई मॉडल चयनित नहीं"
   models_available: "कोई मॉडल उपलब्ध नहीं"
   models_available_ae9dbd29: "कोई मॉडल उपलब्ध नहीं."
@@ -724,6 +729,7 @@ no:
   replacements: "कोई प्रतिस्थापन नहीं"
   results_found: "कोई परिणाम नहीं मिला"
   settings_found: "कोई सेटिंग नहीं मिली"
+  speech_detected_try_speaking_closer_to_your: "कोई आवाज़ नहीं मिली। कृपया अपने माइक्रोफ़ोन के करीब बोलने का प्रयास करें।"
   transcriptions_yet: "अभी तक कोई प्रतिलेखन नहीं"
   vocabulary_words: "कोई शब्दावली शब्द नहीं"
   transcripts_audio_prompts_file_names_or_perso: "कोई ट्रांसक्रिप्ट, ऑडियो, प्रॉम्प्ट, फ़ाइल नाम या व्यक्तिगत सामग्री नहीं — कभी नहीं।"
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "प्रदाता, संकेत और वाइब मोड नियंत्रण"
 push:
   to_talk: "धक्का देकर बात करना"
+queue:
+  complete_restored: "कतार पूर्ण — %@ पुनर्स्थापित किया गया"
 quickly:
   copy_your_last_transcription: "शीघ्रता से अपना अंतिम प्रतिलेखन कॉपी करें"
   pull_your_latest_transcript_back_to_the: "अपनी नवीनतम प्रतिलेख को तुरंत क्लिपबोर्ड पर वापस खींचें।"
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "रिकॉर्डिंग"
   3f8fd48c: "🔴रिकॉर्डिंग"
+  canceled: "रिकॉर्डिंग रद्द कर दी गई."
+  in_progress_transcription_will_start: "रिकॉर्डिंग प्रगति पर है — समाप्त होने पर प्रतिलेखन शुरू होगा।"
+  stopped_with_error: "रिकॉर्डिंग रुकी: %@"
   from_external_and_bluetooth_microphone: "बाहरी और Bluetooth माइक्रोफ़ोन से रिकॉर्डिंग अब बेहद स्थिर है, भले ही ऑडियो आउटपुट कहीं और रूट हो रहा हो।"
 recordings:
   _self: "रिकॉर्डिंग"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "yt-dlp के साथ हल की गई स्थानीय मीडिया फ़ाइलों और वेब लिंक का समर्थन करता है।"
 switch:
   to_model: "मॉडल पर स्विच करें"
+switching:
+  to_for_this_queue: "इस कतार के लिए %@ पर स्विच किया जा रहा है"
 system:
   _self: "प्रणाली"
   default: "प्रणालीगत चूक"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "ट्रांसक्राइब मीडिया"
 transcribed:
   _self: "लिखित"
+  source_name: "लिखित: %@"
   words: "Transcribed words"
 transcription:
   _self: "प्रतिलिपि"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "प्रतिलेखन हटा दिया गया."
   enhancement: "प्रतिलेखन संवर्द्धन"
   failed: "प्रतिलेखन विफल"
+  failed_with_error: "प्रतिलेखन विफल: %@"
   finished: "प्रतिलेखन समाप्त हुआ."
   in_progress: "प्रतिलेखन प्रगति पर है"
   metadata: "प्रतिलेखन मेटाडेटा"

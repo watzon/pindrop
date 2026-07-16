@@ -447,9 +447,12 @@ final class StreamingSessionController {
         pipelineMetrics.outputSeconds = outputStart.duration(to: pipelineClock.now).pipelineSeconds
         if insertion.outputSucceeded {
             Log.transcription.debug("Applied final streaming transcription output")
+        } else {
+            // Only a failed insertion may abort on cancellation. Once the output
+            // landed in the target app, the outcome must reach the coordinator so
+            // history is persisted even if the operation was cancelled meanwhile.
+            try ensureNotCancelled()
         }
-
-        try ensureNotCancelled()
         coord?.endSession()
         refinementCoordinator = nil
 
@@ -512,7 +515,9 @@ final class StreamingSessionController {
                 )
                 outputResult = sink.lastOutputResult ?? .pasted()
             }
-            try ensureNotCancelled()
+            // No cancellation check here: the output landed in the target app, so
+            // the insertion is committed — cancelling now must not erase the result
+            // (history persistence depends on it reaching the coordinator).
             return FinalStreamingInsertionResult(
                 outputSucceeded: true,
                 outputResult: outputResult
@@ -620,20 +625,52 @@ final class StreamingSessionController {
             finalOutput: { [outputManager] text in
                 try await outputManager.output(text)
             },
-            onClipboardFallback: { [toastService] in
-                toastService.show(
-                    ToastPayload(
-                        message: localized(
-                            "Paste failed. Transcript copied to clipboard.",
-                            locale: .autoupdatingCurrent
-                        ),
-                        style: .error
-                    )
-                )
+            onClipboardFallback: { [weak self] result in
+                self?.showClipboardFallbackToast(for: result)
             }
         )
         overlaySink = sink
         return sink
+    }
+
+    /// Copy fallbacks are not all failures: without Accessibility permission the copy
+    /// IS the intended output (surface "Copied" with Undo), while a failed paste that
+    /// fell back to the clipboard is an error worth flagging.
+    private func showClipboardFallbackToast(for result: OutputManager.OutputResult) {
+        let locale = settingsStore.selectedAppLocale.locale
+        switch result.clipboardFallbackReason {
+        case .accessibilityUnavailable:
+            var actions: [ToastAction] = []
+            if let snapshot = result.previousClipboardSnapshot {
+                actions.append(
+                    ToastAction(title: localized("Undo", locale: locale), role: .primary) { [weak self] in
+                        let restored = self?.outputManager.restoreClipboardSnapshot(snapshot) ?? false
+                        if restored {
+                            Log.output.info("Restored clipboard after copy undo")
+                        } else {
+                            Log.output.error("Failed to restore clipboard after copy undo")
+                        }
+                    }
+                )
+            }
+            toastService.show(
+                ToastPayload(
+                    message: localized("Copied to clipboard", locale: locale),
+                    actions: actions,
+                    variant: .copied
+                )
+            )
+        case .pasteFailed, nil:
+            toastService.show(
+                ToastPayload(
+                    message: localized(
+                        "Paste failed. Transcript copied to clipboard.",
+                        locale: locale
+                    ),
+                    style: .error
+                )
+            )
+        }
     }
 
 

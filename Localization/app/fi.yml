@@ -60,6 +60,8 @@ ai:
   enhancement: "AI Enhancement"
   enhancement_529f5583: "Tekoälyn parannus: %@"
   enhancement_failed: "AI Enhancement Failed"
+  enhancement_failed_streamed_text_kept_as_is: "Tekoälyn parannus epäonnistui. Striimattu teksti säilytettiin sellaisenaan."
+  enhancement_failed_transcription_inserted: "Tekoälyn parannus epäonnistui. Transkriptio lisättiin ilman parannusta."
   enhancement_is_disabled: "AI-parannus on poistettu käytöstä."
   enhancement_will: "AI Enhancement:"
   model: "AI malli"
@@ -250,6 +252,8 @@ copy:
   transcript: "Kopioi transkriptio"
 correct:
   grammar_mistakes: "Korjaa kielioppivirheet"
+could:
+  not_switch_microphone: "Mikrofonin vaihto epäonnistui: %@"
 create:
   _self: "Luoda"
   new_note: "Luo uusi muistiinpano"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Ei vielä mediatranskriptioita"
   model_loaded: "Mallia ei ladattu"
+  model_loaded_please_download_a_model: "Mallia ei ladattu. Lataa malli asetuksista."
   model_selected: "Mallia ei ole valittu"
   models_available: "Ei malleja saatavilla"
   models_available_ae9dbd29: "Ei malleja saatavilla."
@@ -724,6 +729,7 @@ no:
   replacements: "Ei vaihtoja"
   results_found: "Tuloksia ei löytynyt"
   settings_found: "Asetuksia ei löytynyt"
+  speech_detected_try_speaking_closer_to_your: "Puhetta ei havaittu. Kokeile puhua lähempänä mikrofonia."
   transcriptions_yet: "Ei vielä transkriptioita"
   vocabulary_words: "Ei sanastoa"
   transcripts_audio_prompts_file_names_or_perso: "Ei transkriptioita, ääntä, kehotteita, tiedostonimiä tai henkilökohtaista sisältöä — ei koskaan."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "Palveluntarjoajat, kehotteet ja vibe-tilan säätimet"
 push:
   to_talk: "Push-to-Talk"
+queue:
+  complete_restored: "Jono valmis — palautettu %@"
 quickly:
   copy_your_last_transcription: "Kopioi viimeisin transkriptio nopeasti"
   pull_your_latest_transcript_back_to_the: "Vedä uusin transkriptio nopeasti takaisin leikepöydälle."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "Tallennus"
   3f8fd48c: "🔴 Tallennus"
+  canceled: "Tallennus peruutettu."
+  in_progress_transcription_will_start: "Tallennus käynnissä — transkriptio alkaa, kun se on valmis."
+  stopped_with_error: "Tallennus lopetettu: %@"
   from_external_and_bluetooth_microphone: "Tallennus ulkoisista ja Bluetooth-mikrofoneista on nyt erittäin luotettavaa, vaikka äänen ulostulo olisi ohjattu muualle."
 recordings:
   _self: "tallenteita"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "Tukee paikallisia mediatiedostoja ja verkkolinkkejä, jotka on ratkaistu yt-dlp:llä."
 switch:
   to_model: "Vaihda malliin"
+switching:
+  to_for_this_queue: "Vaihdetaan malliin %@ tätä jonoa varten"
 system:
   _self: "Järjestelmä"
   default: "Järjestelmän oletusarvo"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "Transkriptio Media"
 transcribed:
   _self: "litteroitu"
+  source_name: "Litteroitu: %@"
   words: "Transcribed words"
 transcription:
   _self: "Transkriptio"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "Transkriptio poistettu."
   enhancement: "Transkription parannus"
   failed: "Transkriptio epäonnistui"
+  failed_with_error: "Transkriptio epäonnistui: %@"
   finished: "Transkriptio valmis."
   in_progress: "Transkriptio käynnissä"
   metadata: "Transkription metatiedot"

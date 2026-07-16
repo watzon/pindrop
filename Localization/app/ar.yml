@@ -60,6 +60,8 @@ ai:
   enhancement: "تعزيز الذكاء الاصطناعي"
   enhancement_529f5583: "تحسين الذكاء الاصطناعي: %@"
   enhancement_failed: "فشل تحسين الذكاء الاصطناعي"
+  enhancement_failed_streamed_text_kept_as_is: "فشل تحسين الذكاء الاصطناعي. تم الاحتفاظ بالنص المتدفق كما هو."
+  enhancement_failed_transcription_inserted: "فشل تحسين الذكاء الاصطناعي. تم إدراج النسخ بدون تحسين."
   enhancement_is_disabled: "تم تعطيل تحسين الذكاء الاصطناعي."
   enhancement_will: "سوف يقوم تحسين الذكاء الاصطناعي بما يلي:"
   model: "نموذج الذكاء الاصطناعي"
@@ -250,6 +252,8 @@ copy:
   transcript: "نسخ النص"
 correct:
   grammar_mistakes: "تصحيح الأخطاء النحوية"
+could:
+  not_switch_microphone: "تعذّر تبديل الميكروفون: %@"
 create:
   _self: "يخلق"
   new_note: "إنشاء ملاحظة جديدة"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "لا يوجد تدوينات الوسائط حتى الآن"
   model_loaded: "لم يتم تحميل أي نموذج"
+  model_loaded_please_download_a_model: "لم يتم تحميل أي نموذج. يرجى تنزيل نموذج في الإعدادات."
   model_selected: "لم يتم تحديد أي نموذج"
   models_available: "لا توجد نماذج متاحة"
   models_available_ae9dbd29: "لا توجد نماذج متاحة."
@@ -724,6 +729,7 @@ no:
   replacements: "لا بدائل"
   results_found: "لم يتم العثور على نتائج"
   settings_found: "لم يتم العثور على إعدادات"
+  speech_detected_try_speaking_closer_to_your: "لم يتم اكتشاف أي كلام. حاول التحدث بالقرب من الميكروفون."
   transcriptions_yet: "لا يوجد نسخ بعد"
   vocabulary_words: "لا توجد كلمات المفردات"
   transcripts_audio_prompts_file_names_or_perso: "لا نسخ ولا صوت ولا مطالبات ولا أسماء ملفات ولا محتوى شخصي — أبدًا."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "الموفرون والمطالبات وعناصر التحكم في وضع vibe"
 push:
   to_talk: "اضغط لتتحدث"
+queue:
+  complete_restored: "اكتملت قائمة الانتظار — تمت استعادة %@"
 quickly:
   copy_your_last_transcription: "انسخ نسختك الأخيرة بسرعة"
   pull_your_latest_transcript_back_to_the: "قم بسحب أحدث نسخة بسرعة إلى الحافظة."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "تسجيل"
   3f8fd48c: "🔴 التسجيل"
+  canceled: "تم إلغاء التسجيل."
+  in_progress_transcription_will_start: "التسجيل قيد التقدم — سيبدأ النسخ عند انتهائه."
+  stopped_with_error: "توقف التسجيل: %@"
   from_external_and_bluetooth_microphone: "أصبح التسجيل من الميكروفونات الخارجية وميكروفونات Bluetooth ثابتًا الآن، حتى عندما يكون إخراج الصوت موجّهًا إلى مكان آخر."
 recordings:
   _self: "التسجيلات"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "يدعم ملفات الوسائط المحلية وروابط الويب التي تم حلها باستخدام yt-dlp."
 switch:
   to_model: "التبديل إلى النموذج"
+switching:
+  to_for_this_queue: "التبديل إلى %@ لقائمة الانتظار هذه"
 system:
   _self: "نظام"
   default: "النظام الافتراضي"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "نسخ الوسائط"
 transcribed:
   _self: "مكتوب"
+  source_name: "تم النسخ: %@"
   words: "Transcribed words"
 transcription:
   _self: "النسخ"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "تم حذف النص."
   enhancement: "تعزيز النسخ"
   failed: "فشل النسخ"
+  failed_with_error: "فشل النسخ: %@"
   finished: "انتهى النسخ."
   in_progress: "النسخ قيد التقدم"
   metadata: "البيانات الوصفية للنسخ"

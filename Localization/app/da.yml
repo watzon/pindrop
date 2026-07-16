@@ -60,6 +60,8 @@ ai:
   enhancement: "AI-forbedring"
   enhancement_529f5583: "AI-forbedring: %@"
   enhancement_failed: "AI-forbedring mislykkedes"
+  enhancement_failed_streamed_text_kept_as_is: "AI-forbedring mislykkedes. Streamet tekst blev bevaret uændret."
+  enhancement_failed_transcription_inserted: "AI-forbedring mislykkedes. Transskription indsat uden forbedring."
   enhancement_is_disabled: "AI-forbedring er deaktiveret."
   enhancement_will: "AI Enhancement vil:"
   model: "AI model"
@@ -250,6 +252,8 @@ copy:
   transcript: "Kopi afskrift"
 correct:
   grammar_mistakes: "Ret grammatiske fejl"
+could:
+  not_switch_microphone: "Kunne ikke skifte mikrofon: %@"
 create:
   _self: "Skabe"
   new_note: "Opret ny note"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Ingen medietransskriptioner endnu"
   model_loaded: "Ingen model indlæst"
+  model_loaded_please_download_a_model: "Ingen model indlæst. Download venligst en model i Indstillinger."
   model_selected: "Ingen model valgt"
   models_available: "Ingen tilgængelige modeller"
   models_available_ae9dbd29: "Ingen tilgængelige modeller."
@@ -724,6 +729,7 @@ no:
   replacements: "Ingen erstatninger"
   results_found: "Ingen resultater fundet"
   settings_found: "Ingen indstillinger fundet"
+  speech_detected_try_speaking_closer_to_your: "Ingen tale registreret. Prøv at tale tættere på mikrofonen."
   transcriptions_yet: "Ingen transskriptioner endnu"
   vocabulary_words: "Ingen ordforråd"
   transcripts_audio_prompts_file_names_or_perso: "Ingen transskriptioner, lyd, prompter, filnavne eller personligt indhold — aldrig."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "Udbydere, prompter og vibetilstandskontroller"
 push:
   to_talk: "Tryk for at tale"
+queue:
+  complete_restored: "Kø fuldført — gendannede %@"
 quickly:
   copy_your_last_transcription: "Kopier hurtigt din sidste transskription"
   pull_your_latest_transcript_back_to_the: "Træk hurtigt dit seneste udskrift tilbage til udklipsholderen."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "Indspilning"
   3f8fd48c: "🔴 Optagelse"
+  canceled: "Optagelse annulleret."
+  in_progress_transcription_will_start: "Optagelse i gang — transskriptionen starter, når den er færdig."
+  stopped_with_error: "Optagelse stoppet: %@"
   from_external_and_bluetooth_microphone: "Optagelse fra eksterne og Bluetooth-mikrofoner er nu klippestabil, selv når lydoutputtet sendes et andet sted hen."
 recordings:
   _self: "optagelser"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "Understøtter lokale mediefiler og weblinks løst med yt-dlp."
 switch:
   to_model: "Skift til model"
+switching:
+  to_for_this_queue: "Skifter til %@ for denne kø"
 system:
   _self: "System"
   default: "Systemstandard"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "Transskribere medier"
 transcribed:
   _self: "transskriberet"
+  source_name: "Transskriberet: %@"
   words: "Transcribed words"
 transcription:
   _self: "Transskription"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "Transskription slettet."
   enhancement: "Transskriptionsforbedring"
   failed: "Transskription mislykkedes"
+  failed_with_error: "Transskription mislykkedes: %@"
   finished: "Transskription afsluttet."
   in_progress: "Transskription i gang"
   metadata: "Transskriptionsmetadata"

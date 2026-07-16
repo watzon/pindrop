@@ -60,6 +60,8 @@ ai:
   enhancement: "Vylepšení AI"
   enhancement_529f5583: "Vylepšení AI: %@"
   enhancement_failed: "Vylepšení AI se nezdařilo"
+  enhancement_failed_streamed_text_kept_as_is: "Vylepšení AI se nezdařilo. Streamovaný text zůstal beze změny."
+  enhancement_failed_transcription_inserted: "Vylepšení AI se nezdařilo. Přepis byl vložen bez vylepšení."
   enhancement_is_disabled: "Vylepšení AI je zakázáno."
   enhancement_will: "Vylepšení AI bude:"
   model: "Model AI"
@@ -250,6 +252,8 @@ copy:
   transcript: "Kopírovat přepis"
 correct:
   grammar_mistakes: "Opravte gramatické chyby"
+could:
+  not_switch_microphone: "Nepodařilo se přepnout mikrofon: %@"
 create:
   _self: "Vytvořit"
   new_note: "Vytvořit novou poznámku"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Zatím žádné přepisy médií"
   model_loaded: "Není načten žádný model"
+  model_loaded_please_download_a_model: "Není načten žádný model. Stáhněte prosím model v Nastavení."
   model_selected: "Není vybrán žádný model"
   models_available: "Nejsou dostupné žádné modely"
   models_available_ae9dbd29: "Nejsou dostupné žádné modely."
@@ -724,6 +729,7 @@ no:
   replacements: "Žádné náhrady"
   results_found: "Nebyly nalezeny žádné výsledky"
   settings_found: "Nebylo nalezeno žádné nastavení"
+  speech_detected_try_speaking_closer_to_your: "Nebyla zjištěna žádná řeč. Zkuste mluvit blíž k mikrofonu."
   transcriptions_yet: "Zatím žádné přepisy"
   vocabulary_words: "Žádná slova slovní zásoby"
   transcripts_audio_prompts_file_names_or_perso: "Žádné přepisy, zvuk, prompty, názvy souborů ani osobní obsah — nikdy."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "Poskytovatelé, výzvy a ovládací prvky režimu vibrací"
 push:
   to_talk: "Push-to-Talk"
+queue:
+  complete_restored: "Fronta dokončena — obnoveno %@"
 quickly:
   copy_your_last_transcription: "Rychle zkopírujte svůj poslední přepis"
   pull_your_latest_transcript_back_to_the: "Rychle stáhněte svůj nejnovější přepis zpět do schránky."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "Záznam"
   3f8fd48c: "🔴 Nahrávání"
+  canceled: "Nahrávání zrušeno."
+  in_progress_transcription_will_start: "Probíhá nahrávání — přepis se spustí po jeho dokončení."
+  stopped_with_error: "Nahrávání zastaveno: %@"
   from_external_and_bluetooth_microphone: "Nahrávání z externích a Bluetooth mikrofonů je nyní spolehlivé, i když je zvukový výstup směrován jinam."
 recordings:
   _self: "nahrávek"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "Podporuje místní mediální soubory a webové odkazy vyřešené pomocí yt-dlp."
 switch:
   to_model: "Přepnout na model"
+switching:
+  to_for_this_queue: "Přepínání na %@ pro tuto frontu"
 system:
   _self: "Systém"
   default: "Výchozí nastavení systému"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "Přepis médií"
 transcribed:
   _self: "přepsáno"
+  source_name: "Přepsáno: %@"
   words: "Transcribed words"
 transcription:
   _self: "Transkripce"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "Přepis smazán."
   enhancement: "Vylepšení transkripce"
   failed: "Přepis se nezdařil"
+  failed_with_error: "Přepis se nezdařil: %@"
   finished: "Přepis dokončen."
   in_progress: "Probíhá přepis"
   metadata: "Metadata přepisu"

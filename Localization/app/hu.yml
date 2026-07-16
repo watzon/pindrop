@@ -60,6 +60,8 @@ ai:
   enhancement: "AI fejlesztés"
   enhancement_529f5583: "AI továbbfejlesztés: %@"
   enhancement_failed: "Az AI javítása sikertelen"
+  enhancement_failed_streamed_text_kept_as_is: "Az AI javítás sikertelen volt. A streamelt szöveg változatlanul megmaradt."
+  enhancement_failed_transcription_inserted: "Az AI javítás sikertelen volt. Az átirat javítás nélkül lett beszúrva."
   enhancement_is_disabled: "Az AI javítás le van tiltva."
   enhancement_will: "Az AI Enhancement:"
   model: "AI modell"
@@ -250,6 +252,8 @@ copy:
   transcript: "Átirat másolása"
 correct:
   grammar_mistakes: "Javítsa ki a nyelvtani hibákat"
+could:
+  not_switch_microphone: "Nem sikerült váltani a mikrofont: %@"
 create:
   _self: "Teremt"
   new_note: "Új jegyzet létrehozása"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Még nincsenek médiaátiratok"
   model_loaded: "Nincs modell betöltve"
+  model_loaded_please_download_a_model: "Nincs modell betöltve. Kérjük, töltsön le egy modellt a Beállításokban."
   model_selected: "Nincs kiválasztott modell"
   models_available: "Nincsenek elérhető modellek"
   models_available_ae9dbd29: "Nincsenek elérhető modellek."
@@ -724,6 +729,7 @@ no:
   replacements: "Nincs csere"
   results_found: "Nincs találat"
   settings_found: "Nem találhatók beállítások"
+  speech_detected_try_speaking_closer_to_your: "Nem érzékeltünk beszédet. Próbáljon közelebb beszélni a mikrofonjához."
   transcriptions_yet: "Még nincsenek átiratok"
   vocabulary_words: "Nincs szótár"
   transcripts_audio_prompts_file_names_or_perso: "Se átiratok, se hang, se promptok, se fájlnevek, se személyes tartalom — soha."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "Szolgáltatók, felszólítások és hangulatmód vezérlők"
 push:
   to_talk: "Push-to-Talk"
+queue:
+  complete_restored: "Várólista kész — visszaállítva: %@"
 quickly:
   copy_your_last_transcription: "Gyorsan másolja át az utolsó átiratot"
   pull_your_latest_transcript_back_to_the: "Gyorsan húzza vissza legújabb átiratát a vágólapra."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "Felvétel"
   3f8fd48c: "🔴 Felvétel"
+  canceled: "Felvétel megszakítva."
+  in_progress_transcription_will_start: "Felvétel folyamatban — az átírás a befejezése után kezdődik."
+  stopped_with_error: "Felvétel leállítva: %@"
   from_external_and_bluetooth_microphone: "A külső és Bluetooth mikrofonokról történő rögzítés most már nagyon stabil, még akkor is, ha a hangkimenet máshová van irányítva."
 recordings:
   _self: "felvételeket"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "Támogatja a helyi médiafájlokat és az yt-dlp-vel megoldott webes hivatkozásokat."
 switch:
   to_model: "Váltson modellre"
+switching:
+  to_for_this_queue: "Váltás erre: %@ ennél a várólistánál"
 system:
   _self: "Rendszer"
   default: "Rendszer alapértelmezett"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "Média átírása"
 transcribed:
   _self: "átírva"
+  source_name: "Átírva: %@"
   words: "Transcribed words"
 transcription:
   _self: "Átírás"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "Az átírás törölve."
   enhancement: "Átírás javítása"
   failed: "Az átírás nem sikerült"
+  failed_with_error: "Átírás nem sikerült: %@"
   finished: "Az átírás befejeződött."
   in_progress: "Átírás folyamatban"
   metadata: "Átírási metaadatok"

@@ -60,6 +60,8 @@ ai:
   enhancement: "AI-verbetering"
   enhancement_529f5583: "AI-verbetering: %@"
   enhancement_failed: "AI-verbetering mislukt"
+  enhancement_failed_streamed_text_kept_as_is: "AI-verbetering is mislukt. De gestreamde tekst is ongewijzigd behouden."
+  enhancement_failed_transcription_inserted: "AI-verbetering is mislukt. Transcriptie ingevoegd zonder verbetering."
   enhancement_is_disabled: "AI-verbetering is uitgeschakeld."
   enhancement_will: "AI-verbetering zal:"
   model: "AI-model"
@@ -250,6 +252,8 @@ copy:
   transcript: "Kopieer transcript"
 correct:
   grammar_mistakes: "Corrigeer grammaticafouten"
+could:
+  not_switch_microphone: "Kan microfoon niet wisselen: %@"
 create:
   _self: "Creëren"
   new_note: "Nieuwe notitie maken"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Nog geen mediatranscripties"
   model_loaded: "Geen model geladen"
+  model_loaded_please_download_a_model: "Geen model geladen. Download een model in Instellingen."
   model_selected: "Geen model geselecteerd"
   models_available: "Geen modellen beschikbaar"
   models_available_ae9dbd29: "Geen modellen beschikbaar."
@@ -724,6 +729,7 @@ no:
   replacements: "Geen vervangingen"
   results_found: "Geen resultaten gevonden"
   settings_found: "Geen instellingen gevonden"
+  speech_detected_try_speaking_closer_to_your: "Geen spraak gedetecteerd. Probeer dichter bij je microfoon te praten."
   transcriptions_yet: "Nog geen transcripties"
   vocabulary_words: "Geen woordenschatwoorden"
   transcripts_audio_prompts_file_names_or_perso: "Geen transcripties, audio, prompts, bestandsnamen of persoonlijke inhoud — nooit."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "Providers, prompts en bedieningselementen voor de sfeermodus"
 push:
   to_talk: "Push-to-talk"
+queue:
+  complete_restored: "Wachtrij voltooid — %@ hersteld"
 quickly:
   copy_your_last_transcription: "Kopieer snel uw laatste transcriptie"
   pull_your_latest_transcript_back_to_the: "Trek uw laatste transcript snel terug naar het klembord."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "Opname"
   3f8fd48c: "🔴Opname"
+  canceled: "Opname geannuleerd."
+  in_progress_transcription_will_start: "Opname bezig — transcriptie begint zodra deze is voltooid."
+  stopped_with_error: "Opname gestopt: %@"
   from_external_and_bluetooth_microphone: "Opnemen via externe en Bluetooth-microfoons is nu rotsvast, zelfs wanneer je audio-uitvoer ergens anders naartoe wordt geleid."
 recordings:
   _self: "opnames"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "Ondersteunt lokale mediabestanden en weblinks opgelost met yt-dlp."
 switch:
   to_model: "Schakel over naar Model"
+switching:
+  to_for_this_queue: "Overschakelen naar %@ voor deze wachtrij"
 system:
   _self: "Systeem"
   default: "Systeemstandaard"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "Media transcriberen"
 transcribed:
   _self: "getranscribeerd"
+  source_name: "Getranscribeerd: %@"
   words: "Transcribed words"
 transcription:
   _self: "Transcriptie"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "Transcriptie verwijderd."
   enhancement: "Transcriptieverbetering"
   failed: "Transcriptie mislukt"
+  failed_with_error: "Transcriptie mislukt: %@"
   finished: "Transcriptie voltooid."
   in_progress: "Transcriptie wordt uitgevoerd"
   metadata: "Metagegevens van transcriptie"

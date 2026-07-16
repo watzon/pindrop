@@ -60,6 +60,8 @@ ai:
   enhancement: "AI Enhancement"
   enhancement_529f5583: "AI Enhancement: %@"
   enhancement_failed: "AI Enhancement Failed"
+  enhancement_failed_streamed_text_kept_as_is: "AI enhancement failed. Streamed text kept as-is."
+  enhancement_failed_transcription_inserted: "AI enhancement failed. Transcription inserted without enhancement."
   enhancement_is_disabled: "AI enhancement is disabled."
   enhancement_will: "AI Enhancement will:"
   model: "AI Model"
@@ -250,6 +252,8 @@ copy:
   transcript: "Copy Transcript"
 correct:
   grammar_mistakes: "Correct grammar mistakes"
+could:
+  not_switch_microphone: "Could not switch microphone: %@"
 create:
   _self: "Create"
   new_note: "Create New Note"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "No media transcriptions yet"
   model_loaded: "No Model Loaded"
+  model_loaded_please_download_a_model: "No model loaded. Please download a model in Settings."
   model_selected: "No model selected"
   models_available: "No models available"
   models_available_ae9dbd29: "No models available."
@@ -724,6 +729,7 @@ no:
   replacements: "No Replacements"
   results_found: "No results found"
   settings_found: "No settings found"
+  speech_detected_try_speaking_closer_to_your: "No speech detected. Try speaking closer to your microphone."
   transcriptions_yet: "No transcriptions yet"
   vocabulary_words: "No Vocabulary Words"
   transcripts_audio_prompts_file_names_or_perso: "No transcripts, audio, prompts, file names, or personal content — ever."
@@ -933,6 +939,8 @@ providers:
   prompts_and_vibe_mode_controls: "Providers, prompts, and vibe mode controls"
 push:
   to_talk: "Push-to-Talk"
+queue:
+  complete_restored: "Queue complete — restored %@"
 quickly:
   copy_your_last_transcription: "Quickly copy your last transcription"
   pull_your_latest_transcript_back_to_the: "Quickly pull your latest transcript back to the clipboard."
@@ -958,6 +966,9 @@ record:
 recording:
   _self: "Recording"
   3f8fd48c: "🔴 Recording"
+  canceled: "Recording canceled."
+  in_progress_transcription_will_start: "Recording in progress — transcription will start when it finishes."
+  stopped_with_error: "Recording stopped: %@"
   from_external_and_bluetooth_microphone: "Recording from external and Bluetooth microphones is now rock solid, even when your audio output is routed elsewhere."
 recordings:
   _self: "recordings"
@@ -1157,6 +1168,8 @@ supports:
   local_media_files_and_web_links_resolve: "Supports local media files and web links resolved with yt-dlp."
 switch:
   to_model: "Switch to Model"
+switching:
+  to_for_this_queue: "Switching to %@ for this queue"
 system:
   _self: "System"
   default: "System Default"
@@ -1220,6 +1233,7 @@ transcribe:
   media: "Transcribe Media"
 transcribed:
   _self: "transcribed"
+  source_name: "Transcribed: %@"
   words: "Transcribed words"
 transcription:
   _self: "Transcription"
@@ -1227,6 +1241,7 @@ transcription:
   deleted: "Transcription deleted."
   enhancement: "Transcription Enhancement"
   failed: "Transcription Failed"
+  failed_with_error: "Transcription failed: %@"
   finished: "Transcription finished."
   in_progress: "Transcription in progress"
   metadata: "Transcription Metadata"

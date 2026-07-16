@@ -60,6 +60,8 @@ ai:
   enhancement: "এআই এনহান্সমেন্ট"
   enhancement_529f5583: "এআই এনহান্সমেন্ট: %@"
   enhancement_failed: "এআই এনহান্সমেন্ট ব্যর্থ হয়েছে"
+  enhancement_failed_streamed_text_kept_as_is: "এআই এনহান্সমেন্ট ব্যর্থ হয়েছে। স্ট্রিম করা টেক্সট যেমন ছিল তেমনই রাখা হয়েছে।"
+  enhancement_failed_transcription_inserted: "এআই এনহান্সমেন্ট ব্যর্থ হয়েছে। এনহান্সমেন্ট ছাড়াই ট্রান্সক্রিপশন যুক্ত করা হয়েছে।"
   enhancement_is_disabled: "AI বর্ধিতকরণ অক্ষম করা হয়েছে।"
   enhancement_will: "এআই এনহ্যান্সমেন্ট হবে:"
   model: "এআই মডেল"
@@ -250,6 +252,8 @@ copy:
   transcript: "ট্রান্সক্রিপ্ট কপি করুন"
 correct:
   grammar_mistakes: "ব্যাকরণের ভুলগুলো ঠিক করুন"
+could:
+  not_switch_microphone: "মাইক্রোফোন স্যুইচ করা যায়নি: %@"
 create:
   _self: "তৈরি করুন"
   new_note: "নতুন নোট তৈরি করুন"
@@ -712,6 +716,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "এখনও কোন মিডিয়া ট্রান্সক্রিপশন"
   model_loaded: "কোন মডেল লোড করা হয়নি"
+  model_loaded_please_download_a_model: "কোনো মডেল লোড করা হয়নি। অনুগ্রহ করে সেটিংসে একটি মডেল ডাউনলোড করুন।"
   model_selected: "কোনো মডেল নির্বাচন করা হয়নি"
   models_available: "কোন মডেল উপলব্ধ"
   models_available_ae9dbd29: "কোন মডেল উপলব্ধ."
@@ -725,6 +730,7 @@ no:
   replacements: "কোন প্রতিস্থাপন"
   results_found: "কোন ফলাফল পাওয়া যায়নি"
   settings_found: "কোনো সেটিংস পাওয়া যায়নি"
+  speech_detected_try_speaking_closer_to_your: "কোনো কথা শনাক্ত হয়নি। মাইক্রোফোনের কাছাকাছি কথা বলার চেষ্টা করুন।"
   transcriptions_yet: "এখনও কোন প্রতিলিপি"
   vocabulary_words: "কোন ভোকাবুলারি শব্দ নেই"
   transcripts_audio_prompts_file_names_or_perso: "কোনো প্রতিলিপি, অডিও, প্রম্পট, ফাইলের নাম বা ব্যক্তিগত কনটেন্ট নয় — কখনও নয়।"
@@ -920,6 +926,8 @@ providers:
   prompts_and_vibe_mode_controls: "প্রদানকারী, প্রম্পট এবং ভাইব মোড নিয়ন্ত্রণ"
 push:
   to_talk: "পুশ-টু-টক"
+queue:
+  complete_restored: "কিউ সম্পূর্ণ হয়েছে — %@ পুনরুদ্ধার করা হয়েছে"
 quickly:
   copy_your_last_transcription: "দ্রুত আপনার শেষ প্রতিলিপি অনুলিপি"
   pull_your_latest_transcript_back_to_the: "ক্লিপবোর্ডে আপনার সাম্প্রতিক প্রতিলিপিটি দ্রুত টেনে আনুন।"
@@ -945,6 +953,9 @@ record:
 recording:
   _self: "রেকর্ডিং"
   3f8fd48c: "🔴 রেকর্ডিং"
+  canceled: "রেকর্ডিং বাতিল করা হয়েছে।"
+  in_progress_transcription_will_start: "রেকর্ডিং চলছে — এটি শেষ হলে ট্রান্সক্রিপশন শুরু হবে।"
+  stopped_with_error: "রেকর্ডিং বন্ধ হয়েছে: %@"
   from_external_and_bluetooth_microphone: "বাহ্যিক ও Bluetooth মাইক্রোফোন থেকে রেকর্ডিং এখন অনেক বেশি নির্ভরযোগ্য, এমনকি অডিও আউটপুট অন্য কোথাও রাউট করা থাকলেও।"
 recordings:
   _self: "রেকর্ডিং"
@@ -1145,6 +1156,8 @@ supports:
   local_media_files_and_web_links_resolve: "yt-dlp দিয়ে সমাধান করা স্থানীয় মিডিয়া ফাইল এবং ওয়েব লিঙ্কগুলিকে সমর্থন করে।"
 switch:
   to_model: "মডেলে স্যুইচ করুন"
+switching:
+  to_for_this_queue: "এই কিউয়ের জন্য %@-এ স্যুইচ করা হচ্ছে"
 system:
   _self: "সিস্টেম"
   default: "সিস্টেম ডিফল্ট"
@@ -1210,6 +1223,7 @@ transcribe:
   media: "মিডিয়া প্রতিলিপি"
 transcribed:
   _self: "প্রতিলিপি করা"
+  source_name: "ট্রান্সক্রাইব করা হয়েছে: %@"
   words: "Transcribed words"
 transcription:
   _self: "প্রতিলিপি"
@@ -1217,6 +1231,7 @@ transcription:
   deleted: "ট্রান্সক্রিপশন মুছে ফেলা হয়েছে।"
   enhancement: "ট্রান্সক্রিপশন এনহান্সমেন্ট"
   failed: "ট্রান্সক্রিপশন ব্যর্থ হয়েছে৷"
+  failed_with_error: "ট্রান্সক্রিপশন ব্যর্থ হয়েছে: %@"
   finished: "ট্রান্সক্রিপশন শেষ।"
   in_progress: "ট্রান্সক্রিপশন চলছে"
   metadata: "ট্রান্সক্রিপশন মেটাডেটা"

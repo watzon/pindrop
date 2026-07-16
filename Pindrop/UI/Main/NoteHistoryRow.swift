@@ -43,7 +43,7 @@ struct NoteHistoryRow: View {
         var parts: [String] = [localized("Note", locale: locale)]
         let wordCount = note.content.split(separator: " ").count
         if wordCount > 0 {
-            parts.append("\(formatWordCount(wordCount)) words")
+            parts.append(String(format: localized("%@ words", locale: locale), locale: locale, formatWordCount(wordCount)))
         }
         if !note.tags.isEmpty {
             let tagPreview = note.tags.prefix(3).map { "#\($0)" }.joined(separator: " ")
@@ -108,7 +108,7 @@ struct NoteHistoryRow: View {
                     )
             }
 
-            CopyButton(text: note.content, size: 11)
+            CopyButton(text: note.content, size: 11, useUndoToast: true)
                 .opacity(isHovered ? 1 : 0)
         }
         .padding(.horizontal, AppTheme.Spacing.lg)
@@ -141,8 +141,11 @@ struct NoteHistoryRow: View {
             }
 
             Button {
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(note.content, forType: .string)
+                NotificationCenter.default.post(
+                    name: .copyTextWithUndo,
+                    object: nil,
+                    userInfo: ["text": note.content]
+                )
             } label: {
                 Label(localized("Copy Content", locale: locale), systemImage: "doc.on.doc")
             }

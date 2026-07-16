@@ -223,6 +223,86 @@ struct OutputManagerTests {
         #expect(fixture.mockKeySimulation.pasteSimulated)
     }
 
+    @Test func clipboardFallbackWithoutAccessibilityReportsIntentionalReasonAndSnapshot() async throws {
+        let fixture = makeSUT(outputMode: .clipboard, accessibilityPermissionChecker: { false })
+        fixture.mockClipboard.clipboardContent = "previous"
+
+        let result = try await fixture.outputManager.output("New text")
+
+        #expect(result.clipboardFallbackReason == .accessibilityUnavailable)
+        // The prior pasteboard contents come back with the result so callers can
+        // offer Undo for the intentional copy fallback.
+        let snapshot = try #require(result.previousClipboardSnapshot)
+        #expect(fixture.outputManager.restoreClipboardSnapshot(snapshot))
+        #expect(fixture.mockClipboard.clipboardContent == "previous")
+    }
+
+    @Test func pasteFailureFallbackReportsPasteFailedReason() async throws {
+        struct PasteFailure: Error {}
+        let fixture = makeSUT(outputMode: .directInsert)
+        fixture.mockKeySimulation.pasteError = PasteFailure()
+
+        let result = try await fixture.outputManager.output("Important words")
+
+        #expect(result.clipboardFallbackReason == .pasteFailed)
+        #expect(result.previousClipboardSnapshot == nil)
+    }
+
+    // Once the paste keystroke lands the insertion is committed: cancelling the
+    // surrounding operation during the deferred restore window must neither fail
+    // the output nor skip the clipboard restore.
+    @Test func cancellationDuringRestoreWindowStillReportsPastedAndRestores() async throws {
+        let fixture = makeSUT(outputMode: .directInsert)
+        fixture.mockClipboard.clipboardContent = "previous"
+
+        let task = Task { @MainActor in
+            try await fixture.outputManager.output("Committed words")
+        }
+        // Paste keystroke fires ~200ms in; the restore runs ~500ms after that.
+        // Cancel in the middle of the restore window.
+        try await Task.sleep(nanoseconds: 400_000_000)
+        task.cancel()
+        let result = try await task.value
+
+        #expect(result.kind == .pasted)
+        #expect(fixture.mockKeySimulation.pasteSimulated)
+        #expect(fixture.mockClipboard.restoreCount == 1)
+        #expect(fixture.mockClipboard.clipboardContent == "previous")
+    }
+
+    // Cancellation before the paste keystroke aborts cleanly: the prior clipboard
+    // comes back and no copy fallback pretends the output happened.
+    @Test func cancellationBeforePasteAbortsWithoutClipboardFallback() async throws {
+        final class BlockingKeySimulation: KeySimulationProtocol {
+            func simulatePaste(allowSystemEventsFallback: Bool) async throws {
+                try await Task.sleep(nanoseconds: 10_000_000_000)
+            }
+        }
+
+        let mockClipboard = MockClipboard()
+        let outputManager = OutputManager(
+            outputMode: .directInsert,
+            clipboard: mockClipboard,
+            keySimulation: BlockingKeySimulation(),
+            accessibilityPermissionChecker: { true },
+            frontmostApplicationProvider: { nil },
+            virtualMachineHostChecker: { _ in false }
+        )
+        mockClipboard.clipboardContent = "previous"
+
+        let task = Task { @MainActor in
+            try await outputManager.output("Aborted words")
+        }
+        // Land the cancel while the paste keystroke is still blocked.
+        try await Task.sleep(nanoseconds: 400_000_000)
+        task.cancel()
+
+        await #expect(throws: CancellationError.self) {
+            _ = try await task.value
+        }
+        #expect(mockClipboard.clipboardContent == "previous")
+    }
+
     @Test func outputCapturesFrontmostAppDestinationOnDirectInsert() async throws {
         let current = NSRunningApplication.current
         let fixture = makeSUT(

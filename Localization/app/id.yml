@@ -60,6 +60,8 @@ ai:
   enhancement: "Peningkatan AI"
   enhancement_529f5583: "Peningkatan AI: %@"
   enhancement_failed: "Peningkatan AI Gagal"
+  enhancement_failed_streamed_text_kept_as_is: "Peningkatan AI gagal. Teks yang di-streaming tetap dipertahankan apa adanya."
+  enhancement_failed_transcription_inserted: "Peningkatan AI gagal. Transkripsi dimasukkan tanpa peningkatan."
   enhancement_is_disabled: "Peningkatan AI dinonaktifkan."
   enhancement_will: "Peningkatan AI akan:"
   model: "Model AI"
@@ -250,6 +252,8 @@ copy:
   transcript: "Salin Transkrip"
 correct:
   grammar_mistakes: "Memperbaiki kesalahan tata bahasa"
+could:
+  not_switch_microphone: "Tidak dapat mengganti mikrofon: %@"
 create:
   _self: "Membuat"
   new_note: "Buat Catatan Baru"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Belum ada transkripsi media"
   model_loaded: "Tidak Ada Model yang Dimuat"
+  model_loaded_please_download_a_model: "Tidak ada model yang dimuat. Silakan unduh model di Pengaturan."
   model_selected: "Tidak ada model yang dipilih"
   models_available: "Tidak ada model yang tersedia"
   models_available_ae9dbd29: "Tidak ada model yang tersedia."
@@ -724,6 +729,7 @@ no:
   replacements: "Tidak Ada Penggantian"
   results_found: "Tidak ada hasil yang ditemukan"
   settings_found: "Tidak ada pengaturan yang ditemukan"
+  speech_detected_try_speaking_closer_to_your: "Tidak ada suara yang terdeteksi. Coba bicara lebih dekat dengan mikrofon Anda."
   transcriptions_yet: "Belum ada transkripsi"
   vocabulary_words: "Tidak Ada Kata Kosakata"
   transcripts_audio_prompts_file_names_or_perso: "Tidak ada transkripsi, audio, prompt, nama file, atau konten pribadi — tidak pernah."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "Penyedia, petunjuk, dan kontrol mode getaran"
 push:
   to_talk: "Dorong untuk Bicara"
+queue:
+  complete_restored: "Antrean selesai — %@ dipulihkan"
 quickly:
   copy_your_last_transcription: "Salin transkripsi terakhir Anda dengan cepat"
   pull_your_latest_transcript_back_to_the: "Tarik kembali transkrip terbaru Anda ke papan klip dengan cepat."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "Rekaman"
   3f8fd48c: "🔴 Rekaman"
+  canceled: "Perekaman dibatalkan."
+  in_progress_transcription_will_start: "Perekaman sedang berlangsung — transkripsi akan dimulai setelah selesai."
+  stopped_with_error: "Perekaman dihentikan: %@"
   from_external_and_bluetooth_microphone: "Perekaman dari mikrofon eksternal dan Bluetooth kini sangat stabil, bahkan saat output audio diarahkan ke tempat lain."
 recordings:
   _self: "rekaman"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "Mendukung file media lokal dan tautan web yang diselesaikan dengan yt-dlp."
 switch:
   to_model: "Beralih ke Model"
+switching:
+  to_for_this_queue: "Beralih ke %@ untuk antrean ini"
 system:
   _self: "Sistem"
   default: "Bawaan Sistem"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "Transkrip Media"
 transcribed:
   _self: "ditranskrip"
+  source_name: "Ditranskrip: %@"
   words: "Transcribed words"
 transcription:
   _self: "Transkripsi"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "Transkripsi dihapus."
   enhancement: "Peningkatan Transkripsi"
   failed: "Transkripsi Gagal"
+  failed_with_error: "Transkripsi gagal: %@"
   finished: "Transkripsi selesai."
   in_progress: "Transkripsi sedang berlangsung"
   metadata: "Metadata Transkripsi"

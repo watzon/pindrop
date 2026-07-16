@@ -173,6 +173,43 @@ struct AppCoordinatorContextFlowTests {
         }
     }
 
+    @Test func escapeIsNeitherSuppressedNorCancellingDuringMediaOnlyWork() {
+        // Background media jobs set isProcessing but are intentionally not
+        // keyboard-cancellable; Escape must pass through to the focused app.
+        #expect(
+            AppCoordinator.shouldSuppressEscapeEvent(
+                isRecording: false, isProcessing: true, isMediaTranscriptionOnly: true
+            ) == false
+        )
+        #expect(
+            AppCoordinator.shouldCancelOperationOnEscape(
+                isRecording: false, isProcessing: true, isMediaTranscriptionOnly: true
+            ) == false
+        )
+
+        // A dictation session running alongside a pending media task stays cancellable.
+        #expect(
+            AppCoordinator.shouldSuppressEscapeEvent(
+                isRecording: true, isProcessing: false, isMediaTranscriptionOnly: false
+            )
+        )
+
+        // Suppression and cancellation stay in lockstep with the media flag too.
+        for recording in [false, true] {
+            for processing in [false, true] {
+                for mediaOnly in [false, true] {
+                    #expect(
+                        AppCoordinator.shouldSuppressEscapeEvent(
+                            isRecording: recording, isProcessing: processing, isMediaTranscriptionOnly: mediaOnly
+                        ) == AppCoordinator.shouldCancelOperationOnEscape(
+                            isRecording: recording, isProcessing: processing, isMediaTranscriptionOnly: mediaOnly
+                        )
+                    )
+                }
+            }
+        }
+    }
+
     @Test func dictationOperationControllerInvalidatesCancelledGeneration() {
         let controller = DictationOperationController()
         let first = controller.begin()

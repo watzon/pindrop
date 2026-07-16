@@ -26,6 +26,7 @@ struct OverlayStreamingSinkTests {
         var result: OutputManager.OutputResult = .pasted()
         var error: Error?
         private(set) var fallbackCount = 0
+        private(set) var fallbackResults: [OutputManager.OutputResult] = []
 
         func makeSink(transcriptState: LiveTranscriptState) -> OverlayStreamingSink {
             OverlayStreamingSink(
@@ -36,8 +37,9 @@ struct OverlayStreamingSinkTests {
                     if let error = self.error { throw error }
                     return self.result
                 },
-                onClipboardFallback: { [weak self] in
+                onClipboardFallback: { [weak self] result in
                     self?.fallbackCount += 1
+                    self?.fallbackResults.append(result)
                 }
             )
         }
@@ -130,13 +132,14 @@ struct OverlayStreamingSinkTests {
     @Test func clipboardFallbackResultFiresCallback() async throws {
         let state = LiveTranscriptState()
         let recorder = OutputRecorder()
-        recorder.result = .copiedToClipboard()
+        recorder.result = .copiedToClipboard(reason: .accessibilityUnavailable)
         let sink = recorder.makeSink(transcriptState: state)
 
         sink.beginStreamingInsertion()
         try await sink.finishStreamingInsertion(finalText: "Hello", appendTrailingSpace: false)
 
         #expect(recorder.fallbackCount == 1)
+        #expect(recorder.fallbackResults.first?.clipboardFallbackReason == .accessibilityUnavailable)
     }
 
     @Test func pastedResultDoesNotFireFallback() async throws {

@@ -551,11 +551,19 @@ final class AppCoordinator {
     private var manualExpectedSpeakerCount: Int?
     private var quickCaptureTranscription: String?
     private var noteAppendEditorID: UUID?
-    private var mediaTranscriptionTask: Task<Void, Never>?
+    private var mediaTranscriptionTask: Task<Void, Never>? {
+        didSet {
+            refreshEscapeSuppression()
+        }
+    }
     private var mediaTranscriptionGeneration: UInt64 = 0
     private var mediaTranscriptionTaskGeneration: UInt64?
     private var mediaQueueRestoreRequested = false
     private var mediaQueueNeedsProcessingReset = false
+    /// Set when a dequeued media job had to yield to an active dictation session.
+    /// The job goes back to the head of the queue and the queue stays paused until
+    /// recording/processing clears, instead of silently dropping the job.
+    private var mediaQueueDeferredUntilIdle = false
     /// Owned processing task for stop/transcribe/enhance pipelines. Cancelled by cancel-operation.
     private var activeOperationTask: Task<Void, Error>?
     private var operationController = DictationOperationController()
@@ -567,13 +575,34 @@ final class AppCoordinator {
     private(set) var activeModelName: String?
     private(set) var isRecording = false {
         didSet {
-            escapeEventState.setShouldSuppress(isRecording || isProcessing)
+            refreshEscapeSuppression()
+            resumeDeferredMediaQueueIfIdle()
         }
     }
     private(set) var isProcessing = false {
         didSet {
-            escapeEventState.setShouldSuppress(isRecording || isProcessing)
+            refreshEscapeSuppression()
+            resumeDeferredMediaQueueIfIdle()
         }
+    }
+
+    /// True when the only active work is a background media transcription job.
+    /// Those jobs were explicitly queued by the user and have their own cancel UI,
+    /// so Escape neither cancels them nor gets swallowed while they run.
+    private var isMediaTranscriptionOnlyWork: Bool {
+        mediaTranscriptionTask != nil && !isRecording && activeOperationTask == nil
+    }
+
+    /// Escape is only suppressed when pressing it would actually cancel something;
+    /// the predicate must stay in lockstep with `cancelCurrentOperation`'s media guard.
+    private func refreshEscapeSuppression() {
+        escapeEventState.setShouldSuppress(
+            Self.shouldSuppressEscapeEvent(
+                isRecording: isRecording,
+                isProcessing: isProcessing,
+                isMediaTranscriptionOnly: isMediaTranscriptionOnlyWork
+            )
+        )
     }
     private(set) var error: Error?
     
@@ -2959,8 +2988,12 @@ final class AppCoordinator {
             reportTranscriptionFailureSignal(error, stage: "transcribe")
             resetProcessingState()
             didResetProcessingState = true
+            let locale = settingsStore.selectedAppLocale.locale
             toastService.show(
-                ToastPayload(message: "Transcription failed: \(error.localizedDescription)", style: .error)
+                ToastPayload(
+                    message: String(format: localized("Transcription failed: %@", locale: locale), locale: locale, error.localizedDescription),
+                    style: .error
+                )
             )
             throw error
         }
@@ -3046,10 +3079,11 @@ final class AppCoordinator {
             reportTranscriptionFailureSignal(error, stage: "transcribe")
             resetProcessingState()
             didResetProcessingState = true
+            let locale = settingsStore.selectedAppLocale.locale
             let message = if case .modelNotLoaded = error {
-                "No model loaded. Please download a model in Settings."
+                localized("No model loaded. Please download a model in Settings.", locale: locale)
             } else {
-                "Transcription failed: \(error.localizedDescription)"
+                String(format: localized("Transcription failed: %@", locale: locale), locale: locale, error.localizedDescription)
             }
             toastService.show(
                 ToastPayload(message: message, style: .error)
@@ -3063,8 +3097,12 @@ final class AppCoordinator {
             reportTranscriptionFailureSignal(error, stage: "transcribe")
             resetProcessingState()
             didResetProcessingState = true
+            let locale = settingsStore.selectedAppLocale.locale
             toastService.show(
-                ToastPayload(message: "Transcription failed: \(error.localizedDescription)", style: .error)
+                ToastPayload(
+                    message: String(format: localized("Transcription failed: %@", locale: locale), locale: locale, error.localizedDescription),
+                    style: .error
+                )
             )
             throw error
         }
@@ -3438,7 +3476,10 @@ final class AppCoordinator {
         )
         toastService.show(
             ToastPayload(
-                message: "No speech detected. Try speaking closer to your microphone."
+                message: localized(
+                    "No speech detected. Try speaking closer to your microphone.",
+                    locale: settingsStore.selectedAppLocale.locale
+                )
             )
         )
     }
@@ -3587,7 +3628,10 @@ final class AppCoordinator {
                 "Streaming post-stop enhance failed: \(error.localizedDescription)")
             toastService.show(
                 ToastPayload(
-                    message: "AI enhancement failed. Streamed text kept as-is.",
+                    message: localized(
+                        "AI enhancement failed. Streamed text kept as-is.",
+                        locale: settingsStore.selectedAppLocale.locale
+                    ),
                     style: .error
                 )
             )
@@ -3645,7 +3689,12 @@ final class AppCoordinator {
         outcome.pipelineMetrics.audioStopSeconds = audioStopSeconds
         outcome.pipelineMetrics.totalSeconds = pipelineStart.duration(to: pipelineClock.now).pipelineSeconds
         Log.app.info("Pipeline timing: \(outcome.pipelineMetrics.logSummary)")
-        try ensureOperationCurrent(token)
+        // Once the final paste landed, the session is committed: a cancel arriving
+        // after that point must not drop the transcription from history. Only the
+        // not-yet-output path may abort here.
+        if !outcome.outputSucceeded {
+            try ensureOperationCurrent(token)
+        }
         lastAppliedReplacements = outcome.appliedReplacements
 
         guard !outcome.isEffectivelyEmpty else {
@@ -3656,14 +3705,12 @@ final class AppCoordinator {
         guard Self.shouldPersistHistory(outputSucceeded: outcome.outputSucceeded, text: outcome.finalText) else {
             return
         }
-        try ensureOperationCurrent(token)
 
         let duration = Date().timeIntervalSince(startTime)
         let speakerTrainingSegments = await speakerTrainingSegments(
             audioData: recordedAudioData,
             existingSegments: nil
         )
-        try ensureOperationCurrent(token)
         do {
             let record = try historyStore.save(
                 text: outcome.finalText,
@@ -3780,10 +3827,11 @@ final class AppCoordinator {
             reportTranscriptionFailureSignal(error, stage: "transcribe")
             resetProcessingState()
             didResetProcessingState = true
+            let locale = settingsStore.selectedAppLocale.locale
             let message = if case .modelNotLoaded = error {
-                "No model loaded. Please download a model in Settings."
+                localized("No model loaded. Please download a model in Settings.", locale: locale)
             } else {
-                "Transcription failed: \(error.localizedDescription)"
+                String(format: localized("Transcription failed: %@", locale: locale), locale: locale, error.localizedDescription)
             }
             toastService.show(
                 ToastPayload(message: message, style: .error)
@@ -3797,8 +3845,12 @@ final class AppCoordinator {
             reportTranscriptionFailureSignal(error, stage: "transcribe")
             resetProcessingState()
             didResetProcessingState = true
+            let locale = settingsStore.selectedAppLocale.locale
             toastService.show(
-                ToastPayload(message: "Transcription failed: \(error.localizedDescription)", style: .error)
+                ToastPayload(
+                    message: String(format: localized("Transcription failed: %@", locale: locale), locale: locale, error.localizedDescription),
+                    style: .error
+                )
             )
             throw error
         }
@@ -4063,7 +4115,10 @@ final class AppCoordinator {
                 )
                 toastService.show(
                     ToastPayload(
-                        message: "AI enhancement failed. Transcription inserted without enhancement.",
+                        message: localized(
+                            "AI enhancement failed. Transcription inserted without enhancement.",
+                            locale: settingsStore.selectedAppLocale.locale
+                        ),
                         style: .error
                     )
                 )
@@ -4116,14 +4171,18 @@ final class AppCoordinator {
         pipelineMetrics.totalSeconds = pipelineStart.duration(to: pipelineClock.now).pipelineSeconds
         Log.app.info("Pipeline timing: \(pipelineMetrics.logSummary)")
 
-        try ensureOperationCurrent(token)
+        // Once the output landed in the target app the operation is committed: a
+        // cancel arriving after that point must not drop the transcription from
+        // history. Only the not-yet-output path may abort here.
+        if !outputSucceeded {
+            try ensureOperationCurrent(token)
+        }
         guard Self.shouldPersistHistory(outputSucceeded: outputSucceeded, text: finalText) else { return }
 
         let speakerTrainingSegments = await speakerTrainingSegments(
             audioData: audioData,
             existingSegments: transcriptionOutput.diarizedSegments
         )
-        try ensureOperationCurrent(token)
         do {
             let record = try historyStore.save(
                 text: finalText,
@@ -4173,17 +4232,60 @@ final class AppCoordinator {
                 )
             }
             updateRecentTranscriptsMenu()
-            if outputResult?.didPaste == true {
-                showInsertionSuccessToast(
-                    appName: outputResult?.destinationAppName,
-                    wordCount: finalText.wordCount
-                )
+            if let outputResult {
+                showOutputResultToast(outputResult, wordCount: finalText.wordCount)
             }
         } catch {
             Log.app.error("Failed to save to history: \(error)")
         }
     }
-    
+
+    /// Post-output feedback for the batch path. A landed paste gets the insertion
+    /// toast; the intentional no-Accessibility copy fallback gets "Copied" with Undo
+    /// (previously it was silent, making dictation look like a no-op); a real paste
+    /// failure that fell back to the clipboard gets an error toast.
+    private func showOutputResultToast(_ result: OutputManager.OutputResult, wordCount: Int) {
+        let locale = settingsStore.selectedAppLocale.locale
+        if result.didPaste {
+            showInsertionSuccessToast(
+                appName: result.destinationAppName,
+                wordCount: wordCount
+            )
+            return
+        }
+
+        switch result.clipboardFallbackReason {
+        case .accessibilityUnavailable:
+            var actions: [ToastAction] = []
+            if let snapshot = result.previousClipboardSnapshot {
+                actions.append(
+                    ToastAction(title: localized("Undo", locale: locale), role: .primary) { [weak self] in
+                        let restored = self?.outputManager.restoreClipboardSnapshot(snapshot) ?? false
+                        if restored {
+                            Log.output.info("Restored clipboard after copy undo")
+                        } else {
+                            Log.output.error("Failed to restore clipboard after copy undo")
+                        }
+                    }
+                )
+            }
+            toastService.show(
+                ToastPayload(
+                    message: localized("Copied to clipboard", locale: locale),
+                    actions: actions,
+                    variant: .copied
+                )
+            )
+        case .pasteFailed, nil:
+            toastService.show(
+                ToastPayload(
+                    message: localized("Paste failed. Transcript copied to clipboard.", locale: locale),
+                    style: .error
+                )
+            )
+        }
+    }
+
     // MARK: - Escape Key Cancellation
     
     private func setupEscapeKeyMonitor() {
@@ -4489,14 +4591,28 @@ final class AppCoordinator {
         Log.hotkey.debug("Removed NSEvent global monitor fallback for modifier changes")
     }
     
-    static func shouldSuppressEscapeEvent(isRecording: Bool, isProcessing: Bool) -> Bool {
-        isRecording || isProcessing
+    static func shouldSuppressEscapeEvent(
+        isRecording: Bool,
+        isProcessing: Bool,
+        isMediaTranscriptionOnly: Bool = false
+    ) -> Bool {
+        (isRecording || isProcessing) && !isMediaTranscriptionOnly
     }
 
     /// Single Escape cancels while a recording/processing session is active.
     /// Same predicate as suppression so the key is only swallowed when we act on it.
-    static func shouldCancelOperationOnEscape(isRecording: Bool, isProcessing: Bool) -> Bool {
-        shouldSuppressEscapeEvent(isRecording: isRecording, isProcessing: isProcessing)
+    /// Media-only work is excluded from both: cancel intentionally ignores queued
+    /// media jobs, so Escape must not be stolen from the focused app while they run.
+    static func shouldCancelOperationOnEscape(
+        isRecording: Bool,
+        isProcessing: Bool,
+        isMediaTranscriptionOnly: Bool = false
+    ) -> Bool {
+        shouldSuppressEscapeEvent(
+            isRecording: isRecording,
+            isProcessing: isProcessing,
+            isMediaTranscriptionOnly: isMediaTranscriptionOnly
+        )
     }
 
     static func isTaskCancellation(_ error: Error) -> Bool {
@@ -4623,8 +4739,11 @@ final class AppCoordinator {
     
     private func handleEscapeKeyPress() {
         // Escape cancels while Pindrop owns an active recording/processing session.
-        // Idle Escape is intentionally a no-op so other apps keep the key.
+        // Idle Escape is intentionally a no-op so other apps keep the key, and
+        // media-only work is skipped so an Escape that cannot cancel anything
+        // neither arms the double-press sequence nor pretends to act.
         guard isRecording || isProcessing || activeOperationTask != nil else { return }
+        guard !isMediaTranscriptionOnlyWork else { return }
 
         let now = Date()
         if Self.escapeShouldCancel(
@@ -4662,8 +4781,10 @@ final class AppCoordinator {
         }
 
         // Background media transcription jobs are long-running and were explicitly
-        // queued by the user — don't cancel them via keyboard shortcut.
-        guard mediaTranscriptionTask == nil else {
+        // queued by the user — don't cancel them via keyboard shortcut. Only bail
+        // when the media job is the sole active work: a concurrent dictation
+        // session must stay cancellable.
+        guard !isMediaTranscriptionOnlyWork else {
             Log.app.debug("Cancel requested (\(source)) during background media transcription — ignoring")
             return
         }
@@ -4681,7 +4802,7 @@ final class AppCoordinator {
         recordingStopAdmission.invalidateCurrentClaim()
 
         streamingSession.cancelDetached()
-        recordingState.endRecording(message: "Recording canceled.")
+        recordingState.endRecording(message: localized("Recording canceled.", locale: settingsStore.selectedAppLocale.locale))
         recordingState.clearCurrentJob()
 
         audioRecorder.resetAudioEngine()
@@ -4717,7 +4838,13 @@ final class AppCoordinator {
 
         let hadStreamingSession = streamingSession.isSessionActive
         streamingSession.cancelDetached()
-        recordingState.endRecording(message: "Recording stopped: \(failure.localizedDescription)")
+        let captureFailureLocale = settingsStore.selectedAppLocale.locale
+        let captureFailureMessage = String(
+            format: localized("Recording stopped: %@", locale: captureFailureLocale),
+            locale: captureFailureLocale,
+            failure.localizedDescription
+        )
+        recordingState.endRecording(message: captureFailureMessage)
         recordingState.clearCurrentJob()
         if hadStreamingSession {
             Log.transcription.info("Cancelled streaming transcription after audio capture failure")
@@ -4743,7 +4870,7 @@ final class AppCoordinator {
         finishIndicatorSession()
 
         toastService.show(
-            ToastPayload(message: "Recording stopped: \(failure.localizedDescription)", style: .error)
+            ToastPayload(message: captureFailureMessage, style: .error)
         )
     }
 
@@ -4821,21 +4948,36 @@ final class AppCoordinator {
         NSWorkspace.shared.open(supportURL)
     }
 
-    private func applyPreferredInputDeviceUID(_ uid: String) {
+    @discardableResult
+    private func applyPreferredInputDeviceUID(_ uid: String) -> Bool {
         do {
             try audioRecorder.setPreferredInputDeviceUID(uid)
+            return true
         } catch {
             self.error = error
             Log.audio.error("Failed to switch input device: \(error.localizedDescription)")
+            let locale = settingsStore.selectedAppLocale.locale
             toastService.show(
-                ToastPayload(message: "Could not switch microphone: \(error.localizedDescription)", style: .error)
+                ToastPayload(
+                    message: String(format: localized("Could not switch microphone: %@", locale: locale), locale: locale, error.localizedDescription),
+                    style: .error
+                )
             )
+            // The recorder reverted to the device actually capturing; snap the
+            // stored selection back so Settings doesn't show a mic that isn't
+            // recording (silent wrong-device recordings otherwise).
+            let actualUID = audioRecorder.currentPreferredInputDeviceUID ?? ""
+            if settingsStore.selectedInputDeviceUID != actualUID {
+                settingsStore.selectedInputDeviceUID = actualUID
+                inputMuteMonitor?.setPreferredDeviceUID(actualUID)
+            }
+            return false
         }
     }
 
     private func handleSelectInputDeviceUID(_ uid: String) {
         settingsStore.selectedInputDeviceUID = uid
-        applyPreferredInputDeviceUID(uid)
+        guard applyPreferredInputDeviceUID(uid) else { return }
         inputMuteMonitor?.setPreferredDeviceUID(uid)
 
         if uid.isEmpty {
@@ -5018,6 +5160,7 @@ final class AppCoordinator {
         mediaQueueRestoreRequested =
             mediaQueueRestoreRequested || queueOriginalModelName != nil
         mediaQueueNeedsProcessingReset = mediaQueueNeedsProcessingReset || isProcessing
+        mediaQueueDeferredUntilIdle = false
         mediaTranscriptionTask?.cancel()
         mediaTranscriptionState.clearAllJobs()
         if mediaTranscriptionTask == nil {
@@ -5252,7 +5395,7 @@ final class AppCoordinator {
             resetProcessingState()
             didResetProcessingState = true
             recordingState.clearCurrentJob()
-            recordingState.message = "Recording canceled."
+            recordingState.message = localized("Recording canceled.", locale: settingsStore.selectedAppLocale.locale)
         } catch {
             // Stale cancelled work completing after a newer session started: no state mutation.
             guard operationController.isCurrent(token), !Self.isTaskCancellation(error) else { return }
@@ -5291,7 +5434,14 @@ final class AppCoordinator {
             try await loadAndActivateModel(named: original, provider: .whisperKit)
             guard isMediaTranscriptionOwnerCurrent(generation) else { return }
             queueOriginalModelName = nil
-            toastService.show(ToastPayload(message: "Queue complete — restored \(modelManager.availableModels.first(where: { $0.name == original })?.displayName ?? original)", style: .standard))
+            let restoredName = modelManager.availableModels.first(where: { $0.name == original })?.displayName ?? original
+            let locale = settingsStore.selectedAppLocale.locale
+            toastService.show(
+                ToastPayload(
+                    message: String(format: localized("Queue complete — restored %@", locale: locale), locale: locale, restoredName),
+                    style: .standard
+                )
+            )
         } catch {
             guard isMediaTranscriptionOwnerCurrent(generation) else { return }
             queueOriginalModelName = nil
@@ -5312,6 +5462,7 @@ final class AppCoordinator {
 
     private func startMediaQueueContinuationIfNeeded() {
         guard !isShutdown, mediaTranscriptionTask == nil else { return }
+        guard !mediaQueueDeferredUntilIdle else { return }
         guard mediaQueueRestoreRequested
                 || mediaQueueNeedsProcessingReset
                 || queueOriginalModelName != nil
@@ -5331,6 +5482,13 @@ final class AppCoordinator {
         guard isMediaTranscriptionOwnerCurrent(generation) else {
             releaseMediaTranscriptionTaskOwnership(generation: generation)
             startMediaQueueContinuationIfNeeded()
+            return
+        }
+
+        // A job just yielded to an active dictation session; park the queue until
+        // the session ends (resumeDeferredMediaQueueIfIdle restarts it).
+        if mediaQueueDeferredUntilIdle {
+            releaseMediaTranscriptionTaskOwnership(generation: generation)
             return
         }
 
@@ -5370,6 +5528,15 @@ final class AppCoordinator {
         mediaTranscriptionTaskGeneration = nil
     }
 
+    /// Restarts a queue that was paused because a job yielded to a dictation
+    /// session. Driven from the isRecording/isProcessing didSets so every path
+    /// that returns the pipeline to idle resumes the queue.
+    private func resumeDeferredMediaQueueIfIdle() {
+        guard mediaQueueDeferredUntilIdle, !isRecording, !isProcessing else { return }
+        mediaQueueDeferredUntilIdle = false
+        startMediaQueueContinuationIfNeeded()
+    }
+
     private func isMediaTranscriptionOwnerCurrent(_ generation: UInt64) -> Bool {
         !isShutdown
             && mediaTranscriptionGeneration == generation
@@ -5389,7 +5556,20 @@ final class AppCoordinator {
     ) async {
         guard isMediaTranscriptionOwnerCurrent(generation) else { return }
         guard !isRecording && !isProcessing else {
-            toastService.show(ToastPayload(message: "Finish the active recording before starting a transcription.", style: .error))
+            // A dictation session owns the pipeline right now. Put the job back at
+            // the head of the queue and pause the queue until the session ends —
+            // a bare return here silently lost the dequeued job.
+            mediaTranscriptionState.pendingJobs.insert(jobIn, at: 0)
+            mediaQueueDeferredUntilIdle = true
+            toastService.show(
+                ToastPayload(
+                    message: localized(
+                        "Recording in progress — transcription will start when it finishes.",
+                        locale: settingsStore.selectedAppLocale.locale
+                    ),
+                    style: .standard
+                )
+            )
             return
         }
 
@@ -5399,7 +5579,12 @@ final class AppCoordinator {
         await modelManager.refreshDownloadedFeatureModels()
         guard isMediaTranscriptionOwnerCurrent(generation), !Task.isCancelled else { return }
         guard !options.diarizationEnabled || modelManager.isFeatureModelDownloaded(.diarization) else {
-            mediaTranscriptionState.setSetupIssue(localized("Download the speaker diarization model before starting media transcription.", locale: settingsStore.selectedAppLocale.locale))
+            let message = localized("Download the speaker diarization model before starting media transcription.", locale: settingsStore.selectedAppLocale.locale)
+            // Record the job as failed so it doesn't just vanish from the queue,
+            // then surface the setup guidance banner.
+            mediaTranscriptionState.beginJob(jobIn)
+            mediaTranscriptionState.failCurrentJob(message, returnToLibrary: true)
+            mediaTranscriptionState.setSetupIssue(message)
             return
         }
 
@@ -5437,7 +5622,13 @@ final class AppCoordinator {
                 if queueOriginalModelName == nil {
                     queueOriginalModelName = activeModelName
                     let displayName = modelManager.availableModels.first(where: { $0.name == requestedModel })?.displayName ?? requestedModel
-                    toastService.show(ToastPayload(message: "Switching to \(displayName) for this queue", style: .standard))
+                    let locale = settingsStore.selectedAppLocale.locale
+                    toastService.show(
+                        ToastPayload(
+                            message: String(format: localized("Switching to %@ for this queue", locale: locale), locale: locale, displayName),
+                            style: .standard
+                        )
+                    )
                 }
                 mediaTranscriptionState.updateJob(
                     stage: .preparingModel,
@@ -5543,7 +5734,12 @@ final class AppCoordinator {
             let shouldNavigateToDetail = mediaTranscriptionState.route == .processing(job.id)
             resetProcessingState()
             didResetProcessingState = true
-            toastService.show(ToastPayload(message: "Transcribed: \(managedAsset.displayName)"))
+            let completionLocale = settingsStore.selectedAppLocale.locale
+            toastService.show(
+                ToastPayload(
+                    message: String(format: localized("Transcribed: %@", locale: completionLocale), locale: completionLocale, managedAsset.displayName)
+                )
+            )
             mediaTranscriptionState.completeCurrentJob(with: record.id, shouldNavigateToDetail: shouldNavigateToDetail)
         } catch is CancellationError {
             guard isMediaTranscriptionOwnerCurrent(generation) else { return }
@@ -5625,19 +5821,41 @@ final class AppCoordinator {
         }
 
         Log.app.info("Clearing audio buffer")
+        // Mirror cancel's teardown: invalidate any in-flight operation and stop
+        // admission so a half-dispatched stop can't run against the cleared audio.
+        operationController.cancel()
+        activeOperationTask?.cancel()
+        activeOperationTask = nil
+        recordingStopAdmission.invalidateCurrentClaim()
+
         audioRecorder.cancelRecording()
         if streamingSession.isSessionActive {
             await streamingSession.cancel()
         } else {
             streamingSession.deactivate()
         }
+        recordingState.endRecording(message: localized("Recording canceled.", locale: settingsStore.selectedAppLocale.locale))
+        recordingState.clearCurrentJob()
         mediaPauseService.endRecordingSession()
         isRecording = false
+        isProcessing = false
+        // Capture modes must not survive a cleared buffer: a lingering note-append
+        // mode blocks global dictation (NoteAppendGate) and leaves sticky listening UI.
+        isRecordingFeatureCaptureActive = false
+        isQuickCaptureMode = false
+        clearNoteAppendMode()
         recordingStartTime = nil
+        manualExpectedSpeakerCount = nil
+        capturedContext = nil
+        capturedSnapshot = nil
+        capturedAdapterCapabilities = nil
+        capturedRoutingSignal = nil
         stopLiveContextSession()
         updateVibeRuntimeStateFromSettings()
+        error = nil
 
         statusBarController.setIdleState()
+        statusBarController.updateMenuState()
 
         finishIndicatorSession()
     }
@@ -5911,6 +6129,7 @@ final class AppCoordinator {
         mediaTranscriptionTask?.cancel()
         mediaQueueRestoreRequested = false
         mediaQueueNeedsProcessingReset = false
+        mediaQueueDeferredUntilIdle = false
         mediaTranscriptionState.clearAllJobs()
 
         streamingSession.cancelDetached()

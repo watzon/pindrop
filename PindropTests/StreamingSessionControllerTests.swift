@@ -177,6 +177,31 @@ struct StreamingSessionControllerTests {
         #expect(toastPresenter.payloads.isEmpty)
     }
 
+    @Test func cancellationAfterSuccessfulInsertionKeepsOutcome() async throws {
+        let clipboard = RecordingClipboard()
+        let toastPresenter = RecordingToastPresenter()
+        let controller = try makeController(clipboard: clipboard, toastPresenter: toastPresenter)
+
+        // The override "lands" the paste and then the operation is cancelled before
+        // the controller returns. The committed output must still reach the caller
+        // (so history is persisted) instead of collapsing into CancellationError.
+        controller.setFinalInsertionOverrideForTesting { _ in
+            withUnsafeCurrentTask { $0?.cancel() }
+            return .pasted(destinationAppName: "TextEdit", destinationAppBundleID: "com.apple.TextEdit")
+        }
+
+        let task = Task { @MainActor in
+            try await controller.finalizeInsertionForTesting(finalText: "committed text")
+        }
+        let outcome = try await task.value
+
+        #expect(outcome.outputSucceeded)
+        #expect(outcome.didPaste)
+        #expect(outcome.destinationAppName == "TextEdit")
+        #expect(clipboard.copied.isEmpty)
+        #expect(toastPresenter.payloads.isEmpty)
+    }
+
     @Test func cancellationPolicyRejectsOnlyCancellationErrors() {
         #expect(StreamingSessionController.isCancellationError(CancellationError()))
         #expect(StreamingSessionController.isCancellationError(URLError(.cancelled)))

@@ -1032,6 +1032,14 @@ final class AVAudioEngineCaptureBackend: AudioCaptureBackend {
             guard attempt < 3 else {
                 isRestartingCapture = false
                 Log.audio.error("Audio engine restart failed after \(attempt) attempts: \(error.localizedDescription)")
+                // Match the CoreAudio backend: a dead engine must fail the capture
+                // instead of leaving isCapturing true with no audio flowing —
+                // otherwise the UI stays "recording" silence until a manual stop.
+                onErrorCallback?(
+                    AudioRecorderError.engineStartFailed(
+                        "Audio engine restart failed after configuration change: \(error.localizedDescription)"
+                    )
+                )
                 return
             }
 
@@ -1356,18 +1364,27 @@ final class CoreAudioInputCaptureBackend: AudioCaptureBackend {
             return
         }
 
+        let previousUID = preferredInputDeviceUID
         preferredInputDeviceUID = normalizedUID
 
         guard isCapturing,
               let activeOnBuffer,
               let activeOnAudioLevel else { return }
 
-        try restartCaptureImmediately(
-            reason: "preferred input device changed",
-            onBuffer: activeOnBuffer,
-            onAudioLevel: activeOnAudioLevel,
-            preserveActiveOnFailure: true
-        )
+        do {
+            try restartCaptureImmediately(
+                reason: "preferred input device changed",
+                onBuffer: activeOnBuffer,
+                onAudioLevel: activeOnAudioLevel,
+                preserveActiveOnFailure: true
+            )
+        } catch {
+            // Capture is still running on the previous device
+            // (preserveActiveOnFailure); revert the preference so stored state
+            // matches the device actually recording, and let the caller surface it.
+            preferredInputDeviceUID = previousUID
+            throw error
+        }
     }
 
     private func makeStartedCaptureDevice(
@@ -2021,6 +2038,31 @@ final class SystemAudioTapCaptureBackend: AudioCaptureBackend {
 
     deinit {
         destroyCaptureObjects()
+    }
+
+    /// Attempts to create (and immediately destroy) a process tap. Creating a tap is
+    /// the only public way to learn whether the system-audio recording TCC grant is
+    /// in place — there is no query/request API — and the first attempt triggers the
+    /// system consent prompt, which is exactly the "request" semantics
+    /// `PermissionManager.requestSystemAudioPermission()` needs. Without this,
+    /// permission problems only surfaced mid-capture as an opaque
+    /// `systemAudioCaptureFailed`.
+    static func probeSystemAudioTapAccess() -> Bool {
+        let tapDescription = CATapDescription(stereoMixdownOfProcesses: [])
+        tapDescription.name = "Pindrop System Audio Permission Probe"
+        tapDescription.uuid = UUID()
+        tapDescription.isPrivate = true
+        tapDescription.isExclusive = true
+        tapDescription.muteBehavior = .unmuted
+
+        var probeTapID = AudioObjectID(0)
+        let status = AudioHardwareCreateProcessTap(tapDescription, &probeTapID)
+        guard status == noErr else {
+            Log.audio.warning("System audio permission probe could not create a process tap (\(status))")
+            return false
+        }
+        AudioHardwareDestroyProcessTap(probeTapID)
+        return true
     }
 
     func startCapture(
@@ -2886,15 +2928,30 @@ final class AudioRecorder {
     func setPreferredInputDeviceUID(_ uid: String) throws {
         guard preferredInputDeviceUID != uid else { return }
 
+        let previousUID = preferredInputDeviceUID
         preferredInputDeviceUID = uid
-        if let activeCaptureBackend {
-            try activeCaptureBackend.setPreferredInputDeviceUID(uid)
-            if currentConfiguration.mode == .systemAudio {
+        do {
+            if let activeCaptureBackend {
+                try activeCaptureBackend.setPreferredInputDeviceUID(uid)
+                if currentConfiguration.mode == .systemAudio {
+                    try microphoneCaptureBackend.setPreferredInputDeviceUID(uid)
+                }
+            } else {
                 try microphoneCaptureBackend.setPreferredInputDeviceUID(uid)
             }
-        } else {
-            try microphoneCaptureBackend.setPreferredInputDeviceUID(uid)
+        } catch {
+            // The backend kept capturing on the previous device; don't advertise a
+            // preference that isn't in effect (it would silently record from the
+            // wrong mic while Settings shows the new one).
+            preferredInputDeviceUID = previousUID
+            throw error
         }
+    }
+
+    /// The device preference actually in effect (reverted if a mid-capture switch
+    /// failed), so callers can reconcile UI state with the capturing device.
+    var currentPreferredInputDeviceUID: String? {
+        preferredInputDeviceUID
     }
 
     private func handleCaptureFailure(_ error: Error) {

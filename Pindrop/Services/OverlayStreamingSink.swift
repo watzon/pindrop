@@ -23,7 +23,7 @@ final class OverlayStreamingSink: StreamingRefinementOutputSink {
 
     private let transcriptState: LiveTranscriptState
     private let finalOutput: @MainActor (String) async throws -> OutputManager.OutputResult
-    private let onClipboardFallback: (@MainActor () -> Void)?
+    private let onClipboardFallback: (@MainActor (OutputManager.OutputResult) -> Void)?
 
     /// Result of the most recent successful `finishStreamingInsertion` call.
     /// Cleared at the start of each finish attempt so callers can distinguish
@@ -33,7 +33,7 @@ final class OverlayStreamingSink: StreamingRefinementOutputSink {
     init(
         transcriptState: LiveTranscriptState,
         finalOutput: @escaping @MainActor (String) async throws -> OutputManager.OutputResult,
-        onClipboardFallback: (@MainActor () -> Void)? = nil
+        onClipboardFallback: (@MainActor (OutputManager.OutputResult) -> Void)? = nil
     ) {
         self.transcriptState = transcriptState
         self.finalOutput = finalOutput
@@ -59,7 +59,7 @@ final class OverlayStreamingSink: StreamingRefinementOutputSink {
         let result = try await finalOutput(output)
         lastOutputResult = result
         if result.didCopyToClipboard {
-            onClipboardFallback?()
+            onClipboardFallback?(result)
         }
     }
 

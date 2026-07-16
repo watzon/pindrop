@@ -60,6 +60,8 @@ ai:
   enhancement: "Amélioration IA"
   enhancement_529f5583: "Amélioration IA : %@"
   enhancement_failed: "Échec de l'amélioration IA"
+  enhancement_failed_streamed_text_kept_as_is: "Échec de l'amélioration IA. Le texte diffusé en continu a été conservé tel quel."
+  enhancement_failed_transcription_inserted: "Échec de l'amélioration IA. La transcription a été insérée sans amélioration."
   enhancement_is_disabled: "L'amélioration IA est désactivée."
   enhancement_will: "L'amélioration IA va :"
   model: "Modèle IA"
@@ -250,6 +252,8 @@ copy:
   transcript: "Copier la transcription"
 correct:
   grammar_mistakes: "Corriger les erreurs grammaticales"
+could:
+  not_switch_microphone: "Impossible de changer de microphone : %@"
 create:
   _self: "Créer"
   new_note: "Créer une nouvelle note"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "Aucun participant appris pour le moment"
   media_transcriptions_yet: "Pas encore de transcriptions de médias"
   model_loaded: "Aucun modèle chargé"
+  model_loaded_please_download_a_model: "Aucun modèle chargé. Veuillez télécharger un modèle dans les Paramètres."
   model_selected: "Aucun modèle sélectionné"
   models_available: "Aucun modèle disponible"
   models_available_ae9dbd29: "Aucun modèle disponible."
@@ -724,6 +729,7 @@ no:
   replacements: "Aucun remplacement"
   results_found: "Aucun résultat trouvé"
   settings_found: "Aucun paramètre trouvé"
+  speech_detected_try_speaking_closer_to_your: "Aucune parole détectée. Essayez de parler plus près du microphone."
   transcriptions_yet: "Pas encore de transcriptions"
   vocabulary_words: "Aucun mot de vocabulaire"
   transcripts_audio_prompts_file_names_or_perso: "Aucune transcription, aucun audio, aucun prompt, aucun nom de fichier ni contenu personnel — jamais."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "Fournisseurs, prompts et contrôles du mode vibe"
 push:
   to_talk: "Push-to-Talk"
+queue:
+  complete_restored: "File d'attente terminée — restauration de %@"
 quickly:
   copy_your_last_transcription: "Copiez rapidement votre dernière transcription"
   pull_your_latest_transcript_back_to_the: "Récupérez rapidement votre dernière transcription dans le presse-papiers."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "Enregistrement"
   3f8fd48c: "🔴 Enregistrement"
+  canceled: "Enregistrement annulé."
+  in_progress_transcription_will_start: "Enregistrement en cours — la transcription démarrera une fois terminé."
+  stopped_with_error: "Enregistrement arrêté : %@"
   from_external_and_bluetooth_microphone: "L’enregistrement depuis des micros externes et Bluetooth est maintenant très fiable, même lorsque la sortie audio est routée ailleurs."
 recordings:
   _self: "enregistrements"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "Prend en charge les fichiers médias locaux et les liens web résolus avec yt-dlp."
 switch:
   to_model: "Passer au modèle"
+switching:
+  to_for_this_queue: "Passage à %@ pour cette file d'attente"
 system:
   _self: "Système"
   default: "Par défaut du système"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "Transcrire les médias"
 transcribed:
   _self: "transcrit"
+  source_name: "Transcrit : %@"
   words: "Transcribed words"
 transcription:
   _self: "Transcription"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "Transcription supprimée."
   enhancement: "Amélioration de la transcription"
   failed: "Échec de la transcription"
+  failed_with_error: "Échec de la transcription : %@"
   finished: "Transcription terminée."
   in_progress: "Transcription en cours"
   metadata: "Métadonnées de transcription"

@@ -60,6 +60,8 @@ ai:
   enhancement: "Îmbunătățirea AI"
   enhancement_529f5583: "Îmbunătățirea AI: %@"
   enhancement_failed: "Îmbunătățirea AI a eșuat"
+  enhancement_failed_streamed_text_kept_as_is: "Îmbunătățirea AI a eșuat. Textul transmis a fost păstrat ca atare."
+  enhancement_failed_transcription_inserted: "Îmbunătățirea AI a eșuat. Transcrierea a fost inserată fără îmbunătățire."
   enhancement_is_disabled: "Îmbunătățirea AI este dezactivată."
   enhancement_will: "Îmbunătățirea AI va:"
   model: "Model AI"
@@ -250,6 +252,8 @@ copy:
   transcript: "Copiați transcrierea"
 correct:
   grammar_mistakes: "Corectați greșelile gramaticale"
+could:
+  not_switch_microphone: "Nu s-a putut schimba microfonul: %@"
 create:
   _self: "Crea"
   new_note: "Creați o notă nouă"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Nicio transcriere media încă"
   model_loaded: "Niciun model încărcat"
+  model_loaded_please_download_a_model: "Niciun model încărcat. Descărcați un model din Setări."
   model_selected: "Niciun model selectat"
   models_available: "Nu există modele disponibile"
   models_available_ae9dbd29: "Nu există modele disponibile."
@@ -724,6 +729,7 @@ no:
   replacements: "Fără înlocuiri"
   results_found: "Nu s-au găsit rezultate"
   settings_found: "Nu s-au găsit setări"
+  speech_detected_try_speaking_closer_to_your: "Nu s-a detectat nicio vorbire. Încercați să vorbiți mai aproape de microfon."
   transcriptions_yet: "Nicio transcriere încă"
   vocabulary_words: "Fără cuvinte de vocabular"
   transcripts_audio_prompts_file_names_or_perso: "Nicio transcriere, audio, prompt, nume de fișier sau conținut personal — niciodată."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "Furnizori, solicitări și comenzi pentru modul vibrație"
 push:
   to_talk: "Apăsați pentru a vorbi"
+queue:
+  complete_restored: "Coadă finalizată — %@ restaurat"
 quickly:
   copy_your_last_transcription: "Copiați rapid ultima transcriere"
   pull_your_latest_transcript_back_to_the: "Trageți rapid cea mai recentă transcriere înapoi în clipboard."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "Înregistrare"
   3f8fd48c: "🔴 Înregistrare"
+  canceled: "Înregistrare anulată."
+  in_progress_transcription_will_start: "Înregistrare în curs — transcrierea va începe când se termină."
+  stopped_with_error: "Înregistrare oprită: %@"
   from_external_and_bluetooth_microphone: "Înregistrarea de pe microfoane externe și Bluetooth este acum foarte stabilă, chiar și când ieșirea audio este rutată în altă parte."
 recordings:
   _self: "înregistrări"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "Suportă fișiere media locale și link-uri web rezolvate cu yt-dlp."
 switch:
   to_model: "Comutați la Model"
+switching:
+  to_for_this_queue: "Se comută la %@ pentru această coadă"
 system:
   _self: "Sistem"
   default: "Implicit sistem"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "Transcrie Media"
 transcribed:
   _self: "transcris"
+  source_name: "Transcris: %@"
   words: "Transcribed words"
 transcription:
   _self: "Transcriere"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "Transcrierea a fost ștearsă."
   enhancement: "Îmbunătățirea transcripției"
   failed: "Transcrierea eșuată"
+  failed_with_error: "Transcriere eșuată: %@"
   finished: "Transcrierea s-a terminat."
   in_progress: "Transcriere în curs"
   metadata: "Metadate de transcriere"

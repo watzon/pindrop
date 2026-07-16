@@ -932,7 +932,9 @@ final class FloatingIndicatorState: ObservableObject {
 
     private func startDurationTimer() {
         stopDurationTimer()
-        durationTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+        // `.common` modes so the readout keeps advancing during menu tracking and
+        // window drags, where `.default`-only timers are paused.
+        durationTimer = Timer.pindrop_scheduleRepeating(interval: 0.1) { [weak self] _ in
             Task { @MainActor in
                 guard let self, let startTime = self.recordingStartTime else { return }
                 self.recordingDuration = Date().timeIntervalSince(startTime)

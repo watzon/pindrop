@@ -60,6 +60,8 @@ ai:
   enhancement: "Покращення AI"
   enhancement_529f5583: "Покращення AI: %@"
   enhancement_failed: "Помилка покращення AI"
+  enhancement_failed_streamed_text_kept_as_is: "Покращення AI не вдалося. Транскрибований текст залишено без змін."
+  enhancement_failed_transcription_inserted: "Покращення AI не вдалося. Транскрипцію вставлено без покращення."
   enhancement_is_disabled: "Покращення AI вимкнено."
   enhancement_will: "Покращення ШІ:"
   model: "Модель ШІ"
@@ -250,6 +252,8 @@ copy:
   transcript: "Копіювати стенограму"
 correct:
   grammar_mistakes: "Виправте граматичні помилки"
+could:
+  not_switch_microphone: "Не вдалося перемкнути мікрофон: %@"
 create:
   _self: "Створити"
   new_note: "Створити нову нотатку"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "No learned participants yet"
   media_transcriptions_yet: "Транскрипції медіа ще немає"
   model_loaded: "Модель не завантажено"
+  model_loaded_please_download_a_model: "Модель не завантажено. Завантажте модель у Налаштуваннях."
   model_selected: "Модель не вибрано"
   models_available: "Немає доступних моделей"
   models_available_ae9dbd29: "Немає доступних моделей."
@@ -724,6 +729,7 @@ no:
   replacements: "Без замін"
   results_found: "Результатів не знайдено"
   settings_found: "Налаштувань не знайдено"
+  speech_detected_try_speaking_closer_to_your: "Мовлення не виявлено. Спробуйте говорити ближче до мікрофона."
   transcriptions_yet: "Транскрипцій ще немає"
   vocabulary_words: "Немає словникових слів"
   transcripts_audio_prompts_file_names_or_perso: "Жодних транскрипцій, аудіо, промптів, імен файлів чи особистого вмісту — ніколи."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "Постачальники, підказки та елементи керування режимом Vibe"
 push:
   to_talk: "Push-to-Talk"
+queue:
+  complete_restored: "Чергу завершено — відновлено %@"
 quickly:
   copy_your_last_transcription: "Швидко скопіюйте останню транскрипцію"
   pull_your_latest_transcript_back_to_the: "Швидко перетягніть останню стенограму назад у буфер обміну."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "Запис"
   3f8fd48c: "🔴 Запис"
+  canceled: "Запис скасовано."
+  in_progress_transcription_will_start: "Триває запис — транскрипція розпочнеться після завершення."
+  stopped_with_error: "Запис зупинено: %@"
   from_external_and_bluetooth_microphone: "Запис із зовнішніх і Bluetooth-мікрофонів тепер дуже стабільний, навіть коли аудіовихід спрямовано в інше місце."
 recordings:
   _self: "записи"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "Підтримує локальні медіа-файли та веб-посилання, розв’язані за допомогою yt-dlp."
 switch:
   to_model: "Перейти до моделі"
+switching:
+  to_for_this_queue: "Перемикання на %@ для цієї черги"
 system:
   _self: "система"
   default: "Системне за замовчуванням"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "Транскрибувати медіа"
 transcribed:
   _self: "транскрибований"
+  source_name: "Транскрибовано: %@"
   words: "Transcribed words"
 transcription:
   _self: "Транскрипція"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "Транскрипцію видалено."
   enhancement: "Покращення транскрипції"
   failed: "Помилка транскрипції"
+  failed_with_error: "Помилка транскрипції: %@"
   finished: "Транскрипцію завершено."
   in_progress: "Виконується транскрипція"
   metadata: "Метадані транскрипції"

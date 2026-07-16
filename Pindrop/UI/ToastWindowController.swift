@@ -128,6 +128,10 @@ final class ToastWindowController: ToastPresenting {
     private var indicatorAnchorProvider: (@MainActor () -> FloatingIndicatorToastAnchor?)?
     private var activePayload: ToastPayload?
     private var isFrameUpdateScheduled = false
+    /// Bumped on every show(). hide()'s fade-out completion only tears the panel
+    /// down when no newer show() has reused it, so a queued toast presented while
+    /// the previous one is still animating out cannot be order-outed mid-display.
+    private var presentationGeneration: UInt64 = 0
 
     func configureIndicatorAnchorProvider(
         _ provider: @escaping @MainActor () -> FloatingIndicatorToastAnchor?
@@ -145,6 +149,7 @@ final class ToastWindowController: ToastPresenting {
         onAction: @escaping (UUID) -> Void,
         onHoverChange: @escaping (Bool) -> Void
     ) {
+        presentationGeneration &+= 1
         activePayload = payload
         let appLocale = AppLocale.currentSelection()
         let rootView = AnyView(ToastView(
@@ -228,18 +233,24 @@ final class ToastWindowController: ToastPresenting {
         activePayload = nil
         guard let panel else { return }
         let closingPanel = panel
+        let closingGeneration = presentationGeneration
 
         NSAnimationContext.runAnimationGroup({ context in
             context.duration = shouldReduceToastMotion ? 0 : ToastMetrics.hideDuration
             context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             closingPanel.animator().alphaValue = 0
         }, completionHandler: { [weak self, weak closingPanel] in
-            guard let closingPanel else { return }
-            closingPanel.orderOut(nil)
             Task { @MainActor [weak self, weak closingPanel] in
-                guard let self, let closingPanel, self.panel === closingPanel else { return }
-                self.panel = nil
-                self.hostingView = nil
+                guard let self, let closingPanel else { return }
+                // A newer show() may have reused this panel while the fade-out was
+                // still running (the service presents the next queued toast
+                // immediately); tearing it down now would vanish that toast.
+                guard self.presentationGeneration == closingGeneration else { return }
+                closingPanel.orderOut(nil)
+                if self.panel === closingPanel {
+                    self.panel = nil
+                    self.hostingView = nil
+                }
             }
         })
     }

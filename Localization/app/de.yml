@@ -60,6 +60,8 @@ ai:
   enhancement: "KI-Verbesserung"
   enhancement_529f5583: "KI-Verbesserung: %@"
   enhancement_failed: "KI-Verbesserung fehlgeschlagen"
+  enhancement_failed_streamed_text_kept_as_is: "KI-Verbesserung fehlgeschlagen. Gestreamter Text wurde unverändert beibehalten."
+  enhancement_failed_transcription_inserted: "KI-Verbesserung fehlgeschlagen. Transkription ohne Verbesserung eingefügt."
   enhancement_is_disabled: "Die KI-Verbesserung ist deaktiviert."
   enhancement_will: "Die KI-Verbesserung wird:"
   model: "KI-Modell"
@@ -250,6 +252,8 @@ copy:
   transcript: "Transkription kopieren"
 correct:
   grammar_mistakes: "Grammatikfehler korrigieren"
+could:
+  not_switch_microphone: "Mikrofon konnte nicht gewechselt werden: %@"
 create:
   _self: "Erstellen"
   new_note: "Neue Notiz erstellen"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "Noch keine gelernten Teilnehmer"
   media_transcriptions_yet: "Noch keine Medientranskriptionen"
   model_loaded: "Kein Modell geladen"
+  model_loaded_please_download_a_model: "Kein Modell geladen. Bitte laden Sie ein Modell in den Einstellungen herunter."
   model_selected: "Kein Modell ausgewählt"
   models_available: "Keine Modelle verfügbar"
   models_available_ae9dbd29: "Keine Modelle verfügbar."
@@ -724,6 +729,7 @@ no:
   replacements: "Keine Ersetzungen"
   results_found: "Keine Ergebnisse gefunden"
   settings_found: "Keine Einstellungen gefunden"
+  speech_detected_try_speaking_closer_to_your: "Keine Sprache erkannt. Versuchen Sie, näher am Mikrofon zu sprechen."
   transcriptions_yet: "Noch keine Transkriptionen"
   vocabulary_words: "Keine Vokabelwörter"
   transcripts_audio_prompts_file_names_or_perso: "Keine Transkripte, kein Audio, keine Prompts, keine Dateinamen und keine persönlichen Inhalte – niemals."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "Anbieter, Prompts und Vibe-Modus-Steuerungen"
 push:
   to_talk: "Push-to-Talk"
+queue:
+  complete_restored: "Warteschlange abgeschlossen — %@ wiederhergestellt"
 quickly:
   copy_your_last_transcription: "Kopieren Sie schnell Ihre letzte Transkription"
   pull_your_latest_transcript_back_to_the: "Holen Sie sich schnell Ihre neueste Transkription zurück in die Zwischenablage."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "Aufnahme"
   3f8fd48c: "🔴 Aufnahme"
+  canceled: "Aufnahme abgebrochen."
+  in_progress_transcription_will_start: "Aufnahme läuft — die Transkription beginnt, sobald sie abgeschlossen ist."
+  stopped_with_error: "Aufnahme gestoppt: %@"
   from_external_and_bluetooth_microphone: "Aufnahmen über externe und Bluetooth-Mikrofone sind jetzt absolut zuverlässig, selbst wenn die Audioausgabe woandershin geleitet wird."
 recordings:
   _self: "Aufnahmen"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "Unterstützt lokale Mediendateien und Web-Links, die mit yt-dlp aufgelöst werden."
 switch:
   to_model: "Zu Modell wechseln"
+switching:
+  to_for_this_queue: "Wechsel zu %@ für diese Warteschlange"
 system:
   _self: "System"
   default: "Systemstandard"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "Medien transkribieren"
 transcribed:
   _self: "transkribiert"
+  source_name: "Transkribiert: %@"
   words: "Transcribed words"
 transcription:
   _self: "Transkription"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "Transkription gelöscht."
   enhancement: "Verbesserung der Transkription"
   failed: "Transkription fehlgeschlagen"
+  failed_with_error: "Transkription fehlgeschlagen: %@"
   finished: "Transkription abgeschlossen."
   in_progress: "Transkription läuft"
   metadata: "Transkriptionsmetadaten"

@@ -60,6 +60,8 @@ ai:
   enhancement: "AI 강화"
   enhancement_529f5583: "AI 강화: %@"
   enhancement_failed: "AI 강화 실패"
+  enhancement_failed_streamed_text_kept_as_is: "AI 강화에 실패했습니다. 스트리밍된 텍스트는 그대로 유지되었습니다."
+  enhancement_failed_transcription_inserted: "AI 강화에 실패했습니다. 전사가 강화 없이 삽입되었습니다."
   enhancement_is_disabled: "AI 강화가 비활성화되었습니다."
   enhancement_will: "AI 향상 기능은 다음과 같습니다."
   model: "AI 모델"
@@ -250,6 +252,8 @@ copy:
   transcript: "성적 증명서 복사"
 correct:
   grammar_mistakes: "올바른 문법 실수"
+could:
+  not_switch_microphone: "마이크를 전환할 수 없습니다: %@"
 create:
   _self: "만들다"
   new_note: "새 메모 만들기"
@@ -711,6 +715,7 @@ no:
   learned_participants_yet: "아직 학습된 참가자가 없습니다"
   media_transcriptions_yet: "아직 미디어 스크립트가 없습니다."
   model_loaded: "모델이 로드되지 않았습니다."
+  model_loaded_please_download_a_model: "모델이 로드되지 않았습니다. 설정에서 모델을 다운로드하세요."
   model_selected: "선택한 모델이 없습니다."
   models_available: "사용 가능한 모델이 없습니다."
   models_available_ae9dbd29: "사용 가능한 모델이 없습니다."
@@ -724,6 +729,7 @@ no:
   replacements: "교체 없음"
   results_found: "검색결과가 없습니다"
   settings_found: "설정을 찾을 수 없습니다."
+  speech_detected_try_speaking_closer_to_your: "음성이 감지되지 않았습니다. 마이크에 더 가까이에서 말해 보세요."
   transcriptions_yet: "아직 스크립트가 없습니다."
   vocabulary_words: "어휘 없음"
   transcripts_audio_prompts_file_names_or_perso: "전사, 오디오, 프롬프트, 파일 이름, 개인 콘텐츠는 결코 포함되지 않습니다."
@@ -916,6 +922,8 @@ providers:
   prompts_and_vibe_mode_controls: "공급자, 프롬프트 및 분위기 모드 제어"
 push:
   to_talk: "푸시투톡"
+queue:
+  complete_restored: "대기열 완료 — %@ 복원됨"
 quickly:
   copy_your_last_transcription: "마지막 스크립트를 빠르게 복사하세요"
   pull_your_latest_transcript_back_to_the: "최신 성적표를 클립보드로 빠르게 가져오세요."
@@ -941,6 +949,9 @@ record:
 recording:
   _self: "녹음"
   3f8fd48c: "🔴 녹음"
+  canceled: "녹음이 취소되었습니다."
+  in_progress_transcription_will_start: "녹음이 진행 중입니다 — 완료되면 전사가 시작됩니다."
+  stopped_with_error: "녹음이 중지되었습니다: %@"
   from_external_and_bluetooth_microphone: "이제 외부 및 Bluetooth 마이크 녹음이 매우 안정적이며, 오디오 출력이 다른 곳으로 라우팅되어도 문제없이 동작합니다."
 recordings:
   _self: "녹음"
@@ -1140,6 +1151,8 @@ supports:
   local_media_files_and_web_links_resolve: "yt-dlp로 해결된 로컬 미디어 파일 및 웹 링크를 지원합니다."
 switch:
   to_model: "모델로 전환"
+switching:
+  to_for_this_queue: "이 대기열에서 %@(으)로 전환 중"
 system:
   _self: "체계"
   default: "시스템 기본값"
@@ -1203,6 +1216,7 @@ transcribe:
   media: "미디어 녹취"
 transcribed:
   _self: "전사된"
+  source_name: "전사됨: %@"
   words: "Transcribed words"
 transcription:
   _self: "전사"
@@ -1210,6 +1224,7 @@ transcription:
   deleted: "스크립트가 삭제되었습니다."
   enhancement: "전사 향상"
   failed: "전사 실패"
+  failed_with_error: "전사 실패: %@"
   finished: "전사가 완료되었습니다."
   in_progress: "스크립트 작성 중"
   metadata: "전사 메타데이터"
