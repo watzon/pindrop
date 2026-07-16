@@ -190,15 +190,14 @@ private final class OrbHostingView: NSHostingView<AnyView> {
     }
 }
 
-// MARK: - Panel (owns drag + right-click routing)
+// MARK: - Panel (owns tap, drag, and right-click routing)
 
-/// Drag-to-move and the right-click menu are intercepted in `sendEvent`, before
-/// AppKit dispatches to the SwiftUI hosting view. Both interactions previously
-/// hung off the SwiftUI layer (an ancestor `DragGesture` and an NSHostingView
-/// `rightMouseDown` override) and stopped firing when SwiftUI's internal event
-/// hosting changed underneath them, while the orb's `Button` kept working.
-/// Window-level routing has no such dependency: any event delivered to the
-/// panel is seen here first.
+/// ALL pointer interaction is intercepted in `sendEvent`, before AppKit
+/// dispatches to the SwiftUI hosting view: NSHostingView stopped delivering
+/// clicks to SwiftUI content in this borderless non-activating panel (taps,
+/// gestures, and view-level mouse overrides all went dead), so the SwiftUI
+/// `Button`s inside are decorative/accessibility-only. Window-level routing has
+/// no such dependency: any event delivered to the panel is seen here first.
 private final class OrbPanel: NSPanel {
     weak var interactionController: OrbFloatingIndicatorController?
 
@@ -213,8 +212,6 @@ private final class OrbPanel: NSPanel {
         case .otherMouseDown where event.buttonNumber == 2:
             if controller.handlePanelRightMouseDown(event) { return }
         case .leftMouseDown, .leftMouseDragged, .leftMouseUp:
-            // Runs the reposition-drag state machine alongside normal dispatch;
-            // the tap Button still receives the same events via super.
             controller.handlePanelLeftMouseEvent(event)
         default:
             break
@@ -256,6 +253,10 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
     /// Mouse-down location of a possible reposition drag, pending the movement
     /// threshold. Set only when the press lands on the visible orb/pill.
     private var pendingDragStartScreenPoint: NSPoint?
+    /// Debounces tap activations: taps arrive via panel routing today and would
+    /// also arrive via the SwiftUI buttons if the hosting view's click delivery
+    /// returns in a future macOS — one physical click must never toggle twice.
+    private var lastTapAcceptedAt: Date = .distantPast
     private var lastScreen: NSScreen?
 
     private var contextMenu: NSMenu?
@@ -411,16 +412,32 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
     func handleStartTapped() { actions.onStartRecording?(type) }
     func handleStopTapped()  { actions.onStopRecording?(type) }
 
-    /// Tap on the orb toggles the session. The tap gesture's movement slop is
-    /// wider than the drag gesture's 4pt threshold, so a small reposition nudge
-    /// can fire both — ignore taps during or just after a drag.
+    /// Tap on the orb toggles the session. Ignores taps during or just after a
+    /// drag (a reposition nudge releases at its final position, which must not
+    /// also toggle), and duplicate activations of the same click.
     func handleOrbTapped() {
         guard !isDragging, Date().timeIntervalSince(lastDragEndedAt) > 0.25 else { return }
+        guard acceptTap() else { return }
         if state.isRecording {
             handleStopTapped()
         } else if !state.isProcessing {
             handleStartTapped()
         }
+    }
+
+    /// Entry point for the pill's stop control (panel routing and the SwiftUI
+    /// button both land here).
+    func handlePillStopTapped() {
+        guard acceptTap() else { return }
+        handleStopTapped()
+    }
+
+    /// `true` once per physical click; duplicate delivery paths are dropped.
+    private func acceptTap() -> Bool {
+        let now = Date()
+        guard now.timeIntervalSince(lastTapAcceptedAt) > 0.25 else { return false }
+        lastTapAcceptedAt = now
+        return true
     }
 
     /// Balanced push/pop for the orb's hover cursor. Closing the panel under the
@@ -485,9 +502,9 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
 
     // MARK: Panel event routing (see OrbPanel.sendEvent)
 
-    /// Drives the reposition drag from raw window events. Runs alongside normal
-    /// dispatch — the tap Button sees the same press via `super.sendEvent` and
-    /// `handleOrbTapped` already suppresses taps that end a drag.
+    /// Drives taps and the reposition drag from raw window events: a press on
+    /// the orb/pill becomes a drag past the movement threshold, otherwise the
+    /// release dispatches as a tap.
     fileprivate func handlePanelLeftMouseEvent(_ event: NSEvent) {
         switch event.type {
         case .leftMouseDown:
@@ -507,12 +524,46 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
             }
             updateDrag(translation: .zero)
         case .leftMouseUp:
+            let pressBeganOnIndicator = pendingDragStartScreenPoint != nil
             pendingDragStartScreenPoint = nil
             if isDragging {
                 endDrag(translation: .zero)
+            } else if pressBeganOnIndicator {
+                handlePanelTap(atScreenPoint: screenLocation(of: event))
             }
         default:
             break
+        }
+    }
+
+    /// Dispatches a completed click (press + sub-threshold release) to the
+    /// control under the release point.
+    private func handlePanelTap(atScreenPoint point: NSPoint) {
+        guard isVisible, let panel else { return }
+        let frames = visibleIndicatorFrames(for: panel.frame)
+
+        if NSBezierPath(ovalIn: frames.orb).contains(point) {
+            Log.ui.debug("Orb tapped via panel routing")
+            handleOrbTapped()
+            return
+        }
+
+        // The pill's only control is stop, shown while recording. Its control
+        // row (timer + stop square) is the tap target; the transcript area of
+        // the streaming pill stays inert.
+        guard state.isRecording, let pillFrame = frames.pill else { return }
+        let rowHeight = liveTranscript.phase == .inactive
+            ? pillFrame.height
+            : min(orbIndicatorSize.pillHeight + 5, pillFrame.height)
+        let controlRow = NSRect(
+            x: pillFrame.minX,
+            y: pillFrame.maxY - rowHeight,
+            width: pillFrame.width,
+            height: rowHeight
+        )
+        if controlRow.contains(point) {
+            Log.ui.debug("Pill stop tapped via panel routing")
+            handlePillStopTapped()
         }
     }
 
@@ -1056,6 +1107,9 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         guard isVisible, !isDragging, !state.isRecording, !state.isProcessing else { return }
         guard isHovered != hovering else { return }
         isHovered = hovering
+        // SwiftUI `.onHover` doesn't fire in this panel (see OrbPanel); the
+        // pointing-hand affordance rides the same signal as the hover swell.
+        setPointerCursorActive(hovering)
         if hovering { lastHoverContactAt = Date() }
         updatePanelMousePassthrough()
         actions.onToastAnchorChanged?()
@@ -1495,7 +1549,7 @@ struct OrbIndicatorView: View {
                         .frame(width: 1, height: 14)
                 }
 
-                Button { controller.handleStopTapped() } label: {
+                Button { controller.handlePillStopTapped() } label: {
                     RoundedRectangle(cornerRadius: showsTranscript ? 2 : 2.5, style: .continuous)
                         .fill(Color(nsColor: NSColor(pindropHex: "#EFEBE2") ?? .white).opacity(0.72))
                         .frame(
