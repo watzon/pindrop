@@ -29,10 +29,6 @@ private enum OrbMetrics {
     static let hoverCollapseDelay: TimeInterval = 0.18
     static let hoverActivationInset: CGFloat = 22
 
-    /// Movement (pt) past which a press on the orb/pill becomes a reposition
-    /// drag instead of a tap.
-    static let dragActivationDistance: CGFloat = 4
-
     static let showDuration: TimeInterval = 0.22
     static let hideDuration: TimeInterval = 0.15
 
@@ -190,41 +186,11 @@ private final class OrbHostingView: NSHostingView<AnyView> {
     }
 }
 
-// MARK: - Panel (owns tap, drag, and right-click routing)
-
-/// ALL pointer interaction is intercepted in `sendEvent`, before AppKit
-/// dispatches to the SwiftUI hosting view: NSHostingView stopped delivering
-/// clicks to SwiftUI content in this borderless non-activating panel (taps,
-/// gestures, and view-level mouse overrides all went dead), so the SwiftUI
-/// `Button`s inside are decorative/accessibility-only. Window-level routing has
-/// no such dependency: any event delivered to the panel is seen here first.
-private final class OrbPanel: NSPanel {
-    weak var interactionController: OrbFloatingIndicatorController?
-
-    override func sendEvent(_ event: NSEvent) {
-        guard let controller = interactionController else {
-            super.sendEvent(event)
-            return
-        }
-        switch event.type {
-        case .rightMouseDown:
-            if controller.handlePanelRightMouseDown(event) { return }
-        case .otherMouseDown where event.buttonNumber == 2:
-            if controller.handlePanelRightMouseDown(event) { return }
-        case .leftMouseDown, .leftMouseDragged, .leftMouseUp:
-            controller.handlePanelLeftMouseEvent(event)
-        default:
-            break
-        }
-        super.sendEvent(event)
-    }
-}
-
 // MARK: - Controller
 
 @MainActor
 final class OrbFloatingIndicatorController: NSObject, ObservableObject, FloatingIndicatorPresenting,
-                                             NSMenuDelegate {
+                                             NSMenuDelegate, FloatingIndicatorPanelInteractionHandling {
 
     let type: FloatingIndicatorType = .orb
     let state: FloatingIndicatorState
@@ -500,23 +466,23 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         Log.ui.debug("Orb reposition drag ended offset=(\(dragOffset.width), \(dragOffset.height))")
     }
 
-    // MARK: Panel event routing (see OrbPanel.sendEvent)
+    // MARK: Panel event routing (see FloatingIndicatorInteractivePanel)
 
     /// Drives taps and the reposition drag from raw window events: a press on
     /// the orb/pill becomes a drag past the movement threshold, otherwise the
     /// release dispatches as a tap.
-    fileprivate func handlePanelLeftMouseEvent(_ event: NSEvent) {
+    func panelDidReceiveLeftMouseEvent(_ event: NSEvent) {
         switch event.type {
         case .leftMouseDown:
-            let screenPoint = screenLocation(of: event)
+            let screenPoint = event.pindrop_screenLocation
             pendingDragStartScreenPoint =
                 allowsHitTesting(atScreenPoint: screenPoint) ? screenPoint : nil
         case .leftMouseDragged:
-            let screenPoint = screenLocation(of: event)
+            let screenPoint = event.pindrop_screenLocation
             if !isDragging {
                 guard let start = pendingDragStartScreenPoint,
                       hypot(screenPoint.x - start.x, screenPoint.y - start.y)
-                          >= OrbMetrics.dragActivationDistance else {
+                          >= FloatingIndicatorInteractivePanel.dragActivationDistance else {
                     return
                 }
                 Log.ui.debug("Orb reposition drag began")
@@ -529,7 +495,7 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
             if isDragging {
                 endDrag(translation: .zero)
             } else if pressBeganOnIndicator {
-                handlePanelTap(atScreenPoint: screenLocation(of: event))
+                handlePanelTap(atScreenPoint: event.pindrop_screenLocation)
             }
         default:
             break
@@ -567,25 +533,16 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         }
     }
 
-    /// Handles a right-click (or middle-button equivalent) delivered to the
-    /// panel. Returns `true` when consumed — menu shown, or suppressed during a
-    /// session — so dispatch stops; clicks outside the visible orb/pill fall
-    /// through to normal handling.
-    fileprivate func handlePanelRightMouseDown(_ event: NSEvent) -> Bool {
-        guard allowsHitTesting(atScreenPoint: screenLocation(of: event)) else {
+    /// Right-clicks outside the visible orb/pill fall through to normal
+    /// handling; inside, the context menu shows (or is suppressed mid-session).
+    func panelDidReceiveRightMouseDown(_ event: NSEvent) -> Bool {
+        guard allowsHitTesting(atScreenPoint: event.pindrop_screenLocation) else {
             return false
         }
         guard isVisible, !state.isRecording, !state.isProcessing else { return true }
         Log.ui.debug("Orb context menu opened via panel right-click")
         showContextMenu()
         return true
-    }
-
-    private func screenLocation(of event: NSEvent) -> NSPoint {
-        guard let window = event.window else { return NSEvent.mouseLocation }
-        return window.convertToScreen(
-            NSRect(origin: event.locationInWindow, size: .zero)
-        ).origin
     }
 
     // MARK: Context menu
@@ -800,11 +757,11 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
     }
 
     private func makePanel(contentRect: NSRect) -> NSPanel {
-        let panel = OrbPanel(
+        let panel = FloatingIndicatorInteractivePanel(
             contentRect: contentRect,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered, defer: false)
-        panel.interactionController = self
+        panel.interactionHandler = self
         panel.isFloatingPanel = true; panel.isOpaque = false
         panel.titleVisibility = .hidden; panel.titlebarAppearsTransparent = true
         panel.backgroundColor = .clear; panel.isMovable = false; panel.hasShadow = false
@@ -1107,8 +1064,9 @@ final class OrbFloatingIndicatorController: NSObject, ObservableObject, Floating
         guard isVisible, !isDragging, !state.isRecording, !state.isProcessing else { return }
         guard isHovered != hovering else { return }
         isHovered = hovering
-        // SwiftUI `.onHover` doesn't fire in this panel (see OrbPanel); the
-        // pointing-hand affordance rides the same signal as the hover swell.
+        // SwiftUI `.onHover` doesn't fire in this panel (see
+        // FloatingIndicatorInteractivePanel); the pointing-hand affordance
+        // rides the same signal as the hover swell.
         setPointerCursorActive(hovering)
         if hovering { lastHoverContactAt = Date() }
         updatePanelMousePassthrough()
@@ -1360,8 +1318,9 @@ struct OrbIndicatorView: View {
             .onAppear { transcriptPhase = transcript.phase }
             .onReceive(transcript.$phase) { transcriptPhase = $0 }
             // Reposition dragging is intentionally NOT a SwiftUI gesture: it is
-            // driven from raw window events in OrbPanel.sendEvent, which keeps
-            // working regardless of how the hosting view routes gestures.
+            // driven from raw window events (FloatingIndicatorInteractivePanel),
+            // which keeps working regardless of how the hosting view routes
+            // gestures.
             .themeRefresh()
     }
 

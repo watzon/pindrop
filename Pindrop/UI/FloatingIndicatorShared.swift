@@ -80,6 +80,63 @@ extension Timer {
     }
 }
 
+// MARK: - Panel-level event routing
+
+/// Receiver for pointer events routed at the window level by
+/// `FloatingIndicatorInteractivePanel`.
+@MainActor
+protocol FloatingIndicatorPanelInteractionHandling: AnyObject {
+    /// Return `true` when the right-click (or middle-button equivalent) was
+    /// consumed — menu shown, or deliberately suppressed — so dispatch stops.
+    func panelDidReceiveRightMouseDown(_ event: NSEvent) -> Bool
+    /// Raw left mouse down/dragged/up stream for tap + reposition handling.
+    /// Events are also forwarded to normal dispatch afterwards.
+    func panelDidReceiveLeftMouseEvent(_ event: NSEvent)
+}
+
+/// Floating-indicator panel that routes ALL pointer interaction from
+/// `sendEvent`, before AppKit dispatches to the SwiftUI hosting view:
+/// NSHostingView stopped delivering clicks to SwiftUI content in these
+/// borderless non-activating panels (taps, gestures, `.onHover`, and
+/// view-level mouse overrides all went dead), so SwiftUI controls inside are
+/// decorative/accessibility-only. Window-level routing has no such dependency:
+/// any event delivered to the panel is seen here first.
+class FloatingIndicatorInteractivePanel: NSPanel {
+    /// Movement (pt) past which a press on an indicator becomes a reposition
+    /// drag instead of a tap.
+    static let dragActivationDistance: CGFloat = 4
+
+    weak var interactionHandler: (any FloatingIndicatorPanelInteractionHandling)?
+
+    override func sendEvent(_ event: NSEvent) {
+        guard let handler = interactionHandler else {
+            super.sendEvent(event)
+            return
+        }
+        switch event.type {
+        case .rightMouseDown:
+            if handler.panelDidReceiveRightMouseDown(event) { return }
+        case .otherMouseDown where event.buttonNumber == 2:
+            if handler.panelDidReceiveRightMouseDown(event) { return }
+        case .leftMouseDown, .leftMouseDragged, .leftMouseUp:
+            handler.panelDidReceiveLeftMouseEvent(event)
+        default:
+            break
+        }
+        super.sendEvent(event)
+    }
+}
+
+extension NSEvent {
+    /// The event's location in screen coordinates (bottom-left origin).
+    var pindrop_screenLocation: NSPoint {
+        guard let window else { return NSEvent.mouseLocation }
+        return window.convertToScreen(
+            NSRect(origin: locationInWindow, size: .zero)
+        ).origin
+    }
+}
+
 // MARK: - Pointer / screen activity (event-driven)
 
 /// Subscribes to shared AppKit mouse-move and screen-parameter notifications for

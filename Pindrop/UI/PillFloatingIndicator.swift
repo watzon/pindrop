@@ -10,23 +10,16 @@ import AppKit
 import Combine
 
 private final class PillHostingView: NSHostingView<AnyView> {
-    var onRightMouseDown: ((NSEvent) -> Void)?
-
-    override func rightMouseDown(with event: NSEvent) {
-        onRightMouseDown?(event)
-    }
-
-    override func otherMouseDown(with event: NSEvent) {
-        if event.buttonNumber == 2 {
-            onRightMouseDown?(event)
-        } else {
-            super.otherMouseDown(with: event)
-        }
+    /// The panel never becomes key, so every click is a "first mouse"; without
+    /// this the initial click can be consumed by window activation.
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
     }
 }
 
 @MainActor
-final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuDelegate, FloatingIndicatorPresenting {
+final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuDelegate, FloatingIndicatorPresenting,
+                                              FloatingIndicatorPanelInteractionHandling {
     let type: FloatingIndicatorType = .pill
     let state: FloatingIndicatorState
     let liveTranscript: LiveTranscriptState
@@ -85,6 +78,14 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     private var dragStartMouseLocation: CGPoint?
     private var dragStartOffset: CGSize = .zero
     private var dragOffset: CGSize = .zero
+    /// Mouse-down location of a possible reposition drag, pending the movement
+    /// threshold (see FloatingIndicatorInteractivePanel).
+    private var pendingDragStartScreenPoint: NSPoint?
+    private var lastDragEndedAt: Date = .distantPast
+    /// Debounces tap activations: taps arrive via panel routing today and would
+    /// also arrive via the SwiftUI buttons if the hosting view's click delivery
+    /// returns in a future macOS — one physical click must never fire twice.
+    private var lastTapAcceptedAt: Date = .distantPast
 
     private var actions = FloatingIndicatorActions()
 
@@ -681,6 +682,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         actions.onToastAnchorChanged?()
         isDragging = false
         dragStartMouseLocation = nil
+        pendingDragStartScreenPoint = nil
         isHovered = false
         isContextMenuOpen = false
 
@@ -703,6 +705,7 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     }
 
     func handleStopButtonTapped() {
+        guard acceptTap() else { return }
         actions.onStopRecording?(type)
     }
 
@@ -711,7 +714,99 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
     }
 
     func handleCompactTapped() {
+        guard acceptTap() else { return }
         actions.onStartRecording?(type)
+    }
+
+    /// `true` once per physical click; duplicate delivery paths are dropped.
+    private func acceptTap() -> Bool {
+        let now = Date()
+        guard now.timeIntervalSince(lastTapAcceptedAt) > 0.25 else { return false }
+        lastTapAcceptedAt = now
+        return true
+    }
+
+    // MARK: Panel event routing (see FloatingIndicatorInteractivePanel)
+
+    /// The whole panel surface consumed right-clicks under the old view-level
+    /// override; `handleRightMouseDown` applies the idle-only guard itself.
+    func panelDidReceiveRightMouseDown(_ event: NSEvent) -> Bool {
+        handleRightMouseDown(event)
+        return true
+    }
+
+    /// Drives taps and the reposition drag from raw window events: a press
+    /// anywhere on the panel becomes a drag past the movement threshold (the
+    /// old whole-surface DragGesture behaved the same way), otherwise the
+    /// release dispatches as a tap.
+    func panelDidReceiveLeftMouseEvent(_ event: NSEvent) {
+        switch event.type {
+        case .leftMouseDown:
+            pendingDragStartScreenPoint = event.pindrop_screenLocation
+        case .leftMouseDragged:
+            let screenPoint = event.pindrop_screenLocation
+            if !isDragging {
+                guard let start = pendingDragStartScreenPoint,
+                      hypot(screenPoint.x - start.x, screenPoint.y - start.y)
+                          >= FloatingIndicatorInteractivePanel.dragActivationDistance else {
+                    return
+                }
+                Log.ui.debug("Pill reposition drag began")
+                beginDrag()
+            }
+            updateDrag(translation: .zero)
+        case .leftMouseUp:
+            let pressBeganOnPanel = pendingDragStartScreenPoint != nil
+            pendingDragStartScreenPoint = nil
+            if isDragging {
+                endDrag(translation: .zero)
+            } else if pressBeganOnPanel {
+                handlePanelTap(atScreenPoint: event.pindrop_screenLocation)
+            }
+        default:
+            break
+        }
+    }
+
+    /// Dispatches a completed click (press + sub-threshold release) to the
+    /// control under the release point.
+    private func handlePanelTap(atScreenPoint point: NSPoint) {
+        guard isVisible, let panel else { return }
+        guard Date().timeIntervalSince(lastDragEndedAt) > 0.25 else { return }
+
+        if state.isRecording {
+            // The recording pill's control row (waveform + timer + stop) acts
+            // as the stop control; the streaming card's transcript area below
+            // it stays inert.
+            let cardFrame = expandedCardFrame(
+                in: panel.frame,
+                showsTranscript: liveTranscript.isActive
+            )
+            let rowHeight = liveTranscript.isActive
+                ? min(38, cardFrame.height)
+                : cardFrame.height
+            let controlRow = NSRect(
+                x: cardFrame.minX,
+                y: cardFrame.maxY - rowHeight,
+                width: cardFrame.width,
+                height: rowHeight
+            )
+            if controlRow.contains(point) {
+                Log.ui.debug("Pill stop tapped via panel routing")
+                handleStopButtonTapped()
+            }
+            return
+        }
+
+        guard !state.isProcessing else { return }
+
+        // Idle: the compact pill (hover-swelled while hovered) starts a session.
+        let tapTarget = compactPillFrame(in: panel.frame)
+            .insetBy(dx: -10, dy: isHovered ? -12 : -8)
+        if tapTarget.contains(point) {
+            Log.ui.debug("Pill start tapped via panel routing")
+            handleCompactTapped()
+        }
     }
 
     func beginDrag() {
@@ -745,18 +840,21 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         settingsStore.pillFloatingIndicatorOffset = dragOffset
         dragStartOffset = dragOffset
         isDragging = false
+        lastDragEndedAt = Date()
         dragStartMouseLocation = nil
         refreshLayout(animated: false)
+        Log.ui.debug("Pill reposition drag ended offset=(\(dragOffset.width), \(dragOffset.height))")
     }
 
     private func createPanel(contentRect: NSRect) -> NSPanel {
-        let panel = NSPanel(
+        let panel = FloatingIndicatorInteractivePanel(
             contentRect: contentRect,
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
 
+        panel.interactionHandler = self
         panel.isFloatingPanel = true
         panel.isOpaque = false
         panel.titleVisibility = .hidden
@@ -786,9 +884,6 @@ final class PillFloatingIndicatorController: NSObject, ObservableObject, NSMenuD
         hostingView.frame = NSRect(origin: .zero, size: size)
         hostingView.autoresizingMask = [.width, .height]
         hostingView.userInterfaceLayoutDirection = .leftToRight
-        hostingView.onRightMouseDown = { [weak self] event in
-            self?.handleRightMouseDown(event)
-        }
         return hostingView
     }
 
@@ -951,18 +1046,10 @@ struct PillIndicatorView: View {
         .themeRefresh()
         .onAppear { transcriptPhase = transcript.phase }
         .onReceive(transcript.$phase) { transcriptPhase = $0 }
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 4)
-                .onChanged { _ in
-                    if !controller.isDragging {
-                        controller.beginDrag()
-                    }
-                    controller.updateDrag(translation: .zero)
-                }
-                .onEnded { _ in
-                    controller.endDrag(translation: .zero)
-                }
-        )
+        // Reposition dragging is intentionally NOT a SwiftUI gesture: it is
+        // driven from raw window events (FloatingIndicatorInteractivePanel),
+        // which keeps working regardless of how the hosting view routes
+        // gestures.
     }
 
     private var compactView: some View {

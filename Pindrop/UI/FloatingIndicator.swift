@@ -134,10 +134,10 @@ extension NSScreen {
     }
 }
 
-final class NotchPanel: NSPanel {
+final class NotchPanel: FloatingIndicatorInteractivePanel {
     override var canBecomeKey: Bool { false }
     override var canBecomeMain: Bool { false }
-    
+
     init(contentRect: NSRect) {
         super.init(
             contentRect: contentRect,
@@ -276,7 +276,7 @@ enum NotchPanelLayoutMath {
 }
 
 @MainActor
-final class FloatingIndicatorController: FloatingIndicatorPresenting {
+final class FloatingIndicatorController: FloatingIndicatorPresenting, FloatingIndicatorPanelInteractionHandling {
     let type: FloatingIndicatorType = .notch
     let state: FloatingIndicatorState
     let liveTranscript: LiveTranscriptState
@@ -290,6 +290,13 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
     /// Bumped on every show/hide so stale hide completions cannot tear down a
     /// panel that has been reused for a newer recording session.
     private var presentationGeneration: UInt = 0
+    /// Press that landed on the stop control, awaiting its release (see
+    /// FloatingIndicatorInteractivePanel).
+    private var isStopPressPending = false
+    /// Debounces stop activations: they arrive via panel routing today and
+    /// would also arrive via the SwiftUI button if the hosting view's click
+    /// delivery returns in a future macOS.
+    private var lastTapAcceptedAt: Date = .distantPast
 
     init(state: FloatingIndicatorState, liveTranscript: LiveTranscriptState) {
         self.state = state
@@ -372,6 +379,7 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
         let layout = panelLayout(for: screen)
         let presentationStyle = NotchIndicatorPresentationStyle(hasHardwareNotch: screen.hasNotch)
         let panel = NotchPanel(contentRect: layout.frame)
+        panel.interactionHandler = self
 
         let appLocale = AppLocale.currentSelection()
         let contentView = AnyView(NotchIndicatorView(
@@ -467,7 +475,49 @@ final class FloatingIndicatorController: FloatingIndicatorPresenting {
     }
 
     func handleStopButtonTapped() {
+        let now = Date()
+        guard now.timeIntervalSince(lastTapAcceptedAt) > 0.25 else { return }
+        lastTapAcceptedAt = now
         actions.onStopRecording?(type)
+    }
+
+    // MARK: Panel event routing (see FloatingIndicatorInteractivePanel)
+
+    /// The notch has no context menu; right-clicks pass through untouched.
+    func panelDidReceiveRightMouseDown(_ event: NSEvent) -> Bool {
+        false
+    }
+
+    /// The notch's only control is the stop button in the left wing while
+    /// recording; standard button semantics (press and release inside) apply.
+    func panelDidReceiveLeftMouseEvent(_ event: NSEvent) {
+        switch event.type {
+        case .leftMouseDown:
+            isStopPressPending = stopControlRegion()?.contains(event.pindrop_screenLocation) == true
+        case .leftMouseUp:
+            let wasPending = isStopPressPending
+            isStopPressPending = false
+            if wasPending,
+               stopControlRegion()?.contains(event.pindrop_screenLocation) == true {
+                Log.ui.debug("Notch stop tapped via panel routing")
+                handleStopButtonTapped()
+            }
+        default:
+            break
+        }
+    }
+
+    /// The left wing (stop button + timer) in screen coordinates, or `nil`
+    /// when no stop control is showing.
+    private func stopControlRegion() -> NSRect? {
+        guard state.isRecording, let panel else { return nil }
+        let layout = panelLayout(for: lastScreen ?? preferredScreen())
+        return NSRect(
+            x: panel.frame.minX,
+            y: panel.frame.maxY - layout.rowHeight,
+            width: layout.sideWidth,
+            height: layout.rowHeight
+        )
     }
     
     private func scheduleScreenTracking(after delay: TimeInterval, for generation: UInt) {

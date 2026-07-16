@@ -10,7 +10,8 @@ import Combine
 import SwiftUI
 
 @MainActor
-final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting, ObservableObject {
+final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting, ObservableObject,
+                                                     FloatingIndicatorPanelInteractionHandling {
     let type: FloatingIndicatorType = .bubble
     let state: FloatingIndicatorState
     let liveTranscript: LiveTranscriptState
@@ -76,6 +77,18 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
     private var dragStartMouseLocation: CGPoint?
     private var manualOffset: CGSize = .zero
     private var dragStartOffset: CGSize = .zero
+    /// Hover for the action-bubble reveal. SwiftUI `.onHover` doesn't fire in
+    /// this panel (see FloatingIndicatorInteractivePanel), so hover rides real
+    /// pointer activity instead.
+    private var pointerMonitor: FloatingIndicatorPointerMonitor?
+    /// Mouse-down location of a possible reposition drag, pending the movement
+    /// threshold (see FloatingIndicatorInteractivePanel).
+    private var pendingDragStartScreenPoint: NSPoint?
+    private var lastDragEndedAt: Date = .distantPast
+    /// Debounces tap activations: taps arrive via panel routing today and would
+    /// also arrive via the SwiftUI buttons if the hosting view's click delivery
+    /// returns in a future macOS — one physical click must never fire twice.
+    private var lastTapAcceptedAt: Date = .distantPast
     private var phaseCancellables = Set<AnyCancellable>()
     /// Bumped on every show/hide so a hide completion cannot orderOut/nil a
     /// panel reused for a newer active session.
@@ -148,10 +161,13 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
     func hide() {
         anchorRefreshTimer?.invalidate()
         anchorRefreshTimer = nil
+        pointerMonitor?.stop()
+        pointerMonitor = nil
         isHovered = false
         actionRevealWidth = 0
         isDragging = false
         dragStartMouseLocation = nil
+        pendingDragStartScreenPoint = nil
         manualOffset = .zero
         dragStartOffset = .zero
         isVisible = false
@@ -200,15 +216,124 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
     }
 
     func handleStartTapped() {
+        guard acceptTap() else { return }
         actions.onStartRecording?(type)
     }
 
     func handleStopTapped() {
+        guard acceptTap() else { return }
         actions.onStopRecording?(type)
     }
 
     func handleCancelTapped() {
+        guard acceptTap() else { return }
         actions.onCancelRecording?()
+    }
+
+    /// `true` once per physical click; duplicate delivery paths are dropped.
+    private func acceptTap() -> Bool {
+        let now = Date()
+        guard now.timeIntervalSince(lastTapAcceptedAt) > 0.25 else { return false }
+        lastTapAcceptedAt = now
+        return true
+    }
+
+    // MARK: Panel event routing (see FloatingIndicatorInteractivePanel)
+
+    /// The bubble has no context menu; right-clicks pass through untouched.
+    func panelDidReceiveRightMouseDown(_ event: NSEvent) -> Bool {
+        false
+    }
+
+    /// Drives taps and the reposition drag from raw window events: a press
+    /// anywhere on the panel becomes a drag past the movement threshold (the
+    /// old whole-surface DragGesture behaved the same way), otherwise the
+    /// release dispatches as a tap.
+    func panelDidReceiveLeftMouseEvent(_ event: NSEvent) {
+        switch event.type {
+        case .leftMouseDown:
+            pendingDragStartScreenPoint = event.pindrop_screenLocation
+        case .leftMouseDragged:
+            let screenPoint = event.pindrop_screenLocation
+            if !isDragging {
+                guard let start = pendingDragStartScreenPoint,
+                      hypot(screenPoint.x - start.x, screenPoint.y - start.y)
+                          >= FloatingIndicatorInteractivePanel.dragActivationDistance else {
+                    return
+                }
+                Log.ui.debug("Bubble reposition drag began")
+                beginDrag()
+            }
+            updateDrag(translation: .zero)
+        case .leftMouseUp:
+            let pressBeganOnPanel = pendingDragStartScreenPoint != nil
+            pendingDragStartScreenPoint = nil
+            if isDragging {
+                endDrag(translation: .zero)
+            } else if pressBeganOnPanel {
+                handlePanelTap(atScreenPoint: event.pindrop_screenLocation)
+            }
+        default:
+            break
+        }
+    }
+
+    /// Dispatches a completed click (press + sub-threshold release) to the
+    /// bubble under the release point. Positions mirror the SwiftUI layout in
+    /// `CaretBubbleIndicatorView`: a leading-aligned ZStack with fixed offsets.
+    private func handlePanelTap(atScreenPoint point: NSPoint) {
+        guard isVisible, let panel else { return }
+        guard Date().timeIntervalSince(lastDragEndedAt) > 0.25 else { return }
+
+        let actionsRevealed = actionRevealWidth > 0
+        let bubble = centerBubbleSize
+        let action = LayoutMetrics.actionBubbleSize
+        let slop: CGFloat = 4
+
+        func screenRect(viewX: CGFloat, viewYTop: CGFloat, size: CGSize) -> NSRect {
+            NSRect(
+                x: panel.frame.minX + viewX,
+                y: panel.frame.maxY - viewYTop - size.height,
+                width: size.width,
+                height: size.height
+            ).insetBy(dx: -slop, dy: -slop)
+        }
+
+        // Center bubble: vertically centred in the panel, +6pt down, indented
+        // by the action reveal.
+        let panelHeight = panel.frame.height
+        let centerRect = screenRect(
+            viewX: actionRevealWidth,
+            viewYTop: (panelHeight - bubble.height) / 2 + 6,
+            size: bubble
+        )
+        // Action bubbles: 22pt circles, +9pt down from centred.
+        let actionTop = (panelHeight - action.height) / 2 + 9
+        let cancelRect = screenRect(viewX: 0, viewYTop: actionTop, size: action)
+        let stopRect = screenRect(
+            viewX: actionRevealWidth + bubble.width + LayoutMetrics.actionSpacing,
+            viewYTop: actionTop,
+            size: action
+        )
+
+        if actionsRevealed, cancelRect.contains(point) {
+            Log.ui.debug("Bubble cancel tapped via panel routing")
+            handleCancelTapped()
+        } else if actionsRevealed, stopRect.contains(point) {
+            Log.ui.debug("Bubble stop tapped via panel routing")
+            handleStopTapped()
+        } else if centerRect.contains(point), !state.isRecording, !state.isProcessing {
+            Log.ui.debug("Bubble start tapped via panel routing")
+            handleStartTapped()
+        }
+    }
+
+    private func evaluateHoverFromPointer() {
+        guard isVisible, !isDragging, state.isRecording, let panel else { return }
+        let hovering = panel.frame.contains(NSEvent.mouseLocation)
+        if hovering != isHovered {
+            setHover(hovering)
+        }
     }
 
     func beginDrag() {
@@ -240,7 +365,9 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
         updateDrag(translation: translation)
         dragStartOffset = manualOffset
         isDragging = false
+        lastDragEndedAt = Date()
         dragStartMouseLocation = nil
+        Log.ui.debug("Bubble reposition drag ended offset=(\(manualOffset.width), \(manualOffset.height))")
     }
 
     private func show() {
@@ -248,12 +375,13 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
         presentationGeneration &+= 1
 
         if panel == nil {
-            let panel = NSPanel(
+            let panel = FloatingIndicatorInteractivePanel(
                 contentRect: NSRect(origin: .zero, size: panelSize),
                 styleMask: [.borderless, .nonactivatingPanel, .utilityWindow, .hudWindow],
                 backing: .buffered,
                 defer: false
             )
+            panel.interactionHandler = self
             panel.isFloatingPanel = true
             panel.isOpaque = false
             panel.backgroundColor = .clear
@@ -284,12 +412,26 @@ final class CaretBubbleFloatingIndicatorController: FloatingIndicatorPresenting,
         panel?.orderFrontRegardless()
         isVisible = true
         startAnchorRefresh()
+        startPointerHoverMonitoring()
 
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.18
             context.timingFunction = CAMediaTimingFunction(name: .easeOut)
             self.panel?.animator().alphaValue = 1
         }
+    }
+
+    private func startPointerHoverMonitoring() {
+        if pointerMonitor == nil {
+            pointerMonitor = FloatingIndicatorPointerMonitor(
+                onPointerActivity: { [weak self] in
+                    self?.evaluateHoverFromPointer()
+                }
+            )
+        }
+        pointerMonitor?.setPointerActivityEnabled(true)
+        pointerMonitor?.start()
+        evaluateHoverFromPointer()
     }
 
     private func startAnchorRefresh() {
@@ -502,18 +644,10 @@ private struct CaretBubbleIndicatorView: View {
         .animation(.spring(response: 0.24, dampingFraction: 0.82), value: showsActions)
         .animation(.spring(response: 0.24, dampingFraction: 0.82), value: showsTranscript)
         .animation(.spring(response: 0.24, dampingFraction: 0.82), value: controller.actionRevealWidth)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 4)
-                .onChanged { _ in
-                    if !controller.isDragging {
-                        controller.beginDrag()
-                    }
-                    controller.updateDrag(translation: .zero)
-                }
-                .onEnded { _ in
-                    controller.endDrag(translation: .zero)
-                }
-        )
+        // Reposition dragging is intentionally NOT a SwiftUI gesture: it is
+        // driven from raw window events (FloatingIndicatorInteractivePanel),
+        // which keeps working regardless of how the hosting view routes
+        // gestures.
     }
 
     private var centerBubble: some View {
