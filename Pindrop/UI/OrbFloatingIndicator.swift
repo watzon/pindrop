@@ -1191,7 +1191,10 @@ struct OrbIndicatorView: View {
             .background(
                 OrbGooSurface(
                     orbCenter: orbCenterInPanel,
-                    orbRadius: orbDiameter / 2,
+                    // Undersized while the blob fill is on trial: the dark disc stays
+                    // hidden behind the opaque blob's troughs but still anchors the
+                    // pill's liquid bridge during pop-out.
+                    orbRadius: orbDiameter / 2 * 0.62,
                     pillCenter: pillCenterInPanel,
                     pillHalfWidth: pillSize.width / 2,
                     pillHalfHeight: pillSize.height / 2,
@@ -1323,27 +1326,19 @@ struct OrbIndicatorView: View {
         Button {
             controller.handleOrbTapped()
         } label: {
-            ZStack {
-                OrbGlassFillView(
-                    palette: waveformPalette,
-                    // Closure, not values: meters are deliberately non-@Published, so
-                    // the shader timeline polls them without invalidating the orb shell.
-                    sample: { [weak state] _ in
-                        (state?.bandLevels ?? .zero, state?.audioLevel ?? 0)
-                    },
-                    isHovered: controller.isHovered,
-                    isRecording: state.isRecording,
-                    isProcessing: state.isProcessing,
-                    isMuted: state.isInputMuted
-                )
-
-                Circle()
-                    .strokeBorder(Color.white.opacity(0.14), lineWidth: 1.5)
-                    .blendMode(.plusLighter)
-
-            }
+            OrbBlobFillView(
+                palette: waveformPalette,
+                // Closure, not values: meters are deliberately non-@Published, so
+                // the blob timeline polls them without invalidating the orb shell.
+                sample: { [weak state] _ in
+                    (state?.bandLevels ?? .zero, state?.audioLevel ?? 0)
+                },
+                isHovered: controller.isHovered,
+                isRecording: state.isRecording,
+                isProcessing: state.isProcessing,
+                isMuted: state.isInputMuted
+            )
             .frame(width: orbDiameter, height: orbDiameter)
-            .clipShape(Circle())
             .shadow(
                 color: waveformPalette.glowColor.opacity(state.isInputMuted ? 0 : (controller.isHovered ? 1 : 0.78)),
                 radius: state.isRecording ? 26 : 18,
@@ -1607,6 +1602,264 @@ struct OrbGlassFillView: View {
             }
         }
         .allowsHitTesting(false)
+    }
+}
+
+// MARK: - Amorphous blob fill (website-orb port, on trial)
+
+/// The pindrop.dev orb, ported to the indicator: an amorphous blob whose
+/// outline undulates through layered sines and swells with the live input
+/// level. Replaces the circular glass fill + interior waveform traces with
+/// whole-body motion; one Canvas path per frame instead of a per-pixel
+/// shader pass, so it renders cheaper than `OrbGlassFillView`.
+private struct OrbBlobFillView: View {
+    let palette: OrbWaveformPalette
+    /// Sampled once per timeline tick — see the call site for why this is a closure.
+    let sample: (Date) -> (bands: AudioBandLevels, overall: Float)
+    let isHovered: Bool
+    let isRecording: Bool
+    let isProcessing: Bool
+    let isMuted: Bool
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// Shader-time rule applies here too: keep time app-relative so phase
+    /// precision never degrades.
+    private static let animationEpoch = Date.timeIntervalSinceReferenceDate
+
+    private static let vertexCount = 14
+    /// Deterministic per-vertex phases/speeds (golden-angle spread), so the
+    /// blob's character is stable across shell re-renders and app launches.
+    private static let phases: [Double] = (0..<vertexCount).map { (index: Int) -> Double in
+        let raw: Double = Double(index) * 2.399963
+        return raw.truncatingRemainder(dividingBy: Double.pi * 2)
+    }
+    private static let speeds: [Double] = (0..<vertexCount).map { (index: Int) -> Double in
+        let seed: Int = (index * 73 + 19) % 97
+        let fraction: Double = Double(seed) / 97.0
+        return 0.55 + 0.5 * fraction
+    }
+
+    /// Eased meters persisted across ticks without invalidating the view.
+    /// Fast attack / slow release, so plosives read instantly and the body
+    /// relaxes rather than snapping shut between words.
+    private final class LevelSmoother {
+        var level: Double = 0
+        var mid: Double = 0
+        var high: Double = 0
+
+        func advance(level levelTarget: Double, mid midTarget: Double, high highTarget: Double) {
+            step(&level, toward: levelTarget)
+            step(&mid, toward: midTarget)
+            step(&high, toward: highTarget)
+        }
+
+        private func step(_ current: inout Double, toward target: Double) {
+            let rate = target > current ? 0.5 : 0.10
+            current += (target - current) * rate
+        }
+    }
+    @State private var smoother = LevelSmoother()
+
+    private var animationInterval: TimeInterval {
+        if isRecording && !isMuted { return 1.0 / 60.0 }
+        if isProcessing || isHovered { return 1.0 / 30.0 }
+        return 1.0 / 8.0
+    }
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: animationInterval, paused: reduceMotion || isMuted)) { timeline in
+            Canvas { context, size in
+                let time = reduceMotion
+                    ? 0
+                    : timeline.date.timeIntervalSinceReferenceDate - Self.animationEpoch
+                let meter = (isRecording && !isMuted && !reduceMotion)
+                    ? sample(timeline.date)
+                    : (bands: AudioBandLevels.zero, overall: Float.zero)
+                // Same visual noise gate as the waveform traces: below the input
+                // floor the blob only breathes.
+                let shaped = OrbWaveformResponse.levels(bands: meter.bands, overall: meter.overall)
+                smoother.advance(
+                    level: Self.smoothstep(edge0: 0.06, edge1: 0.24, value: Double(meter.overall)),
+                    mid: Double(shaped.mid) / Double(OrbWaveformResponse.maximumResponse),
+                    high: Double(shaped.high) / Double(OrbWaveformResponse.maximumResponse)
+                )
+
+                draw(
+                    in: context,
+                    size: size,
+                    time: time,
+                    level: smoother.level,
+                    mid: smoother.mid,
+                    high: smoother.high
+                )
+            }
+        }
+        .allowsHitTesting(false)
+    }
+
+    private func draw(
+        in context: GraphicsContext,
+        size: CGSize,
+        time: TimeInterval,
+        level: Double,
+        mid: Double,
+        high: Double
+    ) {
+        let cx = size.width / 2
+        let cy = size.height / 2
+        let half = min(size.width, size.height) / 2
+        // Budgeted so the loudest excursion stays inside the canvas:
+        // 0.84 × (1 + 0.022 + 0.158) ≈ 0.99 — the blob can never clip flat.
+        let base = half * (0.76 + level * 0.08)
+        let breath = sin(time * 0.9) * 0.022
+        let wobble = 0.028 + mid * 0.13
+        // Processing reads calmer, matching the old fill's slowed phase.
+        let speedScale = isProcessing ? 0.45 : 1.0
+        let n = Self.vertexCount
+
+        var points: [CGPoint] = []
+        points.reserveCapacity(n)
+        for i in 0..<n {
+            let angle = (Double(i) / Double(n)) * .pi * 2
+            // Two slow layers carry the idle character; the fast third layer
+            // only exists while the high band is hot, so sibilants shimmer.
+            let noise =
+                sin(time * Self.speeds[i] * speedScale + Self.phases[i]) * 0.55 +
+                sin(time * Self.speeds[i] * 1.7 * speedScale + Self.phases[i] * 2.3) * 0.30 +
+                sin(time * Self.speeds[i] * 4.3 + Self.phases[i] * 3.1) * 0.15 * high
+            let radius = base * (1 + breath + noise * wobble)
+            points.append(CGPoint(x: cx + cos(angle) * radius, y: cy + sin(angle) * radius))
+        }
+
+        var path = Path()
+        for i in 0..<n {
+            let current = points[i]
+            let next = points[(i + 1) % n]
+            let mid = CGPoint(x: (current.x + next.x) / 2, y: (current.y + next.y) / 2)
+            if i == 0 {
+                path.move(to: mid)
+            } else {
+                path.addQuadCurve(to: mid, control: current)
+            }
+        }
+        let first = points[0]
+        let second = points[1]
+        path.addQuadCurve(
+            to: CGPoint(x: (first.x + second.x) / 2, y: (first.y + second.y) / 2),
+            control: first
+        )
+        path.closeSubpath()
+
+        let resolved = Self.resolvedPalette(for: palette)
+
+        // 1. The jewel: lit from the upper left, hue rotating deeper toward the
+        //    rim (that rotation, not plain darkening, is what reads as depth).
+        context.fill(
+            path,
+            with: .radialGradient(
+                resolved.jewel,
+                center: CGPoint(x: cx - base * 0.30, y: cy - base * 0.34),
+                startRadius: base * 0.08,
+                endRadius: base * 1.18
+            )
+        )
+
+        // 2. Rim shading from the lower right, inside the silhouette only:
+        //    gives the body a shadowed underside and real volume.
+        context.fill(
+            path,
+            with: .radialGradient(
+                resolved.rimShade,
+                center: CGPoint(x: cx + base * 0.55, y: cy + base * 0.62),
+                startRadius: base * 0.3,
+                endRadius: base * 1.45
+            )
+        )
+
+        // 3. Specular sheen where the light hits.
+        let sheenCenter = CGPoint(x: cx - base * 0.38, y: cy - base * 0.44)
+        let sheen = Path(ellipseIn: CGRect(
+            x: sheenCenter.x - base * 0.34,
+            y: sheenCenter.y - base * 0.28,
+            width: base * 0.68,
+            height: base * 0.56
+        ))
+        context.fill(
+            sheen,
+            with: .radialGradient(
+                resolved.sheen,
+                center: sheenCenter,
+                startRadius: 0,
+                endRadius: base * 0.36
+            )
+        )
+    }
+
+    // MARK: Resolved palette (derived from the theme accent, cached per hue)
+
+    private struct ResolvedBlobPalette {
+        let jewel: Gradient
+        let rimShade: Gradient
+        let sheen: Gradient
+    }
+
+    nonisolated(unsafe) private static var paletteCache: [String: ResolvedBlobPalette] = [:]
+    private static let paletteCacheLock = NSLock()
+
+    private static func resolvedPalette(for palette: OrbWaveformPalette) -> ResolvedBlobPalette {
+        paletteCacheLock.lock()
+        defer { paletteCacheLock.unlock() }
+        if let cached = paletteCache[palette.primaryHex] { return cached }
+
+        let hex = palette.primaryHex
+        let jewel = Gradient(stops: [
+            .init(color: shifted(hex, hue: 0.015, sat: 0.40, bri: 1.30), location: 0),
+            .init(color: shifted(hex, hue: 0.005, sat: 0.75, bri: 1.10), location: 0.30),
+            .init(color: shifted(hex, hue: 0, sat: 1.0, bri: 1.0), location: 0.58),
+            .init(color: shifted(hex, hue: -0.035, sat: 1.18, bri: 0.70), location: 0.82),
+            .init(color: shifted(hex, hue: -0.065, sat: 1.28, bri: 0.44), location: 1),
+        ])
+        let shadow = shifted(hex, hue: -0.075, sat: 1.2, bri: 0.28)
+        let rimShade = Gradient(stops: [
+            .init(color: shadow.opacity(0), location: 0),
+            .init(color: shadow.opacity(0), location: 0.45),
+            .init(color: shadow.opacity(0.38), location: 1),
+        ])
+        let highlight = shifted(hex, hue: 0.02, sat: 0.18, bri: 1.4)
+        let sheenGradient = Gradient(stops: [
+            .init(color: highlight.opacity(0.55), location: 0),
+            .init(color: highlight.opacity(0), location: 1),
+        ])
+
+        let resolved = ResolvedBlobPalette(jewel: jewel, rimShade: rimShade, sheen: sheenGradient)
+        paletteCache[palette.primaryHex] = resolved
+        return resolved
+    }
+
+    /// HSB-space shift off the theme accent. Hue wraps; saturation and
+    /// brightness clamp to [0, 1].
+    private static func shifted(_ hex: String, hue hueDelta: CGFloat, sat satScale: CGFloat, bri briScale: CGFloat) -> Color {
+        guard let ns = (NSColor(pindropHex: hex) ?? .controlAccentColor).usingColorSpace(.deviceRGB) else {
+            return Color(nsColor: .controlAccentColor)
+        }
+        var h: CGFloat = 0
+        var s: CGFloat = 0
+        var b: CGFloat = 0
+        var a: CGFloat = 0
+        ns.getHue(&h, saturation: &s, brightness: &b, alpha: &a)
+        var hue = (h + hueDelta).truncatingRemainder(dividingBy: 1)
+        if hue < 0 { hue += 1 }
+        return Color(
+            hue: Double(hue),
+            saturation: Double(min(1, max(0, s * satScale))),
+            brightness: Double(min(1, max(0, b * briScale)))
+        )
+    }
+
+    private static func smoothstep(edge0: Double, edge1: Double, value: Double) -> Double {
+        let t = min(1, max(0, (value - edge0) / (edge1 - edge0)))
+        return t * t * (3 - 2 * t)
     }
 }
 
