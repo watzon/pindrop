@@ -374,6 +374,13 @@ release version:
         --title "Pindrop ${TAG}" \
         --notes-file "${NOTES_PATH}"
 
+    # Step 9: Sync release notes to the website changelog (best-effort, non-fatal)
+    echo "🌐 Syncing website changelog..."
+    if ! just sync-website-changelog "${VERSION}"; then
+        echo "⚠️  Website changelog sync failed (non-fatal)."
+        echo "   Run manually: just sync-website-changelog ${VERSION}"
+    fi
+
     echo ""
     echo "✅ Release ${TAG} published!"
     echo ""
@@ -385,6 +392,69 @@ release version:
     echo "  - ${NOTES_PATH}"
     echo ""
     echo "ℹ️  Optional follow-up: push main when you're ready."
+
+# Sync a release's notes into the website changelog collection
+# Copies release-notes/vX.Y.Z.md (with version/date frontmatter) into the
+# pindrop-website repo, commits just that file, and pushes so Vercel redeploys.
+# Website location defaults to ../pindrop-website; override with PINDROP_WEBSITE_DIR.
+# Usage: just sync-website-changelog 1.22.0
+sync-website-changelog version:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    VERSION="{{version}}"
+    TAG="v${VERSION}"
+    SITE_DIR="${PINDROP_WEBSITE_DIR:-../pindrop-website}"
+    SRC="release-notes/${TAG}.md"
+    DEST_REL="src/content/changelog/${TAG}.md"
+    DEST="${SITE_DIR}/${DEST_REL}"
+
+    if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "❌ Invalid version format: $VERSION (expected X.Y.Z)"
+        exit 1
+    fi
+    if [ ! -f "${SRC}" ]; then
+        echo "❌ Release notes not found: ${SRC}"
+        exit 1
+    fi
+    if [ ! -d "${SITE_DIR}/src/content/changelog" ]; then
+        echo "❌ Website changelog directory not found: ${SITE_DIR}/src/content/changelog"
+        echo "   Clone pindrop-website next to this repo or set PINDROP_WEBSITE_DIR."
+        exit 1
+    fi
+
+    # Release date comes from the tag when it exists, today otherwise.
+    RELEASE_DATE=$(git for-each-ref --format='%(creatordate:short)' "refs/tags/${TAG}")
+    if [ -z "${RELEASE_DATE}" ]; then
+        RELEASE_DATE=$(date +%F)
+    fi
+
+    {
+        echo "---"
+        echo "version: \"${VERSION}\""
+        echo "date: ${RELEASE_DATE}"
+        echo "---"
+        echo ""
+        cat "${SRC}"
+    } > "${DEST}"
+    echo "✅ Wrote ${DEST}"
+
+    if git -C "${SITE_DIR}" rev-parse --git-dir >/dev/null 2>&1; then
+        git -C "${SITE_DIR}" add "${DEST_REL}"
+        if git -C "${SITE_DIR}" diff --cached --quiet; then
+            echo "ℹ️  Website changelog already up to date."
+        else
+            git -C "${SITE_DIR}" commit -m "changelog: add ${TAG}"
+            if git -C "${SITE_DIR}" push; then
+                echo "🚀 Website changelog pushed; the site will redeploy."
+            else
+                echo "⚠️  Committed but push failed. Push manually from ${SITE_DIR}."
+                exit 1
+            fi
+        fi
+    else
+        echo "⚠️  ${SITE_DIR} is not a git repo; file written but not committed."
+    fi
 
 # Generate a draft release notes file for a version
 # Usage: just release-notes 1.9.0

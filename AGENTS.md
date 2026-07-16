@@ -132,6 +132,7 @@ xcodebuild test -project Pindrop.xcodeproj -scheme Pindrop -destination 'platfor
   5. Generate `appcast.xml`
   6. Create + push tag
   7. Create GitHub release via `gh` with notes + DMG + `appcast.xml`
+  8. Sync release notes to the website changelog: `just sync-website-changelog <X.Y.Z>` runs automatically at the end of `just release` (best-effort). It copies `release-notes/vX.Y.Z.md` with version/date frontmatter into `../pindrop-website/src/content/changelog/` (override location with `PINDROP_WEBSITE_DIR`), commits that one file in the website repo, and pushes so the site redeploys. If it fails, run it manually after the release.
 - CI workflows under `.github/workflows/` are for build/test validation; release publishing is manual
 - Sparkle appcast generation is scripted via `just appcast <dmg-path>`
 - Keep `just build-self-signed` / `just dmg-self-signed` only as a fallback when Apple signing is unavailable
