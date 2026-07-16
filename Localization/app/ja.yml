@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "コピーしました！"
   to_clipboard: "クリップボードにコピーしました"
+copies:
+  the_transcript_to_the_clipboard_without: "ペーストせずにテキストをクリップボードにコピーします。"
 copy:
   _self: "コピー"
   enhanced: "コピー強化"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "ペーストに失敗しました。テキストはクリップボードにコピーされました。"
   last_transcript: "最後のトランスクリプトを貼り付け"
   last_transcript_v: "最後のトランスクリプトを貼り付けます ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "アクティブなアプリのカーソル位置にテキストをペーストします。"
 pause:
   _self: "一時停止"
   media_during_transcription: "転写中にメディアを一時停止する"

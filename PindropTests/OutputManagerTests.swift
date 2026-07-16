@@ -131,17 +131,24 @@ struct OutputManagerTests {
         #expect(fixture.mockClipboard.copiedText == "Second text")
     }
 
+    // Clipboard mode is copy-only: the transcript stays on the pasteboard, no paste
+    // keystroke is simulated, and the prior contents ride along for Undo.
     @Test func outputWithClipboardMode() async throws {
         let fixture = makeSUT()
         fixture.outputManager.setOutputMode(.clipboard)
         fixture.mockClipboard.clipboardContent = "Previous clipboard content"
 
-        try await fixture.outputManager.output("Clipboard mode test")
+        let result = try await fixture.outputManager.output("Clipboard mode test")
 
-        #expect(fixture.mockClipboard.copiedText == "Previous clipboard content")
+        #expect(result.kind == .copiedToClipboard)
+        #expect(result.clipboardFallbackReason == .copyOnlyMode)
+        #expect(fixture.mockClipboard.clipboardContent == "Clipboard mode test")
+        #expect(fixture.mockKeySimulation.pasteSimulated == false)
+        #expect(fixture.mockClipboard.restoreCount == 0)
+
+        let snapshot = try #require(result.previousClipboardSnapshot)
+        #expect(fixture.outputManager.restoreClipboardSnapshot(snapshot))
         #expect(fixture.mockClipboard.clipboardContent == "Previous clipboard content")
-        #expect(fixture.mockKeySimulation.pasteSimulated)
-        #expect(fixture.mockClipboard.restoreCount == 1)
     }
 
     @Test func outputWithEmptyTextThrowsError() async {
@@ -202,29 +209,26 @@ struct OutputManagerTests {
         #expect(fixture.mockClipboard.clipboardContent == "Important words")
     }
 
-    @Test func clipboardModeFallsBackToCopyWithoutAccessibility() async throws {
-        let fixture = makeSUT(outputMode: .clipboard, accessibilityPermissionChecker: { false })
+    // Copy-only mode doesn't depend on Accessibility at all.
+    @Test func clipboardModeIsCopyOnlyRegardlessOfAccessibility() async throws {
+        for hasAccessibility in [false, true] {
+            let fixture = makeSUT(
+                outputMode: .clipboard,
+                accessibilityPermissionChecker: { hasAccessibility }
+            )
 
-        let result = try await fixture.outputManager.output("Clipboard test")
+            let result = try await fixture.outputManager.output("Clipboard test")
 
-        #expect(result.kind == .copiedToClipboard)
-        #expect(fixture.mockClipboard.copiedText == "Clipboard test")
-        #expect(fixture.mockClipboard.clipboardContent == "Clipboard test")
-        #expect(fixture.mockKeySimulation.pasteSimulated == false)
-        #expect(fixture.mockClipboard.restoreCount == 0)
-    }
-
-    @Test func clipboardModeReportsPastedOnSuccess() async throws {
-        let fixture = makeSUT(outputMode: .clipboard)
-
-        let result = try await fixture.outputManager.output("Clipboard test")
-
-        #expect(result.kind == .pasted)
-        #expect(fixture.mockKeySimulation.pasteSimulated)
+            #expect(result.kind == .copiedToClipboard)
+            #expect(result.clipboardFallbackReason == .copyOnlyMode)
+            #expect(fixture.mockClipboard.clipboardContent == "Clipboard test")
+            #expect(fixture.mockKeySimulation.pasteSimulated == false)
+            #expect(fixture.mockClipboard.restoreCount == 0)
+        }
     }
 
     @Test func clipboardFallbackWithoutAccessibilityReportsIntentionalReasonAndSnapshot() async throws {
-        let fixture = makeSUT(outputMode: .clipboard, accessibilityPermissionChecker: { false })
+        let fixture = makeSUT(outputMode: .directInsert, accessibilityPermissionChecker: { false })
         fixture.mockClipboard.clipboardContent = "previous"
 
         let result = try await fixture.outputManager.output("New text")
@@ -321,13 +325,13 @@ struct OutputManagerTests {
         let current = NSRunningApplication.current
         let fixture = makeSUT(
             outputMode: .clipboard,
-            accessibilityPermissionChecker: { false },
             frontmostApplicationProvider: { current }
         )
 
         let result = try await fixture.outputManager.output("Clipboard only")
 
         #expect(result.kind == .copiedToClipboard)
+        #expect(result.clipboardFallbackReason == .copyOnlyMode)
         #expect(result.destinationAppName == current.localizedName)
         #expect(result.destinationAppBundleID == current.bundleIdentifier)
     }
@@ -510,19 +514,6 @@ struct OutputManagerTests {
         #expect(fixture.mockKeySimulation.lastAllowSystemEventsFallback == false)
         #expect(fixture.mockClipboard.restoreCount == 1)
         #expect(fixture.mockClipboard.clipboardContent == "previous")
-    }
-
-    @Test func knownVMClipboardModeDisablesSystemEventsFallback() async throws {
-        let fixture = makeSUT(
-            outputMode: .clipboard,
-            virtualMachineHostChecker: { _ in true }
-        )
-
-        let result = try await fixture.outputManager.output("Clipboard into VM")
-
-        #expect(result.kind == .pasted)
-        #expect(fixture.mockKeySimulation.pasteSimulated)
-        #expect(fixture.mockKeySimulation.lastAllowSystemEventsFallback == false)
     }
 
     @Test func virtualMachineHostDetectorRecognizesKnownHosts() {

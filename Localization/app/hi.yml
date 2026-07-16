@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "नकल की गई!"
   to_clipboard: "क्लिपबोर्ड पर कॉपी किया गया"
+copies:
+  the_transcript_to_the_clipboard_without: "पेस्ट किए बिना ट्रांसक्रिप्ट क्लिपबोर्ड पर कॉपी करता है।"
 copy:
   _self: "प्रतिलिपि"
   enhanced: "कॉपी एन्हांस्ड"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "पेस्ट विफल रहा। ट्रांसक्रिप्ट क्लिपबोर्ड पर कॉपी कर दिया गया।"
   last_transcript: "अंतिम प्रतिलेख चिपकाएँ"
   last_transcript_v: "अंतिम प्रतिलेख ⌃⌘V चिपकाएँ"
+pastes:
+  the_transcript_at_your_cursor: "सक्रिय ऐप में कर्सर की स्थिति पर ट्रांसक्रिप्ट पेस्ट करता है।"
 pause:
   _self: "विराम"
   media_during_transcription: "प्रतिलेखन के दौरान मीडिया को रोकें"

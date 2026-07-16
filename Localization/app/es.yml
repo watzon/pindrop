@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "¡Copiado!"
   to_clipboard: "Copiado al portapapeles"
+copies:
+  the_transcript_to_the_clipboard_without: "Copia la transcripción al portapapeles sin pegarla."
 copy:
   _self: "Copy"
   enhanced: "Copiar mejorado"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Error al pegar. Transcripción copiada al portapapeles."
   last_transcript: "Pegar última transcripción"
   last_transcript_v: "Paste last transcript ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Pega la transcripción en el cursor de la app activa."
 pause:
   _self: "Pausar"
   media_during_transcription: "Pausar medios durante transcripción"

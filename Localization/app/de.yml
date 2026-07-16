@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Kopiert!"
   to_clipboard: "In die Zwischenablage kopiert"
+copies:
+  the_transcript_to_the_clipboard_without: "Kopiert das Transkript in die Zwischenablage, ohne es einzufügen."
 copy:
   _self: "Kopieren"
   enhanced: "Verbessertes kopieren"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Einfügen fehlgeschlagen. Transkript in die Zwischenablage kopiert."
   last_transcript: "Letzte Transkription einfügen"
   last_transcript_v: "Letzte Transkription einfügen ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Fügt das Transkript an der Cursorposition in der aktiven App ein."
 pause:
   _self: "Pause"
   media_during_transcription: "Medien während der Transkription pausieren"

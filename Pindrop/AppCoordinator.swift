@@ -4255,7 +4255,7 @@ final class AppCoordinator {
         }
 
         switch result.clipboardFallbackReason {
-        case .accessibilityUnavailable:
+        case .copyOnlyMode, .accessibilityUnavailable:
             var actions: [ToastAction] = []
             if let snapshot = result.previousClipboardSnapshot {
                 actions.append(

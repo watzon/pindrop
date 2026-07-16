@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Kopiert!"
   to_clipboard: "Kopiert til utklippstavlen"
+copies:
+  the_transcript_to_the_clipboard_without: "Kopierer transkripsjonen til utklippstavlen uten å lime inn."
 copy:
   _self: "Kopiere"
   enhanced: "Kopier forbedret"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Innliming mislyktes. Transkripsjonen er kopiert til utklippstavlen."
   last_transcript: "Lim inn siste transkripsjon"
   last_transcript_v: "Lim inn siste transkripsjon ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Limer inn transkripsjonen ved markøren i den aktive appen."
 pause:
   _self: "Pause"
   media_during_transcription: "Sett media på pause under transkripsjon"

@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Kopieret!"
   to_clipboard: "Kopieret til udklipsholder"
+copies:
+  the_transcript_to_the_clipboard_without: "Kopierer transskriptionen til udklipsholderen uden at indsætte."
 copy:
   _self: "Kopi"
   enhanced: "Kopier forbedret"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Indsættelse mislykkedes. Transskriptionen er kopieret til udklipsholderen."
   last_transcript: "Indsæt sidste transskription"
   last_transcript_v: "Indsæt sidste transskription ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Indsætter transskriptionen ved markøren i den aktive app."
 pause:
   _self: "Pause"
   media_during_transcription: "Sæt medier på pause under transskription"

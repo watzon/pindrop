@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Copied!"
   to_clipboard: "Copied to clipboard"
+copies:
+  the_transcript_to_the_clipboard_without: "Copies the transcript to the clipboard without pasting."
 copy:
   _self: "Copy"
   enhanced: "Copy Enhanced"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Paste failed. Transcript copied to clipboard."
   last_transcript: "Paste Last Transcript"
   last_transcript_v: "Paste last transcript ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Pastes the transcript at your cursor in the active app."
 pause:
   _self: "Pause"
   media_during_transcription: "Pause media during transcription"

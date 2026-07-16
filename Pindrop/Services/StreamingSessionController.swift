@@ -633,13 +633,13 @@ final class StreamingSessionController {
         return sink
     }
 
-    /// Copy fallbacks are not all failures: without Accessibility permission the copy
-    /// IS the intended output (surface "Copied" with Undo), while a failed paste that
-    /// fell back to the clipboard is an error worth flagging.
+    /// Copy fallbacks are not all failures: in copy-only mode or without Accessibility
+    /// permission the copy IS the intended output (surface "Copied" with Undo), while
+    /// a failed paste that fell back to the clipboard is an error worth flagging.
     private func showClipboardFallbackToast(for result: OutputManager.OutputResult) {
         let locale = settingsStore.selectedAppLocale.locale
         switch result.clipboardFallbackReason {
-        case .accessibilityUnavailable:
+        case .copyOnlyMode, .accessibilityUnavailable:
             var actions: [ToastAction] = []
             if let snapshot = result.previousClipboardSnapshot {
                 actions.append(

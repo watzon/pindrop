@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Скопійовано!"
   to_clipboard: "Скопійовано в буфер обміну"
+copies:
+  the_transcript_to_the_clipboard_without: "Копіює текст у буфер обміну без вставлення."
 copy:
   _self: "Копіювати"
   enhanced: "Покращене копіювання"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Не вдалося вставити. Текст скопійовано в буфер обміну."
   last_transcript: "Вставити останню транскрипцію"
   last_transcript_v: "Вставте останню транскрипцію ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Вставляє текст у позицію курсора в активному застосунку."
 pause:
   _self: "Пауза"
   media_during_transcription: "Призупинити медіа під час транскрипції"

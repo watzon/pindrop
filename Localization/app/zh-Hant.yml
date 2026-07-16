@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "已複製！"
   to_clipboard: "已複製到剪貼簿"
+copies:
+  the_transcript_to_the_clipboard_without: "僅將轉寫文字複製到剪貼簿，不進行貼上。"
 copy:
   _self: "複製"
   enhanced: "複製增強版"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "貼上失敗。轉寫文字已複製到剪貼簿。"
   last_transcript: "貼上上次轉錄"
   last_transcript_v: "貼上上次轉錄 ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "將轉寫文字貼到使用中 App 的游標位置。"
 pause:
   _self: "暫停"
   media_during_transcription: "轉錄期間暫停媒體"

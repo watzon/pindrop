@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Kopierade!"
   to_clipboard: "Kopierat till urklipp"
+copies:
+  the_transcript_to_the_clipboard_without: "Kopierar transkriptionen till urklipp utan att klistra in."
 copy:
   _self: "Kopiera"
   enhanced: "Kopiera förbättrad"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Det gick inte att klistra in. Transkriptionen kopierades till urklipp."
   last_transcript: "Klistra in sista avskriften"
   last_transcript_v: "Klistra in senaste avskriften ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Klistrar in transkriptionen vid markören i den aktiva appen."
 pause:
   _self: "Paus"
   media_during_transcription: "Pausa media under transkription"

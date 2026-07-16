@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Copié !"
   to_clipboard: "Copié dans le presse-papiers"
+copies:
+  the_transcript_to_the_clipboard_without: "Copie la transcription dans le presse-papiers sans la coller."
 copy:
   _self: "Copier"
   enhanced: "Copier amélioré"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Échec du collage. Transcription copiée dans le presse-papiers."
   last_transcript: "Coller la dernière transcription"
   last_transcript_v: "Coller la dernière transcription ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Colle la transcription au niveau du curseur dans l'application active."
 pause:
   _self: "Pause"
   media_during_transcription: "Mettre les médias en pause pendant la transcription"

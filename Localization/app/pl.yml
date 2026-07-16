@@ -244,6 +244,8 @@ controls:
 copied:
   _self: "Skopiowano!"
   to_clipboard: "Skopiowano do schowka"
+copies:
+  the_transcript_to_the_clipboard_without: "Kopiuje transkrypcję do schowka bez wklejania."
 copy:
   _self: "Kopiuj"
   enhanced: "Kopiuj ulepszoną wersję"
@@ -826,6 +828,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Wklejanie nie powiodło się. Transkrypcję skopiowano do schowka."
   last_transcript: "Wklej ostatnią transkrypcję"
   last_transcript_v: "Wklej ostatnią transkrypcję ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Wkleja transkrypcję w miejscu kursora w aktywnej aplikacji."
 pause:
   _self: "Pauza"
   media_during_transcription: "Wstrzymaj multimedia podczas transkrypcji"

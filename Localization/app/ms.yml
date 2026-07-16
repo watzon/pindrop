@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "disalin!"
   to_clipboard: "Disalin ke papan keratan"
+copies:
+  the_transcript_to_the_clipboard_without: "Menyalin transkrip ke papan keratan tanpa menampal."
 copy:
   _self: "salin"
   enhanced: "Salin Dipertingkat"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Tampal gagal. Transkrip disalin ke papan keratan."
   last_transcript: "Tampal Transkrip Terakhir"
   last_transcript_v: "Tampal transkrip terakhir ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Menampal transkrip pada kedudukan kursor dalam apl aktif."
 pause:
   _self: "jeda"
   media_during_transcription: "Jeda media semasa transkripsi"

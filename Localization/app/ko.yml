@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "복사되었습니다!"
   to_clipboard: "클립보드에 복사됨"
+copies:
+  the_transcript_to_the_clipboard_without: "붙여넣지 않고 텍스트를 클립보드에 복사합니다."
 copy:
   _self: "복사"
   enhanced: "향상된 복사"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "붙여넣기에 실패했습니다. 텍스트가 클립보드에 복사되었습니다."
   last_transcript: "마지막 기록 붙여넣기"
   last_transcript_v: "마지막 기록 붙여넣기 ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "활성 앱의 커서 위치에 텍스트를 붙여넣습니다."
 pause:
   _self: "정지시키다"
   media_during_transcription: "전사하는 동안 미디어 일시중지"

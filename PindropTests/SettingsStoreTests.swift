@@ -26,6 +26,28 @@ struct SettingsStoreTests {
         settingsStore.mentionTemplateOverridesJSON = SettingsStore.Defaults.mentionTemplateOverridesJSON
     }
 
+    @Test func outputModeMigratesStoredClipboardToDirectInsert() {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
+        // Simulate a pre-copy-only install: the old "clipboard" default is stored
+        // and the migration has not run yet.
+        let store = SettingsStore.backingUserDefaults
+        store.set("clipboard", forKey: "outputMode")
+        store.set(false, forKey: "outputModeCopyOnlyMigrated")
+
+        // "clipboard" used to paste; migrating to "directInsert" preserves the
+        // user's observed behavior now that clipboard mode is truly copy-only.
+        let migrated = SettingsStore()
+        #expect(migrated.outputMode == "directInsert")
+        #expect(migrated.outputModeCopyOnlyMigrated)
+
+        // Post-migration, an explicit copy-only choice sticks across relaunches.
+        migrated.outputMode = "clipboard"
+        let relaunched = SettingsStore()
+        #expect(relaunched.outputMode == "clipboard")
+    }
+
     @Test func testSaveAndLoadSettings() {
         let settingsStore = makeSettingsStore()
         defer { cleanup(settingsStore) }
@@ -179,7 +201,7 @@ struct SettingsStoreTests {
         #expect(store.darkThemePresetID == SettingsStore.Defaults.darkThemePresetID)
         #expect(store.toggleHotkey == SettingsStore.Defaults.Hotkeys.toggleHotkey)
         #expect(store.pushToTalkHotkey == SettingsStore.Defaults.Hotkeys.pushToTalkHotkey)
-        #expect(store.outputMode == "clipboard")
+        #expect(store.outputMode == "directInsert")
         #expect(store.selectedAppLanguage == .automatic)
         #expect(!store.aiEnhancementEnabled)
         #expect(store.floatingIndicatorType == FloatingIndicatorType.orb.rawValue)

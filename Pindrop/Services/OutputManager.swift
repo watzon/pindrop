@@ -285,10 +285,10 @@ final class SystemKeySimulation: KeySimulationProtocol {
 final class OutputManager {
 
     /// How `output(_:)` actually landed the text in the target app. `.pasted` means the
-    /// paste keystroke was issued; `.copiedToClipboard` means insertion wasn't possible
-    /// and the text was left on the clipboard for the user to paste manually —
-    /// `clipboardFallbackReason` tells callers whether that was the intentional no-AX
-    /// fallback or a real paste failure, so they can surface the right message.
+    /// paste keystroke was issued; `.copiedToClipboard` means the text was left on the
+    /// clipboard for the user to paste manually — `clipboardFallbackReason` tells
+    /// callers whether that was copy-only mode working as designed, the intentional
+    /// no-AX fallback, or a real paste failure, so they can surface the right message.
     ///
     /// Destination fields are always captured from the frontmost app at insert/copy time
     /// (including clipboard-only mode: "frontmost app at copy time").
@@ -299,6 +299,8 @@ final class OutputManager {
         }
 
         enum ClipboardFallbackReason: Equatable {
+            /// Clipboard output mode: copying IS the output, by user choice.
+            case copyOnlyMode
             /// Accessibility permission is missing; copying was the intended behavior.
             case accessibilityUnavailable
             /// A paste was attempted and failed; the copy is a recovery, not a success.
@@ -409,42 +411,22 @@ final class OutputManager {
         return (app?.localizedName, app?.bundleIdentifier)
     }
 
+    /// Clipboard mode is truly copy-only: the transcript is left on the pasteboard
+    /// for the user to paste themselves, and the prior contents ride along in the
+    /// result so callers can offer Undo. (Historically this mode pasted exactly like
+    /// direct insert; users who had it stored were migrated to direct insert when the
+    /// semantics were fixed — see SettingsStore.migrateOutputModeToCopyOnlySemanticsIfNeeded.)
     private func outputViaClipboard(
         _ text: String,
         destination: (name: String?, bundleID: String?)
     ) async throws -> OutputResult {
-        guard checkAccessibilityPermission() else {
-            let snapshot = try copyReplacingClipboard(text)
-            return .copiedToClipboard(
-                reason: .accessibilityUnavailable,
-                previousClipboardSnapshot: snapshot,
-                destinationAppName: destination.name,
-                destinationAppBundleID: destination.bundleID
-            )
-        }
-
-        do {
-            try await pasteViaClipboard(
-                text,
-                restoreClipboard: true,
-                allowSystemEventsFallback: !isVirtualMachineDestination(destination.bundleID)
-            )
-            return .pasted(
-                destinationAppName: destination.name,
-                destinationAppBundleID: destination.bundleID
-            )
-        } catch is CancellationError {
-            // The operation was cancelled before the paste keystroke landed; abort
-            // cleanly instead of stomping the clipboard with the transcript.
-            throw CancellationError()
-        } catch {
-            try copyToClipboard(text)
-            return .copiedToClipboard(
-                reason: .pasteFailed,
-                destinationAppName: destination.name,
-                destinationAppBundleID: destination.bundleID
-            )
-        }
+        let snapshot = try copyReplacingClipboard(text)
+        return .copiedToClipboard(
+            reason: .copyOnlyMode,
+            previousClipboardSnapshot: snapshot,
+            destinationAppName: destination.name,
+            destinationAppBundleID: destination.bundleID
+        )
     }
 
     /// Direct insert is paste-based: one atomic Cmd+V with clipboard snapshot/restore.

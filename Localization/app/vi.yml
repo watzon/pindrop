@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Đã sao chép!"
   to_clipboard: "Đã sao chép vào clipboard"
+copies:
+  the_transcript_to_the_clipboard_without: "Sao chép bản ghi vào bảng nhớ tạm mà không dán."
 copy:
   _self: "Sao chép"
   enhanced: "Sao chép nâng cao"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Dán không thành công. Bản ghi đã được sao chép vào bảng nhớ tạm."
   last_transcript: "Dán bản ghi cuối cùng"
   last_transcript_v: "Dán bản ghi cuối cùng ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Dán bản ghi tại vị trí con trỏ trong ứng dụng đang hoạt động."
 pause:
   _self: "Tạm dừng"
   media_during_transcription: "Tạm dừng phương tiện trong khi phiên âm"

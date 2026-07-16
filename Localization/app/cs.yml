@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Zkopírováno!"
   to_clipboard: "Zkopírováno do schránky"
+copies:
+  the_transcript_to_the_clipboard_without: "Zkopíruje přepis do schránky bez vložení."
 copy:
   _self: "Kopie"
   enhanced: "Vylepšené kopírování"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Vložení se nezdařilo. Přepis byl zkopírován do schránky."
   last_transcript: "Vložit poslední přepis"
   last_transcript_v: "Vložte poslední přepis ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Vloží přepis na pozici kurzoru v aktivní aplikaci."
 pause:
   _self: "Pauza"
   media_during_transcription: "Pauza média během přepisu"

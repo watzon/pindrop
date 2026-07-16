@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Copiato!"
   to_clipboard: "Copiato negli appunti"
+copies:
+  the_transcript_to_the_clipboard_without: "Copia la trascrizione negli appunti senza incollarla."
 copy:
   _self: "Copia"
   enhanced: "Copia avanzata"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Incolla non riuscito. Trascrizione copiata negli appunti."
   last_transcript: "Incolla l'ultima trascrizione"
   last_transcript_v: "Incolla l'ultima trascrizione ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Incolla la trascrizione alla posizione del cursore nell'app attiva."
 pause:
   _self: "Pausa"
   media_during_transcription: "Metti in pausa i media durante la trascrizione"

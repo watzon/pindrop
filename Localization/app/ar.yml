@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "منسوخ!"
   to_clipboard: "تم النسخ إلى الحافظة"
+copies:
+  the_transcript_to_the_clipboard_without: "ينسخ النص إلى الحافظة دون لصق."
 copy:
   _self: "ينسخ"
   enhanced: "نسخة محسنة"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "فشل اللصق. تم نسخ النص إلى الحافظة."
   last_transcript: "لصق النص الأخير"
   last_transcript_v: "لصق النص الأخير ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "يلصق النص عند المؤشر في التطبيق النشط."
 pause:
   _self: "يوقف"
   media_during_transcription: "إيقاف الوسائط مؤقتًا أثناء النسخ"

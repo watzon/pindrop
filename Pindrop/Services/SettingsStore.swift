@@ -272,7 +272,11 @@ final class SettingsStore: ObservableObject {
 
     enum Defaults {
        static let selectedModel = "openai_whisper-base"
-        static let outputMode = "clipboard"
+        // "directInsert" (paste at cursor) has been the observed behavior of BOTH
+        // modes since character-typing was removed; the default flipped from
+        // "clipboard" when clipboard mode became truly copy-only (see
+        // migrateOutputModeToCopyOnlySemanticsIfNeeded).
+        static let outputMode = "directInsert"
         static let selectedAppLocale = AppLocale.automatic.rawValue
         static let selectedLanguage = AppLanguage.automatic.rawValue
         static let themeMode = PindropThemeMode.system.rawValue
@@ -394,6 +398,8 @@ final class SettingsStore: ObservableObject {
    var cancelRequiresDoubleEscape: Bool = Defaults.Hotkeys.cancelRequiresDoubleEscape
     @AppStorage("outputMode", store: SettingsStoreRuntime.appStorageStore) var outputMode: String =
         Defaults.outputMode
+    @AppStorage("outputModeCopyOnlyMigrated", store: SettingsStoreRuntime.appStorageStore)
+    var outputModeCopyOnlyMigrated: Bool = false
      @AppStorage("selectedAppLocale", store: SettingsStoreRuntime.appStorageStore)
      var selectedAppLocaleRawValue: String = Defaults.selectedAppLocale
      @AppStorage("selectedLanguage", store: SettingsStoreRuntime.appStorageStore)
@@ -812,6 +818,25 @@ final class SettingsStore: ObservableObject {
        // gated on `aiConfigV2Migrated`. Legacy properties are left readable behind the flag
        // for one release as a rollback path.
        migrateToAIConfigV2IfNeeded()
+       migrateOutputModeToCopyOnlySemanticsIfNeeded()
+    }
+
+    /// The UserDefaults instance backing @AppStorage (isolated suite under tests,
+    /// standard defaults otherwise). Exposed for migrations and their tests.
+    static var backingUserDefaults: UserDefaults {
+       SettingsStoreRuntime.appStorageStore ?? .standard
+    }
+
+    /// "Clipboard" mode historically pasted exactly like "Direct Insert" (both ran the
+    /// same paste-with-restore path). When clipboard mode became truly copy-only, users
+    /// who had "clipboard" stored — the old default — were migrated to "directInsert"
+    /// so nobody's observed paste behavior changes; copy-only is opt-in from then on.
+    private func migrateOutputModeToCopyOnlySemanticsIfNeeded() {
+       guard !outputModeCopyOnlyMigrated else { return }
+       if Self.backingUserDefaults.string(forKey: "outputMode") == "clipboard" {
+          outputMode = "directInsert"
+       }
+       outputModeCopyOnlyMigrated = true
     }
 
    // MARK: - Keychain Methods
@@ -1098,6 +1123,8 @@ final class SettingsStore: ObservableObject {
       cancelOperationHotkeyModifiers = Defaults.Hotkeys.cancelOperationHotkeyModifiers
       cancelRequiresDoubleEscape = Defaults.Hotkeys.cancelRequiresDoubleEscape
       outputMode = Defaults.outputMode
+      // A fresh state is already on copy-only clipboard semantics; nothing to migrate.
+      outputModeCopyOnlyMigrated = true
       programmaticFormattingEnabled = Defaults.programmaticFormattingEnabled
       selectedAppLocaleRawValue = Defaults.selectedAppLocale
       selectedLanguage = Defaults.selectedLanguage

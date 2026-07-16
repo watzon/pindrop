@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Gekopieerd!"
   to_clipboard: "Gekopieerd naar klembord"
+copies:
+  the_transcript_to_the_clipboard_without: "Kopieert het transcript naar het klembord zonder te plakken."
 copy:
   _self: "Kopiëren"
   enhanced: "Kopieer verbeterd"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Plakken mislukt. Transcript gekopieerd naar het klembord."
   last_transcript: "Plak het laatste transcript"
   last_transcript_v: "Plak het laatste transcript ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Plakt het transcript op de cursorpositie in de actieve app."
 pause:
   _self: "Pauze"
   media_during_transcription: "Pauzeer media tijdens transcriptie"

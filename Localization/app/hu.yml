@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Másolva!"
   to_clipboard: "Vágólapra másolva"
+copies:
+  the_transcript_to_the_clipboard_without: "A vágólapra másolja az átiratot beillesztés nélkül."
 copy:
   _self: "Másolat"
   enhanced: "Továbbfejlesztett másolás"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "A beillesztés sikertelen. Az átirat a vágólapra másolva."
   last_transcript: "Utolsó átirat beillesztése"
   last_transcript_v: "Utolsó átirat beillesztése ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Beilleszti az átiratot a kurzorhoz az aktív alkalmazásban."
 pause:
   _self: "Szünet"
   media_during_transcription: "A média szüneteltetése átírás közben"

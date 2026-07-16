@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Copiat!"
   to_clipboard: "Copiat în clipboard"
+copies:
+  the_transcript_to_the_clipboard_without: "Copiază transcrierea în clipboard fără a o lipi."
 copy:
   _self: "Copie"
   enhanced: "Copiere îmbunătățită"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Lipirea a eșuat. Transcrierea a fost copiată în clipboard."
   last_transcript: "Lipiți ultima transcriere"
   last_transcript_v: "Lipiți ultima transcriere ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Lipește transcrierea la poziția cursorului în aplicația activă."
 pause:
   _self: "Pauză"
   media_during_transcription: "Întrerupeți media în timpul transcripției"

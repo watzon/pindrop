@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "কপি করা !"
   to_clipboard: "ক্লিপবোর্ডে কপি করা হয়েছে"
+copies:
+  the_transcript_to_the_clipboard_without: "পেস্ট না করে ট্রান্সক্রিপ্ট ক্লিপবোর্ডে কপি করে।"
 copy:
   _self: "কপি"
   enhanced: "কপি উন্নত"
@@ -816,6 +818,8 @@ paste:
   failed_transcript_copied_to_clipboard: "পেস্ট ব্যর্থ হয়েছে। ট্রান্সক্রিপ্ট ক্লিপবোর্ডে কপি করা হয়েছে।"
   last_transcript: "শেষ ট্রান্সক্রিপ্ট পেস্ট করুন"
   last_transcript_v: "শেষ ট্রান্সক্রিপ্ট পেস্ট করুন ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "সক্রিয় অ্যাপে কার্সারের অবস্থানে ট্রান্সক্রিপ্ট পেস্ট করে।"
 pause:
   _self: "বিরতি"
   media_during_transcription: "ট্রান্সক্রিপশনের সময় মিডিয়া পজ করুন"

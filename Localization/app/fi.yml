@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Kopioitu!"
   to_clipboard: "Kopioitu leikepöydälle"
+copies:
+  the_transcript_to_the_clipboard_without: "Kopioi tekstin leikepöydälle liittämättä sitä."
 copy:
   _self: "Kopioida"
   enhanced: "Kopioi parannettu"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Liittäminen epäonnistui. Teksti kopioitiin leikepöydälle."
   last_transcript: "Liitä viimeinen transkriptio"
   last_transcript_v: "Liitä viimeinen transkriptio ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Liittää tekstin kohdistimen kohdalle aktiivisessa sovelluksessa."
 pause:
   _self: "Tauko"
   media_during_transcription: "Keskeytä media transkription aikana"

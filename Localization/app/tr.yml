@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Kopyalandı!"
   to_clipboard: "Panoya kopyalandı"
+copies:
+  the_transcript_to_the_clipboard_without: "Transkripti yapıştırmadan panoya kopyalar."
 copy:
   _self: "Kopyala"
   enhanced: "Geliştirilmiş Kopyalama"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Yapıştırma başarısız. Transkript panoya kopyalandı."
   last_transcript: "Son Transkripti Yapıştır"
   last_transcript_v: "Son transkripti yapıştır ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Transkripti etkin uygulamada imlecin bulunduğu yere yapıştırır."
 pause:
   _self: "Duraklat"
   media_during_transcription: "Transkripsiyon sırasında medyayı duraklatın"

@@ -197,14 +197,17 @@ struct DictationSettingsView: View {
                 }
 
                 SettingsRow(showSeparator: true) {
-                    SettingsRowLabel(title: localized("Output Mode", locale: locale))
+                    SettingsRowLabel(
+                        title: localized("Output Mode", locale: locale),
+                        subtitle: outputModeDescription
+                    )
                 } control: {
                     Menu {
-                        Button(localized("Clipboard", locale: locale)) {
-                            settings.outputMode = DictationOutputOption.clipboard.rawValue
-                        }
                         Button(localized("Direct Insert", locale: locale)) {
                             settings.outputMode = DictationOutputOption.directInsert.rawValue
+                        }
+                        Button(localized("Clipboard", locale: locale)) {
+                            settings.outputMode = DictationOutputOption.clipboard.rawValue
                         }
                     } label: {
                         SettingsMenuButton(title: outputModeLabel)
@@ -383,6 +386,13 @@ struct DictationSettingsView: View {
             return localized("Direct Insert", locale: locale)
         }
         return localized("Clipboard", locale: locale)
+    }
+
+    private var outputModeDescription: String {
+        if settings.outputMode == DictationOutputOption.directInsert.rawValue {
+            return localized("Pastes the transcript at your cursor in the active app.", locale: locale)
+        }
+        return localized("Copies the transcript to the clipboard without pasting.", locale: locale)
     }
 
     private func dictationLanguageLabel(_ language: AppLanguage) -> String {

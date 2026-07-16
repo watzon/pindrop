@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "คัดลอก!"
   to_clipboard: "คัดลอกไปยังคลิปบอร์ดแล้ว"
+copies:
+  the_transcript_to_the_clipboard_without: "คัดลอกข้อความไปยังคลิปบอร์ดโดยไม่วาง"
 copy:
   _self: "สำเนา"
   enhanced: "คัดลอกขั้นสูง"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "วางไม่สำเร็จ คัดลอกข้อความไปยังคลิปบอร์ดแล้ว"
   last_transcript: "วางการถอดเสียงครั้งสุดท้าย"
   last_transcript_v: "วางการถอดเสียงล่าสุด ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "วางข้อความที่ตำแหน่งเคอร์เซอร์ในแอปที่ใช้งานอยู่"
 pause:
   _self: "หยุดชั่วคราว"
   media_during_transcription: "หยุดสื่อชั่วคราวในระหว่างการถอดเสียง"

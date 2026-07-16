@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Αντιγράφηκε!"
   to_clipboard: "Αντιγράφηκε στο πρόχειρο"
+copies:
+  the_transcript_to_the_clipboard_without: "Αντιγράφει το κείμενο στο πρόχειρο χωρίς επικόλληση."
 copy:
   _self: "Αντίγραφο"
   enhanced: "Ενισχυμένη αντιγραφή"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Η επικόλληση απέτυχε. Το κείμενο αντιγράφηκε στο πρόχειρο."
   last_transcript: "Επικόλληση τελευταίας μεταγραφής"
   last_transcript_v: "Επικόλληση τελευταίας μεταγραφής ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Επικολλά το κείμενο στη θέση του δρομέα στην ενεργή εφαρμογή."
 pause:
   _self: "Παύση"
   media_during_transcription: "Παύση μέσων κατά τη μεταγραφή"

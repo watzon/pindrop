@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Copiado!"
   to_clipboard: "Copiado para a área de transferência"
+copies:
+  the_transcript_to_the_clipboard_without: "Copia a transcrição para a área de transferência sem colar."
 copy:
   _self: "Cópia"
   enhanced: "Cópia aprimorada"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Falha ao colar. Transcrição copiada para a área de transferência."
   last_transcript: "Colar a última transcrição"
   last_transcript_v: "Cole a última transcrição ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Cola a transcrição na posição do cursor no app ativo."
 pause:
   _self: "Pausa"
   media_during_transcription: "Pausar mídia durante a transcrição"

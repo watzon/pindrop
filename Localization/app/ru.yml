@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "Скопировано!"
   to_clipboard: "Скопировано в буфер обмена"
+copies:
+  the_transcript_to_the_clipboard_without: "Копирует текст в буфер обмена без вставки."
 copy:
   _self: "Копировать"
   enhanced: "Копировать расширенное"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "Не удалось вставить. Текст скопирован в буфер обмена."
   last_transcript: "Вставить последнюю стенограмму"
   last_transcript_v: "Вставить последнюю расшифровку ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "Вставляет текст в позицию курсора в активном приложении."
 pause:
   _self: "Пауза"
   media_during_transcription: "Пауза мультимедиа во время транскрипции"

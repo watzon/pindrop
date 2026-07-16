@@ -238,6 +238,8 @@ controls:
 copied:
   _self: "מוּעֲתָק!"
   to_clipboard: "הועתק ללוח"
+copies:
+  the_transcript_to_the_clipboard_without: "מעתיק את התמליל ללוח מבלי להדביק."
 copy:
   _self: "לְהַעְתִיק"
   enhanced: "העתקה משופרת"
@@ -815,6 +817,8 @@ paste:
   failed_transcript_copied_to_clipboard: "ההדבקה נכשלה. התמליל הועתק ללוח."
   last_transcript: "הדבק את התמליל האחרון"
   last_transcript_v: "הדבק את התמליל האחרון ⌃⌘V"
+pastes:
+  the_transcript_at_your_cursor: "מדביק את התמליל במיקום הסמן ביישום הפעיל."
 pause:
   _self: "הַפסָקָה"
   media_during_transcription: "השהה מדיה במהלך התמלול"
