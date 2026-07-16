@@ -44,6 +44,14 @@ enum OnboardingProgressPresentation {
     }
 }
 
+enum OnboardingModelSelectionRouting {
+    static func destination(modelIsDownloaded _: Bool) -> OnboardingStep {
+        // Download state changes what the preparation step does, not whether it
+        // runs: every selected model still needs an active transcription engine.
+        .modelDownload
+    }
+}
+
 enum OnboardingType {
     static let bigHeading = FontLoader.font(family: .newsreader, size: 40, weight: .medium)
     static let stepHeading = FontLoader.font(family: .newsreader, size: 28, weight: .medium)
@@ -303,11 +311,8 @@ struct OnboardingWindow: View {
     private func startModelDownload() {
         let cached = modelManager.isModelDownloaded(selectedModelName)
         Log.boot.info("Onboarding startModelDownload model=\(selectedModelName) alreadyOnDisk=\(cached)")
-        if cached {
-            goToStep(.aiEnhancement)
-        } else {
-            goToStep(.modelDownload)
-        }
+
+        goToStep(OnboardingModelSelectionRouting.destination(modelIsDownloaded: cached))
     }
     
     private func completeOnboarding() {

@@ -255,4 +255,15 @@ struct OnboardingPresentationTests {
         #expect(OnboardingProgressPresentation.activeIndex(for: .modelSelection) == 1)
         #expect(OnboardingProgressPresentation.activeIndex(for: .modelDownload) == 2)
     }
+
+    @Test func downloadedModelsStillVisitPreparationStep() {
+        #expect(
+            OnboardingModelSelectionRouting.destination(modelIsDownloaded: true)
+                == .modelDownload
+        )
+        #expect(
+            OnboardingModelSelectionRouting.destination(modelIsDownloaded: false)
+                == .modelDownload
+        )
+    }
 }
