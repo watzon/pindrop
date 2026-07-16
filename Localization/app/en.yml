@@ -1085,6 +1085,7 @@ show:
   api_key: "Show API Key"
   app: "Show App"
   app_in_finder: "Show App in Finder"
+  floating_indicator: "Show floating indicator"
   in_dock: "Show in Dock"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1189,6 +1190,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "Thanks to %@ for investigating and kicking off the fix (PR #64)."
   to_for_the_contribution_pr_61: "Thanks to %@ for the contribution (PR #61)."
 the:
+  floating_indicator_is_hidden: "The floating indicator is hidden."
   model_failed_to_load_within_60_seconds_this: "\"\"             The model failed to load within 60 seconds. This usually means the model files are corrupted or incompatible.                          To fix this:             1. Open Settings → Models             2. Delete the problematic model             3. Re-download the model                          If the problem persists, try a smaller model (Tiny or Base).             \"\""
   new_nemotron_streaming_engine_shows_words_as: "The new Nemotron streaming engine shows words as you say them, and the engine prewarms at launch so your first dictation starts without a delay."
   selected_chunk_variant_isn_t_downloaded_yet: "The selected chunk variant isn't downloaded yet. Toggling will start a download."

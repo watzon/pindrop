@@ -1115,6 +1115,7 @@ show:
   api_key: "Pokaż klucz API"
   app: "Pokaż aplikację"
   app_in_finder: "Pokaż aplikację w Finderze"
+  floating_indicator: "Pokaż pływający wskaźnik"
   in_dock: "Pokaż w Docku"
   the_main_window_and_open_the_library: "Pokaż główne okno i otwórz Bibliotekę."
 shows:
@@ -1221,6 +1222,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "Dziękujemy %@ za zbadanie problemu i rozpoczęcie poprawki (PR #64)."
   to_for_the_contribution_pr_61: "Dziękujemy %@ za wkład (PR #61)."
 the:
+  floating_indicator_is_hidden: "Pływający wskaźnik jest ukryty."
   model_failed_to_load_within_60_seconds_this: |-
     Nie udało się wczytać modelu w ciągu 60 sekund. Zwykle oznacza to, że pliki modelu są uszkodzone lub niezgodne.
     

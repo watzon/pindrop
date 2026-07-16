@@ -1068,6 +1068,7 @@ show:
   api_key: "Tampilkan kunci API"
   app: "Tampilkan Aplikasi"
   app_in_finder: "Tampilkan Aplikasi di Finder"
+  floating_indicator: "Tampilkan indikator mengambang"
   in_dock: "Tampilkan di Dock"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1172,6 +1173,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "Terima kasih kepada %@ karena telah menyelidiki dan memulai perbaikan (PR #64)."
   to_for_the_contribution_pr_61: "Terima kasih kepada %@ atas kontribusinya (PR #61)."
 the:
+  floating_indicator_is_hidden: "Indikator mengambang disembunyikan."
   model_failed_to_load_within_60_seconds_this: "\"\" Model gagal dimuat dalam waktu 60 detik. Ini biasanya berarti file model rusak atau tidak kompatibel.                          Untuk memperbaikinya: 1. Buka Pengaturan → Model 2. Hapus model yang bermasalah 3. Unduh ulang model Jika masalah terus berlanjut, coba model yang lebih kecil (Tiny atau Base).             \"\""
   new_nemotron_streaming_engine_shows_words_as: "Mesin streaming Nemotron baru menampilkan kata saat Anda mengucapkannya, dan mesin dipanaskan saat peluncuran agar dikte pertama Anda dimulai tanpa jeda."
   selected_chunk_variant_isn_t_downloaded_yet: "Varian potongan yang dipilih belum diunduh. Beralih akan memulai pengunduhan."

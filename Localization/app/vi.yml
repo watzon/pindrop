@@ -1068,6 +1068,7 @@ show:
   api_key: "Hiện khóa API"
   app: "Hiển thị ứng dụng"
   app_in_finder: "Hiển thị ứng dụng trong Finder"
+  floating_indicator: "Hiển thị chỉ báo nổi"
   in_dock: "Hiển thị trong Dock"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1172,6 +1173,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "Cảm ơn %@ đã điều tra và khởi đầu bản sửa lỗi (PR #64)."
   to_for_the_contribution_pr_61: "Cảm ơn %@ vì đóng góp (PR #61)."
 the:
+  floating_indicator_is_hidden: "Chỉ báo nổi đang bị ẩn."
   model_failed_to_load_within_60_seconds_this: "\"\" Mô hình không tải được trong vòng 60 giây. Điều này thường có nghĩa là các tệp mô hình bị hỏng hoặc không tương thích.                          Để khắc phục điều này: 1. Mở Cài đặt → Kiểu máy 2. Xóa mô hình có vấn đề 3. Tải lại mô hình xuống Nếu sự cố vẫn tiếp diễn, hãy thử một mô hình nhỏ hơn (Tiny hoặc Base).             \"\""
   new_nemotron_streaming_engine_shows_words_as: "Công cụ streaming Nemotron mới hiển thị từ khi bạn nói và được làm nóng sẵn khi khởi chạy để lần đọc chính tả đầu tiên bắt đầu không chậm trễ."
   selected_chunk_variant_isn_t_downloaded_yet: "Biến thể đoạn đã chọn chưa được tải xuống. Chuyển đổi sẽ bắt đầu tải xuống."

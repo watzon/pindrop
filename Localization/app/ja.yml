@@ -1068,6 +1068,7 @@ show:
   api_key: "API キーを表示"
   app: "アプリを表示"
   app_in_finder: "Finder にアプリを表示"
+  floating_indicator: "フローティングインジケータを表示"
   in_dock: "ドックに表示"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1172,6 +1173,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "調査し修正のきっかけを作ってくれた %@ に感謝します (PR #64)。"
   to_for_the_contribution_pr_61: "貢献してくれた %@ に感謝します (PR #61)。"
 the:
+  floating_indicator_is_hidden: "フローティングインジケータは非表示です。"
   model_failed_to_load_within_60_seconds_this: "\"\" モデルは 60 秒以内にロードできませんでした。これは通常、モデル ファイルが破損しているか、互換性がないことを意味します。                          これを修正するには: 1. [設定] → [モデル] を開きます。 2. 問題のあるモデルを削除します。 3. モデルを再ダウンロードします。 問題が解決しない場合は、より小さいモデル (Tiny または Base) を試してください。             「」"
   new_nemotron_streaming_engine_shows_words_as: "新しい Nemotron ストリーミングエンジンは、話したそばから言葉を表示し、起動時にプリウォームされるため、最初のディクテーションも遅延なく始まります。"
   selected_chunk_variant_isn_t_downloaded_yet: "選択したチャンク版はまだダウンロードされていません。切り替えるとダウンロードが始まります。"

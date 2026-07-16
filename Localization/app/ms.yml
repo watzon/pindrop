@@ -1068,6 +1068,7 @@ show:
   api_key: "Tunjukkan kunci API"
   app: "Tunjukkan Apl"
   app_in_finder: "Tunjukkan Apl dalam Finder"
+  floating_indicator: "Tunjukkan penunjuk terapung"
   in_dock: "Tunjukkan dalam Dok"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1172,6 +1173,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "Terima kasih kepada %@ kerana menyiasat dan memulakan pembaikan (PR #64)."
   to_for_the_contribution_pr_61: "Terima kasih kepada %@ atas sumbangan tersebut (PR #61)."
 the:
+  floating_indicator_is_hidden: "Penunjuk terapung disembunyikan."
   model_failed_to_load_within_60_seconds_this: "\"\" Model gagal dimuatkan dalam masa 60 saat. Ini biasanya bermakna fail model rosak atau tidak serasi.                          Untuk membetulkannya: 1. Buka Tetapan → Model 2. Padamkan model yang bermasalah 3. Muat turun semula model Jika masalah berterusan, cuba model yang lebih kecil (Tiny atau Base).             \"\""
   new_nemotron_streaming_engine_shows_words_as: "Enjin penstriman Nemotron baharu memaparkan perkataan semasa anda menyebutnya, dan enjin diprapanaskan semasa pelancaran supaya imlak pertama bermula tanpa lengah."
   selected_chunk_variant_isn_t_downloaded_yet: "Varian bahagian yang dipilih belum dimuat turun lagi. Togol akan memulakan muat turun."

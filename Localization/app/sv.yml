@@ -1068,6 +1068,7 @@ show:
   api_key: "Visa API-nyckel"
   app: "Visa app"
   app_in_finder: "Visa appen i Finder"
+  floating_indicator: "Visa flytande indikator"
   in_dock: "Visa i Dock"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1172,6 +1173,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "Tack till %@ för undersökningen och starten på korrigeringen (PR #64)."
   to_for_the_contribution_pr_61: "Tack till %@ för bidraget (PR #61)."
 the:
+  floating_indicator_is_hidden: "Den flytande indikatorn är dold."
   model_failed_to_load_within_60_seconds_this: "\"\" Modellen kunde inte laddas inom 60 sekunder. Detta betyder vanligtvis att modellfilerna är skadade eller inkompatibla.                          För att åtgärda detta: 1. Öppna Inställningar → Modeller 2. Ta bort den problematiska modellen 3. Ladda ner modellen igen Om problemet kvarstår, prova en mindre modell (Tiny eller Base).             \"\""
   new_nemotron_streaming_engine_shows_words_as: "Den nya Nemotron-strömningsmotorn visar orden medan du säger dem och förvärms vid start så att din första diktering börjar utan fördröjning."
   selected_chunk_variant_isn_t_downloaded_yet: "Den valda chunkvarianten har inte laddats ner ännu. Växling startar en nedladdning."

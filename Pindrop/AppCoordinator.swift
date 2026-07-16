@@ -205,6 +205,7 @@ struct SettingsObservationSnapshot: Equatable {
     let selectedInputDeviceUID: String
     let selectedAppLocale: AppLocale
     let selectedAppLanguage: AppLanguage
+    let floatingIndicatorEnabled: Bool
     let floatingIndicatorType: FloatingIndicatorType
     let aiEnhancementEnabled: Bool
     let enableUIContext: Bool
@@ -450,12 +451,13 @@ final class AppCoordinator {
     }
 
     static func floatingIndicatorFocusTrackingMode(
+        floatingIndicatorEnabled: Bool,
         isTemporarilyHidden: Bool,
         selectedType: FloatingIndicatorType,
         isRecording: Bool,
         isProcessing: Bool
     ) -> FloatingIndicatorTrackingMode? {
-        guard !isTemporarilyHidden else { return nil }
+        guard floatingIndicatorEnabled, !isTemporarilyHidden else { return nil }
 
         if isRecording || isProcessing {
             // Bubble manages its own caret-anchor refresh; other active styles use focus tracking.
@@ -1986,6 +1988,7 @@ final class AppCoordinator {
             selectedInputDeviceUID: settingsStore.selectedInputDeviceUID,
             selectedAppLocale: settingsStore.selectedAppLocale,
             selectedAppLanguage: settingsStore.selectedAppLanguage,
+            floatingIndicatorEnabled: settingsStore.floatingIndicatorEnabled,
             floatingIndicatorType: settingsStore.selectedFloatingIndicatorType,
             aiEnhancementEnabled: settingsStore.assignment(for: .transcriptionEnhancement) != nil,
             enableUIContext: settingsStore.enableUIContext,
@@ -2058,8 +2061,14 @@ final class AppCoordinator {
                         self.inputMuteMonitor?.setPreferredDeviceUID(snapshot.selectedInputDeviceUID)
                     }
 
-                    if previousSnapshot.floatingIndicatorType != snapshot.floatingIndicatorType {
-                        self.clearFloatingIndicatorTemporaryHiddenState()
+                    if previousSnapshot.floatingIndicatorEnabled != snapshot.floatingIndicatorEnabled
+                        || previousSnapshot.floatingIndicatorType != snapshot.floatingIndicatorType {
+                        // Re-enabling or switching styles clears "hide for 1 hour";
+                        // disabling leaves it alone (irrelevant while off).
+                        if (!previousSnapshot.floatingIndicatorEnabled && snapshot.floatingIndicatorEnabled)
+                            || previousSnapshot.floatingIndicatorType != snapshot.floatingIndicatorType {
+                            self.clearFloatingIndicatorTemporaryHiddenState()
+                        }
                         self.updateFloatingIndicatorVisibility(previousType: previousSnapshot.floatingIndicatorType)
                     }
 
@@ -2125,7 +2134,7 @@ final class AppCoordinator {
     }
     
     private func updateFloatingIndicatorVisibility(previousType: FloatingIndicatorType? = nil) {
-        guard !isFloatingIndicatorTemporarilyHidden() else {
+        guard settingsStore.floatingIndicatorEnabled, !isFloatingIndicatorTemporarilyHidden() else {
             hideAllFloatingIndicators()
             syncFloatingIndicatorFocusTracking()
             return
@@ -2188,6 +2197,7 @@ final class AppCoordinator {
 
     private func syncFloatingIndicatorFocusTracking() {
         let trackingMode = Self.floatingIndicatorFocusTrackingMode(
+            floatingIndicatorEnabled: settingsStore.floatingIndicatorEnabled,
             isTemporarilyHidden: isFloatingIndicatorTemporarilyHidden(),
             selectedType: configuredFloatingIndicatorType(),
             isRecording: isRecording,
@@ -2202,7 +2212,7 @@ final class AppCoordinator {
     }
 
     private func startRecordingIndicatorSession() {
-        guard !isFloatingIndicatorTemporarilyHidden() else { return }
+        guard settingsStore.floatingIndicatorEnabled, !isFloatingIndicatorTemporarilyHidden() else { return }
 
         let selectedType = configuredFloatingIndicatorType()
         activeFloatingIndicatorType = selectedType
@@ -2212,12 +2222,18 @@ final class AppCoordinator {
     }
 
     private func transitionRecordingIndicatorToProcessing() {
+        guard settingsStore.floatingIndicatorEnabled else {
+            finishIndicatorSession()
+            return
+        }
+
         let activeType = activeFloatingIndicatorType ?? configuredFloatingIndicatorType()
         syncFloatingIndicatorFocusTracking()
         floatingIndicatorPresenters[activeType]?.transitionToProcessing()
     }
 
     private func startProcessingIndicatorSession() {
+        guard settingsStore.floatingIndicatorEnabled else { return }
         startRecordingIndicatorSession()
         transitionRecordingIndicatorToProcessing()
     }
@@ -3460,9 +3476,15 @@ final class AppCoordinator {
         Self.shouldUseStreamingTranscription(
             streamingFeatureEnabled: settingsStore.streamingFeatureEnabled,
             isQuickCaptureMode: isQuickCaptureMode,
-            floatingIndicatorAvailable: !isFloatingIndicatorTemporarilyHidden(),
+            floatingIndicatorAvailable: isFloatingIndicatorAvailable(),
             isNoteAppendMode: isNoteAppendMode
         )
+    }
+
+    /// Whether any floating indicator can currently present — the master enable
+    /// switch and the temporary "hide for 1 hour" state both suppress it.
+    private func isFloatingIndicatorAvailable() -> Bool {
+        settingsStore.floatingIndicatorEnabled && !isFloatingIndicatorTemporarilyHidden()
     }
 
     private func handleNoSpeechDetected(context: String) {
@@ -3557,7 +3579,7 @@ final class AppCoordinator {
     private func beginStreamingSessionIfAvailable() async {
         let shouldUseStreaming = shouldUseStreamingTranscriptionForCurrentSession()
         guard shouldUseStreaming else {
-            let indicatorAvailable = !isFloatingIndicatorTemporarilyHidden()
+            let indicatorAvailable = isFloatingIndicatorAvailable()
             let reasons = [
                 settingsStore.streamingFeatureEnabled ? nil : "feature-disabled",
                 indicatorAvailable ? nil : "indicator-unavailable",

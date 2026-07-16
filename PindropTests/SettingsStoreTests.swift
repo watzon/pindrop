@@ -204,6 +204,7 @@ struct SettingsStoreTests {
         #expect(store.outputMode == "directInsert")
         #expect(store.selectedAppLanguage == .automatic)
         #expect(!store.aiEnhancementEnabled)
+        #expect(store.floatingIndicatorEnabled)
         #expect(store.floatingIndicatorType == FloatingIndicatorType.orb.rawValue)
         #expect(store.apiEndpoint == nil)
         #expect(store.apiKey == nil)

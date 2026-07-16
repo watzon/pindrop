@@ -1068,6 +1068,7 @@ show:
   api_key: "API-sleutel tonen"
   app: "Toon app"
   app_in_finder: "Toon app in Finder"
+  floating_indicator: "Zwevende indicator tonen"
   in_dock: "Weergeven in Dock"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1172,6 +1173,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "Dank aan %@ voor het onderzoeken en het starten van de oplossing (PR #64)."
   to_for_the_contribution_pr_61: "Dank aan %@ voor de bijdrage (PR #61)."
 the:
+  floating_indicator_is_hidden: "De zwevende indicator is verborgen."
   model_failed_to_load_within_60_seconds_this: "\"\" Het model kon niet binnen 60 seconden worden geladen. Dit betekent meestal dat de modelbestanden beschadigd of incompatibel zijn.                          Om dit op te lossen: 1. Open Instellingen → Modellen 2. Verwijder het problematische model 3. Download het model opnieuw. Als het probleem zich blijft voordoen, probeer dan een kleiner model (Tiny of Base).             \"\""
   new_nemotron_streaming_engine_shows_words_as: "De nieuwe Nemotron-streamingengine toont woorden terwijl je ze uitspreekt en warmt op bij het starten, zodat je eerste dictaat zonder vertraging begint."
   selected_chunk_variant_isn_t_downloaded_yet: "De geselecteerde chunk-variant is nog niet gedownload. Omschakelen start een download."

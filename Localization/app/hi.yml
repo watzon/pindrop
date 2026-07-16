@@ -1068,6 +1068,7 @@ show:
   api_key: "API कुंजी दिखाएँ"
   app: "ऐप दिखाएँ"
   app_in_finder: "फाइंडर में ऐप दिखाएं"
+  floating_indicator: "फ़्लोटिंग संकेतक दिखाएँ"
   in_dock: "डॉक में दिखाएँ"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1172,6 +1173,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "जाँच करने और सुधार शुरू करने के लिए %@ का धन्यवाद (PR #64)।"
   to_for_the_contribution_pr_61: "योगदान के लिए %@ का धन्यवाद (PR #61)।"
 the:
+  floating_indicator_is_hidden: "फ़्लोटिंग संकेतक छिपा हुआ है।"
   model_failed_to_load_within_60_seconds_this: "\"\" मॉडल 60 सेकंड के भीतर लोड होने में विफल रहा। इसका आमतौर पर मतलब है कि मॉडल फ़ाइलें दूषित या असंगत हैं।                          इसे ठीक करने के लिए: 1. सेटिंग्स खोलें → मॉडल 2. समस्याग्रस्त मॉडल हटाएं 3. मॉडल को दोबारा डाउनलोड करें यदि समस्या बनी रहती है, तो एक छोटा मॉडल (छोटा या बेस) आज़माएं।             \"\""
   new_nemotron_streaming_engine_shows_words_as: "नया Nemotron स्ट्रीमिंग इंजन आपके बोलते ही शब्द दिखाता है, और लॉन्च पर पहले से तैयार हो जाता है ताकि आपका पहला डिक्टेशन बिना देरी शुरू हो।"
   selected_chunk_variant_isn_t_downloaded_yet: "चयनित चंक संस्करण अभी तक डाउनलोड नहीं हुआ है। टॉगल करने से डाउनलोड प्रारंभ हो जाएगा."

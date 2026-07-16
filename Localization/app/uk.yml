@@ -1068,6 +1068,7 @@ show:
   api_key: "Показати API-ключ"
   app: "Показати додаток"
   app_in_finder: "Показати додаток у Finder"
+  floating_indicator: "Показувати плаваючий індикатор"
   in_dock: "Показати в Dock"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1172,6 +1173,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "Дякуємо %@ за розслідування та початок виправлення (PR #64)."
   to_for_the_contribution_pr_61: "Дякуємо %@ за внесок (PR #61)."
 the:
+  floating_indicator_is_hidden: "Плаваючий індикатор приховано."
   model_failed_to_load_within_60_seconds_this: "\"\" Модель не вдалося завантажити протягом 60 секунд. Зазвичай це означає, що файли моделі пошкоджені або несумісні.                          Щоб виправити це: 1. Відкрийте «Параметри» → «Моделі» 2. Видаліть проблемну модель 3. Повторно завантажте модель. Якщо проблема не зникає, спробуйте меншу модель (Tiny або Base).             \"\""
   new_nemotron_streaming_engine_shows_words_as: "Новий потоковий рушій Nemotron показує слова під час мовлення та прогрівається під час запуску, щоб перше диктування починалося без затримки."
   selected_chunk_variant_isn_t_downloaded_yet: "Вибраний варіант блоку ще не завантажено. Перемикання почне завантаження."

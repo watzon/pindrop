@@ -1068,6 +1068,7 @@ show:
   api_key: "إظهار مفتاح API"
   app: "عرض التطبيق"
   app_in_finder: "إظهار التطبيق في Finder"
+  floating_indicator: "إظهار المؤشر العائم"
   in_dock: "عرض في قفص الاتهام"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1172,6 +1173,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "شكرًا لـ %@ على التحقيق وبدء الإصلاح (PR #64)."
   to_for_the_contribution_pr_61: "شكرًا لـ %@ على المساهمة (PR #61)."
 the:
+  floating_indicator_is_hidden: "المؤشر العائم مخفي."
   model_failed_to_load_within_60_seconds_this: "\" \"فشل تحميل النموذج خلال 60 ثانية. وهذا يعني عادةً أن ملفات النموذج تالفة أو غير متوافقة.                          لإصلاح ذلك: 1. افتح الإعدادات → النماذج 2. احذف النموذج الذي به مشكلة 3. أعد تنزيل النموذج إذا استمرت المشكلة، فجرّب نموذجًا أصغر (Tiny أو Base).             \"\""
   new_nemotron_streaming_engine_shows_words_as: "يعرض محرك Nemotron الجديد للبث الكلمات أثناء نطقها، ويتم تسخين المحرك مسبقًا عند التشغيل حتى يبدأ أول إملاء لك دون تأخير."
   selected_chunk_variant_isn_t_downloaded_yet: "لم يتم تنزيل متغير القطعة المحدد بعد. سيؤدي التبديل إلى بدء التنزيل."

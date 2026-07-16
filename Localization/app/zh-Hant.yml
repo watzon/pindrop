@@ -1068,6 +1068,7 @@ show:
   api_key: "顯示 API 金鑰"
   app: "顯示應用"
   app_in_finder: "在 Finder 中顯示應用"
+  floating_indicator: "顯示懸浮指示器"
   in_dock: "在 Dock 中顯示"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1172,6 +1173,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "感謝 %@ 調查並啟動修正 (PR #64)。"
   to_for_the_contribution_pr_61: "感謝 %@ 的貢獻 (PR #61)。"
 the:
+  floating_indicator_is_hidden: "懸浮指示器已隱藏。"
   model_failed_to_load_within_60_seconds_this: "\"\"             模型在 60 秒內未能載入。這通常意味著模型檔案已損壞或不相容。                          解決方法：             1. 開啟設定 → 模型             2. 刪除有問題的模型             3. 重新下載模型                          如果問題仍然存在，請嘗試使用較小的模型（Tiny 或 Base）。             \"\""
   new_nemotron_streaming_engine_shows_words_as: "新的 Nemotron 串流引擎會在你說話時顯示文字，並在啟動時預熱，讓第一次聽寫也能無延遲開始。"
   selected_chunk_variant_isn_t_downloaded_yet: "所選的分塊變體尚未下載。切換將開始下載。"

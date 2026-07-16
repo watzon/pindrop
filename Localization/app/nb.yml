@@ -1068,6 +1068,7 @@ show:
   api_key: "Vis API-nøkkel"
   app: "Vis app"
   app_in_finder: "Vis appen i Finder"
+  floating_indicator: "Vis flytende indikator"
   in_dock: "Vis i Dock"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1172,6 +1173,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "Takk til %@ for å undersøke og sette i gang rettingen (PR #64)."
   to_for_the_contribution_pr_61: "Takk til %@ for bidraget (PR #61)."
 the:
+  floating_indicator_is_hidden: "Den flytende indikatoren er skjult."
   model_failed_to_load_within_60_seconds_this: "\"\" Modellen kunne ikke lastes innen 60 sekunder. Dette betyr vanligvis at modellfilene er ødelagte eller inkompatible.                          For å fikse dette: 1. Åpne Innstillinger → Modeller 2. Slett den problematiske modellen 3. Last ned modellen på nytt Hvis problemet vedvarer, prøv en mindre modell (Tiny eller Base).             \"\""
   new_nemotron_streaming_engine_shows_words_as: "Den nye Nemotron-strømmemotoren viser ordene mens du sier dem, og motoren forvarmes ved oppstart slik at første diktering starter uten forsinkelse."
   selected_chunk_variant_isn_t_downloaded_yet: "Den valgte delvarianten er ikke lastet ned ennå. Bytte vil starte en nedlasting."

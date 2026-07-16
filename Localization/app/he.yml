@@ -1068,6 +1068,7 @@ show:
   api_key: "הצג מפתח API"
   app: "הצג אפליקציה"
   app_in_finder: "הצג את האפליקציה ב-Finder"
+  floating_indicator: "הצגת המחוון הצף"
   in_dock: "הצג ב-Dock"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1172,6 +1173,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "תודה ל-%@ על החקירה והתחלת התיקון (PR #64)."
   to_for_the_contribution_pr_61: "תודה ל-%@ על התרומה (PR #61)."
 the:
+  floating_indicator_is_hidden: "המחוון הצף מוסתר."
   model_failed_to_load_within_60_seconds_this: "\"\" הדגם לא הצליח להיטען בתוך 60 שניות. זה בדרך כלל אומר שקובצי הדגם פגומים או לא תואמים.                          כדי לתקן זאת: 1. פתח את הגדרות ← דגמים 2. מחק את הדגם הבעייתי 3. הורד מחדש את הדגם אם הבעיה נמשכת, נסה דגם קטן יותר (Tiny או Base).             \"\""
   new_nemotron_streaming_engine_shows_words_as: "מנוע הסטרימינג החדש Nemotron מציג מילים תוך כדי הדיבור, ומתחמם מראש בהפעלה כדי שההכתבה הראשונה תתחיל ללא עיכוב."
   selected_chunk_variant_isn_t_downloaded_yet: "גרסת הנתח שנבחרה עדיין לא הורדה. החלפה תתחיל הורדה."

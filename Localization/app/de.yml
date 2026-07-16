@@ -1068,6 +1068,7 @@ show:
   api_key: "API-Schlüssel anzeigen"
   app: "App anzeigen"
   app_in_finder: "App im Finder anzeigen"
+  floating_indicator: "Schwebenden Indikator anzeigen"
   in_dock: "Im Dock anzeigen"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1172,6 +1173,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "Danke an %@ fürs Untersuchen und Anstoßen der Korrektur (PR #64)."
   to_for_the_contribution_pr_61: "Danke an %@ für den Beitrag (PR #61)."
 the:
+  floating_indicator_is_hidden: "Der schwebende Indikator ist ausgeblendet."
   model_failed_to_load_within_60_seconds_this: "\"\"             Das Modell konnte nicht innerhalb von 60 Sekunden geladen werden. Dies bedeutet normalerweise, dass die Modelldateien beschädigt oder inkompatibel sind.                          So beheben Sie das:             1. Öffnen Sie Einstellungen → Modelle             2. Löschen Sie das problematische Modell             3. Laden Sie das Modell erneut herunter                          Wenn das Problem weiterhin besteht, versuchen Sie ein kleineres Modell (Tiny oder Base).             \"\""
   new_nemotron_streaming_engine_shows_words_as: "Die neue Nemotron-Streaming-Engine zeigt Wörter, während du sie sagst, und wird beim Start vorgewärmt, damit dein erstes Diktat ohne Verzögerung beginnt."
   selected_chunk_variant_isn_t_downloaded_yet: "Die gewählte Chunk-Variante ist noch nicht geladen. Durch das Umschalten wird ein Download gestartet."

@@ -1068,6 +1068,7 @@ show:
   api_key: "Zobrazit API klíč"
   app: "Zobrazit aplikaci"
   app_in_finder: "Zobrazit aplikaci ve Finderu"
+  floating_indicator: "Zobrazit plovoucí indikátor"
   in_dock: "Zobrazit v Docku"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1172,6 +1173,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "Díky %@ za prozkoumání a nastartování opravy (PR #64)."
   to_for_the_contribution_pr_61: "Díky %@ za příspěvek (PR #61)."
 the:
+  floating_indicator_is_hidden: "Plovoucí indikátor je skrytý."
   model_failed_to_load_within_60_seconds_this: "\"\" Model se nepodařilo načíst do 60 sekund. To obvykle znamená, že soubory modelu jsou poškozené nebo nekompatibilní.                          Řešení: 1. Otevřete Nastavení → Modely 2. Odstraňte problematický model 3. Znovu si stáhněte model Pokud problém přetrvává, zkuste menší model (Tiny nebo Base).             \"\""
   new_nemotron_streaming_engine_shows_words_as: "Nový streamovací engine Nemotron zobrazuje slova tak, jak je říkáte, a při spuštění se předehřívá, takže první diktování začne bez zdržení."
   selected_chunk_variant_isn_t_downloaded_yet: "Vybraná varianta bloku ještě není stažena. Přepnutím se zahájí stahování."

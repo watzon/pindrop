@@ -1068,6 +1068,7 @@ show:
   api_key: "Afișează cheia API"
   app: "Afișați aplicația"
   app_in_finder: "Afișați aplicația în Finder"
+  floating_indicator: "Afișează indicatorul plutitor"
   in_dock: "Afișați în Dock"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1172,6 +1173,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "Mulțumiri lui %@ pentru investigație și pentru pornirea remedierii (PR #64)."
   to_for_the_contribution_pr_61: "Mulțumiri lui %@ pentru contribuție (PR #61)."
 the:
+  floating_indicator_is_hidden: "Indicatorul plutitor este ascuns."
   model_failed_to_load_within_60_seconds_this: "\"\" Modelul nu s-a încărcat în 60 de secunde. Aceasta înseamnă de obicei că fișierele model sunt corupte sau incompatibile.                          Pentru a remedia acest lucru: 1. Deschideți Setări → Modele 2. Ștergeți modelul problematic 3. Descărcați din nou modelul Dacă problema persistă, încercați un model mai mic (Tiny sau Base).             \"\""
   new_nemotron_streaming_engine_shows_words_as: "Noul motor de streaming Nemotron afișează cuvintele pe măsură ce le rostești și se preîncălzește la lansare, astfel încât prima dictare pornește fără întârziere."
   selected_chunk_variant_isn_t_downloaded_yet: "Varianta de bucată selectată nu este încă descărcată. Comutarea va începe o descărcare."

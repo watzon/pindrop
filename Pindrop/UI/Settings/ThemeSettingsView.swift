@@ -63,34 +63,53 @@ struct ThemeSettingsView: View {
             // Recording indicator
             SettingsGroupCard {
                 VStack(alignment: .leading, spacing: 10) {
-                    Text(localized("Recording indicator", locale: locale))
-                        .font(AppTypography.labelStrong)
-                        .foregroundStyle(AppColors.textPrimary)
-                        .padding(.horizontal, SettingsLayoutMetrics.rowHorizontalPadding)
-                        .padding(.top, SettingsLayoutMetrics.rowVerticalPadding)
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(localized("Recording indicator", locale: locale))
+                            .font(AppTypography.labelStrong)
+                            .foregroundStyle(AppColors.textPrimary)
 
-                    // Full-width wrapping chips so long locale labels do not clip.
-                    FlowLayout(spacing: 6) {
-                        ForEach(FloatingIndicatorType.allCases) { type in
-                            FilterChip(
-                                title: type.displayName(locale: locale),
-                                isSelected: settings.selectedFloatingIndicatorType == type
-                            ) {
-                                settings.selectedFloatingIndicatorType = type
-                            }
-                            .accessibilityIdentifier("settings.floatingIndicator.\(type.rawValue)")
-                        }
+                        Spacer()
+
+                        SettingsToggle(
+                            isOn: $settings.floatingIndicatorEnabled,
+                            label: localized("Show floating indicator", locale: locale)
+                        )
+                        .accessibilityIdentifier("settings.toggle.floatingIndicatorEnabled")
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, SettingsLayoutMetrics.rowHorizontalPadding)
+                    .padding(.top, SettingsLayoutMetrics.rowVerticalPadding)
 
-                    Text(settings.selectedFloatingIndicatorType.description(locale: locale))
+                    // Style picker only applies while the indicator is shown at all.
+                    Group {
+                        // Full-width wrapping chips so long locale labels do not clip.
+                        FlowLayout(spacing: 6) {
+                            ForEach(FloatingIndicatorType.allCases) { type in
+                                FilterChip(
+                                    title: type.displayName(locale: locale),
+                                    isSelected: settings.selectedFloatingIndicatorType == type
+                                ) {
+                                    settings.selectedFloatingIndicatorType = type
+                                }
+                                .accessibilityIdentifier("settings.floatingIndicator.\(type.rawValue)")
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, SettingsLayoutMetrics.rowHorizontalPadding)
+
+                        Text(
+                            settings.floatingIndicatorEnabled
+                                ? settings.selectedFloatingIndicatorType.description(locale: locale)
+                                : localized("The floating indicator is hidden.", locale: locale)
+                        )
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.textTertiary)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal, SettingsLayoutMetrics.rowHorizontalPadding)
                         .padding(.bottom, SettingsLayoutMetrics.rowVerticalPadding)
                         .accessibilityIdentifier("settings.floatingIndicator.description")
+                    }
+                    .disabled(!settings.floatingIndicatorEnabled)
+                    .opacity(settings.floatingIndicatorEnabled ? 1 : 0.56)
                 }
             }
 

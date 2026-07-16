@@ -1068,6 +1068,7 @@ show:
   api_key: "Afficher la clé API"
   app: "Afficher l'app"
   app_in_finder: "Afficher l'app dans Finder"
+  floating_indicator: "Afficher l’indicateur flottant"
   in_dock: "Afficher dans le Dock"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1172,6 +1173,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "Merci à %@ pour l’enquête et le lancement du correctif (PR #64)."
   to_for_the_contribution_pr_61: "Merci à %@ pour la contribution (PR #61)."
 the:
+  floating_indicator_is_hidden: "L’indicateur flottant est masqué."
   model_failed_to_load_within_60_seconds_this: "\"\"             Le modèle n'a pas pu se charger dans les 60 secondes. Cela signifie généralement que les fichiers du modèle sont corrompus ou incompatibles.                          Pour corriger cela :             1. Ouvrez Paramètres → Modèles             2. Supprimez le modèle problématique             3. Téléchargez à nouveau le modèle                          Si le problème persiste, essayez un modèle plus petit (Tiny ou Base).             \"\""
   new_nemotron_streaming_engine_shows_words_as: "Le nouveau moteur de streaming Nemotron affiche les mots au moment où vous les dites et se préchauffe au lancement pour que votre première dictée démarre sans délai."
   selected_chunk_variant_isn_t_downloaded_yet: "La variante sélectionnée n'est pas encore téléchargée. Basculer lancera un téléchargement."

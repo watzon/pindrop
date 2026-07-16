@@ -1068,6 +1068,7 @@ show:
   api_key: "API-kulcs megjelenítése"
   app: "Alkalmazás megjelenítése"
   app_in_finder: "Alkalmazás megjelenítése a Finderben"
+  floating_indicator: "Lebegő jelző megjelenítése"
   in_dock: "Megjelenítés a Dockban"
   the_main_window_and_open_the_library: "Show the main window and open the Library."
 shows:
@@ -1172,6 +1173,7 @@ thanks:
   to_for_investigating_and_kicking_off_the: "Köszönet %@ számára a hiba feltárásáért és a javítás elindításáért (PR #64)."
   to_for_the_contribution_pr_61: "Köszönet %@ számára a hozzájárulásért (PR #61)."
 the:
+  floating_indicator_is_hidden: "A lebegő jelző el van rejtve."
   model_failed_to_load_within_60_seconds_this: "\"\" A modell betöltése nem sikerült 60 másodpercen belül. Ez általában azt jelenti, hogy a modellfájlok sérültek vagy nem kompatibilisek.                          A probléma megoldása: 1. Nyissa meg a Beállítások → Modellek menüpontot. 2. Törölje a problémás modellt 3. Töltse le újra a modellt. Ha a probléma továbbra is fennáll, próbáljon ki egy kisebb modellt (Tiny vagy Base).             \"\""
   new_nemotron_streaming_engine_shows_words_as: "Az új Nemotron streaming motor kimondás közben jeleníti meg a szavakat, és indításkor előmelegszik, hogy az első diktálás késlekedés nélkül induljon."
   selected_chunk_variant_isn_t_downloaded_yet: "A kiválasztott darabváltozat még nincs letöltve. A váltás elindítja a letöltést."
