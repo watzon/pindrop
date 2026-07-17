@@ -583,6 +583,29 @@ final class SwiftDataStoreRepairService {
         case v4 = "1.0.3"
         case v5 = "1.0.4"
         case v6 = "1.0.5"
+        case v7 = "1.0.6"
+        case v8 = "1.0.7"
+        case v9 = "1.0.8"
+        case v10 = "1.0.9"
+        case v11 = "1.0.10"
+        case v12 = "1.0.11"
+
+        var versionedSchema: any VersionedSchema.Type {
+            switch self {
+            case .v1: return TranscriptionRecordSchemaV1.self
+            case .v2: return TranscriptionRecordSchemaV2.self
+            case .v3: return TranscriptionRecordSchemaV3.self
+            case .v4: return TranscriptionRecordSchemaV4.self
+            case .v5: return TranscriptionRecordSchemaV5.self
+            case .v6: return TranscriptionRecordSchemaV6.self
+            case .v7: return TranscriptionRecordSchemaV7.self
+            case .v8: return TranscriptionRecordSchemaV8.self
+            case .v9: return TranscriptionRecordSchemaV9.self
+            case .v10: return TranscriptionRecordSchemaV10.self
+            case .v11: return TranscriptionRecordSchemaV11.self
+            case .v12: return TranscriptionRecordSchemaV12.self
+            }
+        }
     }
 
     struct RepairOutcome {
@@ -729,9 +752,35 @@ final class SwiftDataStoreRepairService {
                 return nil
             }
 
-            let hasParticipantProfiles = try tableExists(named: "ZPARTICIPANTPROFILE", on: database)
+            // Newest first: every check below is a feature the next-older
+            // version lacks, so the first hit is the store's actual version.
+            if columns.contains("ZPIPELINEMETRICSJSON") {
+                return .v12
+            }
+
+            if try tableExists(named: "ZTRAININGCONTRIBUTION", on: database) {
+                return .v11
+            }
+
+            let profileColumns = try fetchColumnNames(table: "ZPARTICIPANTPROFILE", on: database)
+            if profileColumns.contains("ZEMBEDDINGSPACEIDENTIFIER") {
+                return .v10
+            }
+
+            if profileColumns.contains("ZISCURRENTUSER") {
+                return .v9
+            }
+
+            if columns.contains("ZWORDCOUNT") || columns.contains("ZDESTINATIONAPPBUNDLEID") {
+                return .v8
+            }
+
+            if columns.contains("ZGENERATEDTITLE") || columns.contains("ZAISUMMARY") {
+                return .v7
+            }
+
             let hasParticipantEvidence = try tableExists(named: "ZPARTICIPANTTRAININGEVIDENCE", on: database)
-            if hasParticipantProfiles || hasParticipantEvidence {
+            if !profileColumns.isEmpty || hasParticipantEvidence {
                 return .v6
             }
 
@@ -799,69 +848,14 @@ final class SwiftDataStoreRepairService {
             try? fileManager.removeItem(at: directoryURL)
         }
 
-        let configuration = ModelConfiguration(url: storeURL)
-        let container: ModelContainer
-
-        switch version {
-        case .v1:
-            container = try ModelContainer(
-                for: TranscriptionRecordSchemaV1.TranscriptionRecordV1.self,
-                WordReplacement.self,
-                VocabularyWord.self,
-                Note.self,
-                PromptPreset.self,
-                configurations: configuration
-            )
-        case .v2:
-            container = try ModelContainer(
-                for: TranscriptionRecordSchemaV2.TranscriptionRecord.self,
-                WordReplacement.self,
-                VocabularyWord.self,
-                Note.self,
-                PromptPreset.self,
-                configurations: configuration
-            )
-        case .v3:
-            container = try ModelContainer(
-                for: TranscriptionRecordSchemaV3.TranscriptionRecord.self,
-                WordReplacement.self,
-                VocabularyWord.self,
-                Note.self,
-                PromptPreset.self,
-                configurations: configuration
-            )
-        case .v4:
-            container = try ModelContainer(
-                for: TranscriptionRecordSchemaV4.TranscriptionRecord.self,
-                WordReplacement.self,
-                VocabularyWord.self,
-                Note.self,
-                PromptPreset.self,
-                configurations: configuration
-            )
-        case .v5:
-            container = try ModelContainer(
-                for: TranscriptionRecordSchemaV5.TranscriptionRecord.self,
-                TranscriptionRecordSchemaV5.MediaFolder.self,
-                WordReplacement.self,
-                VocabularyWord.self,
-                Note.self,
-                PromptPreset.self,
-                configurations: configuration
-            )
-        case .v6:
-            container = try ModelContainer(
-                for: TranscriptionRecord.self,
-                MediaFolder.self,
-                ParticipantProfile.self,
-                ParticipantTrainingEvidence.self,
-                WordReplacement.self,
-                VocabularyWord.self,
-                Note.self,
-                PromptPreset.self,
-                configurations: configuration
-            )
-        }
+        // The reference store must be built from the exact versioned schema so
+        // its metadata carries that version's identifier and entity set. The
+        // staged migration plan matches stores by this metadata; stamping
+        // artifacts from ad-hoc model lists (which default to version 1.0.0)
+        // leaves the store unopenable by the production container.
+        let schema = Schema(versionedSchema: version.versionedSchema)
+        let configuration = ModelConfiguration(schema: schema, url: storeURL)
+        let container = try ModelContainer(for: schema, configurations: configuration)
 
         try container.mainContext.save()
 

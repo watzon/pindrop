@@ -2067,8 +2067,110 @@ struct HistoryStoreTests {
         try? FileManager.default.removeItem(at: applicationSupportURL)
     }
 
+    @Test func repairServiceLeavesHealthyV11StoreUntouched() throws {
+        try requireSQLiteSupport()
+        let directoryURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let storeURL = directoryURL.appendingPathComponent("healthy-v11.store")
+        let repairService = SwiftDataStoreRepairService()
+
+        try createV11Store(at: storeURL)
+
+        let outcome = try repairService.repairIfNeeded(storeURL: storeURL)
+        #expect(outcome.repaired == false)
+
+        let container = try AppDelegate.makeModelContainer(at: storeURL)
+        let records = try ModelContext(container).fetch(FetchDescriptor<TranscriptionRecord>())
+        #expect(records.count == 1)
+        #expect(records.first?.text == "Legacy transcription")
+
+        try? FileManager.default.removeItem(at: directoryURL)
+    }
+
+    @Test func repairServiceLeavesHealthyCurrentStoreUntouched() throws {
+        try requireSQLiteSupport()
+        let directoryURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+        let storeURL = directoryURL.appendingPathComponent("healthy-current.store")
+        let repairService = SwiftDataStoreRepairService()
+
+        try autoreleasepool {
+            let container = try AppDelegate.makeModelContainer(at: storeURL)
+            let context = ModelContext(container)
+            context.insert(
+                TranscriptionRecord(
+                    text: "Current transcription",
+                    duration: 1.0,
+                    modelUsed: "base"
+                )
+            )
+            try context.save()
+        }
+        try flushSQLiteStore(at: storeURL)
+
+        let outcome = try repairService.repairIfNeeded(storeURL: storeURL)
+        #expect(outcome.repaired == false)
+
+        try? FileManager.default.removeItem(at: directoryURL)
+    }
+
+    // Regression for https://github.com/watzon/pindrop/issues/76: the old
+    // repair path stamped V7+ stores with metadata built from unversioned
+    // current models (version identifier 1.0.0, stale entity set), after which
+    // the staged-migration container could never open the store again.
+    @Test func repairServiceRestoresStoreBrickedByLegacyRepairMetadata() throws {
+        try requireSQLiteSupport()
+        let directoryURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let storeURL = directoryURL.appendingPathComponent("bricked-v11.store")
+        let referenceStoreURL = directoryURL.appendingPathComponent("legacy-repair-reference.store")
+        let repairService = SwiftDataStoreRepairService()
+
+        try createV11Store(at: storeURL)
+
+        // Reproduce the poisoned metadata the pre-fix repair service wrote:
+        // an unversioned container over the current model classes.
+        try autoreleasepool {
+            let configuration = ModelConfiguration(url: referenceStoreURL)
+            let container = try ModelContainer(
+                for: TranscriptionRecord.self,
+                MediaFolder.self,
+                ParticipantProfile.self,
+                ParticipantTrainingEvidence.self,
+                WordReplacement.self,
+                VocabularyWord.self,
+                Note.self,
+                PromptPreset.self,
+                configurations: configuration
+            )
+            try container.mainContext.save()
+        }
+        try flushSQLiteStore(at: referenceStoreURL)
+        try overwriteMetadataAndModelCache(at: storeURL, using: referenceStoreURL)
+
+        do {
+            _ = try AppDelegate.makeModelContainer(at: storeURL)
+            Issue.record("Expected staged-migration container creation to fail before repair")
+        } catch {
+            #expect((error as NSError).domain == "SwiftData.SwiftDataError")
+        }
+
+        let outcome = try repairService.repairIfNeeded(storeURL: storeURL)
+        #expect(outcome.repaired)
+        #expect(outcome.backupDirectoryURL != nil)
+
+        let repairedContainer = try AppDelegate.makeModelContainer(at: storeURL)
+        let records = try ModelContext(repairedContainer).fetch(FetchDescriptor<TranscriptionRecord>())
+        #expect(records.count == 1)
+        #expect(records.first?.text == "Legacy transcription")
+        #expect(records.first?.pipelineMetricsJSON == nil)
+
+        try? FileManager.default.removeItem(at: directoryURL)
+    }
+
     // MARK: - Test Helpers
-    
+
     private func exportToJSONInternal(records: [TranscriptionRecord], to url: URL) throws {
         guard !records.isEmpty else {
             throw HistoryStore.HistoryStoreError.exportFailed("No records to export")
@@ -2264,6 +2366,26 @@ struct HistoryStoreTests {
                     originalSourceURL: nil,
                     managedMediaPath: nil,
                     thumbnailPath: nil
+                )
+            )
+            try context.save()
+        }
+        try flushSQLiteStore(at: storeURL)
+    }
+
+    private func createV11Store(at storeURL: URL) throws {
+        try FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try autoreleasepool {
+            let schema = Schema(versionedSchema: TranscriptionRecordSchemaV11.self)
+            let configuration = ModelConfiguration(schema: schema, url: storeURL)
+            let container = try ModelContainer(for: schema, configurations: configuration)
+
+            let context = ModelContext(container)
+            context.insert(
+                TranscriptionRecordSchemaV11.TranscriptionRecord(
+                    text: "Legacy transcription",
+                    duration: 2.0,
+                    modelUsed: "base"
                 )
             )
             try context.save()
