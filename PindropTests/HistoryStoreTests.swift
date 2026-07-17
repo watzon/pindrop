@@ -2166,6 +2166,11 @@ struct HistoryStoreTests {
         #expect(records.first?.text == "Legacy transcription")
         #expect(records.first?.pipelineMetricsJSON == nil)
 
+        let identityService = SpeakerIdentityService(modelContext: ModelContext(repairedContainer))
+        let profile = try identityService.createProfile(displayName: "Alice", notes: "Repaired store")
+        let profiles = try identityService.fetchAllProfiles()
+        #expect(profiles.contains { $0.id == profile.id })
+
         try? FileManager.default.removeItem(at: directoryURL)
     }
 

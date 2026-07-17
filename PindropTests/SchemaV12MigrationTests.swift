@@ -131,4 +131,24 @@ struct SchemaV12MigrationTests {
         #expect(records.count == 1)
         #expect(records.first?.text == "Existing transcript")
     }
+
+    @Test func productionConfigurationSupportsSpeakerIdentityReadAndWrite() throws {
+        let directoryURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directoryURL) }
+        let storeURL = directoryURL.appendingPathComponent("speaker-identities.store")
+
+        let container = try AppDelegate.makeModelContainer(at: storeURL)
+        let context = ModelContext(container)
+        let identityService = SpeakerIdentityService(modelContext: context)
+
+        let createdProfile = try identityService.createProfile(displayName: "Alice", notes: "Test profile")
+        let profiles = try identityService.fetchAllProfiles()
+
+        #expect(profiles.count == 1)
+        #expect(profiles.first?.id == createdProfile.id)
+        #expect(profiles.first?.displayName == "Alice")
+        #expect(profiles.first?.notes == "Test profile")
+    }
 }

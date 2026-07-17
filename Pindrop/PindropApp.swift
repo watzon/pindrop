@@ -550,11 +550,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     static func makeModelContainer(at storeURL: URL) throws -> ModelContainer {
         let schema = Schema(versionedSchema: TranscriptionRecordSchemaV12.self)
         let configuration = ModelConfiguration(schema: schema, url: storeURL)
-        return try ModelContainer(
+        let container = try ModelContainer(
             for: schema,
             migrationPlan: TranscriptionRecordMigrationPlan.self,
             configurations: configuration
         )
+
+        // SwiftData can defer opening a damaged or metadata-incompatible store
+        // until the first fetch. Validate the container here so AppDelegate's
+        // repair-and-retry path handles those stores before services retain it.
+        var healthCheck = FetchDescriptor<TranscriptionRecord>()
+        healthCheck.fetchLimit = 1
+        _ = try container.mainContext.fetch(healthCheck)
+        return container
     }
 
     private func describe(error: Error) -> String {
