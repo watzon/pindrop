@@ -170,18 +170,17 @@ enum StatsService {
     ) -> StatsSnapshot {
         let start = range.startDate(now: now, calendar: calendar)
         let filtered = records.filter { record in
-            record.timestamp <= now && (start.map { record.timestamp >= $0 } ?? true)
+            record.sourceKind == .voiceRecording
+                && record.timestamp <= now
+                && (start.map { record.timestamp >= $0 } ?? true)
         }
         guard !filtered.isEmpty else { return .empty }
 
         let totalWords = filtered.reduce(0) { $0 + $1.words }
         let totalDuration = filtered.reduce(0) { $0 + $1.duration }
         let activeDayStarts = Set(filtered.map { calendar.startOfDay(for: $0.timestamp) })
-        let voice = filtered.filter { $0.sourceKind == .voiceRecording }
-        let voiceWords = voice.reduce(0) { $0 + $1.words }
-        let voiceDuration = voice.reduce(0) { $0 + $1.duration }
-        let averageWPM = voiceDuration > 0 ? Double(voiceWords) / (voiceDuration / 60) : 0
-        let typingDuration = Double(voiceWords) / DashboardStatsService.typingWPM * 60
+        let averageWPM = totalDuration > 0 ? Double(totalWords) / (totalDuration / 60) : 0
+        let typingDuration = Double(totalWords) / DashboardStatsService.typingWPM * 60
 
         return StatsSnapshot(
             totalWords: totalWords,
@@ -192,7 +191,7 @@ enum StatsService {
             averageSessionDuration: totalDuration / Double(filtered.count),
             longestStreak: longestStreak(days: activeDayStarts, calendar: calendar),
             enhancedSessions: filtered.filter(\.isEnhanced).count,
-            estimatedTimeSaved: max(0, typingDuration - voiceDuration),
+            estimatedTimeSaved: max(0, typingDuration - totalDuration),
             averageWPM: averageWPM,
             averageTranscriptionSeconds: average(filtered.compactMap(\.transcriptionSeconds)),
             averageEnhancementSeconds: average(filtered.compactMap(\.enhancementSeconds)),

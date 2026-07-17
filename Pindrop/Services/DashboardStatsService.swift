@@ -17,17 +17,30 @@ struct StatsSample: Equatable, Sendable {
     let timestamp: Date
     let wordCount: Int
     let duration: TimeInterval
+    let sourceKind: MediaSourceKind
 
-    init(timestamp: Date, wordCount: Int, duration: TimeInterval) {
+    init(
+        timestamp: Date,
+        wordCount: Int,
+        duration: TimeInterval,
+        sourceKind: MediaSourceKind = .voiceRecording
+    ) {
         self.timestamp = timestamp
         self.wordCount = wordCount
         self.duration = duration
+        self.sourceKind = sourceKind
     }
 
-    init(timestamp: Date, text: String, duration: TimeInterval) {
+    init(
+        timestamp: Date,
+        text: String,
+        duration: TimeInterval,
+        sourceKind: MediaSourceKind = .voiceRecording
+    ) {
         self.timestamp = timestamp
         self.wordCount = text.wordCount
         self.duration = duration
+        self.sourceKind = sourceKind
     }
 }
 
@@ -79,7 +92,8 @@ enum DashboardStatsService {
         StatsSample(
             timestamp: record.timestamp,
             wordCount: max(0, record.effectiveWordCount),
-            duration: record.duration
+            duration: record.duration,
+            sourceKind: record.resolvedSourceKind
         )
     }
 
@@ -91,7 +105,7 @@ enum DashboardStatsService {
         now: Date
     ) -> DashboardStats {
         aggregate(calendar: calendar, now: now) { visit in
-            for record in records {
+            for record in records where record.isVoiceTranscription {
                 visit(
                     record.timestamp,
                     max(0, record.effectiveWordCount),
@@ -109,7 +123,7 @@ enum DashboardStatsService {
         now: Date
     ) -> DashboardStats {
         aggregate(calendar: calendar, now: now) { visit in
-            for sample in samples {
+            for sample in samples where sample.sourceKind == .voiceRecording {
                 visit(sample.timestamp, sample.wordCount, sample.duration)
             }
         }

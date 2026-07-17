@@ -76,12 +76,14 @@ struct DashboardStatsServiceTests {
         hour: Int = 12,
         minute: Int = 0,
         wordCount: Int = 10,
-        duration: TimeInterval = 60
+        duration: TimeInterval = 60,
+        sourceKind: MediaSourceKind = .voiceRecording
     ) -> StatsSample {
         StatsSample(
             timestamp: date(year: year, month: month, day: day, hour: hour, minute: minute),
             wordCount: wordCount,
-            duration: duration
+            duration: duration,
+            sourceKind: sourceKind
         )
     }
 
@@ -394,6 +396,36 @@ struct DashboardStatsServiceTests {
         #expect(sample.wordCount == 4)
     }
 
+    @Test func recordMapperPreservesSourceKind() {
+        let meeting = TranscriptionRecord(
+            text: "meeting words",
+            timestamp: fixedNow,
+            duration: 60,
+            modelUsed: "base",
+            sourceKind: .manualCapture
+        )
+
+        #expect(DashboardStatsService.sample(from: meeting).sourceKind == .manualCapture)
+    }
+
+    @Test func excludesMeetingsAndTranscribedMedia() {
+        let calendar = makeCalendar()
+        let samples = [
+            sample(year: 2024, month: 6, day: 12, wordCount: 25, sourceKind: .voiceRecording),
+            sample(year: 2024, month: 6, day: 12, wordCount: 50, sourceKind: .manualCapture),
+            sample(year: 2024, month: 6, day: 12, wordCount: 100, sourceKind: .importedFile),
+            sample(year: 2024, month: 6, day: 12, wordCount: 200, sourceKind: .webLink),
+        ]
+
+        let sut = DashboardStatsService.compute(samples: samples, calendar: calendar, now: fixedNow)
+
+        #expect(sut.wordsToday == 25)
+        #expect(sut.wordsThisWeek == 25)
+        #expect(sut.sessionsToday == 1)
+        #expect(sut.sessionsThisWeek == 1)
+        #expect(sut.dictationDurationThisWeek == 60)
+    }
+
     @Test func emptyWeekOutsideRangeExcluded() {
         let calendar = makeCalendar(firstWeekday: 1)
         let samples = [
@@ -484,26 +516,33 @@ struct StatsPageAnalyticsTests {
         )
     }
 
-    @Test func computesOverviewAndVoiceEfficiency() {
+    @Test func computesOverviewFromVoiceDictationsOnly() {
         let snapshot = StatsService.compute(
             records: [
                 record(day: 9, words: 100, duration: 60, destination: "Notes", enhanced: true),
                 record(day: 10, words: 200, duration: 120, destination: "Mail"),
-                record(day: 11, words: 300, duration: 300, source: .importedFile)
+                record(day: 11, words: 300, duration: 300, source: .manualCapture),
+                record(day: 11, words: 400, duration: 400, source: .importedFile),
+                record(day: 11, words: 500, duration: 500, source: .webLink)
             ],
             range: .sevenDays,
             calendar: calendar,
             now: date(11, hour: 18)
         )
 
-        #expect(snapshot.totalWords == 600)
-        #expect(snapshot.totalSessions == 3)
-        #expect(snapshot.activeDays == 3)
-        #expect(snapshot.longestStreak == 3)
+        #expect(snapshot.totalWords == 300)
+        #expect(snapshot.totalSessions == 2)
+        #expect(snapshot.totalDuration == 180)
+        #expect(snapshot.activeDays == 2)
+        #expect(snapshot.longestStreak == 2)
         #expect(snapshot.enhancedSessions == 1)
+        #expect(snapshot.averageWordsPerSession == 150)
+        #expect(snapshot.averageSessionDuration == 90)
         #expect(snapshot.averageWPM == 100)
-        #expect(snapshot.activity.count == 3)
-        #expect(snapshot.sources.count == 2)
+        #expect(snapshot.activity.count == 2)
+        #expect(snapshot.sources == [
+            StatsCategoryBucket(id: MediaSourceKind.voiceRecording.rawValue, words: 300, sessions: 2, duration: 180)
+        ])
     }
 
     @Test func averagesPipelineLatenciesOverRecordsThatCapturedThem() {
