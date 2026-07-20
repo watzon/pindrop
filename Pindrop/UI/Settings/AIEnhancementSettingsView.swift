@@ -38,12 +38,21 @@ struct AIEnhancementSettingsView: View {
 
    // Inline prompt-override drafts per purpose, keyed by purpose.rawValue.
    @State private var promptOverrideDrafts: [String: String] = [:]
+   @State private var customPromptEditorPurposes: Set<String> = []
    @State private var showAdvancedAssignments = false
-   @State private var showPromptEditor = false
-   @State private var promptEditorDraft = ""
+   @State private var promptEditorContext: PromptEditorContext?
+   @State private var promptEditorError: String?
 
    private var promptPresetStore: PromptPresetStore {
       PromptPresetStore(modelContext: modelContext)
+   }
+
+   private var builtInPresets: [PromptPreset] {
+      presets.filter(\.isBuiltIn)
+   }
+
+   private var customPresets: [PromptPreset] {
+      presets.filter { !$0.isBuiltIn }
    }
 
    var body: some View {
@@ -57,7 +66,6 @@ struct AIEnhancementSettingsView: View {
             VStack(spacing: SettingsLayoutMetrics.groupGap) {
                providersCardChrome
                assignmentsCardChrome
-               streamingEnhancementCardChrome
                contextCardChrome
             }
             .padding(.top, 8)
@@ -95,8 +103,10 @@ struct AIEnhancementSettingsView: View {
       .sheet(item: $modelPickerPurpose) { purpose in
          modelPickerSheet(for: purpose)
       }
-      .sheet(isPresented: $showPromptEditor) {
-         promptEditorSheet
+      .sheet(item: $promptEditorContext) { context in
+         PromptEditorSheet(context: context) { prompt in
+            savePromptEdit(context, prompt: prompt)
+         }
       }
       .alert(
          localized("Remove Provider", locale: locale),
@@ -131,6 +141,19 @@ struct AIEnhancementSettingsView: View {
          Button(localized("Continue Without", locale: locale), role: .cancel) {}
       } message: {
          Text(localized("Vibe mode works best with Accessibility permission. Without it, Pindrop falls back to limited app metadata and transcription still works normally.", locale: locale))
+      }
+      .alert(
+         localized("Error", locale: locale),
+         isPresented: Binding(
+            get: { promptEditorError != nil },
+            set: { if !$0 { promptEditorError = nil } }
+         )
+      ) {
+         Button(localized("OK", locale: locale)) {
+            promptEditorError = nil
+         }
+      } message: {
+         Text(promptEditorError ?? "")
       }
    }
 
@@ -186,11 +209,18 @@ struct AIEnhancementSettingsView: View {
             SettingsRowLabel(title: localized("Prompt Preset", locale: locale))
          } control: {
             Menu {
-               ForEach(presets) { preset in
-                  Button(preset.name) {
-                     let id = preset.builtInIdentifier ?? preset.id.uuidString
-                     settings.enhanceTranscriptsPresetID = id
-                     syncLegacyPresetPointer(for: .transcriptionEnhancement)
+               if !builtInPresets.isEmpty {
+                  Section(localized("Built-in Presets", locale: locale)) {
+                     ForEach(builtInPresets) { preset in
+                        presetSelectionButton(preset)
+                     }
+                  }
+               }
+               if !customPresets.isEmpty {
+                  Section(localized("Custom Presets", locale: locale)) {
+                     ForEach(customPresets) { preset in
+                        presetSelectionButton(preset)
+                     }
                   }
                }
                Divider()
@@ -223,10 +253,13 @@ struct AIEnhancementSettingsView: View {
                .textSelection(.enabled)
 
             HStack {
-               SettingsAccentLink(title: localized("Edit prompt…", locale: locale)) {
-                  promptEditorDraft = promptPreviewText
-                  showPromptEditor = true
-               }
+               SettingsAccentLink(
+                  title: localized(
+                     isSelectedPromptBuiltIn ? "Copy and Edit Prompt" : "Edit prompt…",
+                     locale: locale
+                  ),
+                  action: beginPromptEditing
+               )
                .disabled(!settings.enhanceTranscriptsEnabled)
                Spacer()
             }
@@ -298,16 +331,19 @@ struct AIEnhancementSettingsView: View {
    }
 
    private var promptPreviewText: String {
-      settings.enhanceTranscriptsResolvedEnglishPrompt()
+      if let override = settings.enhanceTranscriptsPromptOverride, !override.isEmpty {
+         return override
+      }
+      return resolvePresetPromptText(settings.enhanceTranscriptsPresetID)
          ?? BuiltInPresets.cleanTranscript.prompt
    }
 
    private var activePresetExample: BuiltInPresets.PresetExample? {
-      if let id = settings.enhanceTranscriptsPresetID,
-         let example = BuiltInPresets.definition(for: id)?.example {
-         return example
+      guard settings.enhanceTranscriptsPromptOverride == nil else { return nil }
+      guard let id = settings.enhanceTranscriptsPresetID else {
+         return BuiltInPresets.cleanTranscript.example
       }
-      return BuiltInPresets.cleanTranscript.example
+      return BuiltInPresets.definition(for: id)?.example
    }
 
    @ViewBuilder
@@ -338,28 +374,109 @@ struct AIEnhancementSettingsView: View {
       }
    }
 
-   private var promptEditorSheet: some View {
-      VStack(spacing: 0) {
-         HStack {
-            Text(localized("Edit prompt…", locale: locale))
-               .font(AppTypography.labelStrongSelected)
-            Spacer()
-            Button(localized("Cancel", locale: locale)) {
-               showPromptEditor = false
-            }
-            Button(localized("Save", locale: locale)) {
-               settings.enhanceTranscriptsPromptOverride = promptEditorDraft
-               showPromptEditor = false
-            }
-            .keyboardShortcut(.defaultAction)
-         }
-         .padding(16)
-
-         TextEditor(text: $promptEditorDraft)
-            .font(AppTypography.monoSmall)
-            .padding(12)
+   @ViewBuilder
+   private func presetSelectionButton(_ preset: PromptPreset) -> some View {
+      Button(preset.name) {
+         let id = preset.builtInIdentifier ?? preset.id.uuidString
+         settings.enhanceTranscriptsPresetID = id
+         syncLegacyPresetPointer(for: .transcriptionEnhancement)
       }
-      .frame(minWidth: 480, minHeight: 360)
+   }
+
+   private var isSelectedPromptBuiltIn: Bool {
+      guard settings.enhanceTranscriptsPromptOverride == nil,
+            let presetID = settings.enhanceTranscriptsPresetID
+      else {
+         return false
+      }
+      if BuiltInPresets.definition(for: presetID) != nil {
+         return true
+      }
+      return presets.first {
+         $0.id.uuidString == presetID || $0.builtInIdentifier == presetID
+      }?.isBuiltIn == true
+   }
+
+   private func beginPromptEditing() {
+      loadPresets()
+      guard let assignment = settings.assignment(for: .transcriptionEnhancement) else {
+         return
+      }
+
+      if let override = assignment.promptOverride, !override.isEmpty {
+         promptEditorContext = PromptEditorContext(
+            action: .editOverride,
+            initialPrompt: override,
+            titleKey: "Edit prompt…"
+         )
+         return
+      }
+
+      guard let presetID = assignment.promptPresetID else { return }
+      if let preset = presets.first(where: {
+         $0.id.uuidString == presetID || $0.builtInIdentifier == presetID
+      }) {
+         let prompt = resolvePresetPromptText(presetID) ?? preset.prompt
+         promptEditorContext = PromptEditorContext(
+            action: preset.isBuiltIn ? .copyBuiltIn(preset) : .editCustom(preset),
+            initialPrompt: prompt,
+            titleKey: preset.isBuiltIn ? "Copy and Edit Prompt" : "Edit prompt…"
+         )
+         return
+      }
+
+      if let definition = BuiltInPresets.definition(for: presetID) {
+         promptEditorContext = PromptEditorContext(
+            action: .copyBuiltInDefinition(
+               name: definition.name,
+               sortOrder: presets.count
+            ),
+            initialPrompt: definition.prompt,
+            titleKey: "Copy and Edit Prompt"
+         )
+      }
+   }
+
+   private func savePromptEdit(_ context: PromptEditorContext, prompt: String) -> Bool {
+      do {
+         switch context.action {
+         case .copyBuiltIn(let source):
+            let copy = try promptPresetStore.duplicate(source, withPrompt: prompt)
+            loadPresets()
+            settings.enhanceTranscriptsPresetID = copy.id.uuidString
+            syncLegacyPresetPointer(for: .transcriptionEnhancement)
+
+         case .copyBuiltInDefinition(let name, let sortOrder):
+            let copy = PromptPreset(
+               name: "\(name) Copy",
+               prompt: prompt,
+               isBuiltIn: false,
+               sortOrder: sortOrder
+            )
+            try promptPresetStore.add(copy)
+            loadPresets()
+            settings.enhanceTranscriptsPresetID = copy.id.uuidString
+            syncLegacyPresetPointer(for: .transcriptionEnhancement)
+
+         case .editCustom(let preset):
+            preset.prompt = prompt
+            try promptPresetStore.update(preset)
+            loadPresets()
+            settings.enhanceTranscriptsPresetID = preset.id.uuidString
+            syncLegacyPresetPointer(for: .transcriptionEnhancement)
+
+         case .editOverride:
+            settings.enhanceTranscriptsPromptOverride = prompt
+         }
+         return true
+      } catch {
+         Log.ui.error("Failed to save prompt edit: \(error)")
+         promptEditorError = String(
+            format: localized("Failed to save preset: %@", locale: locale),
+            error.localizedDescription
+         )
+         return false
+      }
    }
 
    // MARK: - Advanced cards (chrome wrappers)
@@ -436,25 +553,6 @@ struct AIEnhancementSettingsView: View {
                   .frame(height: 1)
                   .padding(.leading, SettingsLayoutMetrics.rowHorizontalPadding)
             }
-         }
-      }
-   }
-
-   private var streamingEnhancementCardChrome: some View {
-      SettingsGroupCard {
-         SettingsRow(showSeparator: false) {
-            SettingsRowLabel(
-               title: localized("Run LLM polish after dictation stops", locale: locale),
-               subtitle: settings.streamingPostStopEnhancementEnabled
-                  ? localized("Uses the Transcription Enhancement assignment. If none is set, the deterministic cleaner output is kept as-is.", locale: locale)
-                  : localized("Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks.", locale: locale)
-            )
-         } control: {
-            SettingsToggle(
-               isOn: $settings.streamingPostStopEnhancementEnabled,
-               label: localized("Run LLM polish after dictation stops", locale: locale)
-            )
-               .accessibilityIdentifier("settings.toggle.streamingPostStopEnhancement")
          }
       }
    }
@@ -625,9 +723,21 @@ struct AIEnhancementSettingsView: View {
                   Picker("", selection: presetSelectionBinding(for: purpose)) {
                      Text(localized("Custom", locale: locale))
                         .tag(customPresetSentinel)
-                     ForEach(presets) { preset in
-                        Text(preset.name)
-                           .tag(preset.builtInIdentifier ?? preset.id.uuidString)
+                     if !builtInPresets.isEmpty {
+                        Section(localized("Built-in Presets", locale: locale)) {
+                           ForEach(builtInPresets) { preset in
+                              Text(preset.name)
+                                 .tag(preset.builtInIdentifier ?? preset.id.uuidString)
+                           }
+                        }
+                     }
+                     if !customPresets.isEmpty {
+                        Section(localized("Custom Presets", locale: locale)) {
+                           ForEach(customPresets) { preset in
+                              Text(preset.name)
+                                 .tag(preset.id.uuidString)
+                           }
+                        }
                      }
                   }
                   .labelsHidden()
@@ -888,6 +998,9 @@ struct AIEnhancementSettingsView: View {
    private func presetSelectionBinding(for purpose: EnhancementPurpose) -> Binding<String> {
       Binding(
          get: {
+            if customPromptEditorPurposes.contains(purpose.rawValue) {
+               return customPresetSentinel
+            }
             guard let assignment = settings.assignment(for: purpose) else {
                return customPresetSentinel
             }
@@ -897,20 +1010,20 @@ struct AIEnhancementSettingsView: View {
          set: { newValue in
             guard var existing = settings.assignment(for: purpose) else { return }
             if newValue == customPresetSentinel {
-               existing.promptPresetID = nil
-               // Seed override with the current preset copy so the text editor has something
-               // to show when the user flips to Custom.
-               if existing.promptOverride == nil {
-                  existing.promptOverride = resolvePresetPromptText(existing.promptPresetID)
-                     ?? ""
-               }
-               settings.setAssignment(existing, for: purpose)
-               promptOverrideDrafts[purpose.rawValue] = existing.promptOverride ?? ""
+               // Keep the persisted preset intact until the user actually changes the
+               // inherited text. Built-in English text is intentionally not persisted as
+               // an override, so the draft owns this transient editing state.
+               promptOverrideDrafts[purpose.rawValue] = Self.promptEditorSeed(
+                  for: existing,
+                  presets: presets
+               )
+               customPromptEditorPurposes.insert(purpose.rawValue)
             } else {
                existing.promptPresetID = newValue
                existing.promptOverride = nil
                settings.setAssignment(existing, for: purpose)
                promptOverrideDrafts[purpose.rawValue] = nil
+               customPromptEditorPurposes.remove(purpose.rawValue)
             }
             syncLegacyPresetPointer(for: purpose)
          }
@@ -918,8 +1031,10 @@ struct AIEnhancementSettingsView: View {
    }
 
    private func isCustomPresetSelected(for purpose: EnhancementPurpose) -> Bool {
-      guard let a = settings.assignment(for: purpose) else { return false }
-      return a.promptOverride != nil || (a.promptPresetID == nil)
+      guard let assignment = settings.assignment(for: purpose) else { return false }
+      return customPromptEditorPurposes.contains(purpose.rawValue)
+         || assignment.promptOverride != nil
+         || assignment.promptPresetID == nil
    }
 
    @ViewBuilder
@@ -960,6 +1075,7 @@ struct AIEnhancementSettingsView: View {
             if normalized != nil {
                // True custom text: leave Custom mode (no preset pointer).
                existing.promptPresetID = nil
+               customPromptEditorPurposes.insert(purpose.rawValue)
             } else if existing.promptPresetID == nil {
                // Custom mode with empty/unedited text would leave both nil — fall back to
                // the purpose default built-in so resolve always has a deterministic English source.
@@ -967,6 +1083,7 @@ struct AIEnhancementSettingsView: View {
                   defaultPresetID(for: purpose) ?? BuiltInPresetID.cleanTranscript
             }
             settings.setAssignment(existing, for: purpose)
+            syncLegacyPresetPointer(for: purpose)
          }
       )
    }
@@ -974,19 +1091,32 @@ struct AIEnhancementSettingsView: View {
    /// English source for a preset. Prefer `BuiltInPresets` so custom-editor seeding never
    /// captures a display-localized string for built-ins.
    private func resolvePresetPromptText(_ presetID: String?) -> String? {
+      Self.resolvePresetPromptText(presetID, presets: presets)
+   }
+
+   static func promptEditorSeed(
+      for assignment: ModelAssignment,
+      presets: [PromptPreset]
+   ) -> String {
+      assignment.promptOverride
+         ?? resolvePresetPromptText(assignment.promptPresetID, presets: presets)
+         ?? ""
+   }
+
+   static func resolvePresetPromptText(
+      _ presetID: String?,
+      presets: [PromptPreset]
+   ) -> String? {
       guard let presetID else { return nil }
       if let english = BuiltInPresets.englishPrompt(for: presetID) {
          return english
       }
-      if let preset = presets.first(where: { $0.builtInIdentifier == presetID }) {
-         // User-authored presets keep their stored prompt; built-ins should already have
-         // been handled above. If a built-in row lacks a matching BuiltInPresets entry,
-         // fall back to the English store text from seeding.
-         return preset.prompt
-      }
-      if let preset = presets.first(where: { $0.id.uuidString == presetID }) {
+      if let preset = presets.first(where: {
+         $0.builtInIdentifier == presetID || $0.id.uuidString == presetID
+      }) {
          if let builtInID = preset.builtInIdentifier,
-            let english = BuiltInPresets.englishPrompt(for: builtInID) {
+            let english = BuiltInPresets.englishPrompt(for: builtInID)
+         {
             return english
          }
          return preset.prompt
@@ -1097,7 +1227,23 @@ struct AIEnhancementSettingsView: View {
 
    private func loadPresets() {
       do {
-         presets = try promptPresetStore.fetchAll()
+         let loadedPresets = try promptPresetStore.fetchAll()
+         presets = loadedPresets
+
+         guard let presetID = settings.enhanceTranscriptsPresetID,
+               BuiltInPresets.definition(for: presetID) == nil,
+               !loadedPresets.contains(where: {
+                  $0.id.uuidString == presetID || $0.builtInIdentifier == presetID
+               })
+         else {
+            return
+         }
+
+         // A custom preset can be deleted from Manage Presets while it is selected.
+         // Move the assignment back to a real row instead of showing Clean Transcript
+         // with stale custom-edit controls.
+         settings.enhanceTranscriptsPresetID = BuiltInPresetID.cleanTranscript
+         syncLegacyPresetPointer(for: .transcriptionEnhancement)
       } catch {
          Log.ui.error("Failed to load presets: \(error)")
       }
@@ -1147,6 +1293,61 @@ struct AIEnhancementSettingsView: View {
 
    private var unassignedProviderID: String { "__unassigned__" }
    private var customPresetSentinel: String { "__custom__" }
+}
+
+private struct PromptEditorContext: Identifiable {
+   enum Action {
+      case copyBuiltIn(PromptPreset)
+      case copyBuiltInDefinition(name: String, sortOrder: Int)
+      case editCustom(PromptPreset)
+      case editOverride
+   }
+
+   let id = UUID()
+   let action: Action
+   let initialPrompt: String
+   let titleKey: String
+}
+
+private struct PromptEditorSheet: View {
+   @Environment(\.dismiss) private var dismiss
+   @Environment(\.locale) private var locale
+   @State private var draft: String
+
+   let context: PromptEditorContext
+   let onSave: (String) -> Bool
+
+   init(context: PromptEditorContext, onSave: @escaping (String) -> Bool) {
+      self.context = context
+      self.onSave = onSave
+      _draft = State(initialValue: context.initialPrompt)
+   }
+
+   var body: some View {
+      VStack(spacing: 0) {
+         HStack {
+            Text(localized(context.titleKey, locale: locale))
+               .font(AppTypography.labelStrongSelected)
+            Spacer()
+            Button(localized("Cancel", locale: locale)) {
+               dismiss()
+            }
+            Button(localized("Save", locale: locale)) {
+               if onSave(draft) {
+                  dismiss()
+               }
+            }
+            .keyboardShortcut(.defaultAction)
+            .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+         }
+         .padding(16)
+
+         TextEditor(text: $draft)
+            .font(AppTypography.monoSmall)
+            .padding(12)
+      }
+      .frame(minWidth: 480, minHeight: 360)
+   }
 }
 
 // MARK: - Sheet identity

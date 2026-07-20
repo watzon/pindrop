@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "Určete, jak se Pindrop zobrazí v macOS a zda se spustí s vaší relací na ploše."
 controls:
-  how_the_live_dictation_path_polishes_tr: "Řídí, jak cesta živého diktování vyleští přepisy. Deterministický čistič (odstranění výplně, psaní velkých písmen, mluvená interpunkce, normalizace čísel, slučování rozdělených slov) běží v obou směrech – tento přepínač uzavírá volitelný LLM polský průchod, který se spustí, jakmile se diktování zastaví."
 copied:
   _self: "Zkopírováno!"
   to_clipboard: "Zkopírováno do schránky"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "Zkopíruje přepis do schránky bez vložení."
 copy:
   _self: "Kopie"
+  and_edit_prompt: "Zkopírovat a upravit výzvu"
   enhanced: "Vylepšené kopírování"
   last_transcript: "Kopírovat poslední přepis"
   original: "Kopírovat originál"
@@ -946,8 +946,6 @@ recent:
   transcripts: "Nedávné přepisy"
 recommended:
   _self: "Doporučeno"
-  the_deterministic_cleaner_handles_mo: "Doporučeno: deterministický čistič zvládne většinu diktátu čistě. Povolte průkaz LLM pouze v případě, že chcete extra lesk a přijímáte občasné modelové vtipy (preambule, konverzační odpovědi)."
-  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "Záznam"
 recording:
@@ -1006,7 +1004,6 @@ right:
   _self: "Právo"
 run:
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
-  llm_polish_after_dictation_stops: "Po zastavení diktování spusťte LLM Polish"
 runtime:
   _self: "Doba běhu: %@"
   status: "Stav běhu"
@@ -1136,10 +1133,8 @@ stop:
   listening: "Ukončit poslech"
   recording: "Zastavit nahrávání"
 streaming:
-  enhancement: "Vylepšení streamování"
   transcription_currently_supports_engli: "Přepis streamování aktuálně podporuje pouze angličtinu, bez ohledu na vybraný jazyk."
   transcription_instantly_ready: "Streamovaný přepis, připravený okamžitě"
-  transcription_is_disabled_while_ai_enh: "Když je povoleno AI Enhancement, přepis streamování je zakázán."
   transcription_model_nemotron_speech: "Model streamovaného přepisu (Nemotron Speech Streaming) je licencován společností NVIDIA Corporation pod licencí NVIDIA Open Model License."
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1467,7 +1462,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "Používá vestavěnou výzvu vyladěnou pro tento úkol."
   the_560ms_nemotron_variant_for_snappier_par: "Používá variantu Nemotron 560 ms pro svižnější průběžný text. Výchozí je varianta 1120 ms (nejlepší přesnost)."
-  the_transcription_enhancement_assignment_if: "Používá přiřazení Vylepšení transkripce. Pokud není nastaveno žádné, deterministický čistší výstup se zachová tak, jak je."
 v:
   _self: "v%@"
 version:

@@ -524,14 +524,6 @@ final class SettingsStore: ObservableObject {
    @AppStorage("transcriptionBackend", store: SettingsStoreRuntime.appStorageStore)
    var transcriptionBackend: String = TranscriptionBackend.parakeet.rawValue
 
-   /// Whether to run the post-stop LLM cleanup pass on streaming transcripts. OFF by
-   /// default (Phase 3 update): the deterministic cleaner handles filler removal,
-   /// capitalization, spoken punctuation, word-number normalization, and split-word
-   /// merges on its own. Users can opt back in if they've configured a
-   /// `transcriptionEnhancement` assignment and want the LLM to polish the final text.
-   @AppStorage("streamingPostStopEnhancementEnabled", store: SettingsStoreRuntime.appStorageStore)
-   var streamingPostStopEnhancementEnabled: Bool = false
-
    @Published private(set) var vibeRuntimeState: VibeRuntimeState = .degraded
    @Published private(set) var vibeRuntimeDetail: String = "Vibe mode is disabled."
    @Published private(set) var isApplyingHotkeyUpdate = false

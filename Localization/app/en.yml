@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "Control how Pindrop appears in macOS and whether it starts with your desktop session."
 controls:
-  how_the_live_dictation_path_polishes_tr: "Controls how the live dictation path polishes transcripts. The deterministic cleaner (filler removal, capitalization, spoken punctuation, number normalization, split-word merging) runs either way — this toggle gates the optional LLM polish pass that fires once dictation stops."
 copied:
   _self: "Copied!"
   to_clipboard: "Copied to clipboard"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "Copies the transcript to the clipboard without pasting."
 copy:
   _self: "Copy"
+  and_edit_prompt: "Copy and Edit Prompt"
   enhanced: "Copy Enhanced"
   last_transcript: "Copy Last Transcript"
   original: "Copy Original"
@@ -963,8 +963,6 @@ recent:
   transcripts: "Recent Transcripts"
 recommended:
   _self: "Recommended"
-  the_deterministic_cleaner_handles_mo: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks (preamble, conversational replies)."
-  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "Record"
 recording:
@@ -1023,7 +1021,6 @@ right:
   _self: "Right"
 run:
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
-  llm_polish_after_dictation_stops: "Run LLM polish after dictation stops"
 runtime:
   _self: "Runtime: %@"
   status: "Runtime Status"
@@ -1153,10 +1150,8 @@ stop:
   listening: "Stop listening"
   recording: "Stop Recording"
 streaming:
-  enhancement: "Streaming Enhancement"
   transcription_currently_supports_engli: "Streaming transcription currently supports English only, regardless of the selected language."
   transcription_instantly_ready: "Streaming transcription, instantly ready"
-  transcription_is_disabled_while_ai_enh: "Streaming transcription is disabled while AI Enhancement is enabled."
   transcription_model_nemotron_speech: "Streaming transcription model (Nemotron Speech Streaming) licensed by NVIDIA Corporation under the NVIDIA Open Model License."
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1484,7 +1479,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "Uses a built-in prompt tuned for this task."
   the_560ms_nemotron_variant_for_snappier_par: "Uses the 560ms Nemotron variant for snappier partial text. Default is the 1120ms variant (best accuracy)."
-  the_transcription_enhancement_assignment_if: "Uses the Transcription Enhancement assignment. If none is set, the deterministic cleaner output is kept as-is."
 v:
   _self: "v%@"
 version:

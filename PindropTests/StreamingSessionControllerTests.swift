@@ -59,7 +59,6 @@ struct StreamingSessionControllerTests {
         let settings = SettingsStore()
         settings.resetAllSettings()
         settings.addTrailingSpace = false
-        settings.streamingPostStopEnhancementEnabled = false
 
         let outputManager = OutputManager(
             outputMode: .clipboard,
@@ -315,6 +314,118 @@ struct StreamingSessionControllerTests {
         #expect(transcriptionService.state == .transcribing)
 
         await controller.cancel()
+    }
+
+    @Test func finalizeRunsConfiguredEnhancementAndRecordsMetrics() async throws {
+        final class FinalizingStreamingEngine: StreamingTranscriptionEngine, @unchecked Sendable {
+            private(set) var state: StreamingTranscriptionState = .unloaded
+            private var finalUtteranceCallback: EndOfUtteranceCallback?
+
+            func loadModel(name: String) async throws {
+                state = .ready
+            }
+
+            func unloadModel() async {
+                state = .unloaded
+            }
+
+            func startStreaming() async throws {
+                state = .streaming
+            }
+
+            func stopStreaming() async throws -> String {
+                state = .ready
+                return "hello world"
+            }
+
+            func pauseStreaming() async {
+                state = .paused
+            }
+
+            func resumeStreaming() async throws {
+                state = .streaming
+            }
+
+            func processAudioChunk(_ samples: [Float]) async throws {}
+            func processAudioBuffer(_ buffer: AVAudioPCMBuffer) async throws {}
+            func setTranscriptionCallback(_ callback: @escaping StreamingTranscriptionCallback) async {}
+
+            func setEndOfUtteranceCallback(_ callback: @escaping EndOfUtteranceCallback) async {
+                finalUtteranceCallback = callback
+            }
+
+            func reset() async {
+                state = .ready
+            }
+
+            func emitFinalUtterance(_ text: String) {
+                finalUtteranceCallback?(text)
+            }
+        }
+
+        let clipboard = RecordingClipboard()
+        let toastPresenter = RecordingToastPresenter()
+        let engine = FinalizingStreamingEngine()
+        let transcriptionService = TranscriptionService(
+            streamingEngineFactory: { _ in engine }
+        )
+        let controller = try makeController(
+            clipboard: clipboard,
+            toastPresenter: toastPresenter,
+            transcriptionService: transcriptionService
+        )
+        var enhancementInput: String?
+        var enhancementCallCount = 0
+        var insertedText: String?
+
+        controller.configure { text in
+            enhancementInput = text
+            enhancementCallCount += 1
+            return StreamingSessionController.PostStopEnhanceOutcome(
+                enhancedText: "Enhanced final text.",
+                modelID: "mock-model",
+                providerKind: "openai",
+                usage: AIEnhancementService.EnhancementUsage(
+                    promptTokens: 5,
+                    completionTokens: 3,
+                    reasoningTokens: 1,
+                    totalTokens: 9
+                ),
+                requestSeconds: 0.01
+            )
+        }
+        controller.setFinalInsertionOverrideForTesting { text in
+            insertedText = text
+            return .pasted(
+                destinationAppName: "TextEdit",
+                destinationAppBundleID: "com.apple.TextEdit"
+            )
+        }
+
+        await controller.begin()
+        engine.emitFinalUtterance("hello world")
+        await Task.yield()
+        await Task.yield()
+
+        let outcome = try await controller.finalize(
+            recordedAudioData: Data(),
+            recordingDuration: 0
+        )
+
+        #expect(enhancementCallCount == 1)
+        #expect(enhancementInput != nil)
+        #expect(outcome.originalStreamedText == enhancementInput)
+        #expect(outcome.finalText == "Enhanced final text.")
+        #expect(outcome.enhancedWithModel == "mock-model")
+        #expect(outcome.pipelineMetrics.enhancementModel == "mock-model")
+        #expect(outcome.pipelineMetrics.enhancementProvider == "openai")
+        #expect(outcome.pipelineMetrics.enhancementRequestSeconds == 0.01)
+        #expect(outcome.pipelineMetrics.enhancementPromptTokens == 5)
+        #expect(outcome.pipelineMetrics.enhancementCompletionTokens == 3)
+        #expect(outcome.pipelineMetrics.enhancementReasoningTokens == 1)
+        #expect(outcome.pipelineMetrics.enhancementTotalTokens == 9)
+        #expect(outcome.pipelineMetrics.enhancementSeconds != nil)
+        #expect(insertedText == "Enhanced final text.")
     }
 
 }

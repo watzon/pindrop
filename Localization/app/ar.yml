@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "تحكم في كيفية ظهور Pindrop في نظام التشغيل macOS وما إذا كان سيبدأ بجلسة سطح المكتب لديك."
 controls:
-  how_the_live_dictation_path_polishes_tr: "يتحكم في كيفية تحسين مسار الإملاء المباشر للنصوص. يعمل المنظف الحتمي (إزالة الحشو، الكتابة بالأحرف الكبيرة، علامات الترقيم المنطوقة، تطبيع الأرقام، دمج الكلمات المنقسمة) في كلا الاتجاهين - يؤدي هذا التبديل إلى تمرير تمرير تلميع LLM الاختياري الذي يتم تشغيله بمجرد توقف الإملاء."
 copied:
   _self: "منسوخ!"
   to_clipboard: "تم النسخ إلى الحافظة"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "ينسخ النص إلى الحافظة دون لصق."
 copy:
   _self: "ينسخ"
+  and_edit_prompt: "نسخ المطالبة وتحريرها"
   enhanced: "نسخة محسنة"
   last_transcript: "نسخ النص الأخير"
   original: "نسخ الأصل"
@@ -946,8 +946,6 @@ recent:
   transcripts: "النصوص الأخيرة"
 recommended:
   _self: "مُستَحسَن"
-  the_deterministic_cleaner_handles_mo: "موصى به: يتعامل المنظف الحتمي مع معظم الإملاء بشكل نظيف. قم بتمكين تمرير LLM فقط إذا كنت تريد تحسينًا إضافيًا وقبول المراوغات النموذجية العرضية (الديباجة والردود المحادثة)."
-  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "سِجِلّ"
 recording:
@@ -1006,7 +1004,6 @@ right:
   _self: "يمين"
 run:
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
-  llm_polish_after_dictation_stops: "قم بتشغيل LLM Polish بعد توقف الإملاء"
 runtime:
   _self: "وقت التشغيل: %@"
   status: "حالة التشغيل"
@@ -1136,10 +1133,8 @@ stop:
   listening: "إيقاف الاستماع"
   recording: "إيقاف التسجيل"
 streaming:
-  enhancement: "تعزيز الجري"
   transcription_currently_supports_engli: "يدعم النسخ المتدفق حاليًا اللغة الإنجليزية فقط، بغض النظر عن اللغة المحددة."
   transcription_instantly_ready: "تفريغ مباشر جاهز فورًا"
-  transcription_is_disabled_while_ai_enh: "يتم تعطيل النسخ المتدفق أثناء تمكين تحسين الذكاء الاصطناعي."
   transcription_model_nemotron_speech: "نموذج النسخ المتدفق (Nemotron Speech Streaming) مرخص من NVIDIA Corporation بموجب ترخيص NVIDIA Open Model License."
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1467,7 +1462,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "يستخدم موجهًا مدمجًا تم ضبطه لهذه المهمة."
   the_560ms_nemotron_variant_for_snappier_par: "يستخدم متغير Nemotron بسرعة 560 مللي ثانية لنص جزئي أسرع. الافتراضي هو متغير 1120 مللي ثانية (أفضل دقة)."
-  the_transcription_enhancement_assignment_if: "يستخدم مهمة تحسين النسخ. إذا لم يتم تعيين أي شيء، فسيتم الاحتفاظ بمخرجات التنظيف الحتمية كما هي."
 v:
   _self: "v%@"
 version:

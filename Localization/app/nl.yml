@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "Bepaal hoe Pindrop verschijnt in macOS en of het begint met uw desktopsessie."
 controls:
-  how_the_live_dictation_path_polishes_tr: "Bepaalt hoe het live-dicteerpad transcripties bijwerkt. De deterministische opschoner (verwijdering van stopwoorden, hoofdletters, uitgesproken interpunctie, getalsnormalisatie, samenvoegen van gesplitste woorden) loopt hoe dan ook — deze schakelaar regelt de optionele LLM-polijststap die start zodra het dicteren stopt."
 copied:
   _self: "Gekopieerd!"
   to_clipboard: "Gekopieerd naar klembord"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "Kopieert het transcript naar het klembord zonder te plakken."
 copy:
   _self: "Kopiëren"
+  and_edit_prompt: "Prompt kopiëren en bewerken"
   enhanced: "Kopieer verbeterd"
   last_transcript: "Kopieer laatste transcript"
   original: "Kopieer origineel"
@@ -946,8 +946,6 @@ recent:
   transcripts: "Recente transcripties"
 recommended:
   _self: "Aanbevolen"
-  the_deterministic_cleaner_handles_mo: "Aanbevolen: de deterministische opschoner handelt de meeste dicteren prima af. Schakel de LLM-stap alleen in als je extra politoer wilt en af en toe modelkwalen (inleidingen, gespreksantwoorden) accepteert."
-  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "Dossier"
 recording:
@@ -1006,7 +1004,6 @@ right:
   _self: "Rechts"
 run:
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
-  llm_polish_after_dictation_stops: "LLM-polijsten uitvoeren nadat het dicteren stopt"
 runtime:
   _self: "Looptijd: %@"
   status: "Runtimestatus"
@@ -1136,10 +1133,8 @@ stop:
   listening: "Stop met luisteren"
   recording: "Stop met opnemen"
 streaming:
-  enhancement: "Streamingverbetering"
   transcription_currently_supports_engli: "Streamingtranscriptie ondersteunt momenteel alleen Engels, ongeacht de geselecteerde taal."
   transcription_instantly_ready: "Streamingtranscriptie, direct klaar"
-  transcription_is_disabled_while_ai_enh: "Streamingtranscriptie is uitgeschakeld terwijl AI Enhancement is ingeschakeld."
   transcription_model_nemotron_speech: "Streaming-transcriptiemodel (Nemotron Speech Streaming) gelicentieerd door NVIDIA Corporation onder de NVIDIA Open Model License."
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1467,7 +1462,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "Gebruikt een ingebouwde prompt die is afgestemd op deze taak."
   the_560ms_nemotron_variant_for_snappier_par: "Gebruikt de 560ms Nemotron-variant voor vlottere tussentekst. Standaard is de 1120ms-variant (beste nauwkeurigheid)."
-  the_transcription_enhancement_assignment_if: "Gebruikt de toewijzing voor Transcriptieverbetering. Als er geen is ingesteld, blijft de output van de deterministische opschoner ongewijzigd."
 v:
   _self: "v%@"
 version:

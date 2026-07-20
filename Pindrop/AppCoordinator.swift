@@ -3150,7 +3150,10 @@ final class AppCoordinator {
 
         if let noteAssignment = settingsStore.resolveAssignment(for: .noteEnhancement) {
             do {
-                let notePrompt = noteAssignment.prompt ?? SettingsStore.Defaults.noteEnhancementPrompt
+                let notePrompt = resolvedPrompt(
+                    for: noteAssignment,
+                    fallback: SettingsStore.Defaults.noteEnhancementPrompt
+                )
                 let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords().map(\.word)
                 let replacementCorrections = appliedReplacements.map {
                     AIEnhancementService.ContextMetadata.ReplacementCorrection(
@@ -3593,6 +3596,28 @@ final class AppCoordinator {
         await streamingSession.begin()
     }
 
+    /// Resolves prompt overrides, stable built-in identifiers, and persisted preset
+    /// UUIDs through one path so every enhancement entry point sends the same text.
+    func resolvedPrompt(
+        for assignment: ResolvedAssignment,
+        fallback: String
+    ) -> String {
+        if let prompt = assignment.prompt {
+            return prompt
+        }
+
+        do {
+            if let prompt = try promptPresetStore.resolvePrompt(for: assignment.promptPresetID) {
+                return prompt
+            }
+        } catch {
+            Log.aiEnhancement.error(
+                "Failed to resolve prompt preset \(assignment.promptPresetID ?? "nil"): \(error)"
+            )
+        }
+        return fallback
+    }
+
     /// Runs the post-stop transcriptionEnhancement assignment on `text` using the simple
     /// enhance() overload (no rich ContextMetadata). Used exclusively by the streaming
     /// finalize path — the non-streaming path constructs its own context-aware enhance
@@ -3607,16 +3632,10 @@ final class AppCoordinator {
         guard let assignment = settingsStore.resolveAssignment(for: .transcriptionEnhancement)
         else { return nil }
 
-        let basePrompt: String
-        if let presetId = settingsStore.selectedPresetId,
-           let presetUUID = UUID(uuidString: presetId),
-           let allPresets = try? promptPresetStore.fetchAll(),
-           let selectedPreset = allPresets.first(where: { $0.id == presetUUID })
-        {
-            basePrompt = selectedPreset.prompt
-        } else {
-            basePrompt = assignment.prompt ?? SettingsStore.Defaults.aiEnhancementPrompt
-        }
+        let basePrompt = resolvedPrompt(
+            for: assignment,
+            fallback: SettingsStore.Defaults.aiEnhancementPrompt
+        )
 
         do {
             // Route through the context-aware overload so the call site picks up the
@@ -3976,16 +3995,10 @@ final class AppCoordinator {
                 originalText = textAfterMentions
                 Log.app.info("AI enhancement enabled, saving original text before enhancement")
 
-                var basePrompt: String
-                if let presetId = settingsStore.selectedPresetId,
-                   let presetUUID = UUID(uuidString: presetId),
-                   let allPresets = try? promptPresetStore.fetchAll(),
-                   let selectedPreset = allPresets.first(where: { $0.id == presetUUID }) {
-                    basePrompt = selectedPreset.prompt
-                } else {
-                    basePrompt = transcriptionAssignment.prompt
-                        ?? SettingsStore.Defaults.aiEnhancementPrompt
-                }
+                var basePrompt = resolvedPrompt(
+                    for: transcriptionAssignment,
+                    fallback: SettingsStore.Defaults.aiEnhancementPrompt
+                )
 
                 let vocabularyWords = try dictionaryStore.fetchAllVocabularyWords().map(\.word)
                 let replacementCorrections = lastAppliedReplacements.map {

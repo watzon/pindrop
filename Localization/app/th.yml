@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "ควบคุมวิธีที่ Pindrop ปรากฏใน macOS และกำหนดว่าจะเริ่มต้นด้วยเซสชันเดสก์ท็อปของคุณหรือไม่"
 controls:
-  how_the_live_dictation_path_polishes_tr: "ควบคุมวิธีที่เส้นทางการเขียนตามคำบอกแบบสดขัดเกลาข้อความถอดเสียง ตัวล้างตามที่กำหนด (การลบฟิลเลอร์ การใช้อักษรตัวพิมพ์ใหญ่ เครื่องหมายวรรคตอนคำพูด การทำให้ตัวเลขเป็นมาตรฐาน การรวมคำแบบแยก) ทำงานด้วยวิธีใดวิธีหนึ่ง - ปุ่มสลับนี้จะเข้าประตูขัดเงา LLM ซึ่งเป็นตัวเลือกซึ่งจะเริ่มทำงานเมื่อการเขียนตามคำบอกหยุดลง"
 copied:
   _self: "คัดลอก!"
   to_clipboard: "คัดลอกไปยังคลิปบอร์ดแล้ว"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "คัดลอกข้อความไปยังคลิปบอร์ดโดยไม่วาง"
 copy:
   _self: "สำเนา"
+  and_edit_prompt: "คัดลอกและแก้ไขพรอมต์"
   enhanced: "คัดลอกขั้นสูง"
   last_transcript: "คัดลอกทรานสคริปต์ล่าสุด"
   original: "คัดลอกต้นฉบับ"
@@ -946,8 +946,6 @@ recent:
   transcripts: "การถอดเสียงล่าสุด"
 recommended:
   _self: "ที่แนะนำ"
-  the_deterministic_cleaner_handles_mo: "แนะนำ: ตัวทำความสะอาดที่กำหนดสามารถจัดการคำสั่งส่วนใหญ่ได้อย่างหมดจด เปิดใช้งานบัตรผ่าน LLM เฉพาะในกรณีที่คุณต้องการขัดเกลาเพิ่มเติมและยอมรับนิสัยแปลกๆ ของโมเดลเป็นครั้งคราว (คำนำ การตอบกลับเชิงสนทนา)"
-  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "บันทึก"
 recording:
@@ -1006,7 +1004,6 @@ right:
   _self: "ขวา"
 run:
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
-  llm_polish_after_dictation_stops: "เรียกใช้ LLM polish หลังจากหยุดการเขียนตามคำบอก"
 runtime:
   _self: "รันไทม์: %@"
   status: "สถานะรันไทม์"
@@ -1136,10 +1133,8 @@ stop:
   listening: "หยุดฟัง"
   recording: "หยุดการบันทึก"
 streaming:
-  enhancement: "การเพิ่มประสิทธิภาพสตรีมมิ่ง"
   transcription_currently_supports_engli: "ปัจจุบันการถอดเสียงแบบสตรีมมิ่งรองรับภาษาอังกฤษเท่านั้น โดยไม่คำนึงถึงภาษาที่เลือก"
   transcription_instantly_ready: "การถอดเสียงแบบสตรีม พร้อมใช้งานทันที"
-  transcription_is_disabled_while_ai_enh: "การถอดเสียงแบบสตรีมมิ่งถูกปิดใช้งานในขณะที่เปิดใช้งานการเพิ่มประสิทธิภาพ AI"
   transcription_model_nemotron_speech: "โมเดลถอดความแบบสตรีมมิง (Nemotron Speech Streaming) ได้รับอนุญาตจาก NVIDIA Corporation ภายใต้ NVIDIA Open Model License"
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1467,7 +1462,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "ใช้พร้อมต์ในตัวที่ปรับแต่งสำหรับงานนี้"
   the_560ms_nemotron_variant_for_snappier_par: "ใช้ Nemotron รุ่น 560ms เพื่อข้อความระหว่างพูดที่เร็วขึ้น ค่าเริ่มต้นคือรุ่น 1120ms (ความแม่นยำสูงสุด)"
-  the_transcription_enhancement_assignment_if: "ใช้การมอบหมายการเพิ่มประสิทธิภาพการถอดเสียง หากไม่มีการตั้งค่าไว้ เอาต์พุตตัวล้างตามที่กำหนดจะถูกเก็บไว้เหมือนเดิม"
 v:
   _self: "ว%@"
 version:

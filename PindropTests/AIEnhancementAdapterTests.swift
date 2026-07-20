@@ -188,6 +188,42 @@ struct AIEnhancementAdapterTests {
         #expect(result == nil)
     }
 
+    @Test func promptEditorSeedsBuiltInPromptOnFirstOpen() {
+        let assignment = ModelAssignment(
+            providerID: UUID(),
+            modelID: "gpt-4o-mini",
+            promptPresetID: BuiltInPresetID.cleanTranscript
+        )
+
+        let seed = AIEnhancementSettingsView.promptEditorSeed(
+            for: assignment,
+            presets: []
+        )
+
+        #expect(seed == BuiltInPresets.cleanTranscript.prompt)
+        #expect(!seed.isEmpty)
+    }
+
+    @Test func promptEditorSeedsPersistedCustomPresetPrompt() {
+        let custom = PromptPreset(
+            name: "Clean Transcript Copy",
+            prompt: "The exact copied prompt",
+            isBuiltIn: false
+        )
+        let assignment = ModelAssignment(
+            providerID: UUID(),
+            modelID: "gpt-4o-mini",
+            promptPresetID: custom.id.uuidString
+        )
+
+        let seed = AIEnhancementSettingsView.promptEditorSeed(
+            for: assignment,
+            presets: [custom]
+        )
+
+        #expect(seed == custom.prompt)
+    }
+
     @Test func customModeWithClearedOverrideFallsBackToDefaultPreset() throws {
         let store = makeCleanStore()
         defer { store.resetAllSettings() }

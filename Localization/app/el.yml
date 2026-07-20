@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "Ελέγξτε πώς εμφανίζεται το Pindrop στο macOS και εάν ξεκινά με την περίοδο λειτουργίας του υπολογιστή σας."
 controls:
-  how_the_live_dictation_path_polishes_tr: "Ελέγχει τον τρόπο με τον οποίο η ζωντανή διαδρομή υπαγόρευσης γυαλίζει τις μεταγραφές. Το ντετερμινιστικό καθαριστικό (αφαίρεση γεμίσματος, χρήση κεφαλαίων, προφορικά σημεία στίξης, κανονικοποίηση αριθμών, συγχώνευση διαχωρισμένων λέξεων) εκτελείται με κάθε τρόπο — αυτή η εναλλαγή κλείνει το προαιρετικό πάσο γυαλίσματος LLM που ενεργοποιείται μόλις σταματήσει η υπαγόρευση."
 copied:
   _self: "Αντιγράφηκε!"
   to_clipboard: "Αντιγράφηκε στο πρόχειρο"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "Αντιγράφει το κείμενο στο πρόχειρο χωρίς επικόλληση."
 copy:
   _self: "Αντίγραφο"
+  and_edit_prompt: "Αντιγραφή και επεξεργασία προτροπής"
   enhanced: "Ενισχυμένη αντιγραφή"
   last_transcript: "Αντιγραφή της τελευταίας μεταγραφής"
   original: "Αντιγραφή πρωτοτύπου"
@@ -946,8 +946,6 @@ recent:
   transcripts: "Πρόσφατες μεταγραφές"
 recommended:
   _self: "Συνιστάται"
-  the_deterministic_cleaner_handles_mo: "Συνιστάται: το ντετερμινιστικό καθαριστικό χειρίζεται καθαρά την περισσότερη υπαγόρευση. Ενεργοποιήστε το πάσο LLM μόνο εάν θέλετε επιπλέον στίλβωση και αποδεχτείτε περιστασιακές ιδιορρυθμίες μοντέλων (προοίμιο, απαντήσεις συνομιλίας)."
-  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "Ρεκόρ"
 recording:
@@ -1006,7 +1004,6 @@ right:
   _self: "Δικαίωμα"
 run:
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
-  llm_polish_after_dictation_stops: "Εκτελέστε LLM Polish αφού σταματήσει η υπαγόρευση"
 runtime:
   _self: "Χρόνος εκτέλεσης: %@"
   status: "Κατάσταση εκτέλεσης"
@@ -1136,10 +1133,8 @@ stop:
   listening: "Διακοπή ακρόασης"
   recording: "Διακοπή εγγραφής"
 streaming:
-  enhancement: "Βελτίωση ροής"
   transcription_currently_supports_engli: "Η μεταγραφή ροής υποστηρίζει προς το παρόν μόνο αγγλικά, ανεξάρτητα από την επιλεγμένη γλώσσα."
   transcription_instantly_ready: "Ζωντανή μεταγραφή, άμεσα έτοιμη"
-  transcription_is_disabled_while_ai_enh: "Η μεταγραφή ροής είναι απενεργοποιημένη ενώ η Βελτίωση AI είναι ενεργοποιημένη."
   transcription_model_nemotron_speech: "Μοντέλο μεταγραφής ροής (Nemotron Speech Streaming) με άδεια από την NVIDIA Corporation βάσει της NVIDIA Open Model License."
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1467,7 +1462,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "Χρησιμοποιεί μια ενσωματωμένη προτροπή συντονισμένη για αυτήν την εργασία."
   the_560ms_nemotron_variant_for_snappier_par: "Χρησιμοποιεί την παραλλαγή Nemotron 560ms για πιο γρήγορο ενδιάμεσο κείμενο. Προεπιλογή είναι η παραλλαγή 1120ms (καλύτερη ακρίβεια)."
-  the_transcription_enhancement_assignment_if: "Χρησιμοποιεί την εκχώρηση Transcription Enhancement. Εάν δεν έχει οριστεί κανένα, η ντετερμινιστική έξοδος καθαριστικού διατηρείται ως έχει."
 v:
   _self: "v%@"
 version:

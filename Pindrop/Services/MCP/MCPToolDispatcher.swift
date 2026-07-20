@@ -541,8 +541,10 @@ enum MCPToolDispatcher {
             )
         }
         let customPrompt = arguments["prompt"]?.stringValue
-            ?? assignment.prompt
-            ?? AIEnhancementService.defaultSystemPrompt
+            ?? coordinator.resolvedPrompt(
+                for: assignment,
+                fallback: AIEnhancementService.defaultSystemPrompt
+            )
         do {
             let enhanced = try await coordinator.aiEnhancementService.enhance(
                 text: text,

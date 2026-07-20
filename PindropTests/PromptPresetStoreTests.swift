@@ -156,6 +156,30 @@ struct PromptPresetStoreTests {
         #expect(copy.sortOrder == 1)
     }
 
+    @Test func copyAndEditBuiltInPresetPreservesDraftAndResolvesByUUID() throws {
+        let promptPresetStore = try makeStore()
+        try promptPresetStore.seedBuiltInPresets()
+        let clean = try #require(
+            try promptPresetStore.fetchBuiltIn().first {
+                $0.builtInIdentifier == BuiltInPresetID.cleanTranscript
+            }
+        )
+        let editedPrompt = "Keep the clean transcript rules, then make this edit."
+
+        let copy = try promptPresetStore.duplicate(clean, withPrompt: editedPrompt)
+
+        #expect(copy.isBuiltIn == false)
+        #expect(copy.prompt == editedPrompt)
+        #expect(
+            try promptPresetStore.resolvePrompt(for: copy.id.uuidString)
+                == editedPrompt
+        )
+        #expect(
+            try promptPresetStore.resolvePrompt(for: BuiltInPresetID.cleanTranscript)
+                == BuiltInPresets.cleanTranscript.prompt
+        )
+    }
+
     @Test func seedBuiltInPresets() throws {
         let promptPresetStore = try makeStore()
         try promptPresetStore.seedBuiltInPresets()

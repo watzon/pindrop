@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "नियंत्रित करें कि Pindrop macOS में कैसे दिखाई देता है और क्या यह आपके डेस्कटॉप सत्र से शुरू होता है।"
 controls:
-  how_the_live_dictation_path_polishes_tr: "यह नियंत्रित करता है कि लाइव डिक्टेशन पथ प्रतिलेखों को कैसे निखारता है। नियतात्मक क्लीनर (भरण निष्कासन, पूंजीकरण, बोले गए विराम चिह्न, संख्या सामान्यीकरण, विभाजित-शब्द विलय) किसी भी तरह से चलता है - यह टॉगल वैकल्पिक एलएलएम पॉलिश पास को गेट करता है जो श्रुतलेख बंद होने पर सक्रिय हो जाता है।"
 copied:
   _self: "नकल की गई!"
   to_clipboard: "क्लिपबोर्ड पर कॉपी किया गया"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "पेस्ट किए बिना ट्रांसक्रिप्ट क्लिपबोर्ड पर कॉपी करता है।"
 copy:
   _self: "प्रतिलिपि"
+  and_edit_prompt: "प्रॉम्प्ट कॉपी और संपादित करें"
   enhanced: "कॉपी एन्हांस्ड"
   last_transcript: "अंतिम प्रतिलेख कॉपी करें"
   original: "मूल कॉपी करें"
@@ -946,8 +946,6 @@ recent:
   transcripts: "हाल के प्रतिलेख"
 recommended:
   _self: "अनुशंसित"
-  the_deterministic_cleaner_handles_mo: "अनुशंसित: नियतात्मक क्लीनर अधिकांश श्रुतलेखों को सफाई से संभालता है। एलएलएम पास तभी सक्षम करें जब आप अतिरिक्त चमक-दमक चाहते हों और कभी-कभार मॉडल विचित्रताओं (प्रस्तावना, संवादी उत्तर) को स्वीकार करते हों।"
-  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "अभिलेख"
 recording:
@@ -1006,7 +1004,6 @@ right:
   _self: "सही"
 run:
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
-  llm_polish_after_dictation_stops: "डिक्टेशन रुकने के बाद एलएलएम पॉलिश चलाएँ"
 runtime:
   _self: "रनटाइम: %@"
   status: "रनटाइम स्थिति"
@@ -1136,10 +1133,8 @@ stop:
   listening: "सुनना बंद करें"
   recording: "रिकॉर्डिंग बंद करें"
 streaming:
-  enhancement: "स्ट्रीमिंग संवर्द्धन"
   transcription_currently_supports_engli: "स्ट्रीमिंग ट्रांसक्रिप्शन वर्तमान में चयनित भाषा की परवाह किए बिना केवल अंग्रेजी का समर्थन करता है।"
   transcription_instantly_ready: "स्ट्रीमिंग ट्रांसक्रिप्शन, तुरंत तैयार"
-  transcription_is_disabled_while_ai_enh: "एआई एन्हांसमेंट सक्षम होने पर स्ट्रीमिंग ट्रांसक्रिप्शन अक्षम है।"
   transcription_model_nemotron_speech: "स्ट्रीमिंग ट्रांसक्रिप्शन मॉडल (Nemotron Speech Streaming) NVIDIA Corporation द्वारा NVIDIA Open Model License के तहत लाइसेंस प्राप्त।"
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1467,7 +1462,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "इस कार्य के लिए ट्यून किए गए अंतर्निहित प्रॉम्प्ट का उपयोग करता है।"
   the_560ms_nemotron_variant_for_snappier_par: "तेज़ आंशिक टेक्स्ट के लिए 560ms Nemotron वैरिएंट का उपयोग करता है। डिफ़ॉल्ट 1120ms वैरिएंट है (सर्वोत्तम सटीकता)।"
-  the_transcription_enhancement_assignment_if: "ट्रांसक्रिप्शन एन्हांसमेंट असाइनमेंट का उपयोग करता है। यदि कोई भी सेट नहीं है, तो नियतात्मक क्लीनर आउटपुट को यथावत रखा जाता है।"
 v:
   _self: "v%@"
 version:

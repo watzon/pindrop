@@ -134,10 +134,6 @@ final class StreamingRefinementCoordinator {
    private var stabilityMetrics = StreamingStabilityMetrics()
    private var sessionNumber = 0
 
-   /// Always false in Phase 2+ (live refinement removed). Retained in the API so
-   /// AppCoordinator's post-stop wiring doesn't need to change.
-   let didLandAnyRefinement = false
-
    init(
       cleaner: DeterministicTranscriptCleaner = DeterministicTranscriptCleaner(),
       stopWaitNanoseconds: UInt64 = StreamingRefinementCoordinator.defaultStopWaitNanoseconds,

@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "Pindrop が macOS でどのように表示されるか、およびデスクトップ セッションで開始されるかどうかを制御します。"
 controls:
-  how_the_live_dictation_path_polishes_tr: "ライブディクテーション経路の整形方法を制御します。決定論的クリーナー（フィラー除去、大文字化、口頭句読点、数値正規化、分割語の結合）は常に実行され、このトグルは口述停止後に動作する任意の LLM 仕上げを制御します。"
 copied:
   _self: "コピーしました！"
   to_clipboard: "クリップボードにコピーしました"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "ペーストせずにテキストをクリップボードにコピーします。"
 copy:
   _self: "コピー"
+  and_edit_prompt: "プロンプトをコピーして編集"
   enhanced: "コピー強化"
   last_transcript: "最後のトランスクリプトをコピー"
   original: "オリジナルをコピー"
@@ -946,8 +946,6 @@ recent:
   transcripts: "最近の成績証明書"
 recommended:
   _self: "推奨"
-  the_deterministic_cleaner_handles_mo: "推奨: 決定論的クリーナーで大半の口述は十分に整形されます。さらに仕上げが欲しい場合のみ LLM 処理を有効にし、モデル特有の癖（前置き、会話的な返答）を許容してください。"
-  the_deterministic_cleaner_handles_mo_4b468fe8: "推奨: 決定論的クリーナーで大半の音声入力は十分です。追加の仕上げが必要でモデルの癖を許容する場合のみ LLM を有効にしてください。"
 record:
   _self: "記録"
 recording:
@@ -1006,7 +1004,6 @@ right:
   _self: "右"
 run:
   a_local_http_server_so_ai_agents_can_submit: "AI エージェントが文字起こしジョブ送信・履歴検索・話者管理できるようローカル HTTP サーバーを実行します。"
-  llm_polish_after_dictation_stops: "口述停止後に LLM 仕上げを実行"
 runtime:
   _self: "ランタイム: %@"
   status: "ランタイム状態"
@@ -1136,10 +1133,8 @@ stop:
   listening: "聞き取りを停止"
   recording: "録音を停止する"
 streaming:
-  enhancement: "ストリーミング時の整形"
   transcription_currently_supports_engli: "ストリーミング文字起こしは現在、選択した言語に関係なく英語のみをサポートしています。"
   transcription_instantly_ready: "ストリーミング文字起こし、すぐに準備完了"
-  transcription_is_disabled_while_ai_enh: "AI Enhancement が有効になっている間、ストリーミング文字起こしは無効になります。"
   transcription_model_nemotron_speech: "ストリーミング文字起こしモデル（Nemotron Speech Streaming）はNVIDIA CorporationによりNVIDIA Open Model Licenseの下でライセンスされています。"
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1467,7 +1462,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "このタスク用に調整された組み込みプロンプトを使用します。"
   the_560ms_nemotron_variant_for_snappier_par: "560msのNemotronバリアントを使用して途中テキストの表示を速くします。デフォルトは1120msバリアント（最高精度）です。"
-  the_transcription_enhancement_assignment_if: "文字起こし強化の割り当てを使用します。未設定の場合は決定論的クリーナーの出力がそのまま残ります。"
 v:
   _self: "v%@"
 version:

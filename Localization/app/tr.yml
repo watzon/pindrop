@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "Pindrop'un macOS'ta nasıl görüneceğini ve masaüstü oturumunuzla başlayıp başlamayacağını kontrol edin."
 controls:
-  how_the_live_dictation_path_polishes_tr: "Canlı dikte yolunun transkriptleri nasıl rötuşladığını kontrol eder. Deterministik temizleyici (doldurucu sözcüklerin kaldırılması, büyük harf, sözlü noktalama, sayı normalleştirme, bölünmüş sözcüklerin birleştirilmesi) her durumda çalışır — bu anahtar, dikte durduğunda çalışan isteğe bağlı LLM cilalama adımını denetler."
 copied:
   _self: "Kopyalandı!"
   to_clipboard: "Panoya kopyalandı"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "Transkripti yapıştırmadan panoya kopyalar."
 copy:
   _self: "Kopyala"
+  and_edit_prompt: "İstemi Kopyala ve Düzenle"
   enhanced: "Geliştirilmiş Kopyalama"
   last_transcript: "Son Transkripti Kopyala"
   original: "Orijinali Kopyala"
@@ -946,8 +946,6 @@ recent:
   transcripts: "Son Transkriptler"
 recommended:
   _self: "Tavsiye edilen"
-  the_deterministic_cleaner_handles_mo: "Önerilir: deterministik temizleyici diktelerin büyük kısmını temiz biçimde halleder. LLM adımını yalnızca ekstra cila istiyorsanız ve ara sıra oluşan model tuhaflıklarını (başlangıç ifadeleri, sohbet tarzı yanıtlar) kabul ediyorsanız etkinleştirin."
-  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "Kayıt"
 recording:
@@ -1006,7 +1004,6 @@ right:
   _self: "Sağ"
 run:
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
-  llm_polish_after_dictation_stops: "Dikte durduğunda LLM cilalama çalıştır"
 runtime:
   _self: "Çalışma zamanı: %@"
   status: "Çalışma zamanı durumu"
@@ -1136,10 +1133,8 @@ stop:
   listening: "Dinlemeyi durdur"
   recording: "Kaydı Durdur"
 streaming:
-  enhancement: "Akış iyileştirmesi"
   transcription_currently_supports_engli: "Akış transkripsiyonu şu anda seçilen dilden bağımsız olarak yalnızca İngilizceyi destekler."
   transcription_instantly_ready: "Akışlı transkripsiyon, anında hazır"
-  transcription_is_disabled_while_ai_enh: "AI Geliştirme etkinken akış transkripsiyonu devre dışı bırakılır."
   transcription_model_nemotron_speech: "Akış transkripsiyon modeli (Nemotron Speech Streaming) NVIDIA Corporation tarafından NVIDIA Open Model License kapsamında lisanslanmıştır."
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1467,7 +1462,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "Bu görev için ayarlanmış yerleşik bir istem kullanır."
   the_560ms_nemotron_variant_for_snappier_par: "Daha hızlı ara metin için 560 ms Nemotron varyantını kullanır. Varsayılan, 1120 ms varyantıdır (en iyi doğruluk)."
-  the_transcription_enhancement_assignment_if: "Transkript İyileştirme atamasını kullanır. Tanımlı değilse deterministik temizleyicinin çıktısı olduğu gibi bırakılır."
 v:
   _self: "v%@"
 version:

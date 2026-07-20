@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "Control how Pindrop appears in macOS and whether it starts with your desktop session."
 controls:
-  how_the_live_dictation_path_polishes_tr: "Controla cómo pule los transcritos el flujo de dictado en vivo. El limpiador determinista (eliminación de muletillas, capitalización, puntuación hablada, normalización de números, unión de palabras partidas) se ejecuta siempre — este interruptor regula el pase de pulido opcional del LLM que se ejecuta cuando termina el dictado."
 copied:
   _self: "¡Copiado!"
   to_clipboard: "Copiado al portapapeles"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "Copia la transcripción al portapapeles sin pegarla."
 copy:
   _self: "Copy"
+  and_edit_prompt: "Copiar y editar el prompt"
   enhanced: "Copiar mejorado"
   last_transcript: "Copiar última transcripción"
   original: "Copiar original"
@@ -946,8 +946,6 @@ recent:
   transcripts: "Transcripciones recientes"
 recommended:
   _self: "Recomendado"
-  the_deterministic_cleaner_handles_mo: "Recomendado: el limpiador determinista resuelve la mayor parte de las dictaciones. Activa el paso LLM solo si quieres pulido adicional y aceptas peculiaridades ocasionales del modelo (preámbulos, respuestas conversacionales)."
-  the_deterministic_cleaner_handles_mo_4b468fe8: "Recomendado: el limpiador determinista resuelve la mayoría del dictado. Activa el paso LLM solo si quieres un extra de pulido y aceptas rarezas ocasionales del modelo."
 record:
   _self: "Grabar"
 recording:
@@ -1006,7 +1004,6 @@ right:
   _self: "Derecha"
 run:
   a_local_http_server_so_ai_agents_can_submit: "Ejecuta un servidor HTTP local para que los agentes de IA envíen trabajos de transcripción, busquen en el historial y gestionen oradores."
-  llm_polish_after_dictation_stops: "Ejecutar pulido LLM al terminar el dictado"
 runtime:
   _self: "Tiempo de ejecución: %@"
   status: "Estado en tiempo de ejecución"
@@ -1136,10 +1133,8 @@ stop:
   listening: "Dejar de escuchar"
   recording: "Stop Recording"
 streaming:
-  enhancement: "Mejora en streaming"
   transcription_currently_supports_engli: "La transcripción en streaming actualmente solo admite inglés, independientemente del idioma seleccionado."
   transcription_instantly_ready: "Transcripción en streaming, lista al instante"
-  transcription_is_disabled_while_ai_enh: "La transcripción en streaming está desactivada mientras la mejora con IA esté activada."
   transcription_model_nemotron_speech: "Modelo de transcripción en streaming (Nemotron Speech Streaming) licenciado por NVIDIA Corporation bajo la NVIDIA Open Model License."
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1467,7 +1462,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "Usa un prompt integrado ajustado para esta tarea."
   the_560ms_nemotron_variant_for_snappier_par: "Usa la variante Nemotron de 560 ms para texto parcial más ágil. La predeterminada es la variante de 1120 ms (mejor precisión)."
-  the_transcription_enhancement_assignment_if: "Usa la asignación de Mejora de transcripción. Si no hay ninguna definida, se conserva la salida del limpiador determinista tal cual."
 v:
   _self: "v%@"
 version:

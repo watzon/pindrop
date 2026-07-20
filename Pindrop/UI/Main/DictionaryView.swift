@@ -222,6 +222,7 @@ struct DictionaryView: View {
     // Export write ownership lives on DictionaryExportWorkOwner; no view-local export task.
 
     @State private var selectedRowID: UUID?
+    @State private var addEntryMenuAnchorView: NSView?
     @State private var keyMonitor: Any?
     private var isCompletelyEmpty: Bool {
         replacements.isEmpty && vocabularyWords.isEmpty
@@ -421,41 +422,85 @@ struct DictionaryView: View {
             title: localized("Dictionary", locale: locale),
             meta: localized("Teach Pindrop your words", locale: locale)
         ) {
-            HStack(spacing: 10) {
-                Menu {
-                    Button(action: handleImport) {
-                        Label(localized("Import Dictionary", locale: locale), systemImage: "square.and.arrow.down")
-                    }
-                    Button(action: handleExport) {
-                        Label(localized("Export Dictionary", locale: locale), systemImage: "square.and.arrow.up")
-                    }
-                    Divider()
-                    Button {
-                        showAddReplacementSheet = true
-                    } label: {
-                        Label(localized("Add replacement", locale: locale), systemImage: "arrow.left.arrow.right")
-                    }
-                } label: {
-                    SecondaryButton(
-                        title: localized("Import/Export", locale: locale),
-                        systemImage: "ellipsis",
-                        action: {}
-                    )
-                    .allowsHitTesting(false)
-                }
-                .menuStyle(.borderlessButton)
-                .menuIndicator(.hidden)
-                .fixedSize()
-
-                PrimaryButton(
-                    title: localized("Add word", locale: locale),
-                    systemImage: "plus",
-                    action: {
-                        showAddWordSheet = true
-                    }
-                )
-            }
+            addEntryControl
         }
+    }
+
+    /// Matches the Library page's true split-button behavior: the main segment
+    /// adds a word, while the chevron exposes every secondary dictionary action.
+    private var addEntryControl: some View {
+        HStack(spacing: 0) {
+            Button {
+                showAddWordSheet = true
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 12, weight: .semibold))
+                    Text(localized("Add word", locale: locale))
+                        .font(AppTypography.labelSemibold)
+                }
+                .padding(.vertical, 6)
+                .padding(.horizontal, 12)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(localized("Add word", locale: locale))
+
+            Rectangle()
+                .fill(AppColors.contentBackground.opacity(0.35))
+                .frame(width: 1, height: 16)
+
+            Button {
+                presentAddEntryMenu()
+            } label: {
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 9, weight: .semibold))
+                    .padding(.leading, 8)
+                    .padding(.trailing, 12)
+                    .padding(.vertical, 9)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(
+                "\(localized("Add replacement", locale: locale)), \(localized("Import/Export", locale: locale))"
+            )
+            .help(localized("Import/Export", locale: locale))
+        }
+        .foregroundStyle(AppColors.contentBackground)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(AppColors.accent)
+        )
+        .background(
+            DictionaryMenuAnchor { view in
+                addEntryMenuAnchorView = view
+            }
+        )
+        .fixedSize()
+    }
+
+    private func presentAddEntryMenu() {
+        guard let anchor = addEntryMenuAnchorView else { return }
+
+        let menu = NSMenu()
+        menu.addItem(DictionaryActionMenuItem(
+            title: localized("Add replacement", locale: locale),
+            systemImage: "arrow.left.arrow.right"
+        ) {
+            showAddReplacementSheet = true
+        })
+        menu.addItem(.separator())
+        menu.addItem(DictionaryActionMenuItem(
+            title: localized("Import Dictionary", locale: locale),
+            systemImage: "square.and.arrow.down",
+            handler: handleImport
+        ))
+        menu.addItem(DictionaryActionMenuItem(
+            title: localized("Export Dictionary", locale: locale),
+            systemImage: "square.and.arrow.up",
+            handler: handleExport
+        ))
+        menu.popUp(positioning: nil, at: NSPoint(x: 0, y: -6), in: anchor)
     }
 
     // MARK: - Vocabulary section
@@ -509,17 +554,27 @@ struct DictionaryView: View {
         }
         .buttonStyle(.plain)
         .keyboardFocusRing(Capsule(style: .continuous))
-        .contextMenu {
-            Button {
-                startEditingVocabulary(word)
-            } label: {
-                Label(localized("Edit", locale: locale), systemImage: "pencil")
-            }
-            Button(role: .destructive) {
-                deleteVocabularyWord(word)
-            } label: {
-                Label(localized("Delete", locale: locale), systemImage: "trash")
-            }
+        .overlay {
+            VocabularyContextMenuPresenter(
+                editTitle: localized("Edit", locale: locale),
+                deleteTitle: localized("Delete", locale: locale),
+                onOpen: {
+                    selectedRowID = word.id
+                },
+                onEdit: {
+                    startEditingVocabulary(word)
+                },
+                onDelete: {
+                    deleteVocabularyWord(id: word.id)
+                }
+            )
+            .accessibilityHidden(true)
+        }
+        .accessibilityAction(named: localized("Edit", locale: locale)) {
+            startEditingVocabulary(word)
+        }
+        .accessibilityAction(named: localized("Delete", locale: locale)) {
+            deleteVocabularyWord(id: word.id)
         }
         .onTapGesture(count: 2) {
             startEditingVocabulary(word)
@@ -547,6 +602,7 @@ struct DictionaryView: View {
                         style: StrokeStyle(lineWidth: 1, dash: [4, 3])
                     )
             )
+            .contentShape(Capsule())
         }
         .buttonStyle(.plain)
         .keyboardFocusRing(Capsule(style: .continuous))
@@ -813,6 +869,11 @@ struct DictionaryView: View {
         }
     }
 
+    private func deleteVocabularyWord(id: UUID) {
+        guard let word = vocabularyWords.first(where: { $0.id == id }) else { return }
+        deleteVocabularyWord(word)
+    }
+
     private func loadData() {
         guard let store = dictionaryStore else { return }
         do {
@@ -1058,6 +1119,121 @@ struct DictionaryView: View {
             deleteVocabularyWord(word)
             self.selectedRowID = nil
         }
+    }
+}
+
+// MARK: - Dictionary AppKit menu support
+
+/// Exposes a stable anchor so the split-button menu aligns with the full control.
+private struct DictionaryMenuAnchor: NSViewRepresentable {
+    let onReady: (NSView) -> Void
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        DispatchQueue.main.async { onReady(view) }
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {}
+}
+
+/// Owns its action because `NSMenuItem.target` is weak.
+private final class DictionaryActionMenuItem: NSMenuItem {
+    private let handler: () -> Void
+
+    init(title: String, systemImage: String?, handler: @escaping () -> Void) {
+        self.handler = handler
+        super.init(title: title, action: #selector(invoke), keyEquivalent: "")
+        target = self
+        if let systemImage {
+            image = NSImage(systemSymbolName: systemImage, accessibilityDescription: nil)
+        }
+    }
+
+    @available(*, unavailable)
+    required init(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    @objc private func invoke() {
+        handler()
+    }
+}
+
+/// Supplies an item-scoped AppKit context menu without letting the enclosing
+/// `List` promote every vocabulary chip to one highlighted context-menu row.
+private struct VocabularyContextMenuPresenter: NSViewRepresentable {
+    let editTitle: String
+    let deleteTitle: String
+    let onOpen: () -> Void
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+
+    func makeNSView(context: Context) -> VocabularyContextMenuView {
+        let view = VocabularyContextMenuView()
+        configure(view)
+        return view
+    }
+
+    func updateNSView(_ nsView: VocabularyContextMenuView, context: Context) {
+        configure(nsView)
+    }
+
+    private func configure(_ view: VocabularyContextMenuView) {
+        view.editTitle = editTitle
+        view.deleteTitle = deleteTitle
+        view.onOpen = onOpen
+        view.onEdit = onEdit
+        view.onDelete = onDelete
+    }
+}
+
+private final class VocabularyContextMenuView: NSView {
+    var editTitle = ""
+    var deleteTitle = ""
+    var onOpen: () -> Void = {}
+    var onEdit: () -> Void = {}
+    var onDelete: () -> Void = {}
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        guard frame.contains(point), let event = NSApp.currentEvent else { return nil }
+        switch event.type {
+        case .rightMouseDown:
+            return self
+        case .leftMouseDown where event.modifierFlags.contains(.control):
+            return self
+        default:
+            return nil
+        }
+    }
+
+    override func rightMouseDown(with event: NSEvent) {
+        presentMenu(with: event)
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        guard event.modifierFlags.contains(.control) else {
+            super.mouseDown(with: event)
+            return
+        }
+        presentMenu(with: event)
+    }
+
+    private func presentMenu(with event: NSEvent) {
+        onOpen()
+
+        let menu = NSMenu()
+        menu.addItem(DictionaryActionMenuItem(
+            title: editTitle,
+            systemImage: "pencil",
+            handler: onEdit
+        ))
+        menu.addItem(DictionaryActionMenuItem(
+            title: deleteTitle,
+            systemImage: "trash",
+            handler: onDelete
+        ))
+        NSMenu.popUpContextMenu(menu, with: event, for: self)
     }
 }
 

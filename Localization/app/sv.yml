@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "Styr hur Pindrop visas i macOS och om det börjar med din skrivbordssession."
 controls:
-  how_the_live_dictation_path_polishes_tr: "Styr hur den direkta dikteringsbanan polerar transkriptioner. Den deterministiska rensaren (borttagning av fyllnadsämnen, versaler, talad interpunktion, nummernormalisering, sammanslagning av delade ord) körs åt båda hållen - denna växling spärrar det valfria LLM-poleringspasset som aktiveras när dikteringen upphör."
 copied:
   _self: "Kopierade!"
   to_clipboard: "Kopierat till urklipp"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "Kopierar transkriptionen till urklipp utan att klistra in."
 copy:
   _self: "Kopiera"
+  and_edit_prompt: "Kopiera och redigera prompt"
   enhanced: "Kopiera förbättrad"
   last_transcript: "Kopiera sista avskriften"
   original: "Kopiera original"
@@ -946,8 +946,6 @@ recent:
   transcripts: "Senaste avskrifter"
 recommended:
   _self: "Rekommenderad"
-  the_deterministic_cleaner_handles_mo: "Rekommenderas: den deterministiska rengöringsmaskinen hanterar de flesta diktering rent. Aktivera LLM-passet endast om du vill ha extra polering och accepterar enstaka modellegenheter (inledning, samtalssvar)."
-  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "Spela in"
 recording:
@@ -1006,7 +1004,6 @@ right:
   _self: "Rätt"
 run:
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
-  llm_polish_after_dictation_stops: "Kör LLM-polering efter att dikteringen har slutat"
 runtime:
   _self: "Körtid: %@"
   status: "Körningsstatus"
@@ -1136,10 +1133,8 @@ stop:
   listening: "Sluta lyssna"
   recording: "Stoppa inspelning"
 streaming:
-  enhancement: "Streaming Enhancement"
   transcription_currently_supports_engli: "Strömmande transkription stöder för närvarande endast engelska, oavsett valt språk."
   transcription_instantly_ready: "Strömmande transkribering, redo direkt"
-  transcription_is_disabled_while_ai_enh: "Strömmande transkription är inaktiverad medan AI Enhancement är aktiverat."
   transcription_model_nemotron_speech: "Strömmande transkriptionsmodell (Nemotron Speech Streaming) licensierad av NVIDIA Corporation under NVIDIA Open Model License."
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1467,7 +1462,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "Använder en inbyggd prompt som är inställd för denna uppgift."
   the_560ms_nemotron_variant_for_snappier_par: "Använder 560 ms Nemotron-varianten för snabbare deltext. Standard är 1120 ms-varianten (bäst noggrannhet)."
-  the_transcription_enhancement_assignment_if: "Använder uppdraget Transcription Enhancement. Om ingen är inställd, hålls den deterministiska renare utsignalen som den är."
 v:
   _self: "v%@"
 version:

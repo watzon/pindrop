@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "Kiểm soát cách Pindrop xuất hiện trong macOS và liệu nó có bắt đầu bằng phiên trên máy tính để bàn của bạn hay không."
 controls:
-  how_the_live_dictation_path_polishes_tr: "Kiểm soát cách đường dẫn chính tả trực tiếp đánh bóng bản ghi. Trình dọn dẹp xác định (loại bỏ phụ, viết hoa, chấm câu nói, chuẩn hóa số, hợp nhất từ ​​tách) chạy theo một trong hai cách — nút chuyển đổi này sẽ chặn đường đánh bóng LLM tùy chọn sẽ kích hoạt sau khi dừng đọc chính tả."
 copied:
   _self: "Đã sao chép!"
   to_clipboard: "Đã sao chép vào clipboard"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "Sao chép bản ghi vào bảng nhớ tạm mà không dán."
 copy:
   _self: "Sao chép"
+  and_edit_prompt: "Sao chép và chỉnh sửa lời nhắc"
   enhanced: "Sao chép nâng cao"
   last_transcript: "Sao chép bản ghi cuối cùng"
   original: "Sao chép bản gốc"
@@ -946,8 +946,6 @@ recent:
   transcripts: "Bảng điểm gần đây"
 recommended:
   _self: "Khuyến khích"
-  the_deterministic_cleaner_handles_mo: "Khuyến nghị: trình dọn dẹp xác định xử lý hầu hết các lệnh chính tả một cách rõ ràng. Chỉ bật thẻ LLM nếu bạn muốn trau chuốt thêm và chấp nhận các yêu cầu không thường xuyên của mô hình (lời mở đầu, câu trả lời hội thoại)."
-  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "Ghi"
 recording:
@@ -1006,7 +1004,6 @@ right:
   _self: "Phải"
 run:
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
-  llm_polish_after_dictation_stops: "Chạy đánh bóng LLM sau khi dừng đọc chính tả"
 runtime:
   _self: "Thời gian chạy: %@"
   status: "Trạng thái runtime"
@@ -1136,10 +1133,8 @@ stop:
   listening: "Dừng nghe"
   recording: "Dừng ghi"
 streaming:
-  enhancement: "Cải tiến phát trực tuyến"
   transcription_currently_supports_engli: "Phiên âm trực tuyến hiện chỉ hỗ trợ tiếng Anh, bất kể ngôn ngữ đã chọn."
   transcription_instantly_ready: "Phiên âm phát trực tiếp, sẵn sàng tức thì"
-  transcription_is_disabled_while_ai_enh: "Tính năng chép lời trực tuyến bị vô hiệu hóa khi tính năng Cải tiến AI được bật."
   transcription_model_nemotron_speech: "Mô hình phiên âm trực tuyến (Nemotron Speech Streaming) được NVIDIA Corporation cấp phép theo NVIDIA Open Model License."
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1467,7 +1462,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "Sử dụng lời nhắc tích hợp được điều chỉnh cho tác vụ này."
   the_560ms_nemotron_variant_for_snappier_par: "Dùng biến thể Nemotron 560ms để hiển thị văn bản tạm nhanh hơn. Mặc định là biến thể 1120ms (độ chính xác tốt nhất)."
-  the_transcription_enhancement_assignment_if: "Sử dụng bài tập Tăng cường phiên âm. Nếu không được đặt, đầu ra của trình dọn dẹp xác định sẽ được giữ nguyên."
 v:
   _self: "v%@"
 version:

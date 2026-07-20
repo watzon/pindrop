@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "macOS에서 Pindrop이 나타나는 방식과 데스크탑 세션에서 Pindrop이 시작되는지 여부를 제어합니다."
 controls:
-  how_the_live_dictation_path_polishes_tr: "라이브 받아쓰기 경로가 전사를 다듬는 방식을 제어합니다. 결정론적 정리기(필러 제거, 대소문자, 구두점 발화, 숫자 정규화, 분리 단어 병합)는 항상 실행되며, 이 토글은 받아쓰기가 멈춘 뒤 실행되는 선택적 LLM 마감 단계를 제어합니다."
 copied:
   _self: "복사되었습니다!"
   to_clipboard: "클립보드에 복사됨"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "붙여넣지 않고 텍스트를 클립보드에 복사합니다."
 copy:
   _self: "복사"
+  and_edit_prompt: "프롬프트 복사 및 편집"
   enhanced: "향상된 복사"
   last_transcript: "마지막 성적표 복사"
   original: "원본 복사"
@@ -946,8 +946,6 @@ recent:
   transcripts: "최근 성적표"
 recommended:
   _self: "추천"
-  the_deterministic_cleaner_handles_mo: "권장: 결정론적 정리기가 대부분의 받아쓰기를 깔끔하게 처리합니다. 추가 마감이 필요하고 가끔 발생하는 모델 특이점(서두, 대화형 응답)을 감수할 수 있을 때만 LLM 단계를 활성화하세요."
-  the_deterministic_cleaner_handles_mo_4b468fe8: "권장: 결정적 클리너가 대부분의 받아쓰기를 깔끔히 처리합니다. 추가 다듬기가 필요하고 모델 특성을 감수할 때만 LLM 패스를 켜세요."
 record:
   _self: "기록"
 recording:
@@ -1006,7 +1004,6 @@ right:
   _self: "오른쪽"
 run:
   a_local_http_server_so_ai_agents_can_submit: "AI 에이전트가 전사 작업을 제출하고 기록을 검색하며 화자를 관리할 수 있도록 로컬 HTTP 서버를 실행합니다."
-  llm_polish_after_dictation_stops: "받아쓰기가 멈춘 뒤 LLM 마감 실행"
 runtime:
   _self: "런타임: %@"
   status: "런타임 상태"
@@ -1136,10 +1133,8 @@ stop:
   listening: "듣기 중지"
   recording: "녹음 중지"
 streaming:
-  enhancement: "스트리밍 향상"
   transcription_currently_supports_engli: "스트리밍 전사는 현재 선택한 언어와 관계없이 영어만 지원합니다."
   transcription_instantly_ready: "스트리밍 전사, 즉시 준비 완료"
-  transcription_is_disabled_while_ai_enh: "AI Enhancement가 활성화된 동안 스트리밍 전사는 비활성화됩니다."
   transcription_model_nemotron_speech: "스트리밍 전사 모델(Nemotron Speech Streaming)은 NVIDIA Corporation이 NVIDIA Open Model License에 따라 라이선스했습니다."
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1467,7 +1462,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "이 작업에 맞게 조정된 내장 프롬프트를 사용합니다."
   the_560ms_nemotron_variant_for_snappier_par: "더 빠른 부분 텍스트를 위해 560ms Nemotron 변형을 사용합니다. 기본값은 1120ms 변형입니다(최고 정확도)."
-  the_transcription_enhancement_assignment_if: "전사 향상 할당을 사용합니다. 설정되어 있지 않으면 결정론적 정리기의 출력이 그대로 유지됩니다."
 v:
   _self: "v%@"
 version:

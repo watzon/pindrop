@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "Kawal cara Pindrop muncul dalam macOS dan sama ada ia bermula dengan sesi desktop anda."
 controls:
-  how_the_live_dictation_path_polishes_tr: "Mengawal cara laluan imlak langsung menggilap transkrip. Pembersih deterministik (penyingkiran pengisi, penggunaan huruf besar, tanda baca yang dituturkan, penormalan nombor, penggabungan perkataan berpecah) berjalan dengan cara sama ada — togol ini mengawal pas pengilat LLM pilihan yang menyala sebaik sahaja imlak berhenti."
 copied:
   _self: "disalin!"
   to_clipboard: "Disalin ke papan keratan"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "Menyalin transkrip ke papan keratan tanpa menampal."
 copy:
   _self: "salin"
+  and_edit_prompt: "Salin dan Edit Gesaan"
   enhanced: "Salin Dipertingkat"
   last_transcript: "Salin Transkrip Terakhir"
   original: "Salin Asal"
@@ -946,8 +946,6 @@ recent:
   transcripts: "Transkrip Terkini"
 recommended:
   _self: "Disyorkan"
-  the_deterministic_cleaner_handles_mo: "Disyorkan: pembersih deterministik mengendalikan kebanyakan imlak dengan bersih. Dayakan pas LLM hanya jika anda mahukan penggilap tambahan dan terima ciri-ciri model sekali-sekala (mukadimah, balasan perbualan)."
-  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "Rekod"
 recording:
@@ -1006,7 +1004,6 @@ right:
   _self: "Betul"
 run:
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
-  llm_polish_after_dictation_stops: "Jalankan penggilap LLM selepas imlak berhenti"
 runtime:
   _self: "Masa jalan: %@"
   status: "Status masa jalan"
@@ -1136,10 +1133,8 @@ stop:
   listening: "Berhenti mendengar"
   recording: "Hentikan Rakaman"
 streaming:
-  enhancement: "Peningkatan Penstriman"
   transcription_currently_supports_engli: "Transkripsi penstriman pada masa ini menyokong bahasa Inggeris sahaja, tanpa mengira bahasa yang dipilih."
   transcription_instantly_ready: "Transkripsi penstriman, sedia serta-merta"
-  transcription_is_disabled_while_ai_enh: "Transkripsi penstriman dilumpuhkan manakala Peningkatan AI didayakan."
   transcription_model_nemotron_speech: "Model transkripsi penstriman (Nemotron Speech Streaming) dilesenkan oleh NVIDIA Corporation di bawah NVIDIA Open Model License."
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1467,7 +1462,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "Menggunakan gesaan terbina dalam yang ditala untuk tugas ini."
   the_560ms_nemotron_variant_for_snappier_par: "Menggunakan varian Nemotron 560ms untuk teks separa yang lebih pantas. Lalai ialah varian 1120ms (ketepatan terbaik)."
-  the_transcription_enhancement_assignment_if: "Menggunakan tugasan Peningkatan Transkripsi. Jika tiada yang ditetapkan, keluaran pembersih deterministik dikekalkan seperti sedia ada."
 v:
   _self: "v%@"
 version:

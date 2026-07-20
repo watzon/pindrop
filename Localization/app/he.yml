@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "שלוט כיצד Pindrop יופיע ב-macOS והאם הוא מתחיל בהפעלת שולחן העבודה שלך."
 controls:
-  how_the_live_dictation_path_polishes_tr: "שולט כיצד נתיב ההכתבה החיה ללטש תמלילים. מנקה הדטרמיניסטי (הסרת חומרי מילוי, שימוש באותיות רישיות, סימני פיסוק מדוברים, נורמליזציה של מספרים, מיזוג של פיצול מילים) פועל לשני הכיוונים - החלפה זו משדרת את מעבר הפוליש האופציונלי של LLM שנפתח ברגע שההכתבה נפסקת."
 copied:
   _self: "מוּעֲתָק!"
   to_clipboard: "הועתק ללוח"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "מעתיק את התמליל ללוח מבלי להדביק."
 copy:
   _self: "לְהַעְתִיק"
+  and_edit_prompt: "העתקה ועריכת ההנחיה"
   enhanced: "העתקה משופרת"
   last_transcript: "העתק את התמליל האחרון"
   original: "העתק מקורי"
@@ -946,8 +946,6 @@ recent:
   transcripts: "תמלולים אחרונים"
 recommended:
   _self: "מוּמלָץ"
-  the_deterministic_cleaner_handles_mo: "מומלץ: המנקה הדטרמיניסטי מתמודד עם רוב ההכתבות בצורה נקייה. אפשר את כרטיס ה-LLM רק אם אתה רוצה ליטוש נוסף וקבל מוזרויות דוגמניות מדי פעם (הקדמה, תשובות לשיחה)."
-  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "רְשׁוּמָה"
 recording:
@@ -1006,7 +1004,6 @@ right:
   _self: "יָמִינָה"
 run:
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
-  llm_polish_after_dictation_stops: "הפעל פוליש LLM לאחר הפסקת ההכתבה"
 runtime:
   _self: "זמן ריצה: %@"
   status: "סטטוס זמן ריצה"
@@ -1136,10 +1133,8 @@ stop:
   listening: "הפסק האזנה"
   recording: "עצור את ההקלטה"
 streaming:
-  enhancement: "שיפור סטרימינג"
   transcription_currently_supports_engli: "תמלול סטרימינג תומך כרגע באנגלית בלבד, ללא קשר לשפה שנבחרה."
   transcription_instantly_ready: "תמלול זורם, מוכן מיד"
-  transcription_is_disabled_while_ai_enh: "תמלול סטרימינג מושבת בזמן ששיפור בינה מלאכותית מופעל."
   transcription_model_nemotron_speech: "מודל תמלול בזרימה (Nemotron Speech Streaming) ברישיון NVIDIA Corporation תחת NVIDIA Open Model License."
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1467,7 +1462,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "משתמש בהנחיה מובנית המכווננת למשימה זו."
   the_560ms_nemotron_variant_for_snappier_par: "משתמש בגרסת Nemotron של 560ms לטקסט חלקי מהיר יותר. ברירת המחדל היא גרסת 1120ms (הדיוק הטוב ביותר)."
-  the_transcription_enhancement_assignment_if: "משתמש במשימת שיפור תמלול. אם לא מוגדר, פלט מנקה דטרמיניסטי נשמר כפי שהוא."
 v:
   _self: "v%@"
 version:

@@ -91,6 +91,34 @@ final class PromptPresetStore {
         }
     }
 
+    /// Resolves either a stable built-in identifier or a persisted preset UUID to
+    /// the English prompt text sent to an enhancement provider.
+    func resolvePrompt(for identifier: String?) throws -> String? {
+        guard let identifier else { return nil }
+
+        if let builtInPrompt = BuiltInPresets.englishPrompt(for: identifier) {
+            return builtInPrompt
+        }
+
+        guard let presetID = UUID(uuidString: identifier) else { return nil }
+        let predicate = #Predicate<PromptPreset> { $0.id == presetID }
+        let descriptor = FetchDescriptor<PromptPreset>(predicate: predicate)
+
+        do {
+            guard let preset = try modelContext.fetch(descriptor).first else {
+                return nil
+            }
+            if let builtInIdentifier = preset.builtInIdentifier,
+               let builtInPrompt = BuiltInPresets.englishPrompt(for: builtInIdentifier)
+            {
+                return builtInPrompt
+            }
+            return preset.prompt
+        } catch {
+            throw PromptPresetStoreError.fetchFailed(error.localizedDescription)
+        }
+    }
+
     func add(_ preset: PromptPreset) throws {
         modelContext.insert(preset)
 
@@ -125,10 +153,10 @@ final class PromptPresetStore {
         }
     }
 
-    func duplicate(_ preset: PromptPreset) throws -> PromptPreset {
+    func duplicate(_ preset: PromptPreset, withPrompt prompt: String? = nil) throws -> PromptPreset {
         let copy = PromptPreset(
             name: "\(preset.name) Copy",
-            prompt: preset.prompt,
+            prompt: prompt ?? preset.prompt,
             isBuiltIn: false,
             sortOrder: preset.sortOrder + 1
         )

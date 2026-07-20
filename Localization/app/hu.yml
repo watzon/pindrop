@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "Szabályozza, hogy a Pindrop hogyan jelenjen meg a macOS rendszerben, és hogy elinduljon-e az asztali munkamenettel."
 controls:
-  how_the_live_dictation_path_polishes_tr: "Azt szabályozza, hogy az élő diktálási útvonal hogyan csiszolja az átiratokat. A determinisztikus tisztító (kitöltés eltávolítása, nagybetűk írása, kimondott írásjelek, számnormalizálás, felosztott szavak összevonása) mindkét irányban fut – ez a kapcsoló az opcionális LLM-fényezési lépést állítja be, amely a diktálás leállása után indul el."
 copied:
   _self: "Másolva!"
   to_clipboard: "Vágólapra másolva"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "A vágólapra másolja az átiratot beillesztés nélkül."
 copy:
   _self: "Másolat"
+  and_edit_prompt: "Prompt másolása és szerkesztése"
   enhanced: "Továbbfejlesztett másolás"
   last_transcript: "Utolsó átirat másolása"
   original: "Eredeti másolása"
@@ -946,8 +946,6 @@ recent:
   transcripts: "Legutóbbi átiratok"
 recommended:
   _self: "Ajánlott"
-  the_deterministic_cleaner_handles_mo: "Javasolt: a determinisztikus tisztító tisztán kezeli a legtöbb diktálást. Csak akkor engedélyezze az LLM-bérletet, ha extra fényezést szeretne, és elfogadja az alkalmi modell furcsaságokat (preambulum, beszélgetési válaszok)."
-  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "Rekord"
 recording:
@@ -1006,7 +1004,6 @@ right:
   _self: "Jobbra"
 run:
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
-  llm_polish_after_dictation_stops: "Futtassa az LLM-fényezést a diktálás leállása után"
 runtime:
   _self: "Futásidő: %@"
   status: "Futásidejű állapot"
@@ -1136,10 +1133,8 @@ stop:
   listening: "Figyelés leállítása"
   recording: "Felvétel leállítása"
 streaming:
-  enhancement: "Streaming Javítás"
   transcription_currently_supports_engli: "A streaming átírás jelenleg csak az angol nyelvet támogatja, függetlenül a kiválasztott nyelvtől."
   transcription_instantly_ready: "Streaming átírás, azonnal készen"
-  transcription_is_disabled_while_ai_enh: "A streamelési átírás le van tiltva, amíg az AI Enhancement engedélyezve van."
   transcription_model_nemotron_speech: "A streamelt átírási modellt (Nemotron Speech Streaming) az NVIDIA Corporation licenceli az NVIDIA Open Model License alatt."
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1467,7 +1462,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "A feladathoz hangolt beépített promptot használ."
   the_560ms_nemotron_variant_for_snappier_par: "Az 560 ms-os Nemotron-változatot használja a gyorsabb részszöveghez. Az alapértelmezett az 1120 ms-os változat (legjobb pontosság)."
-  the_transcription_enhancement_assignment_if: "A Transzkripció javítása hozzárendelést használja. Ha egyik sincs beállítva, akkor a determinisztikus tisztító kimenet változatlan marad."
 v:
   _self: "v%@"
 version:

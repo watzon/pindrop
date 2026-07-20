@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "Контролюйте, як Pindrop відображається в macOS і чи запускається він під час сеансу робочого столу."
 controls:
-  how_the_live_dictation_path_polishes_tr: "Контролює, як шлях живого диктування відшліфовує стенограми. Детермінований очищувач (видалення заповнювачів, використання великих літер, промовна пунктуація, нормалізація чисел, об’єднання розділених слів) працює в будь-якому напрямку — цей перемикач блокує додатковий проход полірування LLM, який запускається після завершення диктування."
 copied:
   _self: "Скопійовано!"
   to_clipboard: "Скопійовано в буфер обміну"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "Копіює текст у буфер обміну без вставлення."
 copy:
   _self: "Копіювати"
+  and_edit_prompt: "Копіювати й редагувати промпт"
   enhanced: "Покращене копіювання"
   last_transcript: "Копіювати останню транскрипцію"
   original: "Копія Оригінал"
@@ -946,8 +946,6 @@ recent:
   transcripts: "Останні стенограми"
 recommended:
   _self: "Рекомендовано"
-  the_deterministic_cleaner_handles_mo: "Рекомендовано: детермінований очищувач чітко обробляє більшість диктовок. Увімкніть пропуск LLM, лише якщо ви бажаєте додаткового вдосконалення та погоджуєтеся на випадкові примхи моделі (преамбула, розмовні відповіді)."
-  the_deterministic_cleaner_handles_mo_4b468fe8: "Recommended: the deterministic cleaner handles most dictation cleanly. Enable the LLM pass only if you want extra polish and accept occasional model quirks."
 record:
   _self: "запис"
 recording:
@@ -1006,7 +1004,6 @@ right:
   _self: "правильно"
 run:
   a_local_http_server_so_ai_agents_can_submit: "Run a local HTTP server so AI agents can submit transcription jobs, search history, and manage speakers."
-  llm_polish_after_dictation_stops: "Запустіть полірування LLM після зупинки диктування"
 runtime:
   _self: "Тривалість: %@"
   status: "Стан виконання"
@@ -1136,10 +1133,8 @@ stop:
   listening: "Зупинити прослуховування"
   recording: "Зупинити запис"
 streaming:
-  enhancement: "Покращення потокового передавання"
   transcription_currently_supports_engli: "Потокова транскрипція наразі підтримує лише англійську мову, незалежно від вибраної мови."
   transcription_instantly_ready: "Потокова транскрипція, готова миттєво"
-  transcription_is_disabled_while_ai_enh: "Потокова транскрипція вимкнена, коли ввімкнено AI Enhancement."
   transcription_model_nemotron_speech: "Модель потокової транскрипції (Nemotron Speech Streaming) ліцензована NVIDIA Corporation за ліцензією NVIDIA Open Model License."
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1467,7 +1462,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "Використовує вбудовану підказку, налаштовану для цього завдання."
   the_560ms_nemotron_variant_for_snappier_par: "Використовує варіант Nemotron 560 мс для швидшого проміжного тексту. Типовим є варіант 1120 мс (найкраща точність)."
-  the_transcription_enhancement_assignment_if: "Використовує призначення покращення транскрипції. Якщо жодного не встановлено, вихід детермінованого очищення зберігається як є."
 v:
   _self: "v%@"
 version:

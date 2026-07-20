@@ -380,17 +380,12 @@ final class StreamingSessionController {
         try ensureNotCancelled()
         try? dictionaryStore.recordVocabularyHits(in: textAfterReplacements)
 
-        // Post-stop holistic enhancement for streaming sessions. Gated by the
-        // `streamingPostStopEnhancementEnabled` setting (default OFF): the deterministic
-        // cleaner is strong enough to stand on its own for most dictation, and the LLM
-        // path has failure modes (preamble, conversational replies, rate-limit stalls)
-        // we don't want as the default experience. Users who want LLM polish can enable
-        // the toggle and configure a `transcriptionEnhancement` assignment.
+        // A configured transcription-enhancement assignment owns the post-stop LLM pass.
+        // Streaming text is only the live preview and fallback; the authoritative offline
+        // transcription still receives the same enhancement as the batch pipeline.
         var originalStreamedText: String? = nil
         var enhancedWithModel: String? = nil
-        let liveRefinementLanded = coord?.didLandAnyRefinement == true
-        let enhanceEnabled = settingsStore.streamingPostStopEnhancementEnabled
-        if enhanceEnabled, !liveRefinementLanded, let postStopEnhance {
+        if let postStopEnhance {
             try ensureNotCancelled()
             // Surface the enhancement wait in the overlay: the transcript stays visible
             // with an "Enhancing…" affordance until the rewritten text is pasted.

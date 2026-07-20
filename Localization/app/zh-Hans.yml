@@ -234,7 +234,6 @@ continue:
 control:
   how_pindrop_appears_in_macos_and_whether: "控制 Pindrop 在 macOS 中的显示方式以及是否随桌面会话启动。"
 controls:
-  how_the_live_dictation_path_polishes_tr: "控制实时听写路径如何修饰转录内容。确定性清理（填充词移除、首字母大写、口头标点、数字规范化、拆分词合并）始终运行——此开关控制可选的 LLM 润色步骤，该步骤在听写停止后触发。"
 copied:
   _self: "已复制！"
   to_clipboard: "已复制到剪贴板"
@@ -242,6 +241,7 @@ copies:
   the_transcript_to_the_clipboard_without: "仅将转写文本复制到剪贴板，不进行粘贴。"
 copy:
   _self: "复制"
+  and_edit_prompt: "复制并编辑提示词"
   enhanced: "复制增强版"
   last_transcript: "复制上次转录"
   original: "复制原版"
@@ -946,8 +946,6 @@ recent:
   transcripts: "最近转录"
 recommended:
   _self: "推荐"
-  the_deterministic_cleaner_handles_mo: "建议：确定性清理器已经能妥善处理大多数听写。仅当你想要额外润色，并能接受模型偶发的怪癖（开头语、对话式回复）时，再启用 LLM 步骤。"
-  the_deterministic_cleaner_handles_mo_4b468fe8: "推荐：确定性清理器已能干净处理多数听写。仅在需要额外润色并接受模型偶发偏差时启用 LLM。"
 record:
   _self: "录制"
 recording:
@@ -1006,7 +1004,6 @@ right:
   _self: "右侧"
 run:
   a_local_http_server_so_ai_agents_can_submit: "运行本地 HTTP 服务器，以便 AI 代理提交转写任务、搜索历史并管理说话人。"
-  llm_polish_after_dictation_stops: "听写停止后运行 LLM 润色"
 runtime:
   _self: "运行时间：%@"
   status: "运行时状态"
@@ -1136,10 +1133,8 @@ stop:
   listening: "停止聆听"
   recording: "停止录制"
 streaming:
-  enhancement: "流式增强"
   transcription_currently_supports_engli: "流式转录当前仅支持英语，与所选语言无关。"
   transcription_instantly_ready: "流式转录，立即就绪"
-  transcription_is_disabled_while_ai_enh: "启用 AI 增强时，流式转录被禁用。"
   transcription_model_nemotron_speech: "流式转写模型（Nemotron Speech Streaming）由 NVIDIA Corporation 依据 NVIDIA Open Model License 授权。"
 sensevoice:
   small_funasr_model_license: "SenseVoice-Small (FunASR) model weights are licensed by Alibaba Group under the FunASR Model Open Source License; attribution required."
@@ -1467,7 +1462,6 @@ used:
 uses:
   a_built_in_prompt_tuned_for_this_task: "使用针对此任务调整的内置提示。"
   the_560ms_nemotron_variant_for_snappier_par: "使用 560ms Nemotron 变体以更快显示中间文本。默认为 1120ms 变体（最佳准确度）。"
-  the_transcription_enhancement_assignment_if: "使用“转录增强”分配。如果未设置，则保留确定性清理器的输出。"
 v:
   _self: "v%@"
 version:
