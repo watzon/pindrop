@@ -557,11 +557,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
 
         // SwiftData can defer opening a damaged or metadata-incompatible store
-        // until the first fetch. Validate the container here so AppDelegate's
-        // repair-and-retry path handles those stores before services retain it.
-        var healthCheck = FetchDescriptor<TranscriptionRecord>()
-        healthCheck.fetchLimit = 1
-        _ = try container.mainContext.fetch(healthCheck)
+        // until an affected entity is first fetched. Probe every current model
+        // so AppDelegate repairs the store before any service retains it.
+        func validateStoreAccess<Model: PersistentModel>(_: Model.Type) throws {
+            var healthCheck = FetchDescriptor<Model>()
+            healthCheck.fetchLimit = 1
+            _ = try container.mainContext.fetch(healthCheck)
+        }
+
+        try validateStoreAccess(TranscriptionRecord.self)
+        try validateStoreAccess(MediaFolder.self)
+        try validateStoreAccess(ParticipantProfile.self)
+        try validateStoreAccess(ParticipantTrainingEvidence.self)
+        try validateStoreAccess(WordReplacement.self)
+        try validateStoreAccess(VocabularyWord.self)
+        try validateStoreAccess(Note.self)
+        try validateStoreAccess(PromptPreset.self)
+        try validateStoreAccess(TrainingContribution.self)
         return container
     }
 
@@ -626,10 +638,17 @@ final class SwiftDataStoreRepairService {
         let sql: String
     }
 
+    private struct SchemaColumnDefinition {
+        let tableName: String
+        let name: String
+        let sql: String
+    }
+
     private struct ReferenceArtifacts {
         let metadataBlob: Data
         let modelCacheBlob: Data
         let schemaDefinitions: [SchemaObjectDefinition]
+        let columnDefinitions: [SchemaColumnDefinition]
     }
 
     private let fileManager: FileManager
@@ -701,12 +720,29 @@ final class SwiftDataStoreRepairService {
 
         let metadataVersion = try readMetadataVersionIdentifier(at: targetStoreURL)
         let referenceArtifacts = try makeReferenceArtifacts(for: inferredVersion)
-        let missingSchemaDefinitions = try withDatabase(at: targetStoreURL) { database in
+        let (missingSchemaDefinitions, missingColumnDefinitions) = try withDatabase(at: targetStoreURL) { database in
             let existingObjectNames = try fetchSchemaObjectNames(on: database)
-            return referenceArtifacts.schemaDefinitions.filter { !existingObjectNames.contains($0.name) }
+            let existingTableNames = try fetchTableNames(on: database)
+            let missingSchemaDefinitions = referenceArtifacts.schemaDefinitions.filter {
+                !existingObjectNames.contains($0.name)
+            }
+            var missingColumnDefinitions: [SchemaColumnDefinition] = []
+
+            for tableName in existingTableNames.sorted() {
+                let existingColumnNames = try fetchColumnNames(table: tableName, on: database)
+                missingColumnDefinitions.append(
+                    contentsOf: referenceArtifacts.columnDefinitions.filter {
+                        $0.tableName == tableName && !existingColumnNames.contains($0.name)
+                    }
+                )
+            }
+
+            return (missingSchemaDefinitions, missingColumnDefinitions)
         }
 
-        guard metadataVersion != inferredVersion.rawValue || !missingSchemaDefinitions.isEmpty else {
+        guard metadataVersion != inferredVersion.rawValue
+            || !missingSchemaDefinitions.isEmpty
+            || !missingColumnDefinitions.isEmpty else {
             return RepairOutcome(repaired: false, backupDirectoryURL: nil)
         }
 
@@ -715,6 +751,13 @@ final class SwiftDataStoreRepairService {
         try withDatabase(at: targetStoreURL) { database in
             try execute("BEGIN IMMEDIATE TRANSACTION", on: database)
             do {
+                for columnDefinition in missingColumnDefinitions {
+                    let tableName = quotedIdentifier(columnDefinition.tableName)
+                    try execute(
+                        "ALTER TABLE \(tableName) ADD COLUMN \(columnDefinition.sql)",
+                        on: database
+                    )
+                }
                 for schemaDefinition in missingSchemaDefinitions {
                     try execute(schemaDefinition.sql, on: database)
                 }
@@ -727,14 +770,24 @@ final class SwiftDataStoreRepairService {
             }
         }
 
-        if missingSchemaDefinitions.isEmpty {
+        if missingSchemaDefinitions.isEmpty && missingColumnDefinitions.isEmpty {
             Log.app.info(
                 "Repaired SwiftData store metadata from \(metadataVersion ?? "unknown") to \(inferredVersion.rawValue); backup: \(backupDirectoryURL.path)"
             )
         } else {
-            let recreatedNames = missingSchemaDefinitions.map(\.name).joined(separator: ", ")
+            var repairDetails: [String] = []
+            if !missingColumnDefinitions.isEmpty {
+                let addedColumns = missingColumnDefinitions
+                    .map { "\($0.tableName).\($0.name)" }
+                    .joined(separator: ", ")
+                repairDetails.append("added missing columns (\(addedColumns))")
+            }
+            if !missingSchemaDefinitions.isEmpty {
+                let recreatedNames = missingSchemaDefinitions.map(\.name).joined(separator: ", ")
+                repairDetails.append("recreated missing schema objects (\(recreatedNames))")
+            }
             Log.app.info(
-                "Repaired SwiftData store by recreating missing schema objects (\(recreatedNames)) and refreshing metadata to \(inferredVersion.rawValue); backup: \(backupDirectoryURL.path)"
+                "Repaired SwiftData store by \(repairDetails.joined(separator: " and ")) and refreshing metadata to \(inferredVersion.rawValue); backup: \(backupDirectoryURL.path)"
             )
         }
         return RepairOutcome(repaired: true, backupDirectoryURL: backupDirectoryURL)
@@ -883,10 +936,12 @@ final class SwiftDataStoreRepairService {
             }
 
             let schemaDefinitions = try fetchSchemaDefinitions(on: database)
+            let columnDefinitions = try fetchSchemaColumnDefinitions(on: database)
             return ReferenceArtifacts(
                 metadataBlob: metadataBlob,
                 modelCacheBlob: modelCacheBlob,
-                schemaDefinitions: schemaDefinitions
+                schemaDefinitions: schemaDefinitions,
+                columnDefinitions: columnDefinitions
             )
         }
     }
@@ -931,7 +986,7 @@ final class SwiftDataStoreRepairService {
 
     private func fetchColumnNames(table: String, on database: OpaquePointer) throws -> Set<String> {
         var statement: OpaquePointer?
-        let sql = "PRAGMA table_info(\(table))"
+        let sql = "PRAGMA table_info(\(quotedIdentifier(table)))"
 
         guard sqlite3_prepare_v2(database, sql, -1, &statement, nil) == SQLITE_OK else {
             throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
@@ -947,6 +1002,82 @@ final class SwiftDataStoreRepairService {
         }
 
         return columns
+    }
+
+    private func fetchSchemaColumnDefinitions(on database: OpaquePointer) throws -> [SchemaColumnDefinition] {
+        var definitions: [SchemaColumnDefinition] = []
+
+        for tableName in try fetchTableNames(on: database).sorted() {
+            var statement: OpaquePointer?
+            let sql = "PRAGMA table_info(\(quotedIdentifier(tableName)))"
+
+            guard sqlite3_prepare_v2(database, sql, -1, &statement, nil) == SQLITE_OK else {
+                throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
+            }
+
+            defer { sqlite3_finalize(statement) }
+
+            while sqlite3_step(statement) == SQLITE_ROW {
+                guard let namePointer = sqlite3_column_text(statement, 1) else {
+                    continue
+                }
+
+                let name = String(cString: namePointer)
+                let declaredType = sqlite3_column_text(statement, 2).map { String(cString: $0) } ?? ""
+                let isNotNull = sqlite3_column_int(statement, 3) != 0
+                let defaultValue = sqlite3_column_text(statement, 4).map { String(cString: $0) }
+                let isPrimaryKey = sqlite3_column_int(statement, 5) != 0
+                var sqlParts = [quotedIdentifier(name)]
+
+                if !declaredType.isEmpty {
+                    sqlParts.append(declaredType)
+                }
+                if isPrimaryKey {
+                    sqlParts.append("PRIMARY KEY")
+                }
+                if isNotNull {
+                    sqlParts.append("NOT NULL")
+                }
+                if let defaultValue {
+                    sqlParts.append("DEFAULT \(defaultValue)")
+                }
+
+                definitions.append(
+                    SchemaColumnDefinition(
+                        tableName: tableName,
+                        name: name,
+                        sql: sqlParts.joined(separator: " ")
+                    )
+                )
+            }
+        }
+
+        return definitions
+    }
+
+    private func fetchTableNames(on database: OpaquePointer) throws -> Set<String> {
+        var statement: OpaquePointer?
+        let sql = """
+        SELECT name
+        FROM sqlite_master
+        WHERE type = 'table'
+          AND name NOT LIKE 'sqlite_%'
+        """
+
+        guard sqlite3_prepare_v2(database, sql, -1, &statement, nil) == SQLITE_OK else {
+            throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
+        }
+
+        defer { sqlite3_finalize(statement) }
+
+        var tableNames = Set<String>()
+        while sqlite3_step(statement) == SQLITE_ROW {
+            if let namePointer = sqlite3_column_text(statement, 0) {
+                tableNames.insert(String(cString: namePointer))
+            }
+        }
+
+        return tableNames
     }
 
     private func tableExists(named table: String, on database: OpaquePointer) throws -> Bool {
@@ -1091,6 +1222,10 @@ final class SwiftDataStoreRepairService {
         guard sqlite3_exec(database, sql, nil, nil, nil) == SQLITE_OK else {
             throw StoreRepairError.sqlite(message: lastSQLiteErrorMessage(on: database))
         }
+    }
+
+    private func quotedIdentifier(_ identifier: String) -> String {
+        "\"\(identifier.replacingOccurrences(of: "\"", with: "\"\""))\""
     }
 
     private func withDatabase<T>(at url: URL, _ work: (OpaquePointer) throws -> T) throws -> T {
