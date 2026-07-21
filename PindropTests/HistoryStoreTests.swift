@@ -2115,6 +2115,157 @@ struct HistoryStoreTests {
         try? FileManager.default.removeItem(at: directoryURL)
     }
 
+    // Regression for https://github.com/watzon/pindrop/issues/78: a store can
+    // carry current V12 metadata while still missing columns from earlier
+    // lightweight migrations. Version metadata and object-name checks alone
+    // must not cause the repair path to treat that store as healthy.
+    @Test func repairServiceRestoresCurrentMetadataStoreWithMissingColumns() throws {
+        try requireSQLiteSupport()
+        let directoryURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let storeURL = directoryURL.appendingPathComponent("incomplete-current.store")
+        defer { try? FileManager.default.removeItem(at: directoryURL) }
+        let repairService = SwiftDataStoreRepairService(
+            fileManager: .default,
+            applicationSupportRootURL: directoryURL
+        )
+        let missingColumns = [
+            (table: "ZTRANSCRIPTIONRECORD", column: "ZDESTINATIONAPPNAME"),
+            (table: "ZTRANSCRIPTIONRECORD", column: "ZDESTINATIONAPPBUNDLEID"),
+            (table: "ZTRANSCRIPTIONRECORD", column: "ZWORDCOUNT"),
+            (table: "ZPARTICIPANTPROFILE", column: "ZNOTES"),
+            (table: "ZPARTICIPANTPROFILE", column: "ZISCURRENTUSER"),
+            (table: "ZPARTICIPANTPROFILE", column: "ZEMBEDDINGSPACEIDENTIFIER"),
+            (table: "ZPARTICIPANTPROFILE", column: "ZNEEDSVOICERETRAINING"),
+            (table: "ZPARTICIPANTTRAININGEVIDENCE", column: "ZEMBEDDINGSPACEIDENTIFIER"),
+            (table: "ZWORDREPLACEMENT", column: "ZMATCHMODERAWVALUE"),
+            (table: "ZWORDREPLACEMENT", column: "ZUSAGECOUNT"),
+            (table: "ZVOCABULARYWORD", column: "ZUSAGECOUNT")
+        ]
+
+        try autoreleasepool {
+            let container = try AppDelegate.makeModelContainer(at: storeURL)
+            let context = ModelContext(container)
+            let profile = ParticipantProfile(
+                normalizedName: "alice",
+                displayName: "Alice",
+                notes: "Seed notes",
+                isCurrentUser: true,
+                embeddingSpaceIdentifier: "seed-space",
+                needsVoiceRetraining: true
+            )
+
+            context.insert(
+                TranscriptionRecord(
+                    text: "Current transcription",
+                    duration: 1.0,
+                    modelUsed: "base",
+                    destinationAppName: "Notes",
+                    destinationAppBundleID: "com.apple.Notes",
+                    wordCount: 2,
+                    pipelineMetricsJSON: "{}"
+                )
+            )
+            context.insert(profile)
+            context.insert(
+                ParticipantTrainingEvidence(
+                    evidenceKey: "seed-evidence",
+                    sourceTypeRawValue: "dictation",
+                    sourceSpeakerID: "speaker-0",
+                    segmentStartTime: 0,
+                    segmentEndTime: 1,
+                    segmentDuration: 1,
+                    confidence: 0.9,
+                    embeddingData: Data([0x01]),
+                    embeddingSpaceIdentifier: "seed-space",
+                    profile: profile
+                )
+            )
+            context.insert(
+                WordReplacement(
+                    originals: ["teh"],
+                    replacement: "the",
+                    matchModeRawValue: ReplacementMatchMode.exact.rawValue,
+                    usageCount: 4
+                )
+            )
+            context.insert(VocabularyWord(word: "Pindrop", usageCount: 3))
+            try context.save()
+        }
+        try flushSQLiteStore(at: storeURL)
+
+        try withDatabase(at: storeURL) { database in
+            for missingColumn in missingColumns {
+                let tableName = quotedSQLiteIdentifier(missingColumn.table)
+                let columnName = quotedSQLiteIdentifier(missingColumn.column)
+                try execute("ALTER TABLE \(tableName) DROP COLUMN \(columnName)", on: database)
+            }
+        }
+
+        do {
+            _ = try AppDelegate.makeModelContainer(at: storeURL)
+            Issue.record("Expected current container health check to fail before repair")
+        } catch {
+            #expect(!error.localizedDescription.isEmpty)
+        }
+
+        let outcome = try repairService.repairIfNeeded(storeURL: storeURL)
+        #expect(outcome.repaired)
+        #expect(outcome.backupDirectoryURL != nil)
+
+        let repairedContainer = try AppDelegate.makeModelContainer(at: storeURL)
+        let repairedContext = ModelContext(repairedContainer)
+        let records = try repairedContext.fetch(FetchDescriptor<TranscriptionRecord>())
+        let profiles = try repairedContext.fetch(FetchDescriptor<ParticipantProfile>())
+        let evidence = try repairedContext.fetch(FetchDescriptor<ParticipantTrainingEvidence>())
+        let replacements = try repairedContext.fetch(FetchDescriptor<WordReplacement>())
+        let vocabulary = try repairedContext.fetch(FetchDescriptor<VocabularyWord>())
+
+        #expect(records.count == 1)
+        #expect(records.first?.destinationAppName == nil)
+        #expect(records.first?.destinationAppBundleID == nil)
+        #expect(records.first?.wordCount == nil)
+        #expect(profiles.count == 1)
+        #expect(profiles.first?.notes == nil)
+        #expect(profiles.first?.isCurrentUser == false)
+        #expect(profiles.first?.embeddingSpaceIdentifier == nil)
+        #expect(profiles.first?.needsVoiceRetraining == false)
+        #expect(evidence.count == 1)
+        #expect(evidence.first?.embeddingSpaceIdentifier == nil)
+        #expect(replacements.count == 1)
+        #expect(replacements.first?.matchModeRawValue == nil)
+        #expect(replacements.first?.usageCount == 0)
+        #expect(vocabulary.count == 1)
+        #expect(vocabulary.first?.usageCount == 0)
+    }
+
+    @Test func productionHealthCheckRejectsMissingNonTranscriptionColumn() throws {
+        try requireSQLiteSupport()
+        let directoryURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let storeURL = directoryURL.appendingPathComponent("incomplete-dictionary.store")
+        defer { try? FileManager.default.removeItem(at: directoryURL) }
+
+        try autoreleasepool {
+            let container = try AppDelegate.makeModelContainer(at: storeURL)
+            let context = ModelContext(container)
+            context.insert(VocabularyWord(word: "Pindrop", usageCount: 3))
+            try context.save()
+        }
+        try flushSQLiteStore(at: storeURL)
+
+        try withDatabase(at: storeURL) { database in
+            try execute("ALTER TABLE ZVOCABULARYWORD DROP COLUMN ZUSAGECOUNT", on: database)
+        }
+
+        do {
+            _ = try AppDelegate.makeModelContainer(at: storeURL)
+            Issue.record("Expected production health check to reject the incomplete dictionary table")
+        } catch {
+            #expect(!error.localizedDescription.isEmpty)
+        }
+    }
+
     // Regression for https://github.com/watzon/pindrop/issues/76: the old
     // repair path stamped V7+ stores with metadata built from unversioned
     // current models (version identifier 1.0.0, stale entity set), after which
@@ -2543,6 +2694,10 @@ struct HistoryStoreTests {
         guard sqlite3_exec(database, sql, nil, nil, nil) == SQLITE_OK else {
             throw sqliteError(on: database)
         }
+    }
+
+    private func quotedSQLiteIdentifier(_ identifier: String) -> String {
+        "\"\(identifier.replacingOccurrences(of: "\"", with: "\"\""))\""
     }
 
     private func withDatabase<T>(at url: URL, _ work: (OpaquePointer) throws -> T) throws -> T {
