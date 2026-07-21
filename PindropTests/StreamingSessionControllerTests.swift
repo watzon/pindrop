@@ -54,7 +54,8 @@ struct StreamingSessionControllerTests {
     private func makeController(
         clipboard: RecordingClipboard,
         toastPresenter: RecordingToastPresenter,
-        transcriptionService: TranscriptionService? = nil
+        transcriptionService: TranscriptionService? = nil,
+        dictionaryStore: DictionaryStore? = nil
     ) throws -> StreamingSessionController {
         let settings = SettingsStore()
         settings.resetAllSettings()
@@ -68,11 +69,12 @@ struct StreamingSessionControllerTests {
         let toastService = ToastService(presenter: toastPresenter)
         let permissionManager = PermissionManager()
         let audioRecorder = try AudioRecorder(permissionManager: permissionManager)
+        let effectiveDictionaryStore = try dictionaryStore ?? makeDictionaryStore()
 
         return StreamingSessionController(
             transcriptionService: transcriptionService ?? TranscriptionService(),
             settingsStore: settings,
-            dictionaryStore: try makeDictionaryStore(),
+            dictionaryStore: effectiveDictionaryStore,
             outputManager: outputManager,
             toastService: toastService,
             liveTranscriptState: LiveTranscriptState(),
@@ -369,17 +371,22 @@ struct StreamingSessionControllerTests {
         let transcriptionService = TranscriptionService(
             streamingEngineFactory: { _ in engine }
         )
+        let dictionaryStore = try makeDictionaryStore()
+        try dictionaryStore.add(VocabularyWord(word: "Fenneko"))
         let controller = try makeController(
             clipboard: clipboard,
             toastPresenter: toastPresenter,
-            transcriptionService: transcriptionService
+            transcriptionService: transcriptionService,
+            dictionaryStore: dictionaryStore
         )
         var enhancementInput: String?
         var enhancementCallCount = 0
+        var enhancementVocabulary: [String]?
         var insertedText: String?
 
-        controller.configure { text in
+        controller.configure { text, vocabularyWords in
             enhancementInput = text
+            enhancementVocabulary = vocabularyWords
             enhancementCallCount += 1
             return StreamingSessionController.PostStopEnhanceOutcome(
                 enhancedText: "Enhanced final text.",
@@ -414,6 +421,7 @@ struct StreamingSessionControllerTests {
 
         #expect(enhancementCallCount == 1)
         #expect(enhancementInput != nil)
+        #expect(enhancementVocabulary == ["Fenneko"])
         #expect(outcome.originalStreamedText == enhancementInput)
         #expect(outcome.finalText == "Enhanced final text.")
         #expect(outcome.enhancedWithModel == "mock-model")

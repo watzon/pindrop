@@ -905,8 +905,8 @@ final class AppCoordinator {
         self.audioRecorder.onAudioBandLevels = { [weak self] bands in
             self?.floatingIndicatorState.updateBandLevels(bands)
         }
-        self.streamingSession.configure(postStopEnhance: { [weak self] text in
-            await self?.runBasicPostStopEnhance(text: text)
+        self.streamingSession.configure(postStopEnhance: { [weak self] text, vocabularyWords in
+            await self?.runBasicPostStopEnhance(text: text, vocabularyWords: vocabularyWords)
         })
 
         self.audioRecorder.onCaptureError = { [weak self] error in
@@ -3618,14 +3618,15 @@ final class AppCoordinator {
         return fallback
     }
 
-    /// Runs the post-stop transcriptionEnhancement assignment on `text` using the simple
-    /// enhance() overload (no rich ContextMetadata). Used exclusively by the streaming
-    /// finalize path — the non-streaming path constructs its own context-aware enhance
-    /// call with clipboard, app snapshot, mentions, and routing signals.
+    /// Runs the post-stop transcriptionEnhancement assignment on `text` with the user's
+    /// vocabulary available as spelling/casing context. Used exclusively by the streaming
+    /// finalize path — the non-streaming path constructs its own richer context-aware call
+    /// with clipboard, app snapshot, mentions, and routing signals.
     ///
     /// Returns nil when no assignment resolves, the text is empty, or the call fails.
     private func runBasicPostStopEnhance(
-        text: String
+        text: String,
+        vocabularyWords: [String]
     ) async -> StreamingSessionController.PostStopEnhanceOutcome? {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
@@ -3637,11 +3638,17 @@ final class AppCoordinator {
             fallback: SettingsStore.Defaults.aiEnhancementPrompt
         )
 
+        let context = AIEnhancementService.ContextMetadata(
+            hasClipboardText: false,
+            hasClipboardImage: false,
+            appContext: nil,
+            vocabularyWords: vocabularyWords
+        )
+
         do {
-            // Route through the context-aware overload so the call site picks up the
-            // `<output_contract>` block that forbids preamble ("Here is…"), conversational
-            // replies, and meta commentary. Context is intentionally empty — streaming
-            // dictation doesn't need clipboard/UI snapshots piped in.
+            // Route through the context-aware overload so streaming finalization gets
+            // the same vocabulary spelling/casing guidance and output contract as batch
+            // dictation, without injecting clipboard or UI snapshots.
             let result = try await aiEnhancementService.enhanceWithMetrics(
                 text: text,
                 apiEndpoint: assignment.endpoint ?? "",
@@ -3649,7 +3656,7 @@ final class AppCoordinator {
                 model: assignment.modelID,
                 customPrompt: basePrompt,
                 imageBase64: nil,
-                context: .none,
+                context: context,
                 provider: assignment.kind
             )
             let sanitized = AIEnhancementService.stripResponsePreamble(result.text)

@@ -98,7 +98,7 @@ final class StreamingSessionController {
     /// The coordinator's post-stop LLM pass (it needs prompt presets and the
     /// enhancement service, which stay app-level). Wired via `configure` after
     /// AppCoordinator finishes initializing; nil means "no enhancement".
-    private var postStopEnhance: (@MainActor (String) async -> PostStopEnhanceOutcome?)?
+    private var postStopEnhance: (@MainActor (String, [String]) async -> PostStopEnhanceOutcome?)?
 
     // MARK: - Session state
 
@@ -138,7 +138,7 @@ final class StreamingSessionController {
     }
 
     func configure(
-        postStopEnhance: @escaping @MainActor (String) async -> PostStopEnhanceOutcome?
+        postStopEnhance: @escaping @MainActor (String, [String]) async -> PostStopEnhanceOutcome?
     ) {
         self.postStopEnhance = postStopEnhance
     }
@@ -380,6 +380,8 @@ final class StreamingSessionController {
         try ensureNotCancelled()
         try? dictionaryStore.recordVocabularyHits(in: textAfterReplacements)
 
+        let vocabularyWords = (try? dictionaryStore.fetchAllVocabularyWords().map(\.word)) ?? []
+
         // A configured transcription-enhancement assignment owns the post-stop LLM pass.
         // Streaming text is only the live preview and fallback; the authoritative offline
         // transcription still receives the same enhancement as the batch pipeline.
@@ -397,7 +399,7 @@ final class StreamingSessionController {
                 enhanceOutcome = try await Self.withFinalizeTimeout(
                     nanoseconds: Self.postStopEnhanceTimeoutNanoseconds
                 ) {
-                    await postStopEnhance(textForEnhance)
+                    await postStopEnhance(textForEnhance, vocabularyWords)
                 }
                 try ensureNotCancelled()
             } catch {
