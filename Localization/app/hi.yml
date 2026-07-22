@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "बादल"
   model: "क्लाउड मॉडल"
+  transcription_sends_recorded_audio_to_open: "क्लाउड ट्रांसक्रिप्शन रिकॉर्ड किया गया ऑडियो OpenAI को भेजता है। OpenAI उपयोग शुल्क लागू होते हैं।"
 collapse:
   _self: "गिर जाना"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "मॉडल लोड हो रहे हैं..."
 local:
   _self: "स्थानीय"
+  models_stay_on_this_mac_cloud_transcriptio: "लोकल मॉडल इसी Mac पर रहते हैं। क्लाउड ट्रांसक्रिप्शन रिकॉर्ड किया गया ऑडियो आपके चुने हुए प्रदाता को भेजता है।"
   speech_to_text_right_from_your_menu_bar_fa: |-
     स्थानीय वाक्-से-पाठ, सीधे आपके मेनू बार से।
     तेज़, निजी और हमेशा उपलब्ध।

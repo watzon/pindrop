@@ -16,7 +16,7 @@ struct ModelSelectionStepView: View {
 
     private var modelChoices: [ModelManager.WhisperModel] {
         modelManager.availableModels
-            .filter { $0.availability == .available }
+            .filter { $0.availability == .available && $0.provider.isLocal }
             .sorted { lhs, rhs in
                 if lhs.name == selectedModelName { return true }
                 if rhs.name == selectedModelName { return false }

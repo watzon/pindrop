@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "Σύννεφο"
   model: "Cloud Model"
+  transcription_sends_recorded_audio_to_open: "Η μεταγραφή cloud στέλνει το ηχογραφημένο αρχείο ήχου στο OpenAI. Ισχύουν χρεώσεις χρήσης του OpenAI."
 collapse:
   _self: "Κατάρρευση"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "Φόρτωση μοντέλων..."
 local:
   _self: "Τοπικός"
+  models_stay_on_this_mac_cloud_transcriptio: "Τα τοπικά μοντέλα παραμένουν σε αυτό το Mac. Η μεταγραφή cloud στέλνει το ηχογραφημένο αρχείο ήχου στον πάροχο που επιλέγετε."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Τοπική ομιλία σε κείμενο, απευθείας από τη γραμμή μενού σας.
     Γρήγορη, ιδιωτική και πάντα διαθέσιμη.

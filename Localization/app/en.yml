@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "Cloud"
   model: "Cloud Model"
+  transcription_sends_recorded_audio_to_open: "Cloud transcription sends recorded audio to OpenAI. OpenAI usage charges apply."
 collapse:
   _self: "Collapse"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "Loading models..."
 local:
   _self: "Local"
+  models_stay_on_this_mac_cloud_transcriptio: "Local models stay on this Mac. Cloud transcription sends recorded audio to the provider you choose."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Local speech-to-text, right from your menu bar.
     Fast, private, and always available.

@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "سحاب"
   model: "نموذج السحابة"
+  transcription_sends_recorded_audio_to_open: "يرسل النسخ السحابي الصوت المسجّل إلى OpenAI. تُطبَّق رسوم استخدام OpenAI."
 collapse:
   _self: "ينهار"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "جارٍ تحميل النماذج..."
 local:
   _self: "محلي"
+  models_stay_on_this_mac_cloud_transcriptio: "تبقى النماذج المحلية على هذا Mac. يرسل النسخ السحابي الصوت المسجّل إلى الموفر الذي تختاره."
   speech_to_text_right_from_your_menu_bar_fa: |-
     تحويل الكلام المحلي إلى نص، مباشرة من شريط القائمة.
     سريع وخاص ومتاح دائمًا.

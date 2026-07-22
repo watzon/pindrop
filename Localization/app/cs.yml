@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "Mrak"
   model: "Cloudový model"
+  transcription_sends_recorded_audio_to_open: "Cloudový přepis odesílá nahraný zvuk do OpenAI. Platí poplatky za používání OpenAI."
 collapse:
   _self: "Kolaps"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "Načítání modelů..."
 local:
   _self: "Místní"
+  models_stay_on_this_mac_cloud_transcriptio: "Místní modely zůstávají na tomto Macu. Cloudový přepis odesílá nahraný zvuk poskytovateli, kterého zvolíte."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Místní převod řeči na text přímo z panelu nabídek.
     Rychlé, soukromé a vždy dostupné.

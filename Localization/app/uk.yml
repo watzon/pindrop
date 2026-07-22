@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "Хмара"
   model: "Хмарна модель"
+  transcription_sends_recorded_audio_to_open: "Хмарна транскрипція надсилає записане аудіо до OpenAI. Застосовуються платежі за використання OpenAI."
 collapse:
   _self: "Згорнути"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "Завантаження моделей..."
 local:
   _self: "Місцевий"
+  models_stay_on_this_mac_cloud_transcriptio: "Локальні моделі залишаються на цьому Mac. Хмарна транскрипція надсилає записане аудіо вибраному вами провайдеру."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Місцеве перетворення мовлення в текст прямо з панелі меню.
     Швидко, приватно та завжди доступно.

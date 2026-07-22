@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "Cloud"
   model: "Cloud-Modell"
+  transcription_sends_recorded_audio_to_open: "Cloud-Transkription sendet aufgezeichnetes Audio an OpenAI. Es fallen OpenAI-Nutzungsgebühren an."
 collapse:
   _self: "Einklappen"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "Modelle werden geladen..."
 local:
   _self: "Lokal"
+  models_stay_on_this_mac_cloud_transcriptio: "Lokale Modelle bleiben auf diesem Mac. Cloud-Transkription sendet aufgezeichnetes Audio an den von dir gewählten Anbieter."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Lokale Spracherkennung direkt aus Ihrer Menüleiste.
     Schnell, privat und immer verfügbar.

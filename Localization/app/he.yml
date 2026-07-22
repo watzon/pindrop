@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "עָנָן"
   model: "דגם ענן"
+  transcription_sends_recorded_audio_to_open: "תמלול בענן שולח את השמע המוקלט אל OpenAI. חלות עלויות שימוש של OpenAI."
 collapse:
   _self: "הִתמוֹטְטוּת"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "טוען דגמים..."
 local:
   _self: "מְקוֹמִי"
+  models_stay_on_this_mac_cloud_transcriptio: "מודלים מקומיים נשארים ב-Mac הזה. תמלול בענן שולח את השמע המוקלט לספק שתבחר."
   speech_to_text_right_from_your_menu_bar_fa: |-
     דיבור מקומי לטקסט, ישירות משורת התפריטים שלך.
     מהיר, פרטי וזמין תמיד.

@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "Nor"
   model: "Modelul Cloud"
+  transcription_sends_recorded_audio_to_open: "Transcrierea în cloud trimite audio-ul înregistrat către OpenAI. Se aplică taxe de utilizare OpenAI."
 collapse:
   _self: "Colaps"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "Se încarcă modelele..."
 local:
   _self: "Local"
+  models_stay_on_this_mac_cloud_transcriptio: "Modelele locale rămân pe acest Mac. Transcrierea în cloud trimite audio-ul înregistrat către furnizorul pe care îl alegi."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Conversie vocală locală în text, direct din bara de meniu.
     Rapid, privat și întotdeauna disponibil.

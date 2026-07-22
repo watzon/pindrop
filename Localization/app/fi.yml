@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "Pilvi"
   model: "Pilvi malli"
+  transcription_sends_recorded_audio_to_open: "Pilvitranskriptio lähettää tallennetun äänen OpenAI:lle. OpenAI:n käyttömaksut koskevat."
 collapse:
   _self: "Romahdus"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "Ladataan malleja..."
 local:
   _self: "Paikallinen"
+  models_stay_on_this_mac_cloud_transcriptio: "Paikalliset mallit pysyvät tällä Macilla. Pilvitranskriptio lähettää tallennetun äänen valitsemallesi palveluntarjoajalle."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Paikallinen puhe tekstiksi, suoraan valikkopalkistasi.
     Nopea, yksityinen ja aina saatavilla.

@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "Sky"
   model: "Skymodell"
+  transcription_sends_recorded_audio_to_open: "Skytranskripsjon sender innspilt lyd til OpenAI. OpenAI-bruksavgifter gjelder."
 collapse:
   _self: "Kollapse"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "Laster inn modeller..."
 local:
   _self: "Lokalt"
+  models_stay_on_this_mac_cloud_transcriptio: "Lokale modeller blir på denne Mac-en. Skytranskripsjon sender innspilt lyd til leverandøren du velger."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Lokal tale-til-tekst, rett fra menylinjen.
     Rask, privat og alltid tilgjengelig.

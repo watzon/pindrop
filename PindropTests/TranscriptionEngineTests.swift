@@ -81,6 +81,70 @@ struct TranscriptionEngineTests {
             #expect(engine.state == .error)
         }
     }
+
+    @Test func openAIEngineUploadsMultipartAudioAndParsesTranscript() async throws {
+        let session = OpenAITranscriptionSessionStub()
+        session.responseData = Data(#"{"text":"Cloud transcript"}"#.utf8)
+        session.statusCode = 200
+        let engine = OpenAITranscriptionEngine(
+            apiKeyProvider: { "sk-test-key" },
+            session: session
+        )
+
+        try await engine.loadModel(name: "openai_gpt-4o-transcribe", downloadBase: nil)
+        let audioData = Data(count: 16_000 * MemoryLayout<Float>.size)
+        let transcript = try await engine.transcribe(
+            audioData: audioData,
+            options: TranscriptionOptions(
+                language: .english,
+                vocabularyBiasWords: ["Pindrop", "WhisperKit"]
+            )
+        )
+
+        #expect(transcript == "Cloud transcript")
+        let request = try #require(session.lastRequest)
+        #expect(request.url?.absoluteString == "https://api.openai.com/v1/audio/transcriptions")
+        #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer sk-test-key")
+        let contentType = try #require(request.value(forHTTPHeaderField: "Content-Type"))
+        #expect(contentType.hasPrefix("multipart/form-data; boundary="))
+        let body = String(decoding: try #require(request.httpBody), as: UTF8.self)
+        #expect(body.contains("name=\"model\""))
+        #expect(body.contains("gpt-4o-transcribe"))
+        #expect(body.contains("name=\"language\""))
+        #expect(body.contains("\r\n\r\nen\r\n"))
+        #expect(body.contains("name=\"prompt\""))
+        #expect(body.contains("Pindrop, WhisperKit"))
+        #expect(body.contains("filename=\"audio.m4a\""))
+    }
+
+    @Test func openAIEngineRequiresConfiguredAPIKey() async {
+        let engine = OpenAITranscriptionEngine(apiKeyProvider: { "" })
+
+        await #expect(throws: OpenAITranscriptionEngine.EngineError.self) {
+            try await engine.loadModel(name: "openai_gpt-4o-transcribe", downloadBase: nil)
+        }
+        #expect(engine.state == .error)
+    }
+
+    @Test func openAIEngineSurfacesAPIErrorMessage() async throws {
+        let session = OpenAITranscriptionSessionStub()
+        session.responseData = Data(#"{"error":{"message":"Incorrect API key provided"}}"#.utf8)
+        session.statusCode = 401
+        let engine = OpenAITranscriptionEngine(
+            apiKeyProvider: { "sk-invalid" },
+            session: session
+        )
+
+        try await engine.loadModel(name: "openai_gpt-4o-mini-transcribe", downloadBase: nil)
+        await #expect(throws: OpenAITranscriptionEngine.EngineError.self) {
+            _ = try await engine.transcribe(
+                audioData: Data(count: 4),
+                options: TranscriptionOptions()
+            )
+        }
+        #expect(engine.error?.localizedDescription.contains("Incorrect API key provided") == true)
+        #expect(engine.state == .ready)
+    }
 }
 
 @MainActor
@@ -120,6 +184,25 @@ final class MockTranscriptionEngine: TranscriptionEngine {
 
     func unloadModel() async {
         state = .unloaded
+    }
+}
+
+
+@MainActor
+private final class OpenAITranscriptionSessionStub: URLSessionProtocol {
+    var responseData = Data()
+    var statusCode = 200
+    private(set) var lastRequest: URLRequest?
+
+    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
+        lastRequest = request
+        let response = HTTPURLResponse(
+            url: request.url!,
+            statusCode: statusCode,
+            httpVersion: nil,
+            headerFields: ["x-request-id": "req-test"]
+        )!
+        return (responseData, response)
     }
 }
 

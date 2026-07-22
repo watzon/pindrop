@@ -17,6 +17,7 @@ struct ModelsSettingsView: View {
     @State private var switchingToModel: String?
     @State private var activeModelName: String?
     @State private var errorMessage: String?
+    @State private var isOpenAICredentialsPresented = false
 
     /// Speech-to-text models shown on the page: recommended for language + any downloaded + active.
     private var speechModels: [ModelManager.WhisperModel] {
@@ -24,6 +25,11 @@ struct ModelsSettingsView: View {
         var seen = Set(recommended.map(\.name))
         var result = recommended
 
+        for model in modelManager.availableModels
+            where !model.provider.isLocal && model.availability == .available && !seen.contains(model.name) {
+            seen.insert(model.name)
+            result.append(model)
+        }
         for model in modelManager.availableModels where model.availability == .available {
             let isDownloaded = modelManager.isModelDownloaded(model.name)
             let isActive = (activeModelName ?? settings.selectedModel) == model.name
@@ -90,6 +96,9 @@ struct ModelsSettingsView: View {
             .background(AppColors.contentBackground)
         }
         .background(AppColors.contentBackground)
+        .sheet(isPresented: $isOpenAICredentialsPresented) {
+            OpenAITranscriptionCredentialsSheet(settings: settings)
+        }
         .task {
             await modelManager.refreshDownloadedModels()
             await modelManager.refreshDownloadedFeatureModels()
@@ -113,7 +122,7 @@ struct ModelsSettingsView: View {
     private var headerSection: some View {
         PageHeader(
             title: localized("Models", locale: locale),
-            meta: localized("Everything runs on this Mac", locale: locale)
+            meta: localized("Speech to text", locale: locale)
         ) {
             VStack(alignment: .trailing, spacing: 2) {
                 Text(diskTotalText)
@@ -207,6 +216,27 @@ struct ModelsSettingsView: View {
                 } else if isSwitching {
                     ProgressView()
                         .controlSize(.small)
+                } else if !model.provider.isLocal {
+                    Button {
+                        isOpenAICredentialsPresented = true
+                    } label: {
+                        Text(
+                            localized(
+                                settings.hasTranscriptionAPIKey(for: model.provider)
+                                    ? "API key saved"
+                                    : "No API key",
+                                locale: locale
+                            )
+                        )
+                        .font(AppTypography.label)
+                        .foregroundStyle(
+                            settings.hasTranscriptionAPIKey(for: model.provider)
+                                ? AppColors.textSecondary
+                                : AppColors.warning
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .keyboardFocusRing(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 } else if isDownloaded {
                     Text(localized("Installed", locale: locale))
                         .font(AppTypography.label)
@@ -402,7 +432,7 @@ struct ModelsSettingsView: View {
             Image(systemName: "lock.shield")
                 .font(.system(size: 12, weight: .regular))
                 .foregroundStyle(AppColors.textTertiary)
-            Text(localized("Models never leave this Mac. Audio is processed locally unless you choose a cloud provider in Settings → AI.", locale: locale))
+            Text(localized("Local models stay on this Mac. Cloud transcription sends recorded audio to the provider you choose.", locale: locale))
                 .font(AppTypography.label)
                 .foregroundStyle(AppColors.textTertiary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -508,6 +538,93 @@ struct ModelsSettingsView: View {
             } catch {
                 errorMessage = "Failed to delete \(model.displayName): \(error.localizedDescription)"
             }
+        }
+    }
+}
+
+private struct OpenAITranscriptionCredentialsSheet: View {
+    @ObservedObject var settings: SettingsStore
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.locale) private var locale
+    @State private var apiKey = ""
+    @State private var showsAPIKey = false
+    @State private var errorMessage: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(localized("OpenAI", locale: locale))
+                    .font(FontLoader.font(family: .inter, size: 20, weight: .semibold))
+                    .foregroundStyle(AppColors.textPrimary)
+                Text(localized("Cloud transcription sends recorded audio to OpenAI. OpenAI usage charges apply.", locale: locale))
+                    .font(AppTypography.label)
+                    .foregroundStyle(AppColors.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text(localized("API Key", locale: locale))
+                    .font(AppTypography.sectionHeader)
+                    .foregroundStyle(AppColors.textSecondary)
+
+                HStack(spacing: 8) {
+                    Group {
+                        if showsAPIKey {
+                            TextField(localized("Enter API key", locale: locale), text: $apiKey)
+                        } else {
+                            SecureField(localized("Enter API key", locale: locale), text: $apiKey)
+                        }
+                    }
+                    .textFieldStyle(.roundedBorder)
+
+                    Button {
+                        showsAPIKey.toggle()
+                    } label: {
+                        Image(systemName: showsAPIKey ? "eye.slash" : "eye")
+                    }
+                    .buttonStyle(.borderless)
+                    .accessibilityLabel(
+                        localized(showsAPIKey ? "Hide API Key" : "Show API Key", locale: locale)
+                    )
+                }
+
+                Label(
+                    localized("Credentials are stored securely in Keychain.", locale: locale),
+                    systemImage: "lock.shield"
+                )
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.textTertiary)
+            }
+
+            if let errorMessage {
+                Text(errorMessage)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.warning)
+            }
+
+            HStack {
+                Spacer()
+                Button(localized("Cancel", locale: locale)) {
+                    dismiss()
+                }
+                .keyboardShortcut(.cancelAction)
+
+                Button(localized("Save Credentials", locale: locale)) {
+                    do {
+                        try settings.saveTranscriptionAPIKey(apiKey, for: .openAI)
+                        dismiss()
+                    } catch {
+                        errorMessage = error.localizedDescription
+                    }
+                }
+                .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(24)
+        .frame(width: 440)
+        .background(AppColors.contentBackground)
+        .onAppear {
+            apiKey = settings.loadTranscriptionAPIKey(for: .openAI) ?? ""
         }
     }
 }

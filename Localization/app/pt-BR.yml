@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "Nuvem"
   model: "Modelo de nuvem"
+  transcription_sends_recorded_audio_to_open: "A transcrição na nuvem envia o áudio gravado para a OpenAI. Aplicam-se cobranças de uso da OpenAI."
 collapse:
   _self: "Recolher"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "Carregando modelos..."
 local:
   _self: "Local"
+  models_stay_on_this_mac_cloud_transcriptio: "Os modelos locais permanecem neste Mac. A transcrição na nuvem envia o áudio gravado para o provedor que você escolher."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Conversão local de fala para texto, diretamente na barra de menu.
     Rápido, privado e sempre disponível.

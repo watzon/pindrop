@@ -697,6 +697,12 @@ final class AppCoordinator {
         // is (re)loaded.
         let settingsRef = self.settingsStore
         self.transcriptionService = TranscriptionService(
+            openAIAPIKeyProvider: { [weak settingsRef] in
+                guard let key = settingsRef?.loadTranscriptionAPIKey(for: .openAI) else {
+                    throw OpenAITranscriptionEngine.EngineError.apiKeyMissing
+                }
+                return key
+            },
             streamingChunkProfileProvider: { [weak settingsRef] in
                 settingsRef?.streamingChunkProfile ?? .standard
             },

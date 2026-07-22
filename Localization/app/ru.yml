@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "Облако"
   model: "Облачная модель"
+  transcription_sends_recorded_audio_to_open: "Облачная транскрипция отправляет записанное аудио в OpenAI. Применяются платы за использование OpenAI."
 collapse:
   _self: "Крах"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "Загрузка моделей..."
 local:
   _self: "Местный"
+  models_stay_on_this_mac_cloud_transcriptio: "Локальные модели остаются на этом Mac. Облачная транскрипция отправляет записанное аудио выбранному вами провайдеру."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Локальное преобразование речи в текст прямо из строки меню.
     Быстро, конфиденциально и всегда доступно.

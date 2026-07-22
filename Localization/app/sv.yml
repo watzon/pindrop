@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "Moln"
   model: "Molnmodell"
+  transcription_sends_recorded_audio_to_open: "Molntranskription skickar inspelat ljud till OpenAI. OpenAI-användningsavgifter tillkommer."
 collapse:
   _self: "Kollapsa"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "Laddar modeller..."
 local:
   _self: "Lokal"
+  models_stay_on_this_mac_cloud_transcriptio: "Lokala modeller stannar på denna Mac. Molntranskription skickar inspelat ljud till den leverantör du väljer."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Lokalt tal-till-text, direkt från din menyrad.
     Snabbt, privat och alltid tillgängligt.

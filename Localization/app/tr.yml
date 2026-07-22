@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "Bulut"
   model: "Bulut Modeli"
+  transcription_sends_recorded_audio_to_open: "Bulut yazıya dökme, kaydedilen sesi OpenAI’ye gönderir. OpenAI kullanım ücretleri geçerlidir."
 collapse:
   _self: "Daralt"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "Modeller yükleniyor..."
 local:
   _self: "Yerel"
+  models_stay_on_this_mac_cloud_transcriptio: "Yerel modeller bu Mac’te kalır. Bulut yazıya dökme, kaydedilen sesi seçtiğiniz sağlayıcıya gönderir."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Doğrudan menü çubuğunuzdan yerel konuşmayı metne dönüştürme.
     Hızlı, özel ve her zaman ulaşılabilir.

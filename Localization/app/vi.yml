@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "Đám mây"
   model: "Mô hình đám mây"
+  transcription_sends_recorded_audio_to_open: "Phiên âm đám mây gửi âm thanh đã ghi tới OpenAI. Phí sử dụng OpenAI sẽ được áp dụng."
 collapse:
   _self: "Sụp đổ"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "Đang tải mô hình..."
 local:
   _self: "Địa phương"
+  models_stay_on_this_mac_cloud_transcriptio: "Các mô hình cục bộ ở lại trên Mac này. Phiên âm đám mây gửi âm thanh đã ghi tới nhà cung cấp bạn chọn."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Chuyển lời nói thành văn bản cục bộ, ngay từ thanh menu của bạn.
     Nhanh chóng, riêng tư và luôn có sẵn.
