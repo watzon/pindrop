@@ -219,6 +219,7 @@ close:
 cloud:
   _self: "Chmura"
   model: "Model chmurowy"
+  transcription_sends_recorded_audio_to_open: "Transkrypcja w chmurze wysyła nagrane audio do OpenAI. Obowiązują opłaty za korzystanie z OpenAI."
 collapse:
   _self: "Zwiń"
 coming:
@@ -631,6 +632,7 @@ loading:
   models: "Ładowanie modeli..."
 local:
   _self: "Lokalny"
+  models_stay_on_this_mac_cloud_transcriptio: "Modele lokalne pozostają na tym Macu. Transkrypcja w chmurze wysyła nagrane audio do wybranego dostawcy."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Lokalna zamiana mowy na tekst bezpośrednio z paska menu.
     Szybka, prywatna i zawsze dostępna.

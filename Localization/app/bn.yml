@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "মেঘ"
   model: "ক্লাউড মডেল"
+  transcription_sends_recorded_audio_to_open: "ক্লাউড ট্রান্সক্রিপশন রেকর্ড করা অডিও OpenAI-তে পাঠায়। OpenAI ব্যবহারের চার্জ প্রযোজ্য।"
 collapse:
   _self: "সঙ্কুচিত"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "মডেল লোড হচ্ছে..."
 local:
   _self: "স্থানীয়"
+  models_stay_on_this_mac_cloud_transcriptio: "লোকাল মডেলগুলো এই Mac-এই থাকে। ক্লাউড ট্রান্সক্রিপশন রেকর্ড করা অডিও আপনার বেছে নেওয়া প্রদানকারীর কাছে পাঠায়।"
   speech_to_text_right_from_your_menu_bar_fa: |-
     আপনার মেনু বার থেকে স্থানীয় স্পিচ-টু-টেক্সট।
     

@@ -166,6 +166,21 @@ struct SettingsStoreTests {
         #expect(settingsStore.loadAPIKey(for: .custom, customLocalProvider: .ollama) == nil)
     }
 
+    @Test func testTranscriptionAPIKeysAreStoredSeparately() throws {
+        let settingsStore = makeSettingsStore()
+        defer { cleanup(settingsStore) }
+
+        try settingsStore.saveAPIKey("enhancement-key", for: .openai)
+        try settingsStore.saveTranscriptionAPIKey("transcription-key", for: .openAI)
+
+        #expect(settingsStore.loadAPIKey(for: .openai) == "enhancement-key")
+        #expect(settingsStore.loadTranscriptionAPIKey(for: .openAI) == "transcription-key")
+        #expect(settingsStore.hasTranscriptionAPIKey(for: .openAI))
+
+        try settingsStore.saveTranscriptionAPIKey("   ", for: .openAI)
+        #expect(settingsStore.loadTranscriptionAPIKey(for: .openAI) == nil)
+    }
+
     @Test func testCustomProviderEndpointsAreScopedBySubtype() throws {
         let settingsStore = makeSettingsStore()
         defer { cleanup(settingsStore) }

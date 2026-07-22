@@ -571,6 +571,10 @@ final class SettingsStore: ObservableObject {
 
    private let legacyAPIKeyAccount = "api-key"
 
+   private func transcriptionAPIKeyAccount(for provider: ModelManager.ModelProvider) -> String {
+      "transcription-api-key-\(provider.credentialStorageKey)"
+   }
+
    private static var inMemoryKeychainStorage: [String: String] = [:]
 
    private static var shouldUseInMemoryKeychain: Bool {
@@ -1085,6 +1089,44 @@ final class SettingsStore: ObservableObject {
       apiKeys.removeValue(forKey: account)
    }
 
+   func saveTranscriptionAPIKey(
+      _ key: String,
+      for provider: ModelManager.ModelProvider
+   ) throws {
+      guard !provider.isLocal else {
+         throw SettingsError.keychainError("\(provider.rawValue) does not use an API key")
+      }
+
+      let account = transcriptionAPIKeyAccount(for: provider)
+      guard let normalizedKey = normalizedAPIKey(key) else {
+         try deleteFromKeychain(account: account)
+         apiKeys.removeValue(forKey: account)
+         objectWillChange.send()
+         return
+      }
+
+      try saveToKeychain(value: normalizedKey, account: account)
+      apiKeys[account] = normalizedKey
+      objectWillChange.send()
+   }
+
+   func loadTranscriptionAPIKey(for provider: ModelManager.ModelProvider) -> String? {
+      guard !provider.isLocal else { return nil }
+      let account = transcriptionAPIKeyAccount(for: provider)
+      if let cachedKey = apiKeys[account] {
+         return cachedKey
+      }
+      guard let storedKey = normalizedAPIKey((try? loadFromKeychain(account: account)) ?? nil) else {
+         return nil
+      }
+      apiKeys[account] = storedKey
+      return storedKey
+   }
+
+   func hasTranscriptionAPIKey(for provider: ModelManager.ModelProvider) -> Bool {
+      loadTranscriptionAPIKey(for: provider) != nil
+   }
+
    @available(*, deprecated, message: "Use deleteAPIKey(for:)")
    func deleteAPIKey() throws {
       try deleteAPIKey(for: currentAIProvider)
@@ -1169,6 +1211,9 @@ final class SettingsStore: ObservableObject {
          }
       }
       try? deleteFromKeychain(account: legacyAPIKeyAccount)
+      for provider in ModelManager.ModelProvider.allCases where !provider.isLocal {
+         try? deleteFromKeychain(account: transcriptionAPIKeyAccount(for: provider))
+      }
       apiKeys.removeAll()
 
       objectWillChange.send()
@@ -1461,12 +1506,17 @@ final class SettingsStore: ObservableObject {
          kSecClass as String: kSecClassGenericPassword,
          kSecAttrService as String: keychainService,
          kSecAttrAccount as String: account,
+      ]
+      let attributes: [String: Any] = [
          kSecValueData as String: data,
       ]
 
-      SecItemDelete(query as CFDictionary)
-
-      let status = SecItemAdd(query as CFDictionary, nil)
+      var status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+      if status == errSecItemNotFound {
+         var addQuery = query
+         addQuery[kSecValueData as String] = data
+         status = SecItemAdd(addQuery as CFDictionary, nil)
+      }
 
       guard status == errSecSuccess else {
          throw SettingsError.keychainError("Failed to save to keychain: \(status)")

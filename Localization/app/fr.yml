@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "Cloud"
   model: "Modèle cloud"
+  transcription_sends_recorded_audio_to_open: "La transcription cloud envoie l’audio enregistré à OpenAI. Des frais d’utilisation OpenAI s’appliquent."
 collapse:
   _self: "Réduire"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "Chargement des modèles..."
 local:
   _self: "Local"
+  models_stay_on_this_mac_cloud_transcriptio: "Les modèles locaux restent sur ce Mac. La transcription cloud envoie l’audio enregistré au fournisseur de votre choix."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Reconnaissance vocale locale, directement depuis votre barre de menus.
     Rapide, privé et toujours disponible.

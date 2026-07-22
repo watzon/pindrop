@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "คลาวด์"
   model: "โมเดลคลาวด์"
+  transcription_sends_recorded_audio_to_open: "การถอดเสียงบนคลาวด์จะส่งเสียงที่บันทึกไปยัง OpenAI มีค่าใช้จ่ายการใช้งาน OpenAI"
 collapse:
   _self: "ทรุด"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "กำลังโหลดโมเดล..."
 local:
   _self: "ท้องถิ่น"
+  models_stay_on_this_mac_cloud_transcriptio: "โมเดลในเครื่องจะอยู่บน Mac เครื่องนี้ การถอดเสียงบนคลาวด์จะส่งเสียงที่บันทึกไปยังผู้ให้บริการที่คุณเลือก"
   speech_to_text_right_from_your_menu_bar_fa: |-
     เสียงพูดเป็นข้อความท้องถิ่นจากแถบเมนูของคุณ
     รวดเร็ว เป็นส่วนตัว และพร้อมให้บริการตลอดเวลา

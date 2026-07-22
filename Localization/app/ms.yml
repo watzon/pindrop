@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "awan"
   model: "Model Awan"
+  transcription_sends_recorded_audio_to_open: "Transkripsi awan menghantar audio dirakam ke OpenAI. Caj penggunaan OpenAI dikenakan."
 collapse:
   _self: "Runtuh"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "Memuatkan model..."
 local:
   _self: "Tempatan"
+  models_stay_on_this_mac_cloud_transcriptio: "Model setempat kekal pada Mac ini. Transkripsi awan menghantar audio dirakam kepada penyedia yang anda pilih."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Pertuturan ke teks setempat, terus dari bar menu anda.
     Cepat, peribadi dan sentiasa tersedia.

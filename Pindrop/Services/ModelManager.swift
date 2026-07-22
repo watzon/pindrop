@@ -65,6 +65,16 @@ class ModelManager {
             case .groq: return "bolt"
             }
         }
+
+        var credentialStorageKey: String {
+            switch self {
+            case .openAI: return "openai"
+            case .elevenLabs: return "elevenlabs"
+            case .groq: return "groq"
+            case .whisperKit, .parakeet, .senseVoice, .appleSpeech:
+                return rawValue.lowercased().replacingOccurrences(of: " ", with: "-")
+            }
+        }
     }
     
     enum ModelLanguage: String, Sendable {
@@ -543,17 +553,28 @@ class ModelManager {
             availability: .available
         ),
         
-        // Coming Soon - Cloud Providers
+        // Cloud providers
         WhisperModel(
-            name: "openai_whisper-1",
-            displayName: "OpenAI Whisper API",
+            name: "openai_gpt-4o-mini-transcribe",
+            displayName: "OpenAI GPT-4o Mini Transcribe",
             sizeInMB: 0,
-            description: "Cloud-based transcription via OpenAI's API",
-            speedRating: 9.0,
-            accuracyRating: 9.5,
+            description: "OpenAI's recommended model for fast, accurate cloud transcription",
+            speedRating: 9.5,
+            accuracyRating: 9.8,
             language: .multilingual,
             provider: .openAI,
-            availability: .comingSoon
+            availability: .available
+        ),
+        WhisperModel(
+            name: "openai_gpt-4o-transcribe",
+            displayName: "OpenAI GPT-4o Transcribe",
+            sizeInMB: 0,
+            description: "High-quality cloud transcription through the OpenAI Audio API",
+            speedRating: 9.0,
+            accuracyRating: 9.6,
+            language: .multilingual,
+            provider: .openAI,
+            availability: .available
         ),
         WhisperModel(
             name: "groq_whisper-large-v3-turbo",
@@ -764,9 +785,11 @@ class ModelManager {
     }
     
     func isModelDownloaded(_ modelName: String) -> Bool {
-        // Apple Speech uses system models — always available, nothing to download.
-        if let model = availableModels.first(where: { $0.name == modelName }),
-           model.provider == .appleSpeech {
+        guard let model = availableModels.first(where: { $0.name == modelName }) else {
+            return false
+        }
+        // System and cloud models have no local asset to download.
+        if model.provider == .appleSpeech || (!model.provider.isLocal && model.availability == .available) {
             return true
         }
         return downloadedModelNames.contains(modelName)
@@ -845,6 +868,9 @@ class ModelManager {
         guard let model = availableModels.first(where: { $0.name == modelName }) else {
             throw ModelError.modelNotFound(modelName)
         }
+
+        // Cloud models are remote and have no downloadable local asset.
+        guard model.provider.isLocal else { return }
         
         guard !isDownloading else {
             Log.boot.error("downloadModel rejected: another download in progress current=\(currentDownloadModel ?? "nil")")

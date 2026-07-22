@@ -9,7 +9,7 @@
 
 ![Pindrop Screenshot](assets/images/screenshot.png)
 
-**Pindrop** is a menu bar dictation app for macOS that turns your speech into text—completely offline, completely private. Built with pure Swift/SwiftUI, packaged with Xcode + SwiftPM, and powered by WhisperKit for optimal Apple Silicon performance.
+**Pindrop** is a menu bar dictation app for macOS that turns your speech into text. It stays offline and private by default, with optional cloud transcription. Built with pure Swift/SwiftUI, packaged with Xcode + SwiftPM, and powered by native Apple Silicon transcription engines.
 
 [**Download Latest Release**](https://github.com/watzon/pindrop/releases) · [**Documentation**](#documentation) · [**Contributing**](#contributing) · [**Community**](#community)
 
@@ -20,6 +20,7 @@
 ### Dictation
 
 - Pick from several local transcription engines: WhisperKit (OpenAI Whisper on Core ML, in sizes from tiny to large-v3), Parakeet, SenseVoice, or Apple's on-device speech stack. The model browser recommends options for your Mac.
+- Optional OpenAI GPT-4o Transcribe and GPT-4o Mini Transcribe models provide cloud transcription for users who prefer a hosted service. API credentials stay in the macOS Keychain.
 - Streaming dictation shows words as you say them, powered by the Nemotron streaming engine (English only for now; Apple SpeechTranscriber is another option on macOS 26).
 - Dictate in 16 languages. The interface is localized into 31 languages with RTL support.
 - Offline speaker diarization with trainable speaker profiles. Single-speaker transcripts stay free of labels.
@@ -73,7 +74,7 @@ Pindrop runs in the menu bar only, so there is no dock icon. Look for the microp
 
 ## Privacy
 
-Audio and transcripts are processed and stored on your Mac. Two optional programs live in Settings → Privacy, both off by default:
+By default, audio and transcripts are processed and stored on your Mac. Selecting an OpenAI cloud transcription model sends recorded audio to the OpenAI Audio API and may incur OpenAI usage charges; the API key is stored in the macOS Keychain. Two other optional programs live in Settings → Privacy, both off by default:
 
 - Anonymous diagnostics via [TelemetryDeck](https://telemetrydeck.com): counts of app launches, transcription outcomes, and model download errors with bucketed timings. Never transcript text, audio, prompts, or file names.
 - Training data contributions: keeps redacted before/after transcript pairs on your Mac (nothing is uploaded; there is no upload backend) to support a future on-device correction model. You can review, export, or delete every stored pair.
@@ -113,7 +114,7 @@ Pindrop/
 ├── PindropApp.swift           # entry point and lifecycle
 ├── AppCoordinator.swift       # service wiring
 ├── Services/                  # audio, hotkeys, storage, settings, MCP, telemetry
-├── Services/Transcription/    # engine protocol + WhisperKit, Parakeet, SenseVoice, Apple, Nemotron
+├── Services/Transcription/    # local engines, streaming, and optional OpenAI cloud transcription
 ├── Models/                    # SwiftData models and schema
 ├── UI/                        # main window, settings, onboarding, floating indicators
 ├── PindropTests/              # unit tests (Swift Testing)

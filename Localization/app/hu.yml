@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "Felhő"
   model: "Felhő modell"
+  transcription_sends_recorded_audio_to_open: "A felhőalapú átírás a rögzített hangot az OpenAI-nak küldi. OpenAI-használati díjak merülhetnek fel."
 collapse:
   _self: "Összeomlás"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "Modellek betöltése..."
 local:
   _self: "Helyi"
+  models_stay_on_this_mac_cloud_transcriptio: "A helyi modellek ezen a Macen maradnak. A felhőalapú átírás a rögzített hangot a választott szolgáltatónak küldi."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Helyi beszéd-szöveg, közvetlenül a menüsorból.
     Gyors, privát és mindig elérhető.

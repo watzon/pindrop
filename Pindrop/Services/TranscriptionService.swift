@@ -203,6 +203,7 @@ class TranscriptionService {
     private let streamingCallbackDelivery = StreamingCallbackDelivery()
 
     private let engineFactory: @MainActor (ModelManager.ModelProvider) throws -> any TranscriptionEngine
+    private let openAIAPIKeyProvider: @MainActor () throws -> String
     private let speakerDiarizerFactory: @MainActor () -> any SpeakerDiarizer
     private let streamingEngineFactory: @MainActor (StreamingChunkProfile) -> any StreamingTranscriptionEngine
     private let appleSpeechEngineFactory: @MainActor () -> (any StreamingTranscriptionEngine)?
@@ -220,6 +221,9 @@ class TranscriptionService {
     init(
         engineFactory: @escaping @MainActor (ModelManager.ModelProvider) throws -> any TranscriptionEngine = {
             try TranscriptionService.defaultEngineFactory(provider: $0)
+        },
+        openAIAPIKeyProvider: @escaping @MainActor () throws -> String = {
+            throw OpenAITranscriptionEngine.EngineError.apiKeyMissing
         },
         diarizerFactory: @escaping @MainActor () -> any SpeakerDiarizer = {
             FluidSpeakerDiarizer()
@@ -240,6 +244,7 @@ class TranscriptionService {
         modelLoadTimeoutSeconds: TimeInterval = TranscriptionService.defaultModelLoadTimeoutSeconds
     ) {
         self.engineFactory = engineFactory
+        self.openAIAPIKeyProvider = openAIAPIKeyProvider
         self.speakerDiarizerFactory = diarizerFactory
         self.streamingEngineFactory = streamingEngineFactory
         self.appleSpeechEngineFactory = appleSpeechEngineFactory
@@ -292,7 +297,12 @@ class TranscriptionService {
         Log.boot.info("TranscriptionService.loadModel begin name=\(modelName) provider=\(provider.rawValue) state=loading")
 
         do {
-            let newEngine = try engineFactory(provider)
+            let newEngine: any TranscriptionEngine
+            if provider == .openAI {
+                newEngine = OpenAITranscriptionEngine(apiKeyProvider: openAIAPIKeyProvider)
+            } else {
+                newEngine = try engineFactory(provider)
+            }
             let modelLoadTimeoutSeconds = self.modelLoadTimeoutSeconds
             Log.boot.info("TranscriptionService.loadModel engine instance created provider=\(provider.rawValue) elapsed=\(String(format: "%.2fs", CFAbsoluteTimeGetCurrent() - loadStarted))")
 

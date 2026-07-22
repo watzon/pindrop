@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "Wolk"
   model: "Wolkenmodel"
+  transcription_sends_recorded_audio_to_open: "Cloudtranscriptie stuurt opgenomen audio naar OpenAI. Er gelden OpenAI-gebruikskosten."
 collapse:
   _self: "Inklappen"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "Modellen laden..."
 local:
   _self: "Lokaal"
+  models_stay_on_this_mac_cloud_transcriptio: "Lokale modellen blijven op deze Mac. Cloudtranscriptie stuurt opgenomen audio naar de provider die je kiest."
   speech_to_text_right_from_your_menu_bar_fa: |-
     Lokale spraak-naar-tekst, rechtstreeks vanuit uw menubalk.
     Snel, privé en altijd beschikbaar.

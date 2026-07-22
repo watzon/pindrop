@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "云端"
   model: "云端模型"
+  transcription_sends_recorded_audio_to_open: "云端转录会将录制的音频发送至 OpenAI。将产生 OpenAI 使用费用。"
 collapse:
   _self: "收起"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "正在加载模型..."
 local:
   _self: "本地"
+  models_stay_on_this_mac_cloud_transcriptio: "本地模型保留在此 Mac 上。云端转录会将录制的音频发送至你选择的提供商。"
   speech_to_text_right_from_your_menu_bar_fa: |-
     直接从菜单栏进行本地语音转文本。
     快速、私密且始终可用。

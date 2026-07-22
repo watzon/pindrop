@@ -213,6 +213,7 @@ close:
 cloud:
   _self: "雲"
   model: "クラウドモデル"
+  transcription_sends_recorded_audio_to_open: "クラウド文字起こしは録音した音声をOpenAIに送信します。OpenAIの利用料金が発生します。"
 collapse:
   _self: "折りたたむ"
 coming:
@@ -622,6 +623,7 @@ loading:
   models: "モデルをロード中..."
 local:
   _self: "地元"
+  models_stay_on_this_mac_cloud_transcriptio: "ローカルモデルはこのMacに留まります。クラウド文字起こしは録音した音声を選択したプロバイダに送信します。"
   speech_to_text_right_from_your_menu_bar_fa: |-
     ローカルの音声テキスト変換をメニュー バーから直接実行できます。
     高速、プライベート、いつでも利用可能。
