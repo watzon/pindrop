@@ -5182,6 +5182,12 @@ final class AppCoordinator {
     }
 
     // MARK: - Media Transcription
+    static func mediaTranscriptionProvider(
+        named modelName: String,
+        availableModels: [ModelManager.WhisperModel]
+    ) -> ModelManager.ModelProvider {
+        availableModels.first(where: { $0.name == modelName })?.provider ?? .whisperKit
+    }
 
     private func handleImportMediaFiles(_ urls: [URL], options: TranscriptionJobOptions) {
         for url in urls {
@@ -5479,7 +5485,13 @@ final class AppCoordinator {
         }
 
         do {
-            try await loadAndActivateModel(named: original, provider: .whisperKit)
+            try await loadAndActivateModel(
+                named: original,
+                provider: Self.mediaTranscriptionProvider(
+                    named: original,
+                    availableModels: modelManager.availableModels
+                )
+            )
             guard isMediaTranscriptionOwnerCurrent(generation) else { return }
             queueOriginalModelName = nil
             let restoredName = modelManager.availableModels.first(where: { $0.name == original })?.displayName ?? original
@@ -5684,7 +5696,13 @@ final class AppCoordinator {
                     detail: "Loading \(requestedModel)…",
                     errorMessage: nil
                 )
-                try await loadAndActivateModel(named: requestedModel, provider: .whisperKit)
+                try await loadAndActivateModel(
+                    named: requestedModel,
+                    provider: Self.mediaTranscriptionProvider(
+                        named: requestedModel,
+                        availableModels: modelManager.availableModels
+                    )
+                )
             }
 
             try ensureMediaTranscriptionOwnerCurrent(generation)

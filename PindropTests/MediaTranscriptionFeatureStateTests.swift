@@ -45,6 +45,36 @@ struct MediaTranscriptionFeatureStateTests {
         #expect(options.diarizationEnabled == false)
     }
 
+    @Test func mediaTranscriptionResolvesCatalogModelProviders() {
+        let models = ModelManager().availableModels
+
+        #expect(
+            AppCoordinator.mediaTranscriptionProvider(
+                named: "openai_gpt-4o-mini-transcribe",
+                availableModels: models
+            ) == .openAI
+        )
+        #expect(
+            AppCoordinator.mediaTranscriptionProvider(
+                named: "parakeet-tdt-0.6b-v2",
+                availableModels: models
+            ) == .parakeet
+        )
+        #expect(
+            AppCoordinator.mediaTranscriptionProvider(
+                named: "openai_whisper-base",
+                availableModels: models
+            ) == .whisperKit
+        )
+        #expect(
+            AppCoordinator.mediaTranscriptionProvider(
+                named: "unknown-model",
+                availableModels: models
+            ) == .whisperKit
+        )
+    }
+
+
     @Test func clipboardPrefillDoesNotOverwriteUserEditedDraft() {
         let sut = MediaTranscriptionFeatureState()
         sut.draftLink = "https://user-entered.example"
