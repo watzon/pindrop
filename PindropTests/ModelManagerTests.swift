@@ -15,6 +15,26 @@ import Testing
 struct ModelManagerTests {
     let modelManager = ModelManager()
 
+    private func makeTemporaryDirectory() throws -> URL {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pindrop-parakeet-tests-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        return directory
+    }
+
+    private func createCompleteParakeetV3Model(at directory: URL) throws {
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        for artifact in ModelNames.ASR.requiredModelsV3() {
+            try FileManager.default.createDirectory(
+                at: directory.appendingPathComponent(artifact, isDirectory: true),
+                withIntermediateDirectories: true
+            )
+        }
+        try Data("{}".utf8).write(
+            to: directory.appendingPathComponent(ModelNames.ASR.vocabularyFile)
+        )
+    }
+
     @Test func listAvailableModels() {
         let models = modelManager.availableModels
 
@@ -94,6 +114,70 @@ struct ModelManagerTests {
     @Test func containsParakeetModels() {
         let hasParakeetModel = modelManager.availableModels.contains { $0.provider == .parakeet }
         #expect(hasParakeetModel)
+    }
+
+    @Test func parakeetCanonicalPathsUseFluidAudioFolderNames() throws {
+        let downloadBase = URL(fileURLWithPath: "/tmp/Pindrop", isDirectory: true)
+        let v3 = try #require(ParakeetModelStorage.location(
+            for: "parakeet-tdt-0.6b-v3",
+            in: downloadBase
+        ))
+        let v2 = try #require(ParakeetModelStorage.location(
+            for: "parakeet-tdt-0.6b-v2",
+            in: downloadBase
+        ))
+
+        #expect(v3.directory.lastPathComponent == Repo.parakeetV3.folderName)
+        #expect(v2.directory.lastPathComponent == Repo.parakeetV2.folderName)
+        #expect(Repo.parakeetV3.folderName == "parakeet-tdt-0.6b-v3")
+        #expect(Repo.parakeetV2.folderName == "parakeet-tdt-0.6b-v2")
+    }
+
+    @Test func parakeetCompletenessRequiresEveryArtifact() throws {
+        let downloadBase = try makeTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: downloadBase) }
+        let location = try #require(ParakeetModelStorage.location(
+            for: "parakeet-tdt-0.6b-v3",
+            in: downloadBase
+        ))
+        let modelDirectory = location.directory
+
+        try FileManager.default.createDirectory(at: modelDirectory, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(
+            at: modelDirectory.appendingPathComponent(ModelNames.ASR.decoderFile),
+            withIntermediateDirectories: true
+        )
+        try FileManager.default.createDirectory(
+            at: modelDirectory.appendingPathComponent(ModelNames.ASR.encoderFile),
+            withIntermediateDirectories: true
+        )
+        #expect(!AsrModels.modelsExist(at: modelDirectory, version: location.version))
+
+        try createCompleteParakeetV3Model(at: modelDirectory)
+        #expect(AsrModels.modelsExist(at: modelDirectory, version: location.version))
+    }
+
+    @Test func parakeetLegacyDirectoryMovesOnlyWhenCanonicalDirectoryIsAbsent() throws {
+        let downloadBase = try makeTemporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: downloadBase) }
+        let modelsDirectory = ParakeetModelStorage.modelsDirectory(in: downloadBase)
+
+        let legacyV3 = modelsDirectory.appendingPathComponent(Repo.parakeetV3.name)
+        try FileManager.default.createDirectory(at: legacyV3, withIntermediateDirectories: true)
+        let v3 = try #require(ParakeetModelStorage.location(
+            for: "parakeet-tdt-0.6b-v3",
+            in: downloadBase
+        ))
+        #expect(FileManager.default.fileExists(atPath: v3.directory.path))
+        #expect(!FileManager.default.fileExists(atPath: legacyV3.path))
+
+        let canonicalV2 = modelsDirectory.appendingPathComponent(Repo.parakeetV2.folderName)
+        let legacyV2 = modelsDirectory.appendingPathComponent(Repo.parakeetV2.name)
+        try FileManager.default.createDirectory(at: canonicalV2, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: legacyV2, withIntermediateDirectories: true)
+        _ = ParakeetModelStorage.location(for: "parakeet-tdt-0.6b-v2", in: downloadBase)
+        #expect(FileManager.default.fileExists(atPath: canonicalV2.path))
+        #expect(FileManager.default.fileExists(atPath: legacyV2.path))
     }
 
     @Test func englishOnlyModelsWarnForNonEnglishSelection() throws {

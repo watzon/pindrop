@@ -9,6 +9,51 @@ import Foundation
 import WhisperKit
 import FluidAudio
 
+enum ParakeetModelStorage {
+    static func location(
+        for modelName: String,
+        in downloadBase: URL
+    ) -> (version: AsrModelVersion, directory: URL)? {
+        let version: AsrModelVersion
+        let repo: Repo
+        if modelName.contains("v3") {
+            version = .v3
+            repo = .parakeetV3
+        } else if modelName.contains("v2") {
+            version = .v2
+            repo = .parakeetV2
+        } else {
+            return nil
+        }
+
+        let modelsDirectory = modelsDirectory(in: downloadBase)
+        let directory = modelsDirectory.appendingPathComponent(
+            repo.folderName,
+            isDirectory: true
+        )
+        let legacyDirectory = modelsDirectory.appendingPathComponent(
+            repo.name,
+            isDirectory: true
+        )
+        if !FileManager.default.fileExists(atPath: directory.path),
+           FileManager.default.fileExists(atPath: legacyDirectory.path) {
+            do {
+                try FileManager.default.moveItem(at: legacyDirectory, to: directory)
+                Log.model.info("Migrated legacy Parakeet model to \(directory.path)")
+            } catch {
+                Log.model.error("Failed to migrate legacy Parakeet model: \(error.localizedDescription)")
+            }
+        }
+
+        return (version, directory)
+    }
+
+    static func modelsDirectory(in downloadBase: URL) -> URL {
+        downloadBase.appendingPathComponent("FluidInference", isDirectory: true)
+            .appendingPathComponent("parakeet-coreml", isDirectory: true)
+    }
+}
+
 @MainActor
 @Observable
 class ModelManager {
@@ -656,8 +701,7 @@ class ModelManager {
     }
     
     private var parakeetModelsURL: URL {
-        modelsBaseURL.appendingPathComponent("FluidInference", isDirectory: true)
-                     .appendingPathComponent("parakeet-coreml", isDirectory: true)
+        ParakeetModelStorage.modelsDirectory(in: modelsBaseURL)
     }
     
     private var fluidAudioModelsURL: URL {
@@ -679,8 +723,11 @@ class ModelManager {
         case .whisperKit:
             return whisperKitModelsURL.appendingPathComponent(model.name, isDirectory: true)
         case .parakeet:
-            let folderName = model.name.hasSuffix("-coreml") ? model.name : "\(model.name)-coreml"
-            return parakeetModelsURL.appendingPathComponent(folderName, isDirectory: true)
+            guard let location = ParakeetModelStorage.location(for: model.name, in: modelsBaseURL),
+                  AsrModels.modelsExist(at: location.directory, version: location.version) else {
+                return nil
+            }
+            return location.directory
         case .senseVoice:
             // Only advertise a local path when the catalog int8 set is complete.
             guard SenseVoiceModels.modelsExist(
@@ -743,24 +790,9 @@ class ModelManager {
             }
         }
         
-        if fileManager.fileExists(atPath: parakeetModelsURL.path) {
-            do {
-                let contents = try fileManager.contentsOfDirectory(atPath: parakeetModelsURL.path)
-                for folder in contents {
-                    if folder.hasPrefix(".") { continue }
-                    
-                    let folderPath = parakeetModelsURL.appendingPathComponent(folder).path
-                    var isDirectory: ObjCBool = false
-                    if fileManager.fileExists(atPath: folderPath, isDirectory: &isDirectory), isDirectory.boolValue {
-                        // Strip "-coreml" suffix (7 chars) to match model IDs
-                        let normalizedName = folder.hasSuffix("-coreml")
-                            ? String(folder.dropLast(7))
-                            : folder
-                        downloaded.insert(normalizedName)
-                    }
-                }
-            } catch {
-                Log.model.error("Failed to list Parakeet models: \(error)")
+        for model in availableModels where model.provider == .parakeet {
+            if localModelPath(for: model) != nil {
+                downloaded.insert(model.name)
             }
         }
 
@@ -995,14 +1027,10 @@ class ModelManager {
         Log.model.info("Parakeet models path: \(self.parakeetModelsURL.path)")
         Log.boot.info("Parakeet pipeline begin name=\(modelName)")
         
-        let version: AsrModelVersion
-        if modelName.contains("v3") {
-            version = .v3
-        } else if modelName.contains("v2") {
-            version = .v2
-        } else {
+        guard let location = ParakeetModelStorage.location(for: modelName, in: modelsBaseURL) else {
             throw ModelError.downloadFailed("Unknown Parakeet model version: \(modelName)")
         }
+        let version = location.version
         
         do {
             try fileManager.createDirectory(at: parakeetModelsURL, withIntermediateDirectories: true)
@@ -1016,14 +1044,9 @@ class ModelManager {
         Log.boot.info("Parakeet AsrModels.downloadAndLoad starting version=\(version == .v3 ? "v3" : "v2")")
         
         do {
-            let targetDir = parakeetModelsURL.appendingPathComponent(
-                version == .v3 ? "parakeet-tdt-0.6b-v3-coreml" : "parakeet-tdt-0.6b-v2-coreml",
-                isDirectory: true
-            )
-            
             let fetchStart = CFAbsoluteTimeGetCurrent()
             _ = try await AsrModels.downloadAndLoad(
-                to: targetDir,
+                to: location.directory,
                 version: version,
                 progressHandler: { [weak self] progress in
                     Task { @MainActor in

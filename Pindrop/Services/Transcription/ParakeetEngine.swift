@@ -69,7 +69,18 @@ public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
         
         do {
             let version: AsrModelVersion = name.contains("v3") ? .v3 : .v2
-            let models = try await AsrModels.downloadAndLoad(version: version)
+            let models: AsrModels
+            if let downloadBase {
+                guard let location = ParakeetModelStorage.location(for: name, in: downloadBase) else {
+                    throw EngineError.initializationFailed("Unknown Parakeet model version: \(name)")
+                }
+                models = try await AsrModels.downloadAndLoad(
+                    to: location.directory,
+                    version: version
+                )
+            } else {
+                models = try await AsrModels.downloadAndLoad(version: version)
+            }
 
             // FluidAudio 0.15+: AsrManager takes models at init (or via loadModels),
             // replacing the retired `initialize(models:)` entry point.
