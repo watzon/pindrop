@@ -185,8 +185,8 @@ public final class ModelManager {
         public let displayName: String
         public let sizeInMB: Int
         public let description: String
-        public let speedRating: Double
-        public let accuracyRating: Double
+        public let speedRating: Double?
+        public let accuracyRating: Double?
         public let language: ModelLanguage
         public let languageSupport: LanguageSupport
         public let provider: ModelProvider
@@ -197,8 +197,8 @@ public final class ModelManager {
             displayName: String,
             sizeInMB: Int,
             description: String = "",
-            speedRating: Double = 5.0,
-            accuracyRating: Double = 5.0,
+            speedRating: Double? = 5.0,
+            accuracyRating: Double? = 5.0,
             language: ModelLanguage = .multilingual,
             languageSupport: LanguageSupport? = nil,
             provider: ModelProvider = .whisperKit,
@@ -253,7 +253,8 @@ public final class ModelManager {
         }
     }
     
-    public let availableModels: [WhisperModel] = [
+    public let availableModels: [WhisperModel] = {
+        var models: [WhisperModel] = [
         // Apple Speech (on-device, uses system models — no download required)
         WhisperModel(
             name: "apple_speech_on_device",
@@ -610,7 +611,21 @@ public final class ModelManager {
             provider: .elevenLabs,
             availability: .comingSoon
         )
-    ]
+        ]
+        #if os(macOS)
+        models.append(WhisperModel(
+            name: ParakeetEngine.orukeetModelName,
+            displayName: "Orukeet",
+            sizeInMB: 467,
+            speedRating: nil,
+            accuracyRating: nil,
+            language: .multilingual,
+            languageSupport: .parakeetV3European,
+            provider: .parakeet
+        ))
+        #endif
+        return models
+    }()
 
     public func recommendedModels(for language: AppLanguage) -> [WhisperModel] {
         let recommendedModelNames: [String]
@@ -686,6 +701,12 @@ public final class ModelManager {
             _ fluidAudioModelsRoot: URL,
             _ repoFolderName: String
         ) async throws -> Void
+
+        #if os(macOS)
+        var prepareOrukeet: @Sendable (URL, @escaping @Sendable (Double) -> Void) async throws -> Void = { directory, progress in
+            _ = try await OrukeetModelStore.prepare(at: directory, progress: progress)
+        }
+        #endif
 
         static func production() -> DownloadOperations {
             DownloadOperations(
@@ -822,8 +843,7 @@ public final class ModelManager {
         case .whisperKit:
             return whisperKitModelsURL.appendingPathComponent(model.name, isDirectory: true)
         case .parakeet:
-            let version = (try? parakeetVersion(forModelName: model.name)) ?? .v2
-            return parakeetRepoDirectory(for: version)
+            return ParakeetEngine.modelDirectory(forName: model.name, fluidAudioModelsRoot: fluidAudioModelsURL)
         case .senseVoice:
             // Only advertise a local path when the catalog int8 set is complete.
             guard SenseVoiceModels.modelsExist(
@@ -905,6 +925,13 @@ public final class ModelManager {
         }
         
         for model in availableModels where model.provider == .parakeet {
+            #if os(macOS)
+            if model.name == ParakeetEngine.orukeetModelName {
+                let directory = ParakeetEngine.modelDirectory(forName: model.name, fluidAudioModelsRoot: fluidAudioModelsURL)
+                if OrukeetModelStore.installed(at: directory) { downloaded.insert(model.name) }
+                continue
+            }
+            #endif
             guard let version = try? parakeetVersion(forModelName: model.name) else { continue }
             let repoDir = parakeetRepoDirectory(for: version)
             var isDirectory: ObjCBool = false
@@ -1120,6 +1147,28 @@ public final class ModelManager {
         named modelName: String,
         onProgress: ((DownloadSnapshot) -> Void)? = nil
     ) async throws {
+        #if os(macOS)
+        if modelName == ParakeetEngine.orukeetModelName {
+            let directory = ParakeetEngine.modelDirectory(forName: modelName, fluidAudioModelsRoot: fluidAudioModelsURL)
+            do {
+                try await downloadOperations.prepareOrukeet(directory) { [weak self] progress in
+                    Task { @MainActor in
+                        guard let self, self.isDownloading, self.currentDownloadModel == modelName,
+                              self.downloadSnapshot?.phase != .completed else { return }
+                        self.updateDownloadSnapshot(
+                            DownloadSnapshot(modelName: modelName, progress: progress, phase: progress < 0.9 ? .downloading(completedFiles: nil, totalFiles: nil) : .compiling(modelName: modelName)),
+                            onProgress: onProgress)
+                    }
+                }
+                updateDownloadSnapshot(Self.completedDownloadSnapshot(modelName: modelName), onProgress: onProgress)
+                await refreshDownloadedModels()
+            } catch {
+                clearDownloadState(resetProgress: true)
+                throw ModelError.downloadFailed(error.localizedDescription)
+            }
+            return
+        }
+        #endif
         let pipelineStart = CFAbsoluteTimeGetCurrent()
         let version = try parakeetVersion(forModelName: modelName)
         let targetDir = parakeetRepoDirectory(for: version)

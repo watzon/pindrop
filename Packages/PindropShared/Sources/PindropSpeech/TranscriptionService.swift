@@ -2534,9 +2534,8 @@ public final class TranscriptionService {
         case .whisperKit:
             return storageLocations.pindropApplicationSupportRoot
         case .parakeet:
-            let version: AsrModelVersion = modelName.contains("v3") ? .v3 : .v2
             return ParakeetEngine.modelDirectory(
-                for: version,
+                forName: modelName,
                 fluidAudioModelsRoot: storageLocations.fluidAudioModelsRoot
             )
         case .senseVoice:

@@ -37,7 +37,9 @@ struct ModelsSettingsView: View {
             let isDownloaded = modelManager.isModelDownloaded(model.name)
             let isActive = (activeModelName ?? settings.selectedModel) == model.name
             let isSelected = settings.selectedModel == model.name
-            if (isDownloaded || isActive || isSelected) && !seen.contains(model.name) {
+            let isOptionalOrukeet = model.name == ParakeetEngine.orukeetModelName
+                && model.supports(language: settings.selectedAppLanguage)
+            if (isDownloaded || isActive || isSelected || isOptionalOrukeet) && !seen.contains(model.name) {
                 seen.insert(model.name)
                 result.append(model)
             }

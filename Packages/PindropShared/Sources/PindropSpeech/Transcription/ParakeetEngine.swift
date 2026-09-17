@@ -45,6 +45,8 @@ public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
     private var asrManager: AsrManager?
     private var transcribingTask: Task<String, Error>?
 
+    public nonisolated static let orukeetModelName = "orukeet-coreml-preview"
+
     public init() {}
 
     public func loadModel(path: String) async throws {
@@ -84,12 +86,19 @@ public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
                 )
             }
 
-            let version = Self.modelVersion(forName: name)
-            // Host supplies fluidAudioModelsRoot/version.repo.folderName as the exact to: directory.
-            let models = try await AsrModels.downloadAndLoad(
-                to: modelDirectory,
-                version: version
-            )
+            let models: AsrModels
+            #if os(macOS)
+            if name == Self.orukeetModelName {
+                models = try await OrukeetModelStore.prepare(at: modelDirectory)
+            } else {
+                models = try await AsrModels.downloadAndLoad(to: modelDirectory, version: Self.modelVersion(forName: name))
+            }
+            #else
+            guard name != Self.orukeetModelName else {
+                throw EngineError.initializationFailed("Orukeet is currently available on macOS only.")
+            }
+            models = try await AsrModels.downloadAndLoad(to: modelDirectory, version: Self.modelVersion(forName: name))
+            #endif
 
             // FluidAudio 0.15+: AsrManager takes models at init (or via loadModels),
             // replacing the retired `initialize(models:)` entry point.
@@ -217,6 +226,9 @@ public final class ParakeetEngine: TranscriptionEngine, CapabilityReporting {
         forName name: String,
         fluidAudioModelsRoot: URL
     ) -> URL {
-        modelDirectory(for: modelVersion(forName: name), fluidAudioModelsRoot: fluidAudioModelsRoot)
+        if name == orukeetModelName {
+            return fluidAudioModelsRoot.appendingPathComponent("orukeet-coreml-preview", isDirectory: true)
+        }
+        return modelDirectory(for: modelVersion(forName: name), fluidAudioModelsRoot: fluidAudioModelsRoot)
     }
 }
