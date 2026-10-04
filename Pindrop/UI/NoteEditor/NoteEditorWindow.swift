@@ -414,29 +414,7 @@ struct NoteEditorView: View {
             clearAppendRequestAfterSessionFinish()
         }
         .onReceive(NotificationCenter.default.publisher(for: .noteSpeakToAppendTranscript)) { notification in
-            guard let payload = NoteAppendCommittedPayload(notification: notification),
-                  let currentNote
-            else {
-                return
-            }
-
-            let isAlreadyCommitted = content == payload.content
-                && currentNote.sourceTranscriptionID == payload.sourceTranscriptionID
-            guard payload.apply(to: currentNote, for: editorID) else { return }
-
-            appendRequestState.clearAfterCommittedDelivery(noteID: payload.noteID)
-            guard !isAlreadyCommitted else { return }
-
-            // Record the committed durable body before changing the binding so the
-            // binding observer cannot queue an autosave over the coordinator write.
-            lastSavedSnapshot = NoteSnapshot(
-                title: title.isEmpty ? "Untitled Note" : title,
-                content: payload.content,
-                isPinned: isPinned,
-                tags: tags
-            )
-            content = payload.content
-            onSave(currentNote)
+            applyCommittedAppend(notification)
         }
         .onReceive(NotificationCenter.default.publisher(for: .noteSpeakToAppendRejected)) { notification in
             guard let payload = NoteAppendRejectedPayload(notification: notification),
@@ -1011,6 +989,32 @@ struct NoteEditorView: View {
             isPinned: isPinned,
             tags: tags
         )
+    }
+
+    private func applyCommittedAppend(_ notification: Notification) {
+        guard let payload = NoteAppendCommittedPayload(notification: notification),
+              let currentNote
+        else {
+            return
+        }
+
+        let isAlreadyCommitted = content == payload.content
+            && currentNote.sourceTranscriptionID == payload.sourceTranscriptionID
+        guard payload.apply(to: currentNote, for: editorID) else { return }
+
+        appendRequestState.clearAfterCommittedDelivery(noteID: payload.noteID)
+        guard !isAlreadyCommitted else { return }
+
+        // Record the committed durable body before changing the binding so the
+        // binding observer cannot queue an autosave over the coordinator write.
+        lastSavedSnapshot = NoteSnapshot(
+            title: title.isEmpty ? "Untitled Note" : title,
+            content: payload.content,
+            isPinned: isPinned,
+            tags: tags
+        )
+        content = payload.content
+        onSave(currentNote)
     }
 
     private func clearAppendRequestAfterSessionFinish() {
