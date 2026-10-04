@@ -181,16 +181,17 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
             decodeOptions.detectLanguage = options.language == .automatic
             decodeOptions.usePrefillPrompt = true
 
-            // Vocabulary biasing via decoder promptTokens. Cap is enforced by
-            // VocabularyBiasPrompt.maxWordCount (~40); empty vocabulary is a no-op.
-            if let promptText = VocabularyBiasPrompt.assemblePrompt(words: options.vocabularyBiasWords),
-               let tokenizer = whisperKit.tokenizer {
-                let encoded = tokenizer.encode(
-                    text: " " + promptText.trimmingCharacters(in: .whitespaces)
-                )
-                let filtered = encoded.filter { $0 < tokenizer.specialTokens.specialTokenBegin }
-                if !filtered.isEmpty {
-                    decodeOptions.promptTokens = filtered
+            // Vocabulary biasing via decoder promptTokens; empty vocabulary is a no-op.
+            // WhisperKit 0.15.0 returned an empty transcript whenever promptTokens
+            // were set (argmaxinc/argmax-oss-swift#372, fixed in 1.1.0 by PR #514).
+            // Do not move the dependency below 1.1.0 while this block exists.
+            if let tokenizer = whisperKit.tokenizer {
+                decodeOptions.promptTokens = Self.vocabularyPromptTokens(
+                    words: options.vocabularyBiasWords,
+                    sampleCount: samples.count
+                ) { text in
+                    tokenizer.encode(text: text)
+                        .filter { $0 < tokenizer.specialTokens.specialTokenBegin }
                 }
             }
 
@@ -206,6 +207,37 @@ public final class WhisperKitEngine: TranscriptionEngine, CapabilityReporting {
             self.error = error
             throw error
         }
+    }
+
+    /// Whisper conditions on at most half of its 448-token context, less the
+    /// start-of-previous token. WhisperKit keeps only the last tokens of a longer
+    /// prompt, which drops the highest-priority words first.
+    static let maxVocabularyPromptTokens = 223
+
+    /// One 30 s Whisper window at 16 kHz. With promptTokens set, WhisperKit turns
+    /// its timestamp rules off, and a clip that needs more than one window can
+    /// lose whole spans of speech.
+    static let maxVocabularyBiasSampleCount = 30 * 16_000
+
+    /// Prompt tokens for vocabulary biasing, or `nil` when no bias is safe to apply.
+    /// Drops the lowest-priority words (the end of `words`) until the prompt fits
+    /// the token budget. This matters for CJK words, which use many tokens each.
+    static func vocabularyPromptTokens(
+        words: [String],
+        sampleCount: Int,
+        encode: (String) -> [Int]
+    ) -> [Int]? {
+        guard sampleCount <= maxVocabularyBiasSampleCount else { return nil }
+
+        var words = words
+        while let prompt = VocabularyBiasPrompt.assemblePrompt(words: words) {
+            let tokens = encode(" " + prompt.trimmingCharacters(in: .whitespaces))
+            if tokens.count <= maxVocabularyPromptTokens {
+                return tokens.isEmpty ? nil : tokens
+            }
+            words.removeLast()
+        }
+        return nil
     }
 
     /// Detect the spoken language from full-clip samples so diarized segments can

@@ -15,7 +15,7 @@ let package = Package(
         .library(name: "PindropMedia", targets: ["PindropMedia"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/argmaxinc/WhisperKit.git", exact: "0.15.0"),
+        .package(url: "https://github.com/argmaxinc/argmax-oss-swift.git", exact: "1.1.0"),
         .package(url: "https://github.com/FluidInference/FluidAudio.git", exact: "0.15.4"),
     ],
     targets: [
@@ -34,7 +34,7 @@ let package = Package(
             name: "PindropSpeech",
             dependencies: [
                 "PindropCore",
-                .product(name: "WhisperKit", package: "WhisperKit"),
+                .product(name: "WhisperKit", package: "argmax-oss-swift"),
                 .product(name: "FluidAudio", package: "FluidAudio"),
             ]
         ),
