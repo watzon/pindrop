@@ -1,5 +1,15 @@
 # Pindrop 🎤
 
+> [!IMPORTANT]
+> **Pindrop is discontinued.** Version 1.23.0 is the final release, and this repository is archived and read-only. There will be no more features, fixes, or support.
+>
+> [**Sayso**](https://justsayso.app) replaces Pindrop. Sayso is a dictation app for macOS, Windows, and Linux from the same developer. On a Mac, Sayso can import your Pindrop dictations, dictionary, and prompt presets.
+>
+> - Download Sayso: [justsayso.app](https://justsayso.app)
+> - Source code: [github.com/watzon/sayso](https://github.com/watzon/sayso)
+>
+> Pindrop 1.23.0 continues to work, and the [final release](https://github.com/watzon/pindrop/releases/latest) stays available for download. The remainder of this document describes Pindrop as of that release.
+
 > The first 100% open source, truly Mac-native AI dictation app
 
 ![GitHub stars](https://img.shields.io/github/stars/watzon/pindrop?style=flat-square)
@@ -65,7 +75,7 @@
 
 Releases are signed with a Developer ID and notarized by Apple, so Pindrop opens like any other Mac app.
 
-1. Download `Pindrop.dmg` from the [releases page](https://github.com/watzon/pindrop/releases) or [pindrop.dev](https://pindrop.dev).
+1. Download `Pindrop.dmg` from the [releases page](https://github.com/watzon/pindrop/releases).
 2. Open the DMG and drag Pindrop to Applications.
 3. Launch it. Onboarding covers microphone permission, downloading a model (Tiny is about 75 MB and a good first pick), and setting your hotkey (Option+Space by default).
 
@@ -137,12 +147,11 @@ just test-all      # everything
 
 ## Community
 
-- [GitHub Discussions](https://github.com/watzon/pindrop/discussions) for questions and ideas
-- [GitHub Issues](https://github.com/watzon/pindrop/issues) for bugs and feature requests
+This repository is archived. Issues, pull requests, and discussions are read-only. For questions about the replacement app, use the [Sayso repository](https://github.com/watzon/sayso).
 
 ## Contributing
 
-Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Pindrop does not accept contributions. The code stays available under the MIT license, and you can fork it. [CONTRIBUTING.md](CONTRIBUTING.md) and [BUILD.md](BUILD.md) describe how to build and test the project.
 
 ## License
 
