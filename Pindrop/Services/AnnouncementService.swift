@@ -75,6 +75,7 @@ final class AnnouncementService {
 
     func markCurrentAnnouncementSeen() {
         guard let announcement = currentAnnouncementProvider() else { return }
+        guard !announcement.appliesToNewInstalls else { return }
         markSeen(announcement)
     }
 

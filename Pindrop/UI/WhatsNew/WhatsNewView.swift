@@ -5,6 +5,7 @@
 //  Created on 2026-07-07.
 //
 
+import AppKit
 import Foundation
 import SwiftUI
 
@@ -48,14 +49,29 @@ struct WhatsNewView: View {
                         .padding(.top, 14)
                 }
 
-                HStack {
+                HStack(spacing: 12) {
                     Spacer()
 
-                    Button(localized("Continue", locale: locale)) {
-                        onDismiss()
+                    if let action = announcement.action {
+                        Button(localized("Continue", locale: locale)) {
+                            onDismiss()
+                        }
+                        .keyboardShortcut(.cancelAction)
+                        .buttonStyle(WhatsNewSecondaryButtonStyle())
+
+                        Button(localized(action.titleKey, locale: locale)) {
+                            NSWorkspace.shared.open(action.url)
+                            onDismiss()
+                        }
+                        .keyboardShortcut(.defaultAction)
+                        .buttonStyle(WhatsNewPrimaryButtonStyle())
+                    } else {
+                        Button(localized("Continue", locale: locale)) {
+                            onDismiss()
+                        }
+                        .keyboardShortcut(.defaultAction)
+                        .buttonStyle(WhatsNewPrimaryButtonStyle())
                     }
-                    .keyboardShortcut(.defaultAction)
-                    .buttonStyle(WhatsNewPrimaryButtonStyle())
                     Spacer()
                 }
                 .padding(.top, 16)
@@ -133,6 +149,20 @@ private struct WhatsNewPrimaryButtonStyle: ButtonStyle {
             .padding(.horizontal, 26)
             .background(AppColors.accent.opacity(configuration.isPressed ? 0.78 : 1))
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+}
+
+private struct WhatsNewSecondaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(FontLoader.font(family: .inter, size: 13, weight: .semibold))
+            .foregroundStyle(AppColors.textPrimary.opacity(configuration.isPressed ? 0.6 : 1))
+            .padding(.vertical, 9)
+            .padding(.horizontal, 22)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .strokeBorder(AppColors.border, lineWidth: 1)
+            )
     }
 }
 

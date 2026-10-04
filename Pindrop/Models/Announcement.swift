@@ -14,6 +14,16 @@ struct Announcement: Identifiable {
     let subtitleKey: String
     let footerKey: String?
     let items: [AnnouncementItem]
+    /// Optional call to action. When set, the window shows it as the primary button.
+    var action: AnnouncementAction? = nil
+    /// When true, completing onboarding does not mark the announcement as seen,
+    /// so new installs also get it on their next launch.
+    var appliesToNewInstalls = false
+}
+
+struct AnnouncementAction {
+    let titleKey: String
+    let url: URL
 }
 
 struct AnnouncementItem: Identifiable {
@@ -36,41 +46,45 @@ struct AnnouncementCredit {
 }
 
 enum AnnouncementCatalog {
+    static let saysoURL = URL(string: "https://justsayso.app")!
+
     static let current: Announcement? = Announcement(
-        id: "2026.07-v1.22",
-        titleKey: "What's new",
-        headerKey: "Pindrop 1.22.0 · July 2026",
-        subtitleKey: "Private diagnostics, editable history, deeper performance insights, and more reliable dictation.",
-        footerKey: "Also: prompt presets are back in the menu bar, the recording orb has a new waveform, and existing libraries open reliably again.",
+        id: "2026.10-v1.23-discontinued",
+        titleKey: "Pindrop is discontinued",
+        headerKey: "Pindrop 1.23.0 · Final release",
+        subtitleKey: "Pindrop 1.23.0 is the final release. Sayso is its replacement.",
+        footerKey: "Download Sayso at justsayso.app.",
         items: [
             AnnouncementItem(
-                id: "reliability",
-                visual: .symbol("bolt.shield"),
-                titleKey: "More reliable dictation",
-                bodyKey: "Streaming callbacks, shutdown, and live UI updates now stay ordered and efficient.",
+                id: "replacement",
+                visual: .symbol("arrow.right.circle"),
+                titleKey: "Sayso replaces Pindrop",
+                bodyKey: "Sayso is the new dictation app from the developer of Pindrop. It runs on macOS, Windows, and Linux. Sayso can import your Pindrop dictations, dictionary, and prompt presets.",
                 credit: nil
             ),
             AnnouncementItem(
-                id: "privacy",
-                visual: .symbol("hand.raised"),
-                titleKey: "Privacy-first diagnostics",
-                bodyKey: "Telemetry stays off until you opt in, and training contributions remain on your Mac for review, export, or deletion.",
+                id: "end-of-updates",
+                visual: .symbol("clock.badge.xmark"),
+                titleKey: "No more updates",
+                bodyKey: "This is the final release. Pindrop gets no new features, fixes, or support after it.",
                 credit: nil
             ),
             AnnouncementItem(
-                id: "editing",
-                visual: .symbol("pencil"),
-                titleKey: "Editable transcripts",
-                bodyKey: "Correct saved transcripts in Library and keep a clear Edited marker.",
+                id: "still-works",
+                visual: .symbol("checkmark.circle"),
+                titleKey: "Pindrop keeps working",
+                bodyKey: "You can continue to use this version. Your transcripts, notes, and settings stay on your Mac.",
                 credit: nil
             ),
             AnnouncementItem(
-                id: "insights",
-                visual: .symbol("chart.bar.xaxis"),
-                titleKey: "Pipeline insights",
-                bodyKey: "See per-stage timing and AI token usage for each dictation, plus averages in Stats.",
+                id: "source",
+                visual: .symbol("archivebox"),
+                titleKey: "The source code stays available",
+                bodyKey: "The Pindrop repository on GitHub is archived and read-only.",
                 credit: nil
             ),
-        ]
+        ],
+        action: AnnouncementAction(titleKey: "Get Sayso", url: saysoURL),
+        appliesToNewInstalls: true
     )
 }

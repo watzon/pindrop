@@ -252483,2113 +252483,2497 @@
       }
     },
     "whatsnew_footer": {
-      "comment": "Also: prompt presets are back in the menu bar, the recording orb has a new waveform, and existing libraries open reliably again.",
+      "comment": "Download Sayso at justsayso.app.",
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "أيضًا: عادت إعدادات المطالبات المسبقة إلى شريط القوائم، وأصبح لكرة التسجيل موجة صوتية جديدة، وتُفتح المكتبات الحالية بموثوقية مرة أخرى."
+            "value": "نزّل Sayso من justsayso.app."
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "এছাড়াও: প্রম্পট প্রিসেট মেনু বারে ফিরে এসেছে, রেকর্ডিং অর্বে নতুন ওয়েভফর্ম যোগ হয়েছে, এবং বিদ্যমান লাইব্রেরি আবার নির্ভরযোগ্যভাবে খোলে।"
+            "value": "justsayso.app থেকে Sayso ডাউনলোড করুন।"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Také: předvolby promptů jsou zpět v liště nabídek, nahrávací koule má novou vlnovku a stávající knihovny se znovu otevírají spolehlivě."
+            "value": "Stáhněte si Sayso na justsayso.app."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Derudover: promptforudindstillinger er tilbage i menulinjen, optagekuglen har en ny bølgeform, og eksisterende biblioteker åbner igen pålideligt."
+            "value": "Hent Sayso på justsayso.app."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Außerdem: Prompt-Voreinstellungen sind zurück in der Menüleiste, die Aufnahme-Kugel hat eine neue Wellenform, und bestehende Bibliotheken öffnen wieder zuverlässig."
+            "value": "Lade Sayso unter justsayso.app herunter."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Επίσης: τα προκαθορισμένα προτροπών επέστρεψαν στη γραμμή μενού, η σφαίρα εγγραφής έχει νέο κυματομορφή και οι υπάρχουσες βιβλιοθήκες ανοίγουν ξανά αξιόπιστα."
+            "value": "Κατεβάστε το Sayso από το justsayso.app."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Also: prompt presets are back in the menu bar, the recording orb has a new waveform, and existing libraries open reliably again."
+            "value": "Download Sayso at justsayso.app."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Además: los preajustes de prompts vuelven a la barra de menús, el orbe de grabación tiene una nueva forma de onda y las bibliotecas existentes se abren de forma fiable otra vez."
+            "value": "Descarga Sayso en justsayso.app."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lisäksi: kehote-esiasetukset ovat taas valikkopalkissa, tallennuspallolla on uusi aaltomuoto ja olemassa olevat kirjastot avautuvat jälleen luotettavasti."
+            "value": "Lataa Sayso osoitteesta justsayso.app."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Également : les préréglages de prompts sont de retour dans la barre de menus, l'orbe d'enregistrement a une nouvelle forme d'onde, et les bibliothèques existantes s'ouvrent à nouveau de façon fiable."
+            "value": "Téléchargez Sayso sur justsayso.app."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "בנוסף: הגדרות מוכנות מראש של הנחיות חזרו לשורת התפריטים, לכדור ההקלטה יש צורת גל חדשה, וספריות קיימות נפתחות שוב באופן אמין."
+            "value": "הורידו את Sayso מ-justsayso.app."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "साथ ही: प्रॉम्प्ट प्रीसेट मेनू बार में वापस आ गए हैं, रिकॉर्डिंग ऑर्ब में नया वेवफ़ॉर्म है, और मौजूदा लाइब्रेरी फिर से भरोसे से खुलती हैं।"
+            "value": "Sayso को justsayso.app से डाउनलोड करें।"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Emellett: a prompt-előbeállítások visszatértek a menüsorba, a felvételi gömb új hullámformát kapott, és a meglévő könyvtárak újra megbízhatóan megnyílnak."
+            "value": "A Sayso letölthető a justsayso.app oldalról."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Juga: preset prompt kembali di bilah menu, bola rekaman punya bentuk gelombang baru, dan pustaka yang ada terbuka andal lagi."
+            "value": "Unduh Sayso di justsayso.app."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inoltre: i preset dei prompt sono di nuovo nella barra dei menu, l'orbe di registrazione ha una nuova forma d'onda e le librerie esistenti si aprono di nuovo in modo affidabile."
+            "value": "Scarica Sayso su justsayso.app."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "その他: プロンプトプリセットがメニューバーに復帰、録音オーブに新しい波形、既存ライブラリも再び確実に開きます。"
+            "value": "Sayso は justsayso.app からダウンロードできます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "또한: 프롬프트 프리셋이 메뉴 막대로 돌아왔고, 녹음 오브에 새 파형이 추가되었으며, 기존 라이브러리가 다시 안정적으로 열립니다."
+            "value": "justsayso.app에서 Sayso를 다운로드하세요."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Juga: pratetap prompt kembali dalam bar menu, orbs rakaman mempunyai bentuk gelombang baharu, dan pustaka sedia ada dibuka dengan boleh dipercayai semula."
+            "value": "Muat turun Sayso di justsayso.app."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Også: ledetekstforhåndsinnstillinger er tilbake i menylinjen, opptakskulen har en ny bølgeform, og eksisterende biblioteker åpnes pålitelig igjen."
+            "value": "Last ned Sayso på justsayso.app."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ook: promptvoorinstellingen zijn terug in de menubalk, de opnamebol heeft een nieuwe golfvorm en bestaande bibliotheken openen weer betrouwbaar."
+            "value": "Download Sayso op justsayso.app."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Poza tym: gotowe ustawienia promptów wróciły do paska menu, kula nagrywania ma nową falę, a istniejące biblioteki znów otwierają się niezawodnie."
+            "value": "Pobierz Sayso ze strony justsayso.app."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Além disso: os predefinidos de prompt voltaram à barra de menus, o orbe de gravação tem uma nova forma de onda e as bibliotecas existentes abrem de forma confiável de novo."
+            "value": "Baixe o Sayso em justsayso.app."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "De asemenea: presetările de prompt revin în bara de meniu, sfera de înregistrare are o nouă formă de undă, iar bibliotecile existente se deschid din nou în mod fiabil."
+            "value": "Descarcă Sayso de la justsayso.app."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Также: пресеты промптов снова в строке меню, у шара записи новая форма волны, а существующие библиотеки снова открываются надёжно."
+            "value": "Загрузите Sayso на justsayso.app."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dessutom: promptförinställningar är tillbaka i menyraden, inspelningskulan har en ny vågform och befintliga bibliotek öppnas tillförlitligt igen."
+            "value": "Hämta Sayso på justsayso.app."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "นอกจากนี้: พรีเซ็ตพรอมต์กลับมาที่แถบเมนูแล้ว ลูกกลมบันทึกมีรูปคลื่นใหม่ และไลบรารีที่มีอยู่เปิดได้อย่างน่าเชื่อถืออีกครั้ง"
+            "value": "ดาวน์โหลด Sayso ได้ที่ justsayso.app"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ayrıca: istem ön ayarları menü çubuğuna geri döndü, kayıt küresinin yeni bir dalga biçimi var ve mevcut kitaplıklar yeniden güvenilir şekilde açılıyor."
+            "value": "Sayso'yu justsayso.app adresinden indirin."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Також: пресети промптів знову в панелі меню, у кулі запису нова форма хвилі, а наявні бібліотеки знову відкриваються надійно."
+            "value": "Завантажте Sayso на justsayso.app."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ngoài ra: các preset lời nhắc đã trở lại thanh menu, quả cầu ghi âm có dạng sóng mới, và các thư viện hiện có lại mở một cách đáng tin cậy."
+            "value": "Tải Sayso tại justsayso.app."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此外：提示词预设已重回菜单栏，录音光球有了新波形，现有资料库也能再次可靠打开。"
+            "value": "请在 justsayso.app 下载 Sayso。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "此外：提示詞預設已重回選單列，錄音光球有了新波形，現有資料庫也能再次可靠開啟。"
+            "value": "請在 justsayso.app 下載 Sayso。"
           }
         }
       }
     },
     "whatsnew_formatting_body": {
-      "comment": "Correct saved transcripts in Library and keep a clear Edited marker.",
+      "comment": "You can continue to use this version. Your transcripts, notes, and settings stay on your Mac.",
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "صحّح النصوص المحفوظة في Library مع الإبقاء على علامة Edited واضحة."
+            "value": "يمكنك الاستمرار في استخدام هذا الإصدار. تبقى نصوصك وملاحظاتك وإعداداتك على جهاز Mac."
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "Library-তে সংরক্ষিত ট্রান্সক্রিপ্ট সংশোধন করুন এবং স্পষ্ট Edited চিহ্ন রাখুন।"
+            "value": "আপনি এই সংস্করণ ব্যবহার চালিয়ে যেতে পারেন। আপনার ট্রান্সক্রিপ্ট, নোট ও সেটিংস আপনার Mac-এই থাকে।"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opravujte uložené přepisy v Library a ponechte si jasnou značku Edited."
+            "value": "Tuto verzi můžete používat dál. Přepisy, poznámky a nastavení zůstávají ve vašem Macu."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ret gemte transskriptioner i Library, og behold en tydelig Edited-markering."
+            "value": "Du kan fortsætte med at bruge denne version. Dine transskriptioner, noter og indstillinger bliver på din Mac."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Korrigiere gespeicherte Transkripte in Library und behalte eine klare Edited-Markierung."
+            "value": "Du kannst diese Version weiter verwenden. Deine Transkripte, Notizen und Einstellungen bleiben auf deinem Mac."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Διορθώστε αποθηκευμένες μεταγραφές στο Library και διατηρήστε ένα σαφές σημάδι Edited."
+            "value": "Μπορείτε να συνεχίσετε να χρησιμοποιείτε αυτή την έκδοση. Οι μεταγραφές, οι σημειώσεις και οι ρυθμίσεις σας παραμένουν στο Mac σας."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Correct saved transcripts in Library and keep a clear Edited marker."
+            "value": "You can continue to use this version. Your transcripts, notes, and settings stay on your Mac."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Corrige las transcripciones guardadas en Library y mantén un marcador Edited claro."
+            "value": "Puedes seguir usando esta versión. Tus transcripciones, notas y ajustes permanecen en tu Mac."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Korjaa tallennettuja litterointeja Libraryssa ja pidä selkeä Edited-merkintä."
+            "value": "Voit jatkaa tämän version käyttöä. Litteroinnit, muistiinpanot ja asetukset säilyvät Macissasi."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Corrigez les transcriptions enregistrées dans Library et conservez un marqueur Edited clairement visible."
+            "value": "Vous pouvez continuer à utiliser cette version. Vos transcriptions, notes et réglages restent sur votre Mac."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "תקנו תמלולים שמורים ב-Library ושמרו על סמן Edited ברור."
+            "value": "אפשר להמשיך להשתמש בגרסה זו. התמלולים, הפתקים וההגדרות שלך נשארים ב-Mac."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Library में सहेजे गए ट्रांसक्रिप्ट सुधारें और स्पष्ट Edited चिह्न बनाए रखें।"
+            "value": "आप इस संस्करण का उपयोग जारी रख सकते हैं। आपके ट्रांसक्रिप्ट, नोट और सेटिंग आपके Mac पर ही रहते हैं।"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Javítsa a mentett átiratokat a Libraryban, és tartson meg egy egyértelmű Edited jelölést."
+            "value": "Ezt a verziót tovább használhatja. Az átiratok, jegyzetek és beállítások a Macen maradnak."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Perbaiki transkrip tersimpan di Library dan pertahankan penanda Edited yang jelas."
+            "value": "Anda dapat terus memakai versi ini. Transkrip, catatan, dan pengaturan Anda tetap ada di Mac Anda."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Correggi le trascrizioni salvate in Library e mantieni un chiaro contrassegno Edited."
+            "value": "Puoi continuare a usare questa versione. Trascrizioni, note e impostazioni restano sul tuo Mac."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Library に保存した文字起こしを修正でき、明確な Edited マーカーが残ります。"
+            "value": "このバージョンは引き続き使用できます。文字起こし、メモ、設定は Mac に残ります。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Library에 저장된 스크립트를 수정하고 명확한 Edited 표시를 유지하세요."
+            "value": "이 버전을 계속 사용할 수 있습니다. 전사 내용, 메모, 설정은 Mac에 그대로 남습니다."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Betulkan transkrip tersimpan dalam Library dan kekalkan penanda Edited yang jelas."
+            "value": "Anda boleh terus menggunakan versi ini. Transkrip, nota dan tetapan anda kekal pada Mac anda."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rett lagrede transkripsjoner i Library og behold en tydelig Edited-markering."
+            "value": "Du kan fortsette å bruke denne versjonen. Transkripsjoner, notater og innstillinger blir værende på Macen din."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Corrigeer opgeslagen transcripties in Library en houd een duidelijke Edited-markering."
+            "value": "Je kunt deze versie blijven gebruiken. Je transcripties, notities en instellingen blijven op je Mac."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Popraw zapisane transkrypcje w Library i zachowaj wyraźny znacznik Edited."
+            "value": "Możesz dalej używać tej wersji. Transkrypcje, notatki i ustawienia pozostają na Twoim Macu."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Corrija transcrições salvas na Library e mantenha um marcador Edited claro."
+            "value": "Você pode continuar usando esta versão. Suas transcrições, notas e ajustes permanecem no seu Mac."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Corectați transcrierile salvate în Library și păstrați un marcaj Edited clar."
+            "value": "Poți folosi în continuare această versiune. Transcrierile, notițele și setările rămân pe Mac-ul tău."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Исправляйте сохранённые транскрипции в Library и сохраняйте чёткую метку Edited."
+            "value": "Вы можете и дальше использовать эту версию. Ваши расшифровки, заметки и настройки остаются на вашем Mac."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rätta sparade transkriptioner i Library och behåll en tydlig Edited-markering."
+            "value": "Du kan fortsätta använda den här versionen. Dina transkriptioner, anteckningar och inställningar finns kvar på din Mac."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "แก้ข้อความถอดเสียงที่บันทึกไว้ใน Library และคงเครื่องหมาย Edited ที่ชัดเจน"
+            "value": "คุณใช้รุ่นนี้ต่อไปได้ บทถอดเสียง โน้ต และการตั้งค่าของคุณยังอยู่บน Mac"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Library’deki kayıtlı transkripsiyonları düzeltin ve net bir Edited işaretini koruyun."
+            "value": "Bu sürümü kullanmaya devam edebilirsiniz. Transkriptleriniz, notlarınız ve ayarlarınız Mac'inizde kalır."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Виправляйте збережені транскрипції в Library і зберігайте чітку позначку Edited."
+            "value": "Ви можете й надалі користуватися цією версією. Ваші транскрипції, нотатки й налаштування залишаються на вашому Mac."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sửa bản chép lời đã lưu trong Library và giữ thẻ Edited rõ ràng."
+            "value": "Bạn có thể tiếp tục dùng phiên bản này. Bản chép lời, ghi chú và cài đặt vẫn nằm trên máy Mac của bạn."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "可在 Library 中修正已保存的转录，并保留清晰的 Edited 标记。"
+            "value": "你可以继续使用此版本。你的转写、笔记和设置都保留在 Mac 上。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "可在 Library 中修正已儲存的轉錄，並保留清晰的 Edited 標記。"
+            "value": "你可以繼續使用此版本。你的逐字稿、筆記和設定都保留在 Mac 上。"
           }
         }
       }
     },
     "whatsnew_formatting_title": {
-      "comment": "Editable transcripts",
+      "comment": "Pindrop keeps working",
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "نصوص قابلة للتحرير"
+            "value": "Pindrop يواصل العمل"
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "সম্পাদনযোগ্য ট্রান্সক্রিপ্ট"
+            "value": "Pindrop কাজ করতে থাকবে"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Upravitelné přepisy"
+            "value": "Pindrop funguje dál"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Redigerbare transskriptioner"
+            "value": "Pindrop virker fortsat"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bearbeitbare Transkripte"
+            "value": "Pindrop funktioniert weiter"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Επεξεργάσιμες μεταγραφές"
+            "value": "Το Pindrop συνεχίζει να λειτουργεί"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Editable transcripts"
+            "value": "Pindrop keeps working"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Transcripciones editables"
+            "value": "Pindrop sigue funcionando"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Muokattavat litteroinnit"
+            "value": "Pindrop toimii edelleen"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Transcriptions modifiables"
+            "value": "Pindrop continue de fonctionner"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "תמלולים הניתנים לעריכה"
+            "value": "Pindrop ממשיך לפעול"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "संपादन योग्य ट्रांसक्रिप्ट"
+            "value": "Pindrop काम करता रहेगा"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Szerkeszthető átiratok"
+            "value": "A Pindrop továbbra is működik"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Transkrip yang dapat diedit"
+            "value": "Pindrop tetap berfungsi"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trascrizioni modificabili"
+            "value": "Pindrop continua a funzionare"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "編集可能な文字起こし"
+            "value": "Pindrop は引き続き使えます"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "편집 가능한 스크립트"
+            "value": "Pindrop은 계속 작동합니다"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Transkrip boleh sunting"
+            "value": "Pindrop terus berfungsi"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Redigerbare transkripsjoner"
+            "value": "Pindrop fortsetter å virke"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bewerkbare transcripties"
+            "value": "Pindrop blijft werken"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Edytowalne transkrypcje"
+            "value": "Pindrop nadal działa"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Transcrições editáveis"
+            "value": "O Pindrop continua funcionando"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Transcrieri editabile"
+            "value": "Pindrop funcționează în continuare"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Редактируемые транскрипции"
+            "value": "Pindrop продолжает работать"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Redigerbara transkriptioner"
+            "value": "Pindrop fortsätter att fungera"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ข้อความถอดเสียงที่แก้ไขได้"
+            "value": "Pindrop ยังใช้งานได้"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Düzenlenebilir transkripsiyonlar"
+            "value": "Pindrop çalışmaya devam eder"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Редаговані транскрипції"
+            "value": "Pindrop працює далі"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bản chép lời có thể chỉnh sửa"
+            "value": "Pindrop vẫn hoạt động"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "可编辑转录"
+            "value": "Pindrop 仍可使用"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "可編輯轉錄"
+            "value": "Pindrop 仍可使用"
+          }
+        }
+      }
+    },
+    "whatsnew_get_sayso": {
+      "comment": "Get Sayso",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "احصل على Sayso"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sayso নিন"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Získat Sayso"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hent Sayso"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sayso laden"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Λήψη Sayso"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Sayso"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obtener Sayso"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hanki Sayso"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obtenir Sayso"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "קבלת Sayso"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sayso पाएँ"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sayso letöltése"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dapatkan Sayso"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scarica Sayso"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sayso を入手"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sayso 받기"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dapatkan Sayso"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hent Sayso"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sayso downloaden"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pobierz Sayso"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obter o Sayso"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obține Sayso"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загрузить Sayso"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hämta Sayso"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "รับ Sayso"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sayso'yu indir"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Завантажити Sayso"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tải Sayso"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "获取 Sayso"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取得 Sayso"
           }
         }
       }
     },
     "whatsnew_indicators_body": {
-      "comment": "See per-stage timing and AI token usage for each dictation, plus averages in Stats.",
+      "comment": "The Pindrop repository on GitHub is archived and read-only.",
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "اطلع على توقيت كل مرحلة واستخدام رموز AI لكل إملاء، إضافةً إلى المتوسطات في Stats."
+            "value": "مستودع Pindrop على GitHub مؤرشف وللقراءة فقط."
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "প্রতিটি ডিক্টেশনের পর্যায়ভিত্তিক সময় ও AI টোকেন ব্যবহার দেখুন, সাথে Stats-এর গড় মান।"
+            "value": "GitHub-এ Pindrop রিপোজিটরি আর্কাইভ করা এবং শুধু পড়ার জন্য।"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sledujte časování jednotlivých fází a spotřebu AI tokenů u každého diktátu i průměry ve Stats."
+            "value": "Repozitář Pindrop na GitHubu je archivovaný a jen pro čtení."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se tidsforbrug pr. trin og AI-tokenforbrug for hver diktering samt gennemsnit i Stats."
+            "value": "Pindrop-repositoriet på GitHub er arkiveret og skrivebeskyttet."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sieh die Zeit pro Stufe und den AI-Token-Verbrauch für jedes Diktat sowie Durchschnittswerte in Stats."
+            "value": "Das Pindrop-Repository auf GitHub ist archiviert und schreibgeschützt."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Δείτε τον χρόνο ανά στάδιο και τη χρήση token AI για κάθε υπαγόρευση, καθώς και μέσους όρους στα Stats."
+            "value": "Το αποθετήριο του Pindrop στο GitHub είναι αρχειοθετημένο και μόνο για ανάγνωση."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "See per-stage timing and AI token usage for each dictation, plus averages in Stats."
+            "value": "The Pindrop repository on GitHub is archived and read-only."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Consulta el tiempo por etapa y el uso de tokens de AI en cada dictado, además de promedios en Stats."
+            "value": "El repositorio de Pindrop en GitHub está archivado y es de solo lectura."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Näe vaiheittaiset ajat ja AI-tokenien käyttö jokaisesta sanelusta sekä keskiarvot Statsissa."
+            "value": "Pindropin GitHub-repositorio on arkistoitu ja vain luettavissa."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Consultez le temps par étape et l'utilisation de tokens AI pour chaque dictée, ainsi que les moyennes dans Stats."
+            "value": "Le dépôt Pindrop sur GitHub est archivé et en lecture seule."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "ראו תזמון לפי שלב ושימוש בטוקני AI לכל הכתבה, וגם ממוצעים ב-Stats."
+            "value": "המאגר של Pindrop ב-GitHub נמצא בארכיון ומיועד לקריאה בלבד."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "हर डिक्टेशन के चरण-वार समय और AI टोकन उपयोग देखें, साथ ही Stats में औसत।"
+            "value": "GitHub पर Pindrop रिपॉज़िटरी संग्रहीत है और केवल पढ़ने के लिए है।"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lássa a szakaszonkénti időzítést és az AI-tokenhasználatot minden diktálásnál, valamint az átlagokat a Statsban."
+            "value": "A Pindrop GitHub-tárolója archivált és csak olvasható."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lihat waktu per tahap dan penggunaan token AI untuk setiap dikte, plus rata-rata di Stats."
+            "value": "Repositori Pindrop di GitHub diarsipkan dan hanya dapat dibaca."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vedi i tempi per fase e l'uso di token AI per ogni dettatura, più le medie in Stats."
+            "value": "Il repository di Pindrop su GitHub è archiviato e di sola lettura."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "各ディクテーションの段階ごとの時間と AI トークン使用量、さらに Stats の平均を確認できます。"
+            "value": "GitHub の Pindrop リポジトリはアーカイブされ、読み取り専用です。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "각 받아쓰기의 단계별 시간과 AI 토큰 사용량, 그리고 Stats의 평균을 확인하세요."
+            "value": "GitHub의 Pindrop 저장소는 보관 처리되어 읽기 전용입니다."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lihat masa setiap peringkat dan penggunaan token AI untuk setiap imlak, serta purata dalam Stats."
+            "value": "Repositori Pindrop di GitHub telah diarkibkan dan baca sahaja."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se tidsbruk per trinn og AI-tokenbruk for hver diktering, pluss gjennomsnitt i Stats."
+            "value": "Pindrop-repositoriet på GitHub er arkivert og skrivebeskyttet."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bekijk de timing per fase en het AI-tokengebruik voor elk dictaat, plus gemiddelden in Stats."
+            "value": "De Pindrop-repository op GitHub is gearchiveerd en alleen-lezen."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zobacz czasy poszczególnych etapów i zużycie tokenów AI dla każdego dyktowania, a także średnie w Stats."
+            "value": "Repozytorium Pindrop w serwisie GitHub jest zarchiwizowane i tylko do odczytu."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Veja o tempo por etapa e o uso de tokens de AI em cada ditado, além das médias em Stats."
+            "value": "O repositório do Pindrop no GitHub está arquivado e é somente leitura."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vedeți timpul pe etape și utilizarea de tokeni AI pentru fiecare dictare, plus mediile din Stats."
+            "value": "Depozitul Pindrop de pe GitHub este arhivat și doar pentru citire."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Смотрите время по этапам и расход AI-токенов для каждой диктовки, а также средние значения в Stats."
+            "value": "Репозиторий Pindrop на GitHub архивирован и доступен только для чтения."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Se tidsåtgång per steg och AI-tokenanvändning för varje diktering, plus genomsnitt i Stats."
+            "value": "Pindrop-repot på GitHub är arkiverat och skrivskyddat."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ดูเวลาแต่ละขั้นและการใช้โทเค็น AI ของทุกการเขียนตามคำบอก พร้อมค่าเฉลี่ยใน Stats"
+            "value": "ที่เก็บ Pindrop บน GitHub ถูกเก็บถาวรและอ่านได้อย่างเดียว"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Her dikte için aşama bazlı süreyi ve AI jeton kullanımını, ayrıca Stats’taki ortalamaları görün."
+            "value": "GitHub'daki Pindrop deposu arşivlendi ve salt okunur."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Переглядайте час за етапами та використання AI-токенів для кожного диктування, а також середні значення в Stats."
+            "value": "Репозиторій Pindrop на GitHub заархівовано, він доступний лише для читання."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xem thời gian theo từng giai đoạn và mức dùng token AI cho mỗi lần đọc chính tả, cùng số trung bình trong Stats."
+            "value": "Kho mã Pindrop trên GitHub đã được lưu trữ và chỉ đọc."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "查看每次听写各阶段耗时与 AI 令牌用量，以及 Stats 中的平均值。"
+            "value": "GitHub 上的 Pindrop 仓库已归档，仅供只读访问。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "查看每次聽寫各階段耗時與 AI 權杖用量，以及 Stats 中的平均值。"
+            "value": "GitHub 上的 Pindrop 儲存庫已封存，僅供唯讀存取。"
           }
         }
       }
     },
     "whatsnew_indicators_title": {
-      "comment": "Pipeline insights",
+      "comment": "The source code stays available",
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "رؤى خط المعالجة"
+            "value": "الكود المصدري يبقى متاحًا"
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "পাইপলাইন অন্তর্দৃষ্টি"
+            "value": "সোর্স কোড উপলব্ধ থাকবে"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Přehledy pipeline"
+            "value": "Zdrojový kód zůstává dostupný"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pipeline-indsigt"
+            "value": "Kildekoden er fortsat tilgængelig"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pipeline-Einblicke"
+            "value": "Der Quellcode bleibt verfügbar"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Πληροφορίες διοχέτευσης"
+            "value": "Ο πηγαίος κώδικας παραμένει διαθέσιμος"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pipeline insights"
+            "value": "The source code stays available"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Información del pipeline"
+            "value": "El código fuente sigue disponible"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Putken näkemykset"
+            "value": "Lähdekoodi pysyy saatavilla"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Perspectives du pipeline"
+            "value": "Le code source reste disponible"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "תובנות צינור העיבוד"
+            "value": "קוד המקור נשאר זמין"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "पाइपलाइन अंतर्दृष्टि"
+            "value": "सोर्स कोड उपलब्ध रहेगा"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pipeline-betekintések"
+            "value": "A forráskód elérhető marad"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wawasan pipeline"
+            "value": "Kode sumber tetap tersedia"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Approfondimenti sulla pipeline"
+            "value": "Il codice sorgente resta disponibile"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "パイプラインのインサイト"
+            "value": "ソースコードは引き続き公開されます"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "파이프라인 인사이트"
+            "value": "소스 코드는 계속 공개됩니다"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cerapan saluran paip"
+            "value": "Kod sumber kekal tersedia"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pipeline-innsikt"
+            "value": "Kildekoden er fortsatt tilgjengelig"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pipeline-inzichten"
+            "value": "De broncode blijft beschikbaar"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wgląd w pipeline"
+            "value": "Kod źródłowy pozostaje dostępny"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Insights do pipeline"
+            "value": "O código-fonte continua disponível"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Perspective asupra pipeline-ului"
+            "value": "Codul sursă rămâne disponibil"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Аналитика конвейера"
+            "value": "Исходный код остаётся доступным"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pipeline-insikter"
+            "value": "Källkoden finns kvar"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ข้อมูลเชิงลึกของไปป์ไลน์"
+            "value": "ซอร์สโค้ดยังเปิดให้เข้าถึง"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Boru hattı içgörüleri"
+            "value": "Kaynak kodu erişilebilir kalıyor"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Аналітика конвеєра"
+            "value": "Вихідний код залишається доступним"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Thông tin pipeline"
+            "value": "Mã nguồn vẫn có sẵn"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "流水线洞察"
+            "value": "源代码仍然可用"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "管線洞察"
+            "value": "原始碼仍然可用"
           }
         }
       }
     },
     "whatsnew_languages_body": {
-      "comment": "Telemetry stays off until you opt in, and training contributions remain on your Mac for review, export, or deletion.",
+      "comment": "This is the final release. Pindrop gets no new features, fixes, or support after it.",
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "تبقى بيانات القياس عن بُعد متوقفة حتى توافق، وتظل مساهمات التدريب على جهاز Mac لديك للمراجعة أو التصدير أو الحذف."
+            "value": "هذا هو الإصدار الأخير. لن يحصل Pindrop بعده على ميزات جديدة أو إصلاحات أو دعم."
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "আপনি সম্মতি না দেওয়া পর্যন্ত টেলিমেট্রি বন্ধ থাকে, এবং প্রশিক্ষণ অবদান পর্যালোচনা, রপ্তানি বা মুছে ফেলার জন্য আপনার Mac-এই থাকে।"
+            "value": "এটি চূড়ান্ত রিলিজ। এরপর Pindrop নতুন ফিচার, সংশোধন বা সহায়তা পাবে না।"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Telemetrie zůstává vypnutá, dokud ji nezapnete, a tréninkové příspěvky zůstávají na vašem Macu ke kontrole, exportu nebo smazání."
+            "value": "Toto je poslední verze. Pindrop už nedostane nové funkce, opravy ani podporu."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Telemetri forbliver slået fra, indtil du tilmelder dig, og træningsbidrag bliver på din Mac til gennemgang, eksport eller sletning."
+            "value": "Dette er den sidste version. Pindrop får ingen nye funktioner, rettelser eller support herefter."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Telemetrie bleibt aus, bis du sie aktivierst, und Trainingsbeiträge bleiben auf deinem Mac zur Prüfung, zum Export oder zum Löschen."
+            "value": "Dies ist die letzte Version. Pindrop erhält danach keine neuen Funktionen, Fehlerbehebungen oder Support mehr."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Η τηλεμετρία παραμένει απενεργοποιημένη μέχρι να συναινέσετε, και οι συνεισφορές εκπαίδευσης μένουν στο Mac σας για έλεγχο, εξαγωγή ή διαγραφή."
+            "value": "Αυτή είναι η τελική έκδοση. Το Pindrop δεν θα λάβει νέες λειτουργίες, διορθώσεις ή υποστήριξη."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Telemetry stays off until you opt in, and training contributions remain on your Mac for review, export, or deletion."
+            "value": "This is the final release. Pindrop gets no new features, fixes, or support after it."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "La telemetría permanece desactivada hasta que la actives, y las contribuciones de entrenamiento se quedan en tu Mac para revisarlas, exportarlas o eliminarlas."
+            "value": "Esta es la versión final. Pindrop no recibirá nuevas funciones, correcciones ni soporte."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Telemetria pysyy pois päältä, kunnes otat sen käyttöön, ja harjoituskontribuutiot pysyvät Macillasi tarkastelua, vientiä tai poistoa varten."
+            "value": "Tämä on viimeinen versio. Pindrop ei saa enää uusia ominaisuuksia, korjauksia eikä tukea."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "La télémétrie reste désactivée tant que vous ne l'activez pas, et les contributions d'entraînement restent sur votre Mac pour relecture, export ou suppression."
+            "value": "Ceci est la dernière version. Pindrop ne recevra plus de nouvelles fonctionnalités, de correctifs ni d’assistance."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "הטלמטריה נשארת כבויה עד שתבחרו להצטרף, ותרומות האימון נשארות ב-Mac שלכם לבדיקה, ייצוא או מחיקה."
+            "value": "זו הגרסה האחרונה. Pindrop לא יקבל אחריה תכונות חדשות, תיקונים או תמיכה."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "टेलीमेट्री आपकी सहमति तक बंद रहती है, और प्रशिक्षण योगदान समीक्षा, निर्यात या हटाने के लिए आपके Mac पर ही रहते हैं।"
+            "value": "यह अंतिम रिलीज़ है। इसके बाद Pindrop को नए फ़ीचर, सुधार या सहायता नहीं मिलेगी।"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A telemetria kikapcsolva marad, amíg be nem kapcsolja, a tanítási hozzájárulások pedig a Macjén maradnak áttekintéshez, exportáláshoz vagy törléshez."
+            "value": "Ez az utolsó kiadás. A Pindrop ezután nem kap új funkciókat, javításokat és támogatást."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Telemetri tetap nonaktif hingga Anda ikut serta, dan kontribusi pelatihan tetap di Mac Anda untuk ditinjau, diekspor, atau dihapus."
+            "value": "Ini adalah rilis terakhir. Pindrop tidak akan mendapat fitur baru, perbaikan, atau dukungan lagi."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "La telemetria resta disattivata finché non acconsenti, e i contributi di addestramento restano sul tuo Mac per revisione, esportazione o eliminazione."
+            "value": "Questa è la versione finale. Pindrop non riceverà più nuove funzioni, correzioni o assistenza."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "テレメトリは同意するまでオフのまま。トレーニング貢献データは確認・書き出し・削除のため Mac 上に残ります。"
+            "value": "これが最終リリースです。Pindrop に新機能、修正、サポートは提供されません。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "원격 분석은 옵트인하기 전까지 꺼져 있으며, 학습 기여 데이터는 검토·내보내기·삭제를 위해 Mac에 남습니다."
+            "value": "이 버전이 최종 릴리스입니다. Pindrop에는 새 기능, 수정, 지원이 더 이상 제공되지 않습니다."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Telemetri kekal dimatikan sehingga anda memilih untuk ikut serta, dan sumbangan latihan kekal pada Mac anda untuk semakan, eksport atau pemadaman."
+            "value": "Ini ialah keluaran terakhir. Pindrop tidak akan menerima ciri baharu, pembaikan atau sokongan lagi."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Telemetri forblir av til du velger å delta, og treningsbidrag blir på Mac-en din for gjennomgang, eksport eller sletting."
+            "value": "Dette er den siste versjonen. Pindrop får ingen nye funksjoner, feilrettinger eller støtte etter dette."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Telemetrie blijft uit tot je meedoet, en trainingsbijdragen blijven op je Mac voor beoordeling, export of verwijdering."
+            "value": "Dit is de laatste versie. Pindrop krijgt hierna geen nieuwe functies, fixes of ondersteuning meer."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Telemetria pozostaje wyłączona, dopóki jej nie włączysz, a wkłady treningowe zostają na Twoim Macu do przeglądu, eksportu lub usunięcia."
+            "value": "To jest wersja końcowa. Pindrop nie otrzyma już nowych funkcji, poprawek ani wsparcia."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "A telemetria permanece desligada até você optar por participar, e as contribuições de treinamento ficam no seu Mac para revisão, exportação ou exclusão."
+            "value": "Esta é a versão final. O Pindrop não receberá novos recursos, correções nem suporte."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Telemetria rămâne dezactivată până când optați să o activați, iar contribuțiile de antrenament rămân pe Mac-ul dvs. pentru revizuire, export sau ștergere."
+            "value": "Aceasta este versiunea finală. Pindrop nu mai primește funcții noi, remedieri sau asistență."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Телеметрия остаётся выключенной, пока вы не включите её, а обучающие материалы остаются на вашем Mac для просмотра, экспорта или удаления."
+            "value": "Это последняя версия. Pindrop больше не получит новых функций, исправлений и поддержки."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Telemetri förblir avstängd tills du väljer att delta, och träningsbidrag stannar på din Mac för granskning, export eller radering."
+            "value": "Det här är den sista versionen. Pindrop får inga nya funktioner, rättningar eller support efter den."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "เทเลเมทรียังปิดอยู่จนกว่าคุณจะเลือกเข้าร่วม และข้อมูลการฝึกยังอยู่บน Mac ของคุณเพื่อตรวจสอบ ส่งออก หรือลบ"
+            "value": "นี่คือรุ่นสุดท้าย Pindrop จะไม่ได้รับฟีเจอร์ใหม่ การแก้ไข หรือการสนับสนุนอีก"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Telemetri siz katılmayı seçene kadar kapalı kalır ve eğitim katkıları inceleme, dışa aktarma veya silme için Mac’inizde kalır."
+            "value": "Bu son sürümdür. Pindrop bundan sonra yeni özellik, düzeltme veya destek almayacak."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Телеметрія лишається вимкненою, доки ви не погодитесь, а навчальні внески залишаються на вашому Mac для перегляду, експорту чи видалення."
+            "value": "Це остання версія. Pindrop більше не отримає нових функцій, виправлень і підтримки."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Telemetry vẫn tắt cho đến khi bạn chọn tham gia, và dữ liệu đóng góp huấn luyện vẫn ở trên Mac của bạn để xem, xuất hoặc xóa."
+            "value": "Đây là bản phát hành cuối. Pindrop sẽ không có tính năng mới, bản sửa lỗi hay hỗ trợ nữa."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "遥测在你主动启用前保持关闭，训练贡献数据仍留在你的 Mac 上，可随时查看、导出或删除。"
+            "value": "这是最终版本。此后 Pindrop 不再提供新功能、修复或支持。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "遙測在你主動啟用前保持關閉，訓練貢獻資料仍留在你的 Mac 上，可隨時檢視、匯出或刪除。"
+            "value": "這是最終版本。此後 Pindrop 不再提供新功能、修正或支援。"
           }
         }
       }
     },
     "whatsnew_languages_title": {
-      "comment": "Privacy-first diagnostics",
+      "comment": "No more updates",
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "تشخيصات تضع الخصوصية أولًا"
+            "value": "لا تحديثات بعد الآن"
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "গোপনীয়তা-প্রথম ডায়াগনস্টিকস"
+            "value": "আর কোনো আপডেট নেই"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnostika s prioritou soukromí"
+            "value": "Žádné další aktualizace"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Privatlivs-først diagnostik"
+            "value": "Ingen flere opdateringer"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnosen mit Datenschutz zuerst"
+            "value": "Keine weiteren Updates"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Διαγνωστικά με προτεραιότητα στο απόρρητο"
+            "value": "Τέλος ενημερώσεων"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Privacy-first diagnostics"
+            "value": "No more updates"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnósticos con la privacidad primero"
+            "value": "No habrá más actualizaciones"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Yksityisyys ensin -diagnostiikka"
+            "value": "Ei enää päivityksiä"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnostics axés sur la confidentialité"
+            "value": "Plus de mises à jour"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "אבחון עם פרטיות תחילה"
+            "value": "אין עוד עדכונים"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "गोपनीयता-प्रथम डायग्नोस्टिक्स"
+            "value": "अब कोई अपडेट नहीं"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Adatvédelem-első diagnosztika"
+            "value": "Nincs több frissítés"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnostik yang mengutamakan privasi"
+            "value": "Tidak ada pembaruan lagi"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnostica con privacy al primo posto"
+            "value": "Nessun altro aggiornamento"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "プライバシー優先の診断"
+            "value": "今後のアップデートはありません"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "개인정보 보호 우선 진단"
+            "value": "더 이상 업데이트가 없습니다"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnostik yang mengutamakan privasi"
+            "value": "Tiada lagi kemas kini"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Personvern-først diagnostikk"
+            "value": "Ingen flere oppdateringer"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnostiek met privacy eerst"
+            "value": "Geen updates meer"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnostyka z prywatnością na pierwszym miejscu"
+            "value": "Koniec aktualizacji"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnósticos com privacidade em primeiro lugar"
+            "value": "Sem mais atualizações"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnostice cu confidențialitatea pe primul loc"
+            "value": "Fără alte actualizări"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Диагностика с приоритетом конфиденциальности"
+            "value": "Обновлений больше не будет"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Integritetsförst diagnostik"
+            "value": "Inga fler uppdateringar"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "การวินิจฉัยที่ให้ความสำคัญกับความเป็นส่วนตัว"
+            "value": "ไม่มีการอัปเดตอีก"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gizlilik odaklı tanılama"
+            "value": "Artık güncelleme yok"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Діагностика з пріоритетом приватності"
+            "value": "Оновлень більше не буде"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chẩn đoán ưu tiên quyền riêng tư"
+            "value": "Không còn bản cập nhật"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "隐私优先的诊断"
+            "value": "不再更新"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "隱私優先的診斷"
+            "value": "不再更新"
           }
         }
       }
     },
     "whatsnew_sensevoice_body": {
-      "comment": "Streaming callbacks, shutdown, and live UI updates now stay ordered and efficient.",
+      "comment": "Sayso is the new dictation app from the developer of Pindrop. It runs on macOS, Windows, and Linux. Sayso can import your Pindrop dictations, dictionary, and prompt presets.",
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "أصبحت استدعاءات البث والإيقاف وتحديثات الواجهة المباشرة مرتبة وفعّالة الآن."
+            "value": "Sayso هو تطبيق الإملاء الجديد من مطوّر Pindrop. يعمل على macOS وWindows وLinux. يستطيع Sayso استيراد إملاءاتك وقاموسك وإعدادات الموجّهات المسبقة من Pindrop."
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "স্ট্রিমিং কলব্যাক, শাটডাউন এবং লাইভ UI আপডেট এখন ক্রমানুসারে ও দক্ষ থাকে।"
+            "value": "Sayso হলো Pindrop-এর ডেভেলপারের নতুন ডিক্টেশন অ্যাপ। এটি macOS, Windows ও Linux-এ চলে। Sayso আপনার Pindrop ডিক্টেশন, অভিধান ও প্রম্পট প্রিসেট ইম্পোর্ট করতে পারে।"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Streamovací callbacky, ukončení a živé aktualizace UI nyní zůstávají uspořádané a efektivní."
+            "value": "Sayso je nová aplikace pro diktování od vývojáře aplikace Pindrop. Funguje v systémech macOS, Windows a Linux. Sayso umí z aplikace Pindrop importovat vaše diktáty, slovník a předvolby promptů."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Streaming-callbacks, nedlukning og live UI-opdateringer forbliver nu ordnede og effektive."
+            "value": "Sayso er den nye dikteringsapp fra udvikleren af Pindrop. Den kører på macOS, Windows og Linux. Sayso kan importere dine dikteringer, din ordbog og dine prompt-forudindstillinger fra Pindrop."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Streaming-Callbacks, Beenden und Live-UI-Updates bleiben jetzt geordnet und effizient."
+            "value": "Sayso ist die neue Diktier-App vom Entwickler von Pindrop. Sie läuft auf macOS, Windows und Linux. Sayso kann deine Diktate, dein Wörterbuch und deine Prompt-Voreinstellungen aus Pindrop importieren."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Τα callback ροής, ο τερματισμός και οι ζωντανές ενημερώσεις UI μένουν πλέον τακτοποιημένα και αποδοτικά."
+            "value": "Το Sayso είναι η νέα εφαρμογή υπαγόρευσης από τον προγραμματιστή του Pindrop. Λειτουργεί σε macOS, Windows και Linux. Το Sayso μπορεί να εισαγάγει από το Pindrop τις υπαγορεύσεις, το λεξικό και τις προεπιλογές prompt σας."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Streaming callbacks, shutdown, and live UI updates now stay ordered and efficient."
+            "value": "Sayso is the new dictation app from the developer of Pindrop. It runs on macOS, Windows, and Linux. Sayso can import your Pindrop dictations, dictionary, and prompt presets."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Las devoluciones de llamada en streaming, el apagado y las actualizaciones de UI en vivo ahora se mantienen ordenados y eficientes."
+            "value": "Sayso es la nueva app de dictado del desarrollador de Pindrop. Funciona en macOS, Windows y Linux. Sayso puede importar tus dictados, tu diccionario y tus ajustes preestablecidos de prompts de Pindrop."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Suoratoistokutsut, sammutus ja live-käyttöliittymäpäivitykset pysyvät nyt järjestyksessä ja tehokkaina."
+            "value": "Sayso on Pindropin kehittäjän uusi sanelusovellus. Se toimii macOS:ssä, Windowsissa ja Linuxissa. Sayso voi tuoda Pindropista sanelusi, sanastosi ja kehotepohjasi."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les callbacks de streaming, l'arrêt et les mises à jour d'interface en direct restent désormais ordonnés et efficaces."
+            "value": "Sayso est la nouvelle app de dictée du développeur de Pindrop. Elle fonctionne sur macOS, Windows et Linux. Sayso peut importer vos dictées, votre dictionnaire et vos préréglages de prompt depuis Pindrop."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "קריאות חוזרות של סטרימינג, כיבוי ועדכוני ממשק חיים נשארים כעת מסודרים ויעילים."
+            "value": "Sayso היא אפליקציית ההכתבה החדשה מהמפתח של Pindrop. היא פועלת ב-macOS, ב-Windows וב-Linux. Sayso יכול לייבא מ-Pindrop את ההכתבות, המילון וערכות הפרומפטים שלך."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "स्ट्रीमिंग कॉलबैक, शटडाउन और लाइव UI अपडेट अब क्रमबद्ध और कुशल रहते हैं।"
+            "value": "Sayso, Pindrop के डेवलपर का नया डिक्टेशन ऐप है। यह macOS, Windows और Linux पर चलता है। Sayso आपके Pindrop डिक्टेशन, शब्दकोश और प्रॉम्प्ट प्रीसेट आयात कर सकता है।"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "A streamelési visszahívások, a leállítás és az élő UI-frissítések mostantól rendezettek és hatékonyak maradnak."
+            "value": "A Sayso a Pindrop fejlesztőjének új diktálóalkalmazása. macOS, Windows és Linux rendszeren fut. A Sayso importálni tudja a Pindropból a diktálásokat, a szótárat és a promptkészleteket."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Callback streaming, penonaktifan, dan pembaruan UI langsung kini tetap terurut dan efisien."
+            "value": "Sayso adalah aplikasi dikte baru dari pengembang Pindrop. Aplikasi ini berjalan di macOS, Windows, dan Linux. Sayso dapat mengimpor dikte, kamus, dan preset prompt Anda dari Pindrop."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "I callback in streaming, lo spegnimento e gli aggiornamenti UI in tempo reale restano ora ordinati ed efficienti."
+            "value": "Sayso è la nuova app di dettatura dello sviluppatore di Pindrop. Funziona su macOS, Windows e Linux. Sayso può importare da Pindrop dettature, dizionario e preset dei prompt."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ストリーミングのコールバック、シャットダウン、ライブ UI 更新が、順序どおり効率的に動くようになりました。"
+            "value": "Sayso は Pindrop の開発者による新しい音声入力アプリです。macOS、Windows、Linux で動作します。 Sayso は Pindrop の音声入力履歴、辞書、プロンプトプリセットを読み込めます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "스트리밍 콜백, 종료, 실시간 UI 업데이트가 이제 순서대로 효율적으로 유지됩니다."
+            "value": "Sayso는 Pindrop 개발자가 만든 새 받아쓰기 앱입니다. macOS, Windows, Linux에서 실행됩니다. Sayso는 Pindrop의 받아쓰기 기록, 사전, 프롬프트 프리셋을 가져올 수 있습니다."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Panggilan balik penstriman, penutupan dan kemas kini UI langsung kini kekal teratur dan cekap."
+            "value": "Sayso ialah aplikasi imlak baharu daripada pembangun Pindrop. Ia berjalan pada macOS, Windows dan Linux. Sayso boleh mengimport imlak, kamus dan pratetap gesaan anda daripada Pindrop."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Strømmingskall, avslutning og live UI-oppdateringer holder seg nå ordnede og effektive."
+            "value": "Sayso er den nye dikteringsappen fra utvikleren av Pindrop. Den kjører på macOS, Windows og Linux. Sayso kan importere dikteringer, ordbok og prompt-forhåndsinnstillinger fra Pindrop."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Streaming-callbacks, afsluiten en live UI-updates blijven nu geordend en efficiënt."
+            "value": "Sayso is de nieuwe dicteer-app van de ontwikkelaar van Pindrop. De app werkt op macOS, Windows en Linux. Sayso kan je dictaten, woordenboek en promptpresets uit Pindrop importeren."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wywołania zwrotne strumieniowania, zamykanie i aktualizacje UI na żywo pozostają teraz uporządkowane i wydajne."
+            "value": "Sayso to nowa aplikacja do dyktowania od twórcy Pindrop. Działa w systemach macOS, Windows i Linux. Sayso może zaimportować z Pindrop Twoje dyktowane teksty, słownik i zestawy promptów."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Callbacks de streaming, encerramento e atualizações de UI ao vivo agora permanecem ordenados e eficientes."
+            "value": "O Sayso é o novo app de ditado do desenvolvedor do Pindrop. Ele funciona no macOS, Windows e Linux. O Sayso pode importar seus ditados, seu dicionário e suas predefinições de prompt do Pindrop."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Callback-urile de streaming, oprirea și actualizările UI live rămân acum ordonate și eficiente."
+            "value": "Sayso este noua aplicație de dictare de la dezvoltatorul Pindrop. Rulează pe macOS, Windows și Linux. Sayso poate importa din Pindrop dictările, dicționarul și presetările de prompt."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Потоковые callback’и, завершение работы и живые обновления интерфейса теперь остаются упорядоченными и эффективными."
+            "value": "Sayso — новое приложение для диктовки от разработчика Pindrop. Оно работает в macOS, Windows и Linux. Sayso может импортировать из Pindrop ваши диктовки, словарь и пресеты промптов."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Streaming-callbacks, avstängning och live-UI-uppdateringar hålls nu ordnade och effektiva."
+            "value": "Sayso är den nya dikteringsappen från utvecklaren av Pindrop. Den körs på macOS, Windows och Linux. Sayso kan importera dina dikteringar, din ordlista och dina promptförinställningar från Pindrop."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "คอลแบ็กสตรีมมิง การปิดระบบ และการอัปเดต UI แบบสดตอนนี้คงลำดับและมีประสิทธิภาพ"
+            "value": "Sayso คือแอปป้อนตามคำบอกตัวใหม่จากผู้พัฒนา Pindrop ใช้ได้บน macOS, Windows และ Linux Sayso นำเข้าบทป้อนตามคำบอก พจนานุกรม และพรีเซ็ตพรอมต์ของคุณจาก Pindrop ได้"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Akış geri çağrıları, kapatma ve canlı UI güncellemeleri artık sıralı ve verimli kalıyor."
+            "value": "Sayso, Pindrop geliştiricisinin yeni dikte uygulamasıdır. macOS, Windows ve Linux'ta çalışır. Sayso, Pindrop'taki diktelerinizi, sözlüğünüzü ve istem ön ayarlarınızı içe aktarabilir."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Потокові callback’и, завершення роботи та живі оновлення інтерфейсу тепер лишаються впорядкованими й ефективними."
+            "value": "Sayso — новий застосунок для диктування від розробника Pindrop. Він працює в macOS, Windows і Linux. Sayso може імпортувати з Pindrop ваші диктування, словник і пресети промптів."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Callback streaming, tắt máy và cập nhật UI trực tiếp nay vẫn giữ thứ tự và hiệu quả."
+            "value": "Sayso là ứng dụng đọc chính tả mới từ nhà phát triển Pindrop. Ứng dụng chạy trên macOS, Windows và Linux. Sayso có thể nhập các bản đọc chính tả, từ điển và mẫu prompt của bạn từ Pindrop."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "流式回调、关闭流程与实时界面更新现在保持有序且高效。"
+            "value": "Sayso 是 Pindrop 开发者推出的全新听写应用，可在 macOS、Windows 和 Linux 上运行。 Sayso 可以导入你在 Pindrop 中的听写记录、词典和提示词预设。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "串流回呼、關閉流程與即時介面更新現在保持有序且高效。"
+            "value": "Sayso 是 Pindrop 開發者推出的全新聽寫 App，可在 macOS、Windows 和 Linux 上執行。 Sayso 可以匯入你在 Pindrop 中的聽寫記錄、字典和提示詞預設組。"
           }
         }
       }
     },
     "whatsnew_sensevoice_title": {
-      "comment": "More reliable dictation",
+      "comment": "Sayso replaces Pindrop",
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "إملاء أكثر موثوقية"
+            "value": "Sayso يحل محل Pindrop"
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "আরও নির্ভরযোগ্য ডিক্টেশন"
+            "value": "Sayso এখন Pindrop-এর জায়গায়"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spolehlivější diktování"
+            "value": "Sayso nahrazuje Pindrop"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mere pålidelig diktering"
+            "value": "Sayso afløser Pindrop"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zuverlässigeres Diktat"
+            "value": "Sayso ersetzt Pindrop"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Πιο αξιόπιστη υπαγόρευση"
+            "value": "Το Sayso αντικαθιστά το Pindrop"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "More reliable dictation"
+            "value": "Sayso replaces Pindrop"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dictado más fiable"
+            "value": "Sayso reemplaza a Pindrop"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Luotettavampi sanelu"
+            "value": "Sayso korvaa Pindropin"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dictée plus fiable"
+            "value": "Sayso remplace Pindrop"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "הכתבה אמינה יותר"
+            "value": "Sayso מחליף את Pindrop"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "अधिक विश्वसनीय डिक्टेशन"
+            "value": "Sayso ने Pindrop की जगह ली है"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Megbízhatóbb diktálás"
+            "value": "A Sayso váltja a Pindropot"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dikte yang lebih andal"
+            "value": "Sayso menggantikan Pindrop"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dettatura più affidabile"
+            "value": "Sayso sostituisce Pindrop"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "より信頼性の高いディクテーション"
+            "value": "Sayso が Pindrop の後継です"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "더 안정적인 받아쓰기"
+            "value": "Sayso가 Pindrop을 대체합니다"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Imlak yang lebih boleh dipercayai"
+            "value": "Sayso menggantikan Pindrop"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mer pålitelig diktering"
+            "value": "Sayso erstatter Pindrop"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Betrouwbaarder dicteren"
+            "value": "Sayso vervangt Pindrop"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bardziej niezawodne dyktowanie"
+            "value": "Sayso zastępuje Pindrop"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ditado mais confiável"
+            "value": "O Sayso substitui o Pindrop"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dictare mai fiabilă"
+            "value": "Sayso înlocuiește Pindrop"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Более надёжная диктовка"
+            "value": "Sayso заменяет Pindrop"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mer pålitlig diktering"
+            "value": "Sayso ersätter Pindrop"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "การเขียนตามคำบอกที่เชื่อถือได้มากขึ้น"
+            "value": "Sayso มาแทน Pindrop"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Daha güvenilir dikte"
+            "value": "Sayso, Pindrop'un yerini alıyor"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Надійніше диктування"
+            "value": "Sayso замінює Pindrop"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đọc chính tả đáng tin cậy hơn"
+            "value": "Sayso thay thế Pindrop"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "更可靠的听写"
+            "value": "Sayso 取代 Pindrop"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "更可靠的聽寫"
+            "value": "Sayso 取代 Pindrop"
           }
         }
       }
     },
     "whatsnew_summary": {
-      "comment": "Private diagnostics, editable history, deeper performance insights, and more reliable dictation.",
+      "comment": "Pindrop 1.23.0 is the final release. Sayso is its replacement.",
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "تشخيصات خاصة، وسجل قابل للتحرير، ورؤى أداء أعمق، وإملاء أكثر موثوقية."
+            "value": "Pindrop 1.23.0 هو الإصدار الأخير. Sayso هو البديل."
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "ব্যক্তিগত ডায়াগনস্টিকস, সম্পাদনযোগ্য ইতিহাস, গভীরতর পারফরম্যান্স অন্তর্দৃষ্টি, এবং আরও নির্ভরযোগ্য ডিক্টেশন।"
+            "value": "Pindrop 1.23.0 চূড়ান্ত রিলিজ। Sayso এর বিকল্প।"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Soukromá diagnostika, upravitelná historie, hlubší výkonnostní přehledy a spolehlivější diktování."
+            "value": "Pindrop 1.23.0 je poslední verze. Nahrazuje ji Sayso."
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Privat diagnostik, redigerbar historik, dybere performance-indsigt og mere pålidelig diktering."
+            "value": "Pindrop 1.23.0 er den sidste version. Sayso er afløseren."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Private Diagnosen, bearbeitbare Historie, tiefere Performance-Einblicke und zuverlässigeres Diktat."
+            "value": "Pindrop 1.23.0 ist die letzte Version. Sayso ist der Nachfolger."
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ιδιωτικά διαγνωστικά, επεξεργάσιμο ιστορικό, βαθύτερες πληροφορίες απόδοσης και πιο αξιόπιστη υπαγόρευση."
+            "value": "Το Pindrop 1.23.0 είναι η τελική έκδοση. Το Sayso το αντικαθιστά."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Private diagnostics, editable history, deeper performance insights, and more reliable dictation."
+            "value": "Pindrop 1.23.0 is the final release. Sayso is its replacement."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnósticos privados, historial editable, información de rendimiento más profunda y dictado más fiable."
+            "value": "Pindrop 1.23.0 es la versión final. Sayso es su reemplazo."
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Yksityinen diagnostiikka, muokattava historia, syvemmät suorituskykytiedot ja luotettavampi sanelu."
+            "value": "Pindrop 1.23.0 on viimeinen versio. Sayso korvaa sen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnostics privés, historique modifiable, analyses de performance plus approfondies et dictée plus fiable."
+            "value": "Pindrop 1.23.0 est la dernière version. Sayso le remplace."
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "אבחון פרטי, היסטוריה ניתנת לעריכה, תובנות ביצועים מעמיקות יותר והכתבה אמינה יותר."
+            "value": "Pindrop 1.23.0 היא הגרסה האחרונה. Sayso מחליף אותו."
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "निजी डायग्नोस्टिक्स, संपादन योग्य इतिहास, गहरी प्रदर्शन अंतर्दृष्टि, और अधिक विश्वसनीय डिक्टेशन।"
+            "value": "Pindrop 1.23.0 अंतिम रिलीज़ है। Sayso इसकी जगह लेता है।"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Privát diagnosztika, szerkeszthető előzmények, mélyebb teljesítmény-betekintések és megbízhatóbb diktálás."
+            "value": "A Pindrop 1.23.0 az utolsó kiadás. A helyébe a Sayso lép."
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnostik pribadi, riwayat yang dapat diedit, wawasan performa yang lebih dalam, dan dikte yang lebih andal."
+            "value": "Pindrop 1.23.0 adalah rilis terakhir. Sayso adalah penggantinya."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnostica privata, cronologia modificabile, approfondimenti sulle prestazioni più dettagliati e dettatura più affidabile."
+            "value": "Pindrop 1.23.0 è la versione finale. Sayso lo sostituisce."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "プライベートな診断、編集可能な履歴、より深いパフォーマンス分析、より信頼性の高いディクテーション。"
+            "value": "Pindrop 1.23.0 が最終リリースです。後継は Sayso です。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "비공개 진단, 편집 가능한 기록, 더 깊은 성능 인사이트, 더 안정적인 받아쓰기."
+            "value": "Pindrop 1.23.0이 최종 릴리스입니다. Sayso가 그 자리를 대신합니다."
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnostik peribadi, sejarah boleh sunting, cerapan prestasi yang lebih mendalam dan imlak yang lebih boleh dipercayai."
+            "value": "Pindrop 1.23.0 ialah keluaran terakhir. Sayso ialah penggantinya."
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Privat diagnostikk, redigerbar historikk, dypere ytelsesinnsikt og mer pålitelig diktering."
+            "value": "Pindrop 1.23.0 er den siste versjonen. Sayso er erstatningen."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Privédiagnostiek, bewerkbare geschiedenis, diepere prestatie-inzichten en betrouwbaarder dicteren."
+            "value": "Pindrop 1.23.0 is de laatste versie. Sayso is de vervanger."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Prywatna diagnostyka, edytowalna historia, głębsze informacje o wydajności i bardziej niezawodne dyktowanie."
+            "value": "Pindrop 1.23.0 to wersja końcowa. Zastępuje go Sayso."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnósticos privados, histórico editável, insights de desempenho mais profundos e ditado mais confiável."
+            "value": "O Pindrop 1.23.0 é a versão final. O Sayso é o substituto."
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diagnostice private, istoric editabil, perspective mai profunde de performanță și dictare mai fiabilă."
+            "value": "Pindrop 1.23.0 este versiunea finală. Sayso îl înlocuiește."
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Частная диагностика, редактируемая история, более глубокая аналитика производительности и более надёжная диктовка."
+            "value": "Pindrop 1.23.0 — последняя версия. Ему на смену пришёл Sayso."
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Privat diagnostik, redigerbar historik, djupare prestandainsikter och mer pålitlig diktering."
+            "value": "Pindrop 1.23.0 är den sista versionen. Sayso är ersättaren."
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "การวินิจฉัยส่วนตัว ประวัติที่แก้ไขได้ ข้อมูลเชิงลึกด้านประสิทธิภาพที่ลึกขึ้น และการเขียนตามคำบอกที่เชื่อถือได้มากขึ้น"
+            "value": "Pindrop 1.23.0 เป็นรุ่นสุดท้าย Sayso คือแอปที่มาแทน"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Özel tanılama, düzenlenebilir geçmiş, daha derin performans içgörüleri ve daha güvenilir dikte."
+            "value": "Pindrop 1.23.0 son sürümdür. Yerini Sayso alıyor."
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Приватна діагностика, редагована історія, глибша аналітика продуктивності та надійніше диктування."
+            "value": "Pindrop 1.23.0 — остання версія. Його замінює Sayso."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chẩn đoán riêng tư, lịch sử có thể chỉnh sửa, thông tin hiệu năng sâu hơn và đọc chính tả đáng tin cậy hơn."
+            "value": "Pindrop 1.23.0 là bản phát hành cuối. Sayso là ứng dụng thay thế."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "私密诊断、可编辑历史、更深入的性能洞察，以及更可靠的听写。"
+            "value": "Pindrop 1.23.0 是最终版本。Sayso 是它的替代产品。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "私密診斷、可編輯歷史、更深入的效能洞察，以及更可靠的聽寫。"
+            "value": "Pindrop 1.23.0 是最終版本。Sayso 是它的替代產品。"
+          }
+        }
+      }
+    },
+    "whatsnew_title": {
+      "comment": "Pindrop is discontinued",
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تم إيقاف Pindrop"
+          }
+        },
+        "bn": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop বন্ধ করা হয়েছে"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vývoj aplikace Pindrop skončil"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop er udgået"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop wird eingestellt"
+          }
+        },
+        "el": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Το Pindrop διακόπηκε"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop is discontinued"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop se ha descontinuado"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindropin kehitys on päättynyt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop est abandonné"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop הופסק"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop बंद कर दिया गया है"
+          }
+        },
+        "hu": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A Pindrop fejlesztése megszűnt"
+          }
+        },
+        "id": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop dihentikan"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop è stato dismesso"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop は開発を終了しました"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop 개발이 종료되었습니다"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop telah dihentikan"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop er avviklet"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop is stopgezet"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop nie jest już rozwijany"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O Pindrop foi descontinuado"
+          }
+        },
+        "ro": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop a fost întrerupt"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разработка Pindrop прекращена"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop har lagts ned"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop ยุติการพัฒนาแล้ว"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop sonlandırıldı"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Розробку Pindrop припинено"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop đã ngừng phát triển"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop 已停止开发"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pindrop 已停止開發"
           }
         }
       }
     },
     "whatsnew_version_line": {
-      "comment": "Pindrop 1.22.0 · July 2026",
+      "comment": "Pindrop 1.23.0 · Final release",
       "extractionState": "manual",
       "localizations": {
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · يوليو 2026"
+            "value": "Pindrop 1.23.0 · الإصدار الأخير"
           }
         },
         "bn": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · জুলাই 2026"
+            "value": "Pindrop 1.23.0 · চূড়ান্ত রিলিজ"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · červenec 2026"
+            "value": "Pindrop 1.23.0 · Poslední verze"
           }
         },
         "da": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · juli 2026"
+            "value": "Pindrop 1.23.0 · Sidste version"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · Juli 2026"
+            "value": "Pindrop 1.23.0 · Letzte Version"
           }
         },
         "el": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · Ιούλιος 2026"
+            "value": "Pindrop 1.23.0 · Τελική έκδοση"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · July 2026"
+            "value": "Pindrop 1.23.0 · Final release"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · julio de 2026"
+            "value": "Pindrop 1.23.0 · Versión final"
           }
         },
         "fi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · heinäkuu 2026"
+            "value": "Pindrop 1.23.0 · Viimeinen versio"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · juillet 2026"
+            "value": "Pindrop 1.23.0 · Dernière version"
           }
         },
         "he": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · יולי 2026"
+            "value": "Pindrop 1.23.0 · גרסה אחרונה"
           }
         },
         "hi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · जुलाई 2026"
+            "value": "Pindrop 1.23.0 · अंतिम रिलीज़"
           }
         },
         "hu": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · 2026. július"
+            "value": "Pindrop 1.23.0 · Utolsó kiadás"
           }
         },
         "id": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · Juli 2026"
+            "value": "Pindrop 1.23.0 · Rilis terakhir"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · luglio 2026"
+            "value": "Pindrop 1.23.0 · Versione finale"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · 2026年7月"
+            "value": "Pindrop 1.23.0 · 最終リリース"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · 2026년 7월"
+            "value": "Pindrop 1.23.0 · 최종 릴리스"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · Julai 2026"
+            "value": "Pindrop 1.23.0 · Keluaran terakhir"
           }
         },
         "nb": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · juli 2026"
+            "value": "Pindrop 1.23.0 · Siste versjon"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · juli 2026"
+            "value": "Pindrop 1.23.0 · Laatste versie"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · lipiec 2026"
+            "value": "Pindrop 1.23.0 · Wersja końcowa"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · julho de 2026"
+            "value": "Pindrop 1.23.0 · Versão final"
           }
         },
         "ro": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · iulie 2026"
+            "value": "Pindrop 1.23.0 · Versiunea finală"
           }
         },
         "ru": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · июль 2026 г."
+            "value": "Pindrop 1.23.0 · Последняя версия"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · juli 2026"
+            "value": "Pindrop 1.23.0 · Sista versionen"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · กรกฎาคม 2026"
+            "value": "Pindrop 1.23.0 · รุ่นสุดท้าย"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · Temmuz 2026"
+            "value": "Pindrop 1.23.0 · Son sürüm"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · липень 2026 р."
+            "value": "Pindrop 1.23.0 · Остання версія"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · tháng 7 năm 2026"
+            "value": "Pindrop 1.23.0 · Bản phát hành cuối"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · 2026 年 7 月"
+            "value": "Pindrop 1.23.0 · 最终版本"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pindrop 1.22.0 · 2026 年 7 月"
+            "value": "Pindrop 1.23.0 · 最終版本"
           }
         }
       }

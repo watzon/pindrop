@@ -142,6 +142,49 @@ struct AnnouncementServiceTests {
         #expect(presenter.presentedAnnouncements.map(\.id) == ["current"])
     }
 
+    @Test func onboardingCompletionMarksOrdinaryAnnouncementSeen() {
+        let settings = makeSettingsStore(lastSeenAnnouncementID: "")
+        defer { cleanup(settings) }
+        let announcement = makeAnnouncement(id: "current")
+        let sut = AnnouncementService(
+            settingsStore: settings,
+            presenter: AnnouncementPresentationSpy(),
+            currentAnnouncementProvider: { announcement },
+            isAutoPresentationSuppressed: { false }
+        )
+
+        sut.markCurrentAnnouncementSeen()
+
+        #expect(settings.lastSeenAnnouncementID == "current")
+    }
+
+    @Test func onboardingCompletionKeepsNewInstallAnnouncementUnseen() {
+        let settings = makeSettingsStore(lastSeenAnnouncementID: "")
+        defer { cleanup(settings) }
+        let presenter = AnnouncementPresentationSpy()
+        var announcement = makeAnnouncement(id: "current")
+        announcement.appliesToNewInstalls = true
+        let sut = AnnouncementService(
+            settingsStore: settings,
+            presenter: presenter,
+            currentAnnouncementProvider: { announcement },
+            isAutoPresentationSuppressed: { false }
+        )
+
+        sut.markCurrentAnnouncementSeen()
+
+        #expect(settings.lastSeenAnnouncementID == "")
+        #expect(sut.presentCurrentAnnouncementIfNeeded(hasCompletedOnboarding: true))
+        #expect(presenter.presentedAnnouncements.map(\.id) == ["current"])
+    }
+
+    @Test func currentAnnouncementPointsToSayso() throws {
+        let announcement = try #require(AnnouncementCatalog.current)
+
+        #expect(announcement.appliesToNewInstalls)
+        #expect(announcement.action?.url.absoluteString == "https://justsayso.app")
+    }
+
     private func makeSettingsStore(lastSeenAnnouncementID: String) -> SettingsStore {
         let settings = SettingsStore()
         cleanup(settings)
