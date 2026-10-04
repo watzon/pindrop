@@ -390,6 +390,62 @@ struct ModelManagerTests {
         #expect(modelManager.isOfflineDiarizationModelsReady(at: root))
     }
 
+    // MARK: - Legacy Parakeet cache
+
+    private func seedParakeetV3Files(at directory: URL, includeVocabulary: Bool = true) throws {
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        for name in ModelNames.ASR.requiredModelsV3(precision: .int8) {
+            try FileManager.default.createDirectory(
+                at: directory.appendingPathComponent(name, isDirectory: true),
+                withIntermediateDirectories: true
+            )
+        }
+        if includeVocabulary {
+            FileManager.default.createFile(
+                atPath: directory.appendingPathComponent(ModelNames.ASR.vocabularyFile).path,
+                contents: Data("{}".utf8)
+            )
+        }
+    }
+
+    @Test func completeLegacyParakeetCacheMovesToTheCurrentDirectory() async throws {
+        let (locations, root) = try SpeechTestSupport.makeStorageLocations(label: "legacy-parakeet")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let manager = ModelManager(storageLocations: locations)
+        let current = ParakeetEngine.modelDirectory(for: .v3, fluidAudioModelsRoot: locations.fluidAudioModelsRoot)
+        let legacy = locations.pindropApplicationSupportRoot
+            .appendingPathComponent("FluidInference/parakeet-coreml", isDirectory: true)
+            .appendingPathComponent(current.lastPathComponent, isDirectory: true)
+        try seedParakeetV3Files(at: legacy)
+        // A stalled load left a partial directory at the current location.
+        try seedParakeetV3Files(at: current, includeVocabulary: false)
+        try FileManager.default.removeItem(
+            at: current.appendingPathComponent(ModelNames.ASR.requiredModelsV3(precision: .int8).first!)
+        )
+
+        await manager.refreshDownloadedModels()
+
+        #expect(manager.isModelDownloaded("parakeet-tdt-0.6b-v3"))
+        #expect(AsrModels.modelsExist(at: current, version: .v3))
+        #expect(!FileManager.default.fileExists(atPath: legacy.path))
+    }
+
+    @Test func incompleteLegacyParakeetCacheIsLeftAlone() async throws {
+        let (locations, root) = try SpeechTestSupport.makeStorageLocations(label: "legacy-parakeet-partial")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let manager = ModelManager(storageLocations: locations)
+        let current = ParakeetEngine.modelDirectory(for: .v3, fluidAudioModelsRoot: locations.fluidAudioModelsRoot)
+        let legacy = locations.pindropApplicationSupportRoot
+            .appendingPathComponent("FluidInference/parakeet-coreml", isDirectory: true)
+            .appendingPathComponent(current.lastPathComponent, isDirectory: true)
+        try seedParakeetV3Files(at: legacy, includeVocabulary: false)
+
+        await manager.refreshDownloadedModels()
+
+        #expect(!manager.isModelDownloaded("parakeet-tdt-0.6b-v3"))
+        #expect(FileManager.default.fileExists(atPath: legacy.path))
+    }
+
     // MARK: - Required feature models
 
     @Test func liveTranscriptionAndVoiceDetectionAreRequiredAndDiarizationIsNot() {

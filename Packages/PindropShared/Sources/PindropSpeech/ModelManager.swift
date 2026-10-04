@@ -799,6 +799,35 @@ public final class ModelManager {
         )
     }
 
+    /// Pindrop 1.22.5 and older stored Parakeet under
+    /// `<Pindrop root>/FluidInference/parakeet-coreml/<repo folder>`, while FluidAudio loaded
+    /// from its own cache. Move a complete legacy copy to the current directory so the
+    /// upgrade does not download the model again. Does nothing unless the legacy copy is
+    /// complete and the current directory is not.
+    private func migrateLegacyParakeetCacheIfNeeded(version: AsrModelVersion, repoDirectory: URL) {
+        guard !isDownloading else { return }
+        let legacyDirectory = modelsBaseURL
+            .appendingPathComponent("FluidInference", isDirectory: true)
+            .appendingPathComponent("parakeet-coreml", isDirectory: true)
+            .appendingPathComponent(repoDirectory.lastPathComponent, isDirectory: true)
+        guard AsrModels.modelsExist(at: legacyDirectory, version: version),
+              !AsrModels.modelsExist(at: repoDirectory, version: version) else { return }
+        do {
+            // An incomplete current directory is a stalled download. Replace it.
+            if fileManager.fileExists(atPath: repoDirectory.path) {
+                try fileManager.removeItem(at: repoDirectory)
+            }
+            try fileManager.createDirectory(
+                at: repoDirectory.deletingLastPathComponent(),
+                withIntermediateDirectories: true
+            )
+            try fileManager.moveItem(at: legacyDirectory, to: repoDirectory)
+            Log.model.info("Moved legacy Parakeet model to \(repoDirectory.path)")
+        } catch {
+            Log.model.error("Legacy Parakeet model migration failed: \(error.localizedDescription)")
+        }
+    }
+
     private func parakeetVersion(forModelName modelName: String) throws -> AsrModelVersion {
         if modelName.contains("v3") {
             return .v3
@@ -907,6 +936,7 @@ public final class ModelManager {
         for model in availableModels where model.provider == .parakeet {
             guard let version = try? parakeetVersion(forModelName: model.name) else { continue }
             let repoDir = parakeetRepoDirectory(for: version)
+            migrateLegacyParakeetCacheIfNeeded(version: version, repoDirectory: repoDir)
             var isDirectory: ObjCBool = false
             if fileManager.fileExists(atPath: repoDir.path, isDirectory: &isDirectory), isDirectory.boolValue {
                 downloaded.insert(model.name)
