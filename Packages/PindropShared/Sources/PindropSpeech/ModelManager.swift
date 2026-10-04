@@ -281,7 +281,7 @@ public final class ModelManager {
         WhisperModel(
             name: "openai_whisper-tiny.en",
             displayName: "Whisper Tiny (English)",
-            sizeInMB: 75,
+            sizeInMB: 153,
             description: "English-optimized tiny model with slightly better accuracy",
             speedRating: 10.0,
             accuracyRating: 6.5,
@@ -389,7 +389,7 @@ public final class ModelManager {
         WhisperModel(
             name: "openai_whisper-large-v2_turbo_955MB",
             displayName: "Whisper Large v2 Turbo (Quantized)",
-            sizeInMB: 955,
+            sizeInMB: 1053,
             description: "Quantized turbo large v2 — fast and compact",
             speedRating: 7.0,
             accuracyRating: 9.1,
@@ -416,7 +416,7 @@ public final class ModelManager {
         WhisperModel(
             name: "openai_whisper-large-v3_turbo",
             displayName: "Whisper Large v3 Turbo",
-            sizeInMB: 809,
+            sizeInMB: 3195,
             description: "Near large-model accuracy with significantly faster processing",
             speedRating: 7.5,
             accuracyRating: 9.5,
@@ -425,7 +425,7 @@ public final class ModelManager {
         WhisperModel(
             name: "openai_whisper-large-v3_turbo_954MB",
             displayName: "Whisper Large v3 Turbo (Quantized)",
-            sizeInMB: 954,
+            sizeInMB: 1053,
             description: "Quantized turbo v3 — balanced speed and accuracy",
             speedRating: 7.5,
             accuracyRating: 9.3,
@@ -434,7 +434,7 @@ public final class ModelManager {
         WhisperModel(
             name: "openai_whisper-large-v3-v20240930",
             displayName: "Whisper Large v3 (Sep 2024)",
-            sizeInMB: 3100,
+            sizeInMB: 1620,
             description: "Updated large v3 with improved multilingual performance",
             speedRating: 5.0,
             accuracyRating: 9.8,
@@ -461,7 +461,7 @@ public final class ModelManager {
         WhisperModel(
             name: "openai_whisper-large-v3-v20240930_turbo",
             displayName: "Whisper Large v3 Sep 2024 Turbo",
-            sizeInMB: 3100,
+            sizeInMB: 1639,
             description: "Latest turbo-optimized large v3 — best overall performance",
             speedRating: 6.5,
             accuracyRating: 9.8,
@@ -530,7 +530,7 @@ public final class ModelManager {
         WhisperModel(
             name: "parakeet-tdt-0.6b-v3",
             displayName: "Parakeet TDT 0.6B V3",
-            sizeInMB: 2670,
+            sizeInMB: 470,
             description: "Latest Parakeet model with multilingual support",
             speedRating: 8.0,
             accuracyRating: 9.9,
