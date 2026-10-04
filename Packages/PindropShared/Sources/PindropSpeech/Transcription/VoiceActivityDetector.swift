@@ -7,7 +7,7 @@
 //
 //  Core owns VoiceActivityResult / VoiceSegment / VoiceActivityDetectorState and
 //  the VoiceActivityDetector protocol. This file provides the FluidAudio Silero
-//  adapter. The caller must pass the exact silero-vad-coreml repository directory
+//  adapter. The caller must pass the exact silero-vad repository directory
 //  derived from ModelStorageLocations.fluidAudioModelsRoot; no Application Support
 //  reconstruction and no VadManager default directory.
 //
@@ -41,7 +41,7 @@ public final class FluidVoiceActivityDetector: VoiceActivityDetector {
         }
     }
 
-    /// Exact Silero VAD repository directory (…/FluidAudio/Models/silero-vad-coreml).
+    /// Exact Silero VAD repository directory (…/FluidAudio/Models/silero-vad).
     public let modelsDirectory: URL
 
     public private(set) var state: VoiceActivityDetectorState = .unloaded

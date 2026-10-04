@@ -308,8 +308,11 @@ struct ModelManagerTests {
     }
 
     @Test func featureModelRepoFolderNamesMatchDownloaderCacheLayout() {
-        #expect(FeatureModelType.vad.repoFolderName == "silero-vad-coreml")
-        #expect(FeatureModelType.diarization.repoFolderName == "speaker-diarization-coreml")
+        // FluidAudio strips the "-coreml" suffix from the repo name for the cache folder.
+        #expect(FeatureModelType.vad.repoFolderName == "silero-vad")
+        #expect(FeatureModelType.diarization.repoFolderName == "speaker-diarization")
+        #expect(FeatureModelType.vad.repoFolderName == Repo.vad.folderName)
+        #expect(FeatureModelType.diarization.repoFolderName == Repo.diarizer.folderName)
         // Streaming uses Nemotron Speech Streaming 0.6B. These folder names must match
         // FluidAudio's `Repo.nemotronStreaming*.folderName` values — that's where
         // DownloadUtils.downloadRepo materializes each chunk variant.
@@ -361,6 +364,29 @@ struct ModelManagerTests {
         try FileManager.default.createDirectory(at: offlineSibling, withIntermediateDirectories: true)
         let siblingPlda = offlineSibling.appendingPathComponent("plda-parameters.json")
         FileManager.default.createFile(atPath: siblingPlda.path, contents: Data("{}".utf8))
+        #expect(modelManager.isOfflineDiarizationModelsReady(at: root))
+    }
+
+    @Test func offlineDiarizationReadinessIgnoresTheOldCoremlFolderName() throws {
+        let modelManager = try makeManager()
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pindrop-diarization-legacy-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        // FluidAudio loads from `speaker-diarization`, so a complete bundle that only
+        // sits under the old `-coreml` name is not usable and must not read as ready.
+        let legacy = root.appendingPathComponent("speaker-diarization-coreml", isDirectory: true)
+        try FileManager.default.createDirectory(at: legacy, withIntermediateDirectories: true)
+        for name in ModelNames.OfflineDiarizer.requiredModels {
+            FileManager.default.createFile(atPath: legacy.appendingPathComponent(name).path, contents: Data())
+        }
+        #expect(modelManager.isOfflineDiarizationModelsReady(at: root) == false)
+
+        let current = root.appendingPathComponent("speaker-diarization", isDirectory: true)
+        try FileManager.default.createDirectory(at: current, withIntermediateDirectories: true)
+        for name in ModelNames.OfflineDiarizer.requiredModels {
+            FileManager.default.createFile(atPath: current.appendingPathComponent(name).path, contents: Data())
+        }
         #expect(modelManager.isOfflineDiarizationModelsReady(at: root))
     }
 

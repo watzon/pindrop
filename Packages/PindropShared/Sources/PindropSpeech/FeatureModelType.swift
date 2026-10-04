@@ -103,9 +103,14 @@ public enum FeatureModelType: String, CaseIterable, Identifiable, Codable, Senda
     public var repoFolderName: String {
         switch self {
         case .vad:
-            return "silero-vad-coreml"
+            // `Repo.vad.folderName` ("silero-vad"): FluidAudio strips the "-coreml"
+            // suffix from the repo name when it picks the cache folder. Readiness
+            // pointed at the repo name stays false after a good download.
+            return Repo.vad.folderName
         case .diarization:
-            return "speaker-diarization-coreml"
+            // `Repo.diarizer.folderName` ("speaker-diarization"), for the same
+            // reason as `.vad` above. The offline diarizer reads and writes here.
+            return Repo.diarizer.folderName
         case .liveDiarization:
             // `Repo.sortformer.folderName`, which is where DownloadUtils
             // materializes the streaming Sortformer bundle and where

@@ -1287,7 +1287,7 @@ public final class ModelManager {
     /// Complete offline Community-1 diarization readiness.
     ///
     /// Requires every CoreML asset in `ModelNames.OfflineDiarizer.requiredModels`
-    /// (excluding `plda-parameters.json`) under `speaker-diarization-coreml`, plus
+    /// (excluding `plda-parameters.json`) under `FeatureModelType.diarization.repoFolderName`, plus
     /// `plda-parameters.json` in one of the three locations FluidAudio accepts.
     /// Directory existence alone is not readiness.
     ///
