@@ -164,7 +164,9 @@ public final class AppleSpeechEngine: TranscriptionEngine, CapabilityReporting {
         return buffer
     }
 
-    private func performRecognition(
+    /// Internal (not private) so the gated real-audio test can call it without
+    /// the authorization prompt of `loadModel`.
+    func performRecognition(
         using recognizer: SFSpeechRecognizer,
         buffer: AVAudioPCMBuffer
     ) async throws -> String {
@@ -174,6 +176,10 @@ public final class AppleSpeechEngine: TranscriptionEngine, CapabilityReporting {
 
         return try await withCheckedThrowingContinuation { continuation in
             var didResume = false
+            // On-device recognition starts a new transcription after each pause.
+            // Each result holds one utterance only, and the final result holds
+            // only the last one, so every result must be collected.
+            var utterances = AppleSpeechUtteranceAccumulator()
             recognizer.recognitionTask(with: request) { result, error in
                 guard !didResume else { return }
                 if let error {
@@ -181,13 +187,56 @@ public final class AppleSpeechEngine: TranscriptionEngine, CapabilityReporting {
                     continuation.resume(throwing: EngineError.recognitionFailed(error.localizedDescription))
                     return
                 }
-                if let result, result.isFinal {
+                guard let result else { return }
+                let segments = result.bestTranscription.segments
+                utterances.add(
+                    text: result.bestTranscription.formattedString,
+                    start: segments.first?.timestamp,
+                    end: segments.last.map { $0.timestamp + $0.duration }
+                )
+                if result.isFinal {
                     didResume = true
-                    continuation.resume(returning: result.bestTranscription.formattedString)
+                    continuation.resume(returning: utterances.text)
                 }
             }
             request.append(buffer)
             request.endAudio()
         }
+    }
+}
+
+/// Joins the utterances that one `SFSpeechRecognizer` task reports.
+///
+/// A result that starts after the end of the collected audio is a new utterance.
+/// A result that overlaps collected utterances is a newer version of them (the
+/// recognizer repeats the last utterance in its final result, and older systems
+/// report the full text in one result), so it replaces them.
+struct AppleSpeechUtteranceAccumulator {
+    private struct Utterance {
+        let text: String
+        let start: TimeInterval
+        let end: TimeInterval
+    }
+
+    private var utterances: [Utterance] = []
+
+    /// The collected utterances in spoken order, joined with single spaces.
+    var text: String {
+        utterances.map(\.text).joined(separator: " ")
+    }
+
+    /// - Parameters:
+    ///   - start: Audio time of the first word, or `nil` when the result has no word timing.
+    ///   - end: Audio time at the end of the last word, or `nil` when the result has no word timing.
+    mutating func add(text: String, start: TimeInterval?, end: TimeInterval?) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+
+        let previousEnd = utterances.last?.end ?? 0
+        let start = start ?? previousEnd
+        while let last = utterances.last, last.end > start || last.start >= start {
+            utterances.removeLast()
+        }
+        utterances.append(Utterance(text: trimmed, start: start, end: max(end ?? start, start)))
     }
 }
